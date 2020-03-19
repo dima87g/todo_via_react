@@ -1,0 +1,57 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    /*width: 1366px;*/
+    margin: 0 auto;
+}
+
+/*.padding-site {*/
+/*    padding-left: 100px;*/
+/*    padding-right: 100px;*/
+/*}*/
+
+.main_window {
+    outline: solid;
+}
+
+.task_input {
+    width: 300px;
+    margin: 0 auto;
+    outline: solid;
+}
+
+.task_input_field {
+    width: 200px;
+    border-radius: 20px 20px;
+}
+
+.task_input_button {
+    float: right;
+    border-radius: 20px 20px;
+}
+
+.task {
+    color: red;
+    background-color: cyan;
+    border-radius: 20px 20px;
+    width:300px;
+    margin: 0 auto;
+    outline: solid;
+}
+
+.task_remove_button {
+    float: right;
+    border-radius: 20px 20px;
+}
+
+.task_finish_button {
+    border-radius: 20px 20px;
+    width: 100px;
+}
+
+.finished_task {
+    text-decoration: line-through;
+}
