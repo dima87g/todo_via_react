@@ -8,7 +8,13 @@ class TaskList {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
 
-            let newTask = new Task(taskText);
+            let req = new XMLHttpRequest();
+            req.open("POST", "http://127.0.0.1:5000/save", false);
+            req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            req.send(JSON.stringify(taskText));
+            let taskId = req.responseText
+
+            let newTask = new Task(taskId, taskText, false);
             this.tasks.push(newTask);
 
             this.updateDom();
@@ -21,6 +27,11 @@ class TaskList {
     }
 
     removeTask(node) {
+        let req = new XMLHttpRequest();
+        req.open("POST", "http://127.0.0.1:5000/delete", false);
+        req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        req.send(JSON.stringify(node.id))
+
         this.tasks.splice(this.tasks.indexOf(node), 1);
         this.updateDom();
     }
@@ -46,9 +57,10 @@ class TaskList {
 
 
 class Task {
-    constructor(text) {
+    constructor(id, text, status = false) {
+        this.id = id;
         this.text = text;
-        this.status = false;
+        this.status = status;
     }
 
     createTaskNode() {
@@ -106,4 +118,50 @@ class Task {
 }
 
 
+function onLoad() {
+    let req = new XMLHttpRequest();
+    req.open("GET", "http://127.0.0.1:5000/load", true);
+    req.send();
+
+    req.onreadystatechange = function() {
+        if (req.readyState === 4) {
+            let tasksFromServer = JSON.parse(req.responseText);
+            for (let task of tasksFromServer) {
+                taskList.tasks.push(new Task(task["id"], task["task"], !!+task["status"]));
+            }
+        }   taskList.updateDom();
+    }
+}
+
+function loginPass() {
+    let menu = document.getElementById("auth_menu");
+    // let login = document.getElementById("login").value;
+    // if (login === "dima87g") {
+    //     menu.style.opacity = "0%";
+    //     setTimeout(function () {menu.style.display = "none"}, 1000);
+    //     onLoad();
+    // } else {
+    //     document.write("Invalid Login");
+    // }
+
+    menu.style.opacity = "0%";
+    setTimeout(function () {menu.style.display = "none"}, 1000);
+
+    onLoad();
+}
+
+function events() {
+    function noEnterRefresh(event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        document.getElementById("task_input_button").click();
+    }
+}
+
+    let inputByEnterKey = document.getElementById("task_input_field");
+    inputByEnterKey.addEventListener("keydown", noEnterRefresh, false);
+}
+
 let taskList = new TaskList();
+events();
+
