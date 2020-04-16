@@ -1,0 +1,33 @@
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Page Title</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+
+</head>
+<body>
+<div class="container">
+    <div id="auth_menu" class="auth_menu">
+        <div id="auth_menu_form" class="auth_menu_form">
+            <form>
+                <input type="text" id="login" class="login">
+                <input type="password" id="pass" class="pass">
+                <input type="button" value="Отправить" onClick="loginPass()">
+            </form>
+        </div>
+    </div>
+    <div class="main_window">
+        <div class="task_input">
+            <form>
+                <input autofocus type="text" id="task_input_field" class="task_input_field">
+                <input type="button" id="task_input_button" class="task_input_button" value="Добавить" onClick="taskList.addTask()">
+            </form>
+        </div>
+        <div id="tasks" class="tasks">
+
+        </div>
+    </div>
+</div>
+</body>
+<script src="../static/js/script.js"></script>
+</html>
