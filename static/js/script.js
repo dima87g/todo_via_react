@@ -12,7 +12,7 @@ class TaskList {
             req.open("POST", "http://127.0.0.1:5000/save", false);
             req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
             req.send(JSON.stringify(taskText));
-            let taskId = req.responseText
+            let taskId = req.responseText;
 
             let newTask = new Task(taskId, taskText, false);
             this.tasks.push(newTask);
