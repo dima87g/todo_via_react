@@ -4,6 +4,10 @@ class TaskList {
     }
 
     addTask() {
+        /**
+         * post: taskText = 'string'
+         * get: taskId = 'number'
+         */
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
@@ -22,11 +26,25 @@ class TaskList {
     }
 
     finishTask(node) {
+        /**
+         * post: json = {'id': 'number', 'status': 'boolean'}
+         * get: json = {'ok': true}
+         */
         node.status = node.status === false;
+
+        let req = new XMLHttpRequest();
+        req.open("POST", "http://127.0.0.1:5000/finish_button", false);
+        req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        req.send(JSON.stringify({"id": node.id, "status": node.status}));
+
         this.updateDom();
     }
 
     removeTask(node) {
+        /**
+         * post: node.id = 'number'
+         * get: json = {'ok': true}
+         */
         let req = new XMLHttpRequest();
         req.open("POST", "http://127.0.0.1:5000/delete", false);
         req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
@@ -119,6 +137,13 @@ class Task {
 
 
 function onLoad() {
+    /**
+     * post: none
+     * get: json = [
+     * {'id': 'number', 'task': 'string', 'status': 'string'},
+     * ...
+     * ]
+     */
     let req = new XMLHttpRequest();
     req.open("GET", "http://127.0.0.1:5000/load", true);
     req.send();
@@ -164,4 +189,3 @@ function events() {
 
 let taskList = new TaskList();
 events();
-

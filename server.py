@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, json, jsonify
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
 from mysql.connector import pooling
 
@@ -36,7 +36,8 @@ def save():
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute("INSERT INTO tasks (text, status) VALUES (%s, %s)", (todo_text, 0))
+    cur.execute("INSERT INTO tasks (text, status) VALUES (%s, %d)",
+                (todo_text, 0))
     connection.commit()
     task_id = cur.lastrowid
 
@@ -51,7 +52,7 @@ def load():
     """
     request: None
     response: json = [
-                {"id": "int", "task": "text", "status": "int"},
+                {"id": "int", "task": "text", "status": "str"},
                 .......
             ]
     """
@@ -73,13 +74,34 @@ def load():
 def delete():
     """
     request: 'int' (id of task to be deleted)
-    response: {'ok': True}
+    response: json =  {'ok': True}
     """
     task_id = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
     cur.execute(f"DELETE FROM tasks WHERE id = {task_id}")
+    connection.commit()
+
+    cur.close()
+    connection.close()
+
+    return jsonify({"ok": True})
+
+
+@app.route("/finish_button", methods=["GET", "POST"])
+def finish_button():
+    """
+    request: json = {"id": "int", "status": "int}
+    response: json = {"ok": True}
+    """
+    data = request.json
+    task_id = data["id"]
+    task_status = int(data['status'])
+
+    connection = connection_pool.get_connection()
+    cur = connection.cursor()
+    cur.execute(f"UPDATE tasks SET status = {task_status} WHERE id = {task_id}")
     connection.commit()
 
     cur.close()
