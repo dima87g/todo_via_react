@@ -5,8 +5,8 @@ class TaskList {
 
     addTask() {
         /**
-         * post: taskText = 'string'
-         * get: taskId = 'number'
+         * POST: taskText = 'string'
+         * GET: taskId = 'number'
          */
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
@@ -27,8 +27,8 @@ class TaskList {
 
     finishTask(node) {
         /**
-         * post: json = {'id': 'number', 'status': 'boolean'}
-         * get: json = {'ok': true}
+         * POST: json = {'id': 'number', 'status': 'boolean'}
+         * GET: json = {'ok': true}
          */
         node.status = node.status === false;
 
@@ -42,8 +42,8 @@ class TaskList {
 
     removeTask(node) {
         /**
-         * post: node.id = 'number'
-         * get: json = {'ok': true}
+         * POST: node.id = 'number'
+         * GET: json = {'ok': true}
          */
         let req = new XMLHttpRequest();
         req.open("POST", "http://127.0.0.1:5000/delete", false);
@@ -135,11 +135,10 @@ class Task {
     }
 }
 
-
 function onLoad() {
     /**
-     * post: none
-     * get: json = [
+     * POST: none
+     * GET: json = [
      * {'id': 'number', 'task': 'string', 'status': 'string'},
      * ...
      * ]
@@ -159,32 +158,43 @@ function onLoad() {
 }
 
 function loginPass() {
+    /**
+     * POST: login_field = 'string'
+     * GET: answer = 'boolean'
+     */
     let menu = document.getElementById("auth_menu");
-    // let login = document.getElementById("login").value;
-    // if (login === "dima87g") {
-    //     menu.style.opacity = "0%";
-    //     setTimeout(function () {menu.style.display = "none"}, 1000);
-    //     onLoad();
-    // } else {
-    //     document.write("Invalid Login");
-    // }
+    let login = document.getElementById("login_field").value;
+    document.getElementById("login_field").value = '';
 
-    menu.style.opacity = "0%";
-    setTimeout(function () {menu.style.display = "none"}, 1000);
+    let req = new XMLHttpRequest();
+    req.open('POST', 'http://127.0.0.1:5000/auth', false);
+    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    req.send(JSON.stringify(login));
 
-    onLoad();
+    let answer = JSON.parse(req.responseText);
+
+    if (answer === true) {
+        menu.style.opacity = '0%';
+        setTimeout(function() {menu.style.display = 'none'}, 1000);
+        onLoad();
+    } else {
+        alert('HREN VAM');
+    }
 }
 
 function events() {
     function noEnterRefresh(event) {
-    if (event.keyCode === 13) {
-        event.preventDefault();
-        document.getElementById("task_input_button").click();
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            document.getElementById("task_input_button").click();
+        }
     }
-}
 
-    let inputByEnterKey = document.getElementById("task_input_field");
-    inputByEnterKey.addEventListener("keydown", noEnterRefresh, false);
+    let loginButton = document.getElementById("login_field");
+    loginButton.addEventListener("keydown", noEnterRefresh, false);
+
+    let taskInputField = document.getElementById("task_input_field");
+    taskInputField.addEventListener("keydown", noEnterRefresh, false);
 }
 
 let taskList = new TaskList();

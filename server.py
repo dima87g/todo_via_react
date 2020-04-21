@@ -26,25 +26,24 @@ def main():
     return render_template("index.html")
 
 
-@app.route("/save", methods=["GET", "POST"])
-def save():
+@app.route('/auth', methods=['GET', 'POST'])
+def auth():
     """
-    request: todo_text = "str"
-    response: task_id = "int"
+    request: login_field = 'str'
+    response: response = 'bool'
     """
-    todo_text = request.json
+    login = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute("INSERT INTO tasks (text, status) VALUES (%s, %d)",
-                (todo_text, 0))
-    connection.commit()
-    task_id = cur.lastrowid
+    cur.execute(f"SELECT * FROM users WHERE name = '{login}'")
+    cur.fetchall()
+    response = cur.rowcount
 
     cur.close()
     connection.close()
 
-    return jsonify(task_id)
+    return jsonify(bool(response))
 
 
 @app.route("/load")
@@ -68,6 +67,28 @@ def load():
     connection.close()
 
     return jsonify(response)
+
+
+@app.route("/save", methods=["GET", "POST"])
+def save():
+    """
+    request: todo_text = "str"
+    response: task_id = "int"
+    """
+    todo_text = request.json
+
+    connection = connection_pool.get_connection()
+    cur = connection.cursor()
+    cur.execute(f"INSERT INTO tasks (text, status) VALUES "
+                f"('{todo_text}', {0})")
+
+    connection.commit()
+    task_id = cur.lastrowid
+
+    cur.close()
+    connection.close()
+
+    return jsonify(task_id)
 
 
 @app.route("/delete", methods=["POST"])
