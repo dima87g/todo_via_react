@@ -4,9 +4,9 @@
 }
 
 .container {
+    position: relative;
     width: 1366px;
     margin: 0 auto;
-    position: relative;
 }
 
 .auth_menu {
@@ -21,12 +21,15 @@
     transition: opacity 1s;
 }
 
-.auth_menu_form {
+.login_form {
+    position: absolute;
     height: 200px;
     width: 200px;
+    opacity: 100%;
     border: 1px solid;
     margin-left: 100px;
     margin-top: 100px;
+    transition: opacity 0.5s;
 }
 
 .login_field {
@@ -37,6 +40,37 @@
 .pass {
     display: block;
     margin: 0 auto;
+}
+
+.register_button {
+    position: absolute;
+    bottom: 0;
+}
+
+.register_form {
+    position: absolute;
+    height: 200px;
+    width: 200px;
+    opacity: 0;
+    border: 1px solid;
+    margin-left: 100px;
+    margin-top: 100px;
+    transition: opacity 0.5s;
+    display: none;
+}
+
+.register_form_text{
+    display: block;
+    margin: 0 auto;
+}
+
+.register_form_button {
+
+}
+
+.login_button {
+    position: absolute;
+    bottom: 0;
 }
 
 /*.padding-site {*/
