@@ -36,7 +36,7 @@ def auth():
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"SELECT * FROM users WHERE user_name = '{user_name}'")
+    cur.execute('SELECT * FROM users WHERE user_name = %s', (user_name,))
     cur.fetchall()
     response = cur.rowcount
 
@@ -57,7 +57,7 @@ def user_register():
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"INSERT INTO users (id, user_name) VALUES ({2}, '{user_name}')")
+    cur.execute('INSERT INTO users (user_name) VALUES (%s)', (user_name, ))
     connection.commit()
 
     cur.close()
@@ -82,10 +82,10 @@ def load():
     connection = connection_pool.get_connection()
     cur = connection.cursor()
 
-    cur.execute(f"SELECT id FROM users WHERE user_name = '{user_name}'")
+    cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name, ))
     user_id = cur.fetchall()[0][0]
 
-    cur.execute(f"SELECT * from tasks_test WHERE user_id = '{user_id}'")
+    cur.execute('SELECT * from tasks_test WHERE user_id = %s', (user_id, ))
     for task in cur:
         tasks.append({"task_id": task[0], "user_id": task[1], "task_text": task[2], "status": task[3]})
 
@@ -108,8 +108,7 @@ def save():
     task_text = data['task_text']
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"INSERT INTO tasks_test (user_id, text, status) VALUES "
-                f"('{user_id}', '{task_text}', {0})")
+    cur.execute('INSERT INTO tasks_test (user_id, text, status) VALUES (%s, %s, %s)', (user_id, task_text, 0))
 
     connection.commit()
     task_id = cur.lastrowid
@@ -130,7 +129,7 @@ def delete():
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"DELETE FROM tasks_test WHERE id = {task_id}")
+    cur.execute('DELETE FROM tasks_test WHERE id = %s', (task_id, ))
     connection.commit()
 
     cur.close()
@@ -151,7 +150,7 @@ def finish_button():
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"UPDATE tasks_test SET status = {task_status} WHERE id = {task_id}")
+    cur.execute('UPDATE tasks_test SET status = %s WHERE id = %s', (task_status, task_id))
     connection.commit()
 
     cur.close()
