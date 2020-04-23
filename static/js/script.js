@@ -1,5 +1,6 @@
 class TaskList {
     constructor() {
+        this.userId = undefined;
         this.tasks = [];
     }
 
@@ -8,6 +9,7 @@ class TaskList {
          * POST: taskText = 'string'
          * GET: taskId = 'number'
          */
+        const taskList = this;
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
@@ -15,10 +17,11 @@ class TaskList {
             let req = new XMLHttpRequest();
             req.open("POST", "http://127.0.0.1:5000/save", false);
             req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-            req.send(JSON.stringify(taskText));
+            req.send(JSON.stringify({'user_id': this.userId, 'task_text': taskText}));
+
             let taskId = req.responseText;
 
-            let newTask = new Task(taskId, taskText, false);
+            let newTask = new Task(taskId, taskText);
             this.tasks.push(newTask);
 
             this.updateDom();
@@ -27,7 +30,7 @@ class TaskList {
 
     finishTask(node) {
         /**
-         * POST: json = {'id': 'number', 'status': 'boolean'}
+         * POST: json = {'task_id': 'number', 'status': 'boolean'}
          * GET: json = {'ok': true}
          */
         node.status = node.status === false;
@@ -35,14 +38,14 @@ class TaskList {
         let req = new XMLHttpRequest();
         req.open("POST", "http://127.0.0.1:5000/finish_button", false);
         req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        req.send(JSON.stringify({"id": node.id, "status": node.status}));
+        req.send(JSON.stringify({"task_id": node.id, "status": node.status}));
 
         this.updateDom();
     }
 
     removeTask(node) {
         /**
-         * POST: node.id = 'number'
+         * POST: task_id = 'number'
          * GET: json = {'ok': true}
          */
         let req = new XMLHttpRequest();
@@ -135,50 +138,108 @@ class Task {
     }
 }
 
-function onLoad() {
+function onLoad(userName) {
     /**
-     * POST: none
-     * GET: json = [
-     * {'id': 'number', 'task': 'string', 'status': 'string'},
-     * ...
-     * ]
+     * POST: userName = 'string'
+     * GET: json = {'user_id': 'number', 'tasks': [
+     *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
+     *                                          ...
+     *                                          ]
+     *             }
      */
     let req = new XMLHttpRequest();
-    req.open("GET", "http://127.0.0.1:5000/load", true);
-    req.send();
+    req.open("POST", "http://127.0.0.1:5000/load", true);
+    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    req.send(JSON.stringify(userName));
 
     req.onreadystatechange = function() {
         if (req.readyState === 4) {
-            let tasksFromServer = JSON.parse(req.responseText);
+            let data = JSON.parse(req.responseText);
+            let userId = data['user_id'];
+            let tasksFromServer = data['tasks'];
+
+            taskList.userId = userId;
+
             for (let task of tasksFromServer) {
-                taskList.tasks.push(new Task(task["id"], task["task"], !!+task["status"]));
+                taskList.tasks.push(new Task(task["task_id"], task["task_text"], !!+task["status"]));
             }
         }   taskList.updateDom();
     }
 }
 
-function loginPass() {
+function login() {
     /**
      * POST: login_field = 'string'
      * GET: answer = 'boolean'
      */
     let menu = document.getElementById("auth_menu");
-    let login = document.getElementById("login_field").value;
+    let userName = document.getElementById("login_field").value;
     document.getElementById("login_field").value = '';
 
     let req = new XMLHttpRequest();
     req.open('POST', 'http://127.0.0.1:5000/auth', false);
     req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    req.send(JSON.stringify(login));
+    req.send(JSON.stringify(userName));
 
     let answer = JSON.parse(req.responseText);
 
     if (answer === true) {
         menu.style.opacity = '0%';
-        setTimeout(function() {menu.style.display = 'none'}, 1000);
-        onLoad();
+        setTimeout(function() {
+            menu.style.display = 'none';
+            document.getElementById('task_input_field').focus();
+        }, 500);
+        onLoad(userName);
     } else {
-        alert('HREN VAM');
+        alert('Авторизация не удалась =(');
+    }
+}
+
+function switchLogin(val) {
+    let loginWindow = document.getElementById('login_form');
+    let registerButton = document.getElementById('register_button');
+    let registerWindow = document.getElementById('register_form');
+    let loginButton = document.getElementById('login_button');
+
+
+    if (val === 'register') {
+        windowChange(registerWindow, loginButton, loginWindow, registerButton);
+    } else if (val === 'login') {
+        windowChange(loginWindow, registerButton, registerWindow, loginButton);
+    }
+
+        function windowChange(activate, activateButton, deactivate, deactivateButton) {
+        deactivate.style.opacity = '0%';
+        deactivateButton.disabled = true;
+        activate.style.display = 'block';
+        setTimeout(function () {
+            activate.style.opacity = '100%';
+        })
+        setTimeout(function () {
+            deactivate.style.display = 'none';
+            activateButton.disabled = false;
+        }, 500);
+    }
+}
+
+function userRegister() {
+    let infoMessage = document.getElementById("register_form_info");
+    if (document.getElementById('register_form_text').value) {
+        let newUserName = document.getElementById('register_form_text').value;
+
+        console.log(newUserName);
+
+        let req = new XMLHttpRequest();
+        req.open('POST', 'http://127.0.0.1:5000/user_register',false);
+        req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        req.send(JSON.stringify(newUserName));
+
+        let answer = JSON.parse(req.responseText);
+
+        console.log(answer);
+    } else {
+        infoMessage.textContent = 'Please, enter new user name!';
+        infoMessage.style.color = 'red';
     }
 }
 
@@ -189,9 +250,6 @@ function events() {
             document.getElementById("task_input_button").click();
         }
     }
-
-    let loginButton = document.getElementById("login_field");
-    loginButton.addEventListener("keydown", noEnterRefresh, false);
 
     let taskInputField = document.getElementById("task_input_field");
     taskInputField.addEventListener("keydown", noEnterRefresh, false);

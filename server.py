@@ -9,7 +9,7 @@ app.config['JSON_AS_ASCII'] = False
 # Pool connection add
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(
     pool_name="new_pool",
-    pool_size=32,
+    pool_size=30,
     pool_reset_session=True,
     host="127.0.0.1",
     port="3306",
@@ -32,11 +32,11 @@ def auth():
     request: login_field = 'str'
     response: response = 'bool'
     """
-    login = request.json
+    user_name = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"SELECT * FROM users WHERE name = '{login}'")
+    cur.execute(f"SELECT * FROM users WHERE user_name = '{user_name}'")
     cur.fetchall()
     response = cur.rowcount
 
@@ -46,25 +46,53 @@ def auth():
     return jsonify(bool(response))
 
 
-@app.route("/load")
-def load():
+@app.route('/user_register', methods=['GET', 'POST'])
+def user_register():
     """
-    request: None
-    response: json = [
-                {"id": "int", "task": "text", "status": "str"},
-                .......
-            ]
+    request: user_name = 'str'
+    response: response = 'bool'
     """
-    response = []
+
+    user_name = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute("SELECT * from tasks")
-    for task in cur:
-        response.append({"id": task[0], "task": task[1], "status": task[2]})
+    cur.execute(f"INSERT INTO users (id, user_name) VALUES ({2}, '{user_name}')")
+    connection.commit()
 
     cur.close()
     connection.close()
+
+    return jsonify({'ok': True})
+
+
+@app.route("/load", methods=['GET', 'POST'])
+def load():
+    """
+    request: user_name = 'str'
+    response: json = {'user_id': 'int', 'tasks': [
+                                                {"task_id": "int", "user_id": "int" "task_text": "text", "status": "str"},
+                                                .......
+                                                ]
+    """
+    user_name = request.json
+
+    tasks = []
+
+    connection = connection_pool.get_connection()
+    cur = connection.cursor()
+
+    cur.execute(f"SELECT id FROM users WHERE user_name = '{user_name}'")
+    user_id = cur.fetchall()[0][0]
+
+    cur.execute(f"SELECT * from tasks_test WHERE user_id = '{user_id}'")
+    for task in cur:
+        tasks.append({"task_id": task[0], "user_id": task[1], "task_text": task[2], "status": task[3]})
+
+    cur.close()
+    connection.close()
+
+    response = {'user_id': user_id, 'tasks': tasks}
 
     return jsonify(response)
 
@@ -72,15 +100,16 @@ def load():
 @app.route("/save", methods=["GET", "POST"])
 def save():
     """
-    request: todo_text = "str"
+    request: json = {'user_id' = 'int', 'task_text' = 'str'}
     response: task_id = "int"
     """
-    todo_text = request.json
-
+    data = request.json
+    user_id = data['user_id']
+    task_text = data['task_text']
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"INSERT INTO tasks (text, status) VALUES "
-                f"('{todo_text}', {0})")
+    cur.execute(f"INSERT INTO tasks_test (user_id, text, status) VALUES "
+                f"('{user_id}', '{task_text}', {0})")
 
     connection.commit()
     task_id = cur.lastrowid
@@ -94,14 +123,14 @@ def save():
 @app.route("/delete", methods=["POST"])
 def delete():
     """
-    request: 'int' (id of task to be deleted)
+    request: 'task_id' = 'int'
     response: json =  {'ok': True}
     """
     task_id = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"DELETE FROM tasks WHERE id = {task_id}")
+    cur.execute(f"DELETE FROM tasks_test WHERE id = {task_id}")
     connection.commit()
 
     cur.close()
@@ -113,16 +142,16 @@ def delete():
 @app.route("/finish_button", methods=["GET", "POST"])
 def finish_button():
     """
-    request: json = {"id": "int", "status": "int}
+    request: json = {"task_id": "int", "status": "int}
     response: json = {"ok": True}
     """
     data = request.json
-    task_id = data["id"]
+    task_id = data["task_id"]
     task_status = int(data['status'])
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute(f"UPDATE tasks SET status = {task_status} WHERE id = {task_id}")
+    cur.execute(f"UPDATE tasks_test SET status = {task_status} WHERE id = {task_id}")
     connection.commit()
 
     cur.close()
