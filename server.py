@@ -30,7 +30,7 @@ def main():
 def auth():
     """
     request: login_field = 'str'
-    response: response = 'bool'
+    response: json = {'ok': 'bool'}
     """
     user_name = request.json
 
@@ -43,21 +43,35 @@ def auth():
     cur.close()
     connection.close()
 
-    return jsonify(bool(response))
+    return jsonify({'ok': bool(response)})
 
 
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
     """
     request: user_name = 'str'
-    response: response = 'bool'
+    response: json = {'ok': 'bool', 'error_code': 'int', 'error_message': 'str'}
     """
 
     user_name = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
-    cur.execute('INSERT INTO users (user_name) VALUES (%s)', (user_name, ))
+    try:
+        cur.execute('INSERT INTO users (user_name) VALUES (%s)', (user_name, ))
+    except mysql.connector.errors.IntegrityError as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    finally:
+        cur.close()
+        connection.close()
+
     connection.commit()
 
     cur.close()

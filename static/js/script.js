@@ -9,7 +9,6 @@ class TaskList {
          * POST: taskText = 'string'
          * GET: taskId = 'number'
          */
-        const taskList = this;
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
@@ -20,8 +19,8 @@ class TaskList {
             req.send(JSON.stringify({'user_id': this.userId, 'task_text': taskText}));
 
             let taskId = req.responseText;
-
             let newTask = new Task(taskId, taskText);
+
             this.tasks.push(newTask);
 
             this.updateDom();
@@ -61,6 +60,7 @@ class TaskList {
         let tasksParent = document.getElementById("tasks");
         let existTasks = document.getElementsByClassName("task");
         let i = 0;
+
         for (i; i < this.tasks.length; i++) {
             if (existTasks[i]) {
                 this.tasks[i].replaceTaskNode(existTasks[i]);
@@ -91,6 +91,7 @@ class Task {
         let finishButton = document.createElement("input");
         finishButton.setAttribute("type", "button");
         finishButton.setAttribute("class", "task_finish_button");
+
         if (this.status === false) {
             finishButton.setAttribute("value", "Выполнено");
         } else {
@@ -100,14 +101,18 @@ class Task {
         finishButton.onclick = function () {
             taskList.finishTask(node);
         };
+
         let removeButton = document.createElement("input");
+
         removeButton.setAttribute("type", "button");
         removeButton.setAttribute("value", "Удалить");
         removeButton.setAttribute("class", "task_remove_button");
         removeButton.onclick = function () {
             taskList.removeTask(node);
         };
+
         let par = document.createElement("p");
+
         par.append(this.text);
         par.setAttribute("class", "paragraph");
         taskDiv.append(finishButton);
@@ -138,6 +143,9 @@ class Task {
     }
 }
 
+//todo
+// create login class (functions onLad, login, switchLogin, userRegister)
+
 function onLoad(userName) {
     /**
      * POST: userName = 'string'
@@ -164,34 +172,6 @@ function onLoad(userName) {
                 taskList.tasks.push(new Task(task["task_id"], task["task_text"], !!+task["status"]));
             }
         }   taskList.updateDom();
-    }
-}
-
-function login() {
-    /**
-     * POST: login_field = 'string'
-     * GET: answer = 'boolean'
-     */
-    let menu = document.getElementById("auth_menu");
-    let userName = document.getElementById("login_field").value;
-    document.getElementById("login_field").value = '';
-
-    let req = new XMLHttpRequest();
-    req.open('POST', 'http://127.0.0.1:5000/auth', false);
-    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    req.send(JSON.stringify(userName));
-
-    let answer = JSON.parse(req.responseText);
-
-    if (answer === true) {
-        menu.style.opacity = '0%';
-        setTimeout(function() {
-            menu.style.display = 'none';
-            document.getElementById('task_input_field').focus();
-        }, 500);
-        onLoad(userName);
-    } else {
-        alert('Авторизация не удалась =(');
     }
 }
 
@@ -222,12 +202,42 @@ function switchLogin(val) {
     }
 }
 
+function login() {
+    /**
+     * POST: userName = 'string'
+     * GET: answer = 'boolean'
+     */
+    let menu = document.getElementById("auth_menu");
+    let userName = document.getElementById("login_field").value;
+    document.getElementById("login_field").value = '';
+
+    let req = new XMLHttpRequest();
+    req.open('POST', 'http://127.0.0.1:5000/auth', false);
+    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    req.send(JSON.stringify(userName));
+
+    let answer = JSON.parse(req.responseText);
+
+    if (answer['ok'] === true) {
+        menu.style.opacity = '0%';
+        setTimeout(function() {
+            menu.style.display = 'none';
+            document.getElementById('task_input_field').focus();
+        }, 500);
+        onLoad(userName);
+    } else {
+        alert('Авторизация не удалась =(');
+    }
+}
+
 function userRegister() {
+    /**
+     * POST: newUserName = 'string
+     * GET: answer = json = {'ok': 'boolean', 'error_coder': 'number', 'error_message': 'string'}
+     */
     let infoMessage = document.getElementById("register_form_info");
     if (document.getElementById('register_form_text').value) {
         let newUserName = document.getElementById('register_form_text').value;
-
-        console.log(newUserName);
 
         let req = new XMLHttpRequest();
         req.open('POST', 'http://127.0.0.1:5000/user_register',false);
@@ -237,6 +247,14 @@ function userRegister() {
         let answer = JSON.parse(req.responseText);
 
         console.log(answer);
+
+        if (answer['ok'] === true) {
+            infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
+        } else if (answer['error_code'] === 1062) {
+            infoMessage.textContent = 'Name ' + newUserName + ' is already used!';
+        } else {
+            infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
+        }
     } else {
         infoMessage.textContent = 'Please, enter new user name!';
         infoMessage.style.color = 'red';
@@ -253,6 +271,19 @@ function events() {
 
     let taskInputField = document.getElementById("task_input_field");
     taskInputField.addEventListener("keydown", noEnterRefresh, false);
+}
+
+
+//todo
+// insert knock_knock function into all functions with network requests
+
+function knock_knock(adress, request) {
+    let req = new XMLHttpRequest();
+    req.open('POST', 'http://127.0.0.1:5000/' + adress, false);
+    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    req.send();
+
+    return JSON.parse(req.responseText);
 }
 
 let taskList = new TaskList();
