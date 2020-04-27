@@ -14,7 +14,7 @@
     width: 400px;
     height: 400px;
     border: 1px solid;
-    background-color: cornflowerblue;
+    /*background-color: cornflowerblue;*/
     opacity: 100%;
     left: 50%;
     margin-left: -200px;
@@ -27,6 +27,7 @@
     width: 200px;
     opacity: 100%;
     border: 1px solid;
+    border-radius: 10px 10px;
     margin-left: 100px;
     margin-top: 100px;
     transition: opacity 0.5s;
@@ -35,16 +36,24 @@
 .login_field {
     display: block;
     margin: 0 auto;
+    border-radius: 20px 20px;
 }
 
 .pass {
     display: block;
     margin: 0 auto;
+    border-radius: 20px 20px;
+}
+
+.login_field_button {
+    border-radius: 20px 20px;
 }
 
 .register_button {
     position: absolute;
+    width: 60px;
     bottom: 0;
+    border-radius: 20px 20px;
 }
 
 .register_form {
@@ -53,6 +62,7 @@
     width: 200px;
     opacity: 0;
     border: 1px solid;
+    border-radius: 10px 10px;
     margin-left: 100px;
     margin-top: 100px;
     transition: opacity 0.5s;
@@ -62,15 +72,18 @@
 .register_form_text{
     display: block;
     margin: 0 auto;
+    border-radius: 20px 20px;
 }
 
 .register_form_button {
-
+    border-radius: 20px 20px;
 }
 
 .login_button {
     position: absolute;
+    width: 60px;
     bottom: 0;
+    border-radius: 20px 20px;
 }
 
 /*.padding-site {*/
