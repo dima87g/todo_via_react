@@ -6,24 +6,26 @@ class TaskList {
 
     addTask() {
         /**
-         * POST: taskText = 'string'
-         * GET: taskId = 'number'
+         * POST: json = {'user_id': 'number', taskText = 'string'}
+         * GET: json = {'task_id': 'number'}
          */
+        const list = this;
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
+            let data = {'user_id': this.userId, 'task_text': taskText};
 
-            let req = new XMLHttpRequest();
-            req.open("POST", "http://127.0.0.1:5000/save", false);
-            req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-            req.send(JSON.stringify({'user_id': this.userId, 'task_text': taskText}));
+            function add(answer) {
+                if (answer['ok'] === true) {
+                    let taskId = answer['task_id'];
+                    let newTask = new Task(taskId, taskText);
 
-            let taskId = req.responseText;
-            let newTask = new Task(taskId, taskText);
+                    list.tasks.push(newTask);
 
-            this.tasks.push(newTask);
-
-            this.updateDom();
+                    list.updateDom();
+                }
+            }
+            knock_knock('save', data, add);
         }
     }
 
@@ -32,14 +34,16 @@ class TaskList {
          * POST: json = {'task_id': 'number', 'status': 'boolean'}
          * GET: json = {'ok': true}
          */
+        const list = this;
         node.status = node.status === false;
+        let data = {"task_id": node.id, "status": node.status};
 
-        let req = new XMLHttpRequest();
-        req.open("POST", "http://127.0.0.1:5000/finish_button", false);
-        req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        req.send(JSON.stringify({"task_id": node.id, "status": node.status}));
-
-        this.updateDom();
+        function finish(answer) {
+            if (answer['ok'] === true) {
+                list.updateDom();
+            }
+        }
+        knock_knock('finish_task', data, finish);
     }
 
     removeTask(node) {
@@ -47,13 +51,15 @@ class TaskList {
          * POST: task_id = 'number'
          * GET: json = {'ok': true}
          */
-        let req = new XMLHttpRequest();
-        req.open("POST", "http://127.0.0.1:5000/delete", false);
-        req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        req.send(JSON.stringify(node.id));
+        const list = this;
 
-        this.tasks.splice(this.tasks.indexOf(node), 1);
-        this.updateDom();
+        function remove(answer) {
+            if (answer['ok'] === true) {
+                list.tasks.splice(list.tasks.indexOf(node), 1);
+                list.updateDom();
+            }
+        }
+        knock_knock('delete', node.id, remove);
     }
 
     updateDom() {
@@ -146,6 +152,8 @@ class Task {
 //todo
 // create login class (functions onLad, login, switchLogin, userRegister)
 
+
+
 function onLoad(userName) {
     /**
      * POST: userName = 'string'
@@ -155,24 +163,29 @@ function onLoad(userName) {
      *                                          ]
      *             }
      */
-    let req = new XMLHttpRequest();
-    req.open("POST", "http://127.0.0.1:5000/load", true);
-    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    req.send(JSON.stringify(userName));
+    function loadTasks(answer) {
+    let menu = document.getElementById("auth_menu");
+    let infoMessage = document.getElementById('login_form_info');
 
-    req.onreadystatechange = function() {
-        if (req.readyState === 4) {
-            let data = JSON.parse(req.responseText);
-            let userId = data['user_id'];
-            let tasksFromServer = data['tasks'];
+    if (answer['ok'] === true) {
+        menu.style.opacity = '0%';
+        setTimeout(function() {
+            menu.style.display = 'none';
+            document.getElementById('task_input_field').focus();
+            }, 500);
+        let userId = answer['user_id'];
+        let tasksFromServer = answer['tasks'];
 
-            taskList.userId = userId;
-
-            for (let task of tasksFromServer) {
-                taskList.tasks.push(new Task(task["task_id"], task["task_text"], !!+task["status"]));
-            }
-        }   taskList.updateDom();
+        taskList.userId = userId;
+        for (let task of tasksFromServer) {
+            taskList.tasks.push(new Task(task["task_id"], task["task_text"], task["status"]));
+        }
+        taskList.updateDom();
+    } else {
+        infoMessage.textContent = 'Проблема(((((';
+        }
     }
+    knock_knock('load', userName, loadTasks);
 }
 
 function switchLogin(val) {
@@ -202,52 +215,35 @@ function switchLogin(val) {
     }
 }
 
-function login() {
+function loginButton() {
     /**
      * POST: userName = 'string'
      * GET: answer = 'boolean'
      */
-    let menu = document.getElementById("auth_menu");
     let userName = document.getElementById("login_field").value;
     document.getElementById("login_field").value = '';
+    let infoMessage = document.getElementById('login_form_info');
 
-    let req = new XMLHttpRequest();
-    req.open('POST', 'http://127.0.0.1:5000/auth', false);
-    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    req.send(JSON.stringify(userName));
-
-    let answer = JSON.parse(req.responseText);
-
-    if (answer['ok'] === true) {
-        menu.style.opacity = '0%';
-        setTimeout(function() {
-            menu.style.display = 'none';
-            document.getElementById('task_input_field').focus();
-        }, 500);
+    function login(answer) {
+        if (answer['ok'] === true) {
         onLoad(userName);
-    } else {
-        alert('Авторизация не удалась =(');
+        } else {
+        infoMessage.textContent = 'Авторизация не удалась =(';
+        }
     }
+    knock_knock('login', userName, login);
 }
 
-function userRegister() {
+function userRegisterButton() {
     /**
-     * POST: newUserName = 'string
+     * POST: newUserName = 'string'
      * GET: answer = json = {'ok': 'boolean', 'error_coder': 'number', 'error_message': 'string'}
      */
     let infoMessage = document.getElementById("register_form_info");
     if (document.getElementById('register_form_text').value) {
         let newUserName = document.getElementById('register_form_text').value;
 
-        let req = new XMLHttpRequest();
-        req.open('POST', 'http://127.0.0.1:5000/user_register',false);
-        req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        req.send(JSON.stringify(newUserName));
-
-        let answer = JSON.parse(req.responseText);
-
-        console.log(answer);
-
+        function register(answer) {
         if (answer['ok'] === true) {
             infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
         } else if (answer['error_code'] === 1062) {
@@ -255,9 +251,11 @@ function userRegister() {
         } else {
             infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
         }
+    }
+        knock_knock('user_register', newUserName, register);
     } else {
-        infoMessage.textContent = 'Please, enter new user name!';
-        infoMessage.style.color = 'red';
+            infoMessage.textContent = 'Please, enter new user name!';
+            infoMessage.style.color = 'red';
     }
 }
 
@@ -273,17 +271,19 @@ function events() {
     taskInputField.addEventListener("keydown", noEnterRefresh, false);
 }
 
-
-//todo
-// insert knock_knock function into all functions with network requests
-
-function knock_knock(adress, request) {
+function knock_knock(path, sendData, func) {
     let req = new XMLHttpRequest();
-    req.open('POST', 'http://127.0.0.1:5000/' + adress, false);
+    req.open('POST', 'http://127.0.0.1:5000/' + path);
     req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    req.send();
+    req.send(JSON.stringify(sendData));
 
-    return JSON.parse(req.responseText);
+    req.onreadystatechange = function () {
+        if (req.readyState === 4) {
+            if (req.status === 200 && req.getResponseHeader('Content-type') === 'application/json') {
+                func(JSON.parse(req.responseText));
+            }
+        }
+    }
 }
 
 let taskList = new TaskList();

@@ -12,14 +12,15 @@
             <form>
                 <input type="text" id="login_field" class="login_field" value="admin">
                 <input type="password" id="pass" class="pass">
-                <input type="button" id="login_field_button" class="login_field_button" value="Отправить" onClick="login()">
+                <input type="button" id="login_field_button" class="login_field_button" value="Отправить" onClick="loginButton()">
             </form>
+            <p id="login_form_info" class="login_form_info"></p>
             <button type="button" value='register' id="register_button" class="register_button" onclick="switchLogin(this.value)">Register</button>
         </div>
         <div id="register_form" class="register_form">
             <form>
                 <input type="text" id="register_form_text" class="register_form_text">
-                <input type="button" value="Создать" id="register_form_button" class="register_form_button" onclick="userRegister()">
+                <input type="button" value="Создать" id="register_form_button" class="register_form_button" onclick="userRegisterButton()">
             </form>
             <p id="register_form_info" class="register_form_info">Enter new user name</p>
             <button type="button" value='login' disabled="disabled" id="login_button" class="login_button" onclick="switchLogin(this.value)">Log In</button>
