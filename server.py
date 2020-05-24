@@ -74,10 +74,10 @@ def user_register():
     else:
         connection.commit()
 
+        return jsonify({'ok': True, 'error_code': None, 'error_message': None})
+    finally:
         cur.close()
         connection.close()
-
-        return jsonify({'ok': True, 'error_code': None, 'error_message': None})
 
 
 @app.route("/load", methods=['GET', 'POST'])
@@ -140,10 +140,10 @@ def save():
         connection.commit()
         task_id = cur.lastrowid
 
+        return jsonify({'ok': True, 'task_id': task_id})
+    finally:
         cur.close()
         connection.close()
-
-        return jsonify({'ok': True, 'task_id': task_id})
 
 
 @app.route("/delete", methods=["POST"])
@@ -167,10 +167,10 @@ def delete():
     else:
         connection.commit()
 
+        return jsonify({"ok": True})
+    finally:
         cur.close()
         connection.close()
-
-        return jsonify({"ok": True})
 
 
 @app.route("/finish_task", methods=["GET", "POST"])
@@ -197,10 +197,10 @@ def finish_task():
     else:
         connection.commit()
 
+        return jsonify({"ok": True})
+    finally:
         cur.close()
         connection.close()
-
-        return jsonify({"ok": True})
 
 
 if __name__ == "__main__":
