@@ -7,13 +7,16 @@ class TaskList {
     addTask() {
         /**
          * POST: json = {'user_id': 'number', taskText = 'string'}
-         * GET: json = {'task_id': 'number'}
+         * GET:
+         * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+         * 'error_message': 'string' or null}
          */
         const list = this;
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
-            let data = {'user_id': this.userId, 'task_text': taskText};
+            let sendData = {'userId': this.userId, 'taskText': taskText};
 
             function add(answer) {
                 if (answer['ok'] === true) {
@@ -25,33 +28,40 @@ class TaskList {
                     list.updateDom();
                 }
             }
-            knock_knock('save', data, add);
+            knock_knock('save', sendData, add);
         }
     }
 
     finishTask(node) {
         /**
          * POST: json = {'task_id': 'number', 'status': 'boolean'}
-         * GET: json = {'ok': true}
+         * GET:
+         * if OK = true: json = {'ok': true}
+         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+         * 'error_message': 'string' or null}
          */
         const list = this;
         node.status = node.status === false;
-        let data = {"task_id": node.id, "status": node.status};
+        let sendData = {"taskId": node.id, "status": node.status};
 
         function finish(answer) {
             if (answer['ok'] === true) {
                 list.updateDom();
             }
         }
-        knock_knock('finish_task', data, finish);
+        knock_knock('finish_task', sendData, finish);
     }
 
     removeTask(node) {
         /**
-         * POST: task_id = 'number'
-         * GET: json = {'ok': true}
+         * POST: {taskId: 'number'}
+         * GET:
+         * if OK = true: json = {'ok': true}
+         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+         * 'error_message': 'string' or null}
          */
         const list = this;
+        let sendData = {'taskId': node.id}
 
         function remove(answer) {
             if (answer['ok'] === true) {
@@ -59,7 +69,7 @@ class TaskList {
                 list.updateDom();
             }
         }
-        knock_knock('delete', node.id, remove);
+        knock_knock('delete', sendData, remove);
     }
 
     updateDom() {
@@ -157,12 +167,16 @@ class Task {
 function onLoad(userName) {
     /**
      * POST: userName = 'string'
-     * GET: json = {'user_id': 'number', 'tasks': [
+     * GET:
+     * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
      *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
      *                                          ...
      *                                          ]
      *             }
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
      */
+    let sendData = {'userName': userName};
     function loadTasks(answer) {
     let menu = document.getElementById("auth_menu");
     let infoMessage = document.getElementById('login_form_info');
@@ -185,7 +199,7 @@ function onLoad(userName) {
         infoMessage.textContent = 'Проблема(((((';
         }
     }
-    knock_knock('load', userName, loadTasks);
+    knock_knock('load', sendData, loadTasks);
 }
 
 function switchLogin(val) {
@@ -217,12 +231,14 @@ function switchLogin(val) {
 
 function loginButton() {
     /**
-     * POST: userName = 'string'
-     * GET: answer = 'boolean'
+     * POST: json =  {userName: 'string'}
+     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
+     'error_message': 'string' or null}
      */
     let userName = document.getElementById("login_field").value;
     document.getElementById("login_field").value = '';
     let infoMessage = document.getElementById('login_form_info');
+    let sendData = {'userName': userName};
 
     function login(answer) {
         if (answer['ok'] === true) {
@@ -231,17 +247,19 @@ function loginButton() {
         infoMessage.textContent = 'Авторизация не удалась =(';
         }
     }
-    knock_knock('login', userName, login);
+    knock_knock('login', sendData, login);
 }
 
 function userRegisterButton() {
     /**
-     * POST: newUserName = 'string'
-     * GET: answer = json = {'ok': 'boolean', 'error_coder': 'number', 'error_message': 'string'}
+     * POST: json =  {newUserName: 'string'}
+     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
+     'error_message': 'string' or null}
      */
     let infoMessage = document.getElementById("register_form_info");
     if (document.getElementById('register_form_text').value) {
         let newUserName = document.getElementById('register_form_text').value;
+        let sendData = {'newUserName': newUserName};
 
         function register(answer) {
         if (answer['ok'] === true) {
@@ -252,7 +270,7 @@ function userRegisterButton() {
             infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
         }
     }
-        knock_knock('user_register', newUserName, register);
+        knock_knock('user_register', sendData, register);
     } else {
             infoMessage.textContent = 'Please, enter new user name!';
             infoMessage.style.color = 'red';

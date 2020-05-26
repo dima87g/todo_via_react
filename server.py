@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
 from mysql.connector import pooling
 
@@ -29,30 +29,31 @@ def main():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    request: user_name = 'str'
-    response: json = {'ok': 'bool'}
+    request: json = {userName: 'str'}
+    response: json = {'ok': 'bool', 'error_code': 'int' or None,
+     'error_message': 'str' or None}
     """
-    user_name = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
+
     try:
+        data = request.json
+        user_name = data['userName']
+
         cur.execute('SELECT * FROM users WHERE user_name = %s', (user_name,))
-    except mysql.connector.errors.IntegrityError as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+
+        cur.fetchall()
+        count = cur.rowcount
+
+        return jsonify({'ok': bool(count), 'error_code': None,
+                        'error_message': None})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
-    else:
-        cur.fetchall()
-        count = cur.rowcount
-        response = make_response(jsonify({'ok': bool(count)}), 200)
-
-        return response
     finally:
         cur.close()
         connection.close()
@@ -61,30 +62,29 @@ def login():
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
     """
-    request: user_name = 'str'
+    request: json = {userName: 'str'}
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
      'error_message': 'str' or None}
     """
 
-    user_name = request.json
-
     connection = connection_pool.get_connection()
     cur = connection.cursor()
+
     try:
+        data = request.json
+        user_name = data['newUserName']
+
         cur.execute('INSERT INTO users (user_name) VALUES (%s)', (user_name,))
-    except mysql.connector.errors.IntegrityError as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+
+        connection.commit()
+
+        return jsonify({'ok': True, 'error_code': None, 'error_message': None})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
-    else:
-        connection.commit()
-
-        return jsonify({'ok': True, 'error_code': None, 'error_message': None})
     finally:
         cur.close()
         connection.close()
@@ -93,17 +93,23 @@ def user_register():
 @app.route("/load", methods=['GET', 'POST'])
 def load():
     """
-    request: user_name = 'str' response: json = {'ok': 'bool', 'user_id':
+    request: user_name = 'str'
+    response:
+    if OK = True: json = {'ok': 'bool', 'user_id':
     'int', 'tasks': [ {"task_id": "int", "user_id": "int" "task_text":
     "text", "status": "str"}, ....... ]
+    if OK = False: json = {'ok': 'bool', 'error_code': 'int' or None,
+     'error_message': 'str' or None}
     """
-    user_name = request.json
-    print(user_name)
-    tasks = []
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
+
     try:
+        data = request.json
+        user_name = data['userName']
+        tasks = []
+
         cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name,))
 
         id_list = cur.fetchall()
@@ -117,15 +123,9 @@ def load():
                 tasks.append({"task_id": task[0], "user_id": task[1],
                               "task_text": task[2],
                               "status": bool(task[3])})
-            response = {'ok': True, 'user_id': user_id, 'tasks': tasks}
-
-            return jsonify(response)
+            return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
         else:
             return jsonify({'ok': False})
-
-    except mysql.connector.errors.IntegrityError as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -140,29 +140,34 @@ def load():
 @app.route("/save", methods=["GET", "POST"])
 def save():
     """
-    request: json = {'user_id' = 'int', 'task_text' = 'str'}
-    response: json = {'ok': 'bool', 'task_id' = 'int'}
+    request: json = {'userId' = 'int', 'taskText' = 'str'}
+    response:
+    if OK = True: json = {'ok': 'bool', 'task_id' = 'int'}
+    if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
+     'error_message': 'str' or None}
     """
-    data = request.json
-    user_id = data['user_id']
-    task_text = data['task_text']
+
     connection = connection_pool.get_connection()
     cur = connection.cursor()
 
     try:
+        data = request.json
+        user_id = data['userId']
+        task_text = data['taskText']
+
         cur.execute('INSERT INTO tasks_test (user_id, text, status) VALUES ('
                     '%s, %s, %s)', (user_id, task_text, 0))
+
+        connection.commit()
+        task_id = cur.lastrowid
+
+        return jsonify({'ok': True, 'task_id': task_id})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
-    else:
-        connection.commit()
-        task_id = cur.lastrowid
-
-        return jsonify({'ok': True, 'task_id': task_id})
     finally:
         cur.close()
         connection.close()
@@ -172,24 +177,29 @@ def save():
 def delete():
     """
     request: 'task_id' = 'int'
-    response: json =  {'ok': True}
+    response:
+    if OK = True: json =  {'ok': True}
+    if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
+    'error_message': 'str' or None}
     """
-    task_id = request.json
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
     try:
+        data = request.json
+        task_id = data['taskId']
+
         cur.execute('DELETE FROM tasks_test WHERE id = %s', (task_id,))
+
+        connection.commit()
+
+        return jsonify({"ok": True})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
-    else:
-        connection.commit()
-
-        return jsonify({"ok": True})
     finally:
         cur.close()
         connection.close()
@@ -198,28 +208,32 @@ def delete():
 @app.route("/finish_task", methods=["GET", "POST"])
 def finish_task():
     """
-    request: json = {"task_id": "int", "status": "int}
-    response: json = {"ok": True}
+    request: json = {"taskId": "int", "status": "int}
+    response:
+    if OK = True: json =  {'ok': True}
+    if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
+    'error_message': 'str' or None}
     """
-    data = request.json
-    task_id = data["task_id"]
-    task_status = int(data['status'])
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
     try:
+        data = request.json
+        task_id = data["taskId"]
+        task_status = int(data['status'])
+
         cur.execute('UPDATE tasks_test SET status = %s WHERE id = %s',
                     (task_status, task_id))
+
+        connection.commit()
+
+        return jsonify({"ok": True})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
-    else:
-        connection.commit()
-
-        return jsonify({"ok": True})
     finally:
         cur.close()
         connection.close()
