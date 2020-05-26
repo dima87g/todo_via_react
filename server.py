@@ -34,10 +34,13 @@ def login():
      'error_message': 'str' or None}
     """
 
-    connection = connection_pool.get_connection()
-    cur = connection.cursor()
+    connection = None
+    cur = None
 
     try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
         data = request.json
         user_name = data['userName']
 
@@ -55,8 +58,10 @@ def login():
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
     finally:
-        cur.close()
-        connection.close()
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 
 @app.route('/user_register', methods=['GET', 'POST'])
@@ -67,10 +72,13 @@ def user_register():
      'error_message': 'str' or None}
     """
 
-    connection = connection_pool.get_connection()
-    cur = connection.cursor()
+    connection = None
+    cur = None
 
     try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
         data = request.json
         user_name = data['newUserName']
 
@@ -86,8 +94,10 @@ def user_register():
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
     finally:
-        cur.close()
-        connection.close()
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 
 @app.route("/load", methods=['GET', 'POST'])
@@ -102,10 +112,13 @@ def load():
      'error_message': 'str' or None}
     """
 
-    connection = connection_pool.get_connection()
-    cur = connection.cursor()
+    connection = None
+    cur = None
 
     try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
         data = request.json
         user_name = data['userName']
         tasks = []
@@ -133,8 +146,10 @@ def load():
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
     finally:
-        cur.close()
-        connection.close()
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 
 @app.route("/save", methods=["GET", "POST"])
@@ -147,10 +162,13 @@ def save():
      'error_message': 'str' or None}
     """
 
-    connection = connection_pool.get_connection()
-    cur = connection.cursor()
+    connection = None
+    cur = None
 
     try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
         data = request.json
         user_id = data['userId']
         task_text = data['taskText']
@@ -169,8 +187,10 @@ def save():
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
     finally:
-        cur.close()
-        connection.close()
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 
 @app.route("/delete", methods=["POST"])
@@ -183,9 +203,13 @@ def delete():
     'error_message': 'str' or None}
     """
 
-    connection = connection_pool.get_connection()
-    cur = connection.cursor()
+    connection = None
+    cur = None
+
     try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
         data = request.json
         task_id = data['taskId']
 
@@ -201,8 +225,10 @@ def delete():
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
     finally:
-        cur.close()
-        connection.close()
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 
 @app.route("/finish_task", methods=["GET", "POST"])
@@ -215,9 +241,13 @@ def finish_task():
     'error_message': 'str' or None}
     """
 
-    connection = connection_pool.get_connection()
-    cur = connection.cursor()
+    connection = None
+    cur = None
+
     try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
         data = request.json
         task_id = data["taskId"]
         task_status = int(data['status'])
@@ -235,8 +265,10 @@ def finish_task():
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
     finally:
-        cur.close()
-        connection.close()
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 
 if __name__ == "__main__":
