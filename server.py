@@ -98,13 +98,31 @@ def load():
     "text", "status": "str"}, ....... ]
     """
     user_name = request.json
-
+    print(user_name)
     tasks = []
 
     connection = connection_pool.get_connection()
     cur = connection.cursor()
     try:
         cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name,))
+
+        id_list = cur.fetchall()
+
+        if id_list:
+            user_id = id_list[0][0]
+
+            cur.execute('SELECT * from tasks_test WHERE user_id = %s',
+                        (user_id,))
+            for task in cur:
+                tasks.append({"task_id": task[0], "user_id": task[1],
+                              "task_text": task[2],
+                              "status": bool(task[3])})
+            response = {'ok': True, 'user_id': user_id, 'tasks': tasks}
+
+            return jsonify(response)
+        else:
+            return jsonify({'ok': False})
+
     except mysql.connector.errors.IntegrityError as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -114,33 +132,6 @@ def load():
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
-    else:
-        id_list = cur.fetchall()
-
-        if id_list:
-            user_id = id_list[0][0]
-            try:
-                cur.execute('SELECT * from tasks_test WHERE user_id = %s',
-                            (user_id,))
-            except mysql.connector.errors.IntegrityError as error:
-                return jsonify({'ok': False, 'error_code': error.errno,
-                                'error_message': error.msg})
-            except mysql.connector.Error as error:
-                return jsonify({'ok': False, 'error_code': error.errno,
-                                'error_message': error.msg})
-            except Exception as error:
-                return jsonify({'ok': False, 'error_code': None,
-                                'error_message': error.args[0]})
-            else:
-                for task in cur:
-                    tasks.append({"task_id": task[0], "user_id": task[1],
-                                  "task_text": task[2],
-                                  "status": bool(task[3])})
-                response = {'ok': True, 'user_id': user_id, 'tasks': tasks}
-
-                return jsonify(response)
-        else:
-            return jsonify({'ok': False})
     finally:
         cur.close()
         connection.close()
