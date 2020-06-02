@@ -242,9 +242,10 @@ function loginButton() {
 
     function login(answer) {
         if (answer['ok'] === true) {
-        onLoad(userName);
+            console.log(answer);
+            onLoad(userName);
         } else {
-        infoMessage.textContent = 'Авторизация не удалась =(';
+            infoMessage.textContent = 'Авторизация не удалась =(';
         }
     }
     knock_knock('login', sendData, login);
@@ -298,11 +299,48 @@ function knock_knock(path, sendData, func) {
     req.onreadystatechange = function () {
         if (req.readyState === 4) {
             if (req.status === 200 && req.getResponseHeader('Content-type') === 'application/json') {
-                func(JSON.parse(req.responseText));
+                    func(JSON.parse(req.responseText));
             }
         }
     }
 }
+
+function promise_knock(path, sendData, func) {
+    let promise = new Promise(function(resolve, reject) {
+    let req = new XMLHttpRequest();
+    req.open('POST','http://127.0.0.1:5000/' + path);
+    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    req.send(JSON.stringify(sendData));
+
+    req.onreadystatechange = function() {
+        if (req.readyState === 4) {
+            resolve(JSON.parse(req.responseText));
+        }
+    }
+    });
+    promise.then(function(data) {
+        func(data);
+        console.log(data);
+    });
+}
+
+
+function fetch_knock(path, sendData, func) {
+    let init = {method: 'POST',
+                headers: {'Content-Type': 'application/json; charset=utf-8'},
+                body: JSON.stringify(sendData)}
+
+   fetch('http://127.0.0.1:5000/' + path, init)
+    .then((answer) => {
+        if (answer.ok && answer.headers.get('Content-Type') === 'application/json') {
+            return answer.json();
+        }
+    })
+    .then((answer) => {
+        func(answer);
+    })
+}
+
 
 let taskList = new TaskList();
 events();
