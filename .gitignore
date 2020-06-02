@@ -1,3 +1,5 @@
 .idea/
 .vscode/
 todo_venv/
+node_modules/
+

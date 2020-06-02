@@ -1,0 +1,26 @@
+{
+  "name": "todo",
+  "version": "0.0.1",
+  "scripts": {
+    "watch": "babel ./static/js/script.js --watch --source-maps --out-file ./static/js/script-compiled.js"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "ie": "9",
+            "chrome": "72",
+            "firefox": "60"
+          }
+        }
+      ]
+    ]
+  }
+}
