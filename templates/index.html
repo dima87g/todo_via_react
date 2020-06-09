@@ -4,6 +4,7 @@
     <meta charset="UTF-8"/>
     <title>Page Title</title>
     <link rel="stylesheet" href="../static/css/style.css">
+    <script src="../static/js/script.js"></script>
 </head>
 <body>
 <div class="container">
@@ -12,32 +13,32 @@
             <form>
                 <input type="text" id="login_field" class="login_field" value="admin">
                 <input type="password" id="pass" class="pass">
-                <input type="button" id="login_field_button" class="login_field_button" value="Отправить" onClick="loginButton()">
+                <input type="button" id="login_field_button" class="login_field_button" value="Отправить">
             </form>
             <p id="login_form_info" class="login_form_info"></p>
-            <button type="button" value='register' id="register_button" class="register_button" onclick="switchLogin(this.value)">Register</button>
+            <button type="button" value='register' id="register_button" class="register_button">Register</button>
         </div>
         <div id="register_form" class="register_form">
             <form>
                 <input type="text" id="register_form_text" class="register_form_text">
-                <input type="button" value="Создать" id="register_form_button" class="register_form_button" onclick="userRegisterButton()">
+                <input type="button" value="Создать" id="register_form_button" class="register_form_button">
             </form>
             <p id="register_form_info" class="register_form_info">Enter new user name</p>
-            <button type="button" value='login' disabled="disabled" id="login_button" class="login_button" onclick="switchLogin(this.value)">Log In</button>
+            <button type="button" value='login' disabled="disabled" id="login_button" class="login_button">Log In</button>
         </div>
     </div>
     <div class="main_window">
         <div class="task_input">
             <form>
                 <input type="text" id="task_input_field" class="task_input_field">
-                <input type="button" id="task_input_button" class="task_input_button" value="Добавить" onClick="taskList.addTask()">
+                <input type="button" id="task_input_button" class="task_input_button" value="Добавить">
             </form>
         </div>
-        <div id="tasks" class="tasks">
+        <div id="main_tasks" class="main_tasks">
 
         </div>
     </div>
 </div>
 </body>
-<script src="../static/js/script.js"></script>
+<!--<script src="../static/js/script.js"></script>-->
 </html>
