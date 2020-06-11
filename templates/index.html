@@ -8,11 +8,15 @@
 </head>
 <body>
 <div class="container">
+    <div class="header">
+        <p class="user_name_field" id='user_name_field'></p>
+        <input class='logout_button' id='logout_button' type="button" value="Log Out" disabled>
+    </div>
     <div id="auth_menu" class="auth_menu">
         <div id="login_form" class="login_form">
             <form>
-                <input type="text" id="login_field" class="login_field" value="admin">
-                <input type="password" id="pass" class="pass">
+                <label for="login_field"></label><input type="text" id="login_field" class="login_field" value="admin">
+                <label for="pass"></label><input type="password" id="pass" class="pass">
                 <input type="button" id="login_field_button" class="login_field_button" value="Отправить">
             </form>
             <p id="login_form_info" class="login_form_info"></p>
@@ -20,7 +24,7 @@
         </div>
         <div id="register_form" class="register_form">
             <form>
-                <input type="text" id="register_form_text" class="register_form_text">
+                <label for="register_form_text"></label><input type="text" id="register_form_text" class="register_form_text">
                 <input type="button" value="Создать" id="register_form_button" class="register_form_button">
             </form>
             <p id="register_form_info" class="register_form_info">Enter new user name</p>
@@ -30,7 +34,7 @@
     <div class="main_window">
         <div class="task_input">
             <form>
-                <input type="text" id="task_input_field" class="task_input_field">
+                <label for="task_input_field"></label><input type="text" id="task_input_field" class="task_input_field">
                 <input type="button" id="task_input_button" class="task_input_button" value="Добавить">
             </form>
         </div>
