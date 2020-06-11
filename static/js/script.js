@@ -84,6 +84,7 @@ class TaskList {
                 tasksParent.append(this.tasks[i].createTaskNode());
             }
         }
+        //FIXME Неправильный цикл, теряются индексы, придумать что-то другое
         if (existTasks[i]) {
             for (i; i < existTasks.length; i++) {
                 existTasks[i].remove();
@@ -122,7 +123,7 @@ class Task {
         let removeButton = document.createElement("input");
 
         removeButton.setAttribute("type", "button");
-        removeButton.setAttribute("value", "Удалить");
+        removeButton.setAttribute("value", "X");
         removeButton.setAttribute("class", "task_remove_button");
         removeButton.onclick = function () {
             node.taskList.removeTask(node);
@@ -166,7 +167,8 @@ class Login {
         let self = this;
         let switchRegisterButton = document.getElementById("register_button");
         let switchLoginButton = document.getElementById("login_button");
-        let loginButton = document.getElementById("login_field_button");
+        let logInButton = document.getElementById("login_field_button");
+        let logOutButton = document.getElementById('logout_button');
         let userRegisterButton = document.getElementById("register_form_button");
 
         switchRegisterButton.onclick = function() {
@@ -175,8 +177,11 @@ class Login {
         switchLoginButton.onclick = function() {
             self.switchLogin(this.value);
         }
-        loginButton.onclick = function() {
-            self.loginButton();
+        logInButton.onclick = function() {
+            self.logInButton();
+        }
+        logOutButton.onclick = function() {
+            self.logOutButton();
         }
         userRegisterButton.onclick = function() {
             self.userRegisterButton();
@@ -199,15 +204,22 @@ class Login {
         let sendData = {'userName': userName};
 
         function loadTasks(answer) {
-            let menu = document.getElementById("auth_menu");
+            let authMenu = document.getElementById("auth_menu");
             let infoMessage = document.getElementById('login_form_info');
 
             if (answer['ok'] === true) {
-                menu.style.opacity = '0%';
+                infoMessage.textContent = '';
+                authMenu.style.opacity = '0%';
                 setTimeout(function() {
-                    menu.style.display = 'none';
+                    authMenu.style.display = 'none';
                     document.getElementById('task_input_field').focus();
                     }, 500);
+
+                let userNameField = document.getElementById('user_name_field');
+                let logOutButton = document.getElementById('logout_button');
+
+                userNameField.append(userName);
+                logOutButton.disabled = false;
 
                 let userId = answer['user_id'];
                 let tasksFromServer = answer['tasks'];
@@ -229,18 +241,21 @@ class Login {
 
 
         if (val === 'register') {
-            windowChange(registerWindow, loginButton, loginWindow, registerButton);
+            windowChange(registerWindow, loginButton, loginWindow, registerButton, 'login_form_info');
         } else if (val === 'login') {
-            windowChange(loginWindow, registerButton, registerWindow, loginButton);
+            windowChange(loginWindow, registerButton, registerWindow, loginButton, 'register_form_info');
         }
 
-            function windowChange(activate, activateButton, deactivate, deactivateButton) {
+            function windowChange(activate, activateButton, deactivate, deactivateButton, infoFieldName) {
+            let infoField = document.getElementById(infoFieldName);
+
+            infoField.textContent = '';
             deactivate.style.opacity = '0%';
             deactivateButton.disabled = true;
             activate.style.display = 'block';
             setTimeout(function () {
                 activate.style.opacity = '100%';
-            })
+            });
             setTimeout(function () {
                 deactivate.style.display = 'none';
                 activateButton.disabled = false;
@@ -248,26 +263,47 @@ class Login {
         }
     }
 
-    loginButton() {
+    logInButton() {
     /**
      * POST: json =  {userName: 'string'}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
         const self = this;
-        let userName = document.getElementById("login_field").value;
-        document.getElementById("login_field").value = '';
         let infoMessage = document.getElementById('login_form_info');
-        let sendData = {'userName': userName};
+        if (document.getElementById("login_field").value) {
+            let userName = document.getElementById("login_field").value;
+            document.getElementById("login_field").value = '';
+            let sendData = {'userName': userName};
 
-        function login(answer) {
-            if (answer['ok'] === true) {
-                self.onLoad(userName);
-            } else {
-                infoMessage.textContent = 'Авторизация не удалась =(';
+            function login(answer) {
+                if (answer['ok'] === true) {
+                    self.onLoad(userName);
+                } else {
+                    infoMessage.textContent = 'Авторизация не удалась =(';
+                }
             }
+            knock_knock('login', sendData, login);
+        } else {
+            infoMessage.textContent = 'Please, enter user name!';
         }
-        knock_knock('login', sendData, login);
+    }
+
+    logOutButton() {
+        let userName = document.getElementById('user_name_field');
+        let logOutButton = document.getElementById('logout_button');
+        let domTasks = document.getElementsByClassName('task');
+        let authMenu = document.getElementById('auth_menu');
+
+        userName.textContent = '';
+        logOutButton.disabled = true;
+        for (let i = domTasks.length - 1; i >= 0; i--) {
+            domTasks[i].remove();
+        }
+        authMenu.style.display = 'block';
+        setTimeout(function() {
+            authMenu.style.opacity = '100%';
+        });
     }
 
     userRegisterButton() {
