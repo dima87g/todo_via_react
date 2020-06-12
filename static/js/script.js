@@ -84,10 +84,10 @@ class TaskList {
                 tasksParent.append(this.tasks[i].createTaskNode());
             }
         }
-        //FIXME Неправильный цикл, теряются индексы, придумать что-то другое
         if (existTasks[i]) {
             for (i; i < existTasks.length; i++) {
                 existTasks[i].remove();
+                i--;
             }
         }
     }
