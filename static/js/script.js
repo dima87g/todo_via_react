@@ -12,7 +12,7 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const list = this;
+        const self = this;
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
@@ -21,11 +21,11 @@ class TaskList {
             function add(answer) {
                 if (answer['ok'] === true) {
                     let taskId = answer['task_id'];
-                    let newTask = new Task(taskId, taskText);
+                    let newTask = new Task(self, taskId, taskText);
 
-                    list.tasks.push(newTask);
+                    self.tasks.push(newTask);
 
-                    list.updateDom();
+                    self.updateDom();
                 }
             }
             knock_knock('save', sendData, add);
@@ -40,13 +40,13 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const list = this;
+        const self = this;
         node.status = node.status === false;
         let sendData = {"taskId": node.id, "status": node.status};
 
         function finish(answer) {
             if (answer['ok'] === true) {
-                list.updateDom();
+                self.updateDom();
             }
         }
         knock_knock('finish_task', sendData, finish);
@@ -60,21 +60,21 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const list = this;
+        const self = this;
         let sendData = {'taskId': node.id}
 
         function remove(answer) {
             if (answer['ok'] === true) {
-                list.tasks.splice(list.tasks.indexOf(node), 1);
-                list.updateDom();
+                self.tasks.splice(self.tasks.indexOf(node), 1);
+                self.updateDom();
             }
         }
         knock_knock('delete', sendData, remove);
     }
 
-    updateDom() {
-        let tasksParent = document.getElementById("tasks");
-        let existTasks = document.getElementsByClassName("task");
+    updateDom(tasksParentId = 'main_tasks', existsTasksClass = 'task') {
+        let tasksParent = document.getElementById(tasksParentId);
+        let existTasks = document.getElementsByClassName(existsTasksClass);
         let i = 0;
 
         for (i; i < this.tasks.length; i++) {
@@ -87,6 +87,7 @@ class TaskList {
         if (existTasks[i]) {
             for (i; i < existTasks.length; i++) {
                 existTasks[i].remove();
+                i--;
             }
         }
     }
@@ -94,7 +95,8 @@ class TaskList {
 
 
 class Task {
-    constructor(id, text, status = false) {
+    constructor(taskList, id, text, status = false) {
+        this.taskList = taskList;
         this.id = id;
         this.text = text;
         this.status = status;
@@ -115,16 +117,16 @@ class Task {
             taskDiv.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
-            taskList.finishTask(node);
+            node.taskList.finishTask(node);
         };
 
         let removeButton = document.createElement("input");
 
         removeButton.setAttribute("type", "button");
-        removeButton.setAttribute("value", "Удалить");
+        removeButton.setAttribute("value", "X");
         removeButton.setAttribute("class", "task_remove_button");
         removeButton.onclick = function () {
-            taskList.removeTask(node);
+            node.taskList.removeTask(node);
         };
 
         let par = document.createElement("p");
@@ -151,20 +153,43 @@ class Task {
             existTask.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
-            taskList.finishTask(node);
+            node.taskList.finishTask(node);
         };
         removeButton.onclick = function () {
-            taskList.removeTask(node);
+            node.taskList.removeTask(node);
         };
     }
 }
 
-//todo
-// create login class (functions onLad, login, switchLogin, userRegister)
+
+class Login {
+    constructor() {
+        let self = this;
+        let switchRegisterButton = document.getElementById("register_button");
+        let switchLoginButton = document.getElementById("login_button");
+        let logInButton = document.getElementById("login_field_button");
+        let logOutButton = document.getElementById('logout_button');
+        let userRegisterButton = document.getElementById("register_form_button");
+
+        switchRegisterButton.onclick = function() {
+            self.switchLogin(this.value);
+        }
+        switchLoginButton.onclick = function() {
+            self.switchLogin(this.value);
+        }
+        logInButton.onclick = function() {
+            self.logInButton();
+        }
+        logOutButton.onclick = function() {
+            self.logOutButton();
+        }
+        userRegisterButton.onclick = function() {
+            self.userRegisterButton();
+        }
+    }
 
 
-
-function onLoad(userName) {
+    onLoad(userName) {
     /**
      * POST: userName = 'string'
      * GET:
@@ -176,133 +201,210 @@ function onLoad(userName) {
      * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
      * 'error_message': 'string' or null}
      */
-    let sendData = {'userName': userName};
-    function loadTasks(answer) {
-    let menu = document.getElementById("auth_menu");
-    let infoMessage = document.getElementById('login_form_info');
+        let sendData = {'userName': userName};
 
-    if (answer['ok'] === true) {
-        menu.style.opacity = '0%';
-        setTimeout(function() {
-            menu.style.display = 'none';
-            document.getElementById('task_input_field').focus();
+        function loadTasks(answer) {
+            let authMenu = document.getElementById("auth_menu");
+            let infoMessage = document.getElementById('login_form_info');
+
+            if (answer['ok'] === true) {
+                infoMessage.textContent = '';
+                authMenu.style.opacity = '0%';
+                setTimeout(function() {
+                    authMenu.style.display = 'none';
+                    document.getElementById('task_input_field').focus();
+                    }, 500);
+
+                let userNameField = document.getElementById('user_name_field');
+                let logOutButton = document.getElementById('logout_button');
+
+                userNameField.append(userName);
+                logOutButton.disabled = false;
+
+                let userId = answer['user_id'];
+                let tasksFromServer = answer['tasks'];
+
+                createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+
+            } else {
+                infoMessage.textContent = 'Проблема(((((';
+                }
+        }
+        knock_knock('load', sendData, loadTasks);
+    }
+
+    switchLogin(val) {
+        let loginWindow = document.getElementById('login_form');
+        let registerButton = document.getElementById('register_button');
+        let registerWindow = document.getElementById('register_form');
+        let loginButton = document.getElementById('login_button');
+
+
+        if (val === 'register') {
+            windowChange(registerWindow, loginButton, loginWindow, registerButton, 'login_form_info');
+        } else if (val === 'login') {
+            windowChange(loginWindow, registerButton, registerWindow, loginButton, 'register_form_info');
+        }
+
+            function windowChange(activate, activateButton, deactivate, deactivateButton, infoFieldName) {
+            let infoField = document.getElementById(infoFieldName);
+
+            infoField.textContent = '';
+            deactivate.style.opacity = '0%';
+            deactivateButton.disabled = true;
+            activate.style.display = 'block';
+            setTimeout(function () {
+                activate.style.opacity = '100%';
+            });
+            setTimeout(function () {
+                deactivate.style.display = 'none';
+                activateButton.disabled = false;
             }, 500);
-        let userId = answer['user_id'];
-        let tasksFromServer = answer['tasks'];
-
-        taskList.userId = userId;
-        for (let task of tasksFromServer) {
-            taskList.tasks.push(new Task(task["task_id"], task["task_text"], task["status"]));
-        }
-        taskList.updateDom();
-    } else {
-        infoMessage.textContent = 'Проблема(((((';
         }
     }
-    knock_knock('load', sendData, loadTasks);
-}
 
-function switchLogin(val) {
-    let loginWindow = document.getElementById('login_form');
-    let registerButton = document.getElementById('register_button');
-    let registerWindow = document.getElementById('register_form');
-    let loginButton = document.getElementById('login_button');
-
-
-    if (val === 'register') {
-        windowChange(registerWindow, loginButton, loginWindow, registerButton);
-    } else if (val === 'login') {
-        windowChange(loginWindow, registerButton, registerWindow, loginButton);
-    }
-
-        function windowChange(activate, activateButton, deactivate, deactivateButton) {
-        deactivate.style.opacity = '0%';
-        deactivateButton.disabled = true;
-        activate.style.display = 'block';
-        setTimeout(function () {
-            activate.style.opacity = '100%';
-        })
-        setTimeout(function () {
-            deactivate.style.display = 'none';
-            activateButton.disabled = false;
-        }, 500);
-    }
-}
-
-function loginButton() {
+    logInButton() {
     /**
      * POST: json =  {userName: 'string'}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
-    let userName = document.getElementById("login_field").value;
-    document.getElementById("login_field").value = '';
-    let infoMessage = document.getElementById('login_form_info');
-    let sendData = {'userName': userName};
+        const self = this;
+        let infoMessage = document.getElementById('login_form_info');
+        if (document.getElementById("login_field").value) {
+            let userName = document.getElementById("login_field").value;
+            document.getElementById("login_field").value = '';
+            let sendData = {'userName': userName};
 
-    function login(answer) {
-        if (answer['ok'] === true) {
-        onLoad(userName);
+            function login(answer) {
+                if (answer['ok'] === true) {
+                    self.onLoad(userName);
+                } else {
+                    infoMessage.textContent = 'Авторизация не удалась =(';
+                }
+            }
+            knock_knock('login', sendData, login);
         } else {
-        infoMessage.textContent = 'Авторизация не удалась =(';
+            infoMessage.textContent = 'Please, enter user name!';
         }
     }
-    knock_knock('login', sendData, login);
-}
 
-function userRegisterButton() {
+    logOutButton() {
+        let userName = document.getElementById('user_name_field');
+        let logOutButton = document.getElementById('logout_button');
+        let domTasks = document.getElementsByClassName('task');
+        let authMenu = document.getElementById('auth_menu');
+
+        userName.textContent = '';
+        logOutButton.disabled = true;
+        for (let i = domTasks.length - 1; i >= 0; i--) {
+            domTasks[i].remove();
+        }
+        authMenu.style.display = 'block';
+        setTimeout(function() {
+            authMenu.style.opacity = '100%';
+        });
+    }
+
+    userRegisterButton() {
     /**
      * POST: json =  {newUserName: 'string'}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
-    let infoMessage = document.getElementById("register_form_info");
-    if (document.getElementById('register_form_text').value) {
-        let newUserName = document.getElementById('register_form_text').value;
-        let sendData = {'newUserName': newUserName};
+        let infoMessage = document.getElementById("register_form_info");
+        if (document.getElementById('register_form_text').value) {
+            let newUserName = document.getElementById('register_form_text').value;
+            let sendData = {'newUserName': newUserName};
 
-        function register(answer) {
-        if (answer['ok'] === true) {
-            infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
-        } else if (answer['error_code'] === 1062) {
-            infoMessage.textContent = 'Name ' + newUserName + ' is already used!';
-        } else {
-            infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
+            function register(answer) {
+            if (answer['ok'] === true) {
+                infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
+            } else if (answer['error_code'] === 1062) {
+                infoMessage.textContent = 'Name ' + newUserName + ' is already used!';
+            } else {
+                infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
+            }
         }
-    }
-        knock_knock('user_register', sendData, register);
-    } else {
-            infoMessage.textContent = 'Please, enter new user name!';
-            infoMessage.style.color = 'red';
+            knock_knock('user_register', sendData, register);
+        } else {
+                infoMessage.textContent = 'Please, enter new user name!';
+                infoMessage.style.color = 'red';
+        }
     }
 }
 
+
 function events() {
-    function noEnterRefresh(event) {
+    function noEnterRefreshLogin(event) {
         if (event.keyCode === 13) {
             event.preventDefault();
             document.getElementById("task_input_button").click();
         }
     }
 
+    function noEnterRefreshRegister(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            document.getElementById("register_form_button").click();
+        }
+    }
+
     let taskInputField = document.getElementById("task_input_field");
-    taskInputField.addEventListener("keydown", noEnterRefresh, false);
+    taskInputField.addEventListener("keydown", noEnterRefreshLogin, false);
+
+    let registerField = document.getElementById("register_form_text");
+    registerField.addEventListener('keydown', noEnterRefreshRegister, false);
 }
 
 function knock_knock(path, sendData, func) {
-    let req = new XMLHttpRequest();
-    req.open('POST', 'http://127.0.0.1:5000/' + path);
-    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    req.send(JSON.stringify(sendData));
+    if (window.fetch) {
+        let init = {method: 'POST',
+                    headers: {'Content-Type': 'application/json; charset=utf-8'},
+                    body: JSON.stringify(sendData)}
 
-    req.onreadystatechange = function () {
-        if (req.readyState === 4) {
-            if (req.status === 200 && req.getResponseHeader('Content-type') === 'application/json') {
-                func(JSON.parse(req.responseText));
+        fetch('http://127.0.0.1:5000/' + path, init)
+            .then((answer) => {
+                if (answer.ok && answer.headers.get('Content-Type') === 'application/json') {
+                    return answer.json();
+                }
+            })
+            .then((answer) => {
+                func(answer);
+            })
+    } else {
+        let req = new XMLHttpRequest();
+        req.open('POST', 'http://127.0.0.1:5000/' + path);
+        req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        req.send(JSON.stringify(sendData));
+
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                if (req.status === 200 && req.getResponseHeader('Content-type') === 'application/json') {
+                        func(JSON.parse(req.responseText));
+                }
             }
         }
     }
 }
 
-let taskList = new TaskList();
-events();
+function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParentId, existsTasksClass) {
+    let taskList = new TaskList();
+    let taskInputButton = document.getElementById(taskInputButtonId);
+
+    taskInputButton.onclick = function() {
+        taskList.addTask();
+    }
+
+    taskList.userId = userId;
+    for (let task of tasksFromServer) {
+        taskList.tasks.push(new Task(taskList, task["task_id"], task["task_text"], task["status"]));
+    }
+    taskList.updateDom(taskParentId, existsTasksClass);
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    let login = new Login();
+    events();
+});
