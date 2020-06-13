@@ -1,4 +1,4 @@
 .idea/
 .vscode/
 todo_venv/
-test_daemon.py/
+test_daemon.py
