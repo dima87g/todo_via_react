@@ -30,15 +30,15 @@ var TaskList = /*#__PURE__*/function () {
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
        * 'error_message': 'string' or null}
        */
-      var list = this;
+      var self = this;
 
       if (document.getElementById("task_input_field").value) {
         var add = function add(answer) {
           if (answer['ok'] === true) {
             var taskId = answer['task_id'];
-            var newTask = new Task(taskId, taskText);
-            list.tasks.push(newTask);
-            list.updateDom();
+            var newTask = new Task(self, taskId, taskText);
+            self.tasks.push(newTask);
+            self.updateDom();
           }
         };
 
@@ -61,7 +61,7 @@ var TaskList = /*#__PURE__*/function () {
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
        * 'error_message': 'string' or null}
        */
-      var list = this;
+      var self = this;
       node.status = node.status === false;
       var sendData = {
         "taskId": node.id,
@@ -70,7 +70,7 @@ var TaskList = /*#__PURE__*/function () {
 
       function finish(answer) {
         if (answer['ok'] === true) {
-          list.updateDom();
+          self.updateDom();
         }
       }
 
@@ -86,15 +86,15 @@ var TaskList = /*#__PURE__*/function () {
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
        * 'error_message': 'string' or null}
        */
-      var list = this;
+      var self = this;
       var sendData = {
         'taskId': node.id
       };
 
       function remove(answer) {
         if (answer['ok'] === true) {
-          list.tasks.splice(list.tasks.indexOf(node), 1);
-          list.updateDom();
+          self.tasks.splice(self.tasks.indexOf(node), 1);
+          self.updateDom();
         }
       }
 
@@ -103,8 +103,10 @@ var TaskList = /*#__PURE__*/function () {
   }, {
     key: "updateDom",
     value: function updateDom() {
-      var tasksParent = document.getElementById("tasks");
-      var existTasks = document.getElementsByClassName("task");
+      var tasksParentId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'main_tasks';
+      var existsTasksClass = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'task';
+      var tasksParent = document.getElementById(tasksParentId);
+      var existTasks = document.getElementsByClassName(existsTasksClass);
       var i = 0;
 
       for (i; i < this.tasks.length; i++) {
@@ -118,6 +120,7 @@ var TaskList = /*#__PURE__*/function () {
       if (existTasks[i]) {
         for (i; i < existTasks.length; i++) {
           existTasks[i].remove();
+          i--;
         }
       }
     }
@@ -127,11 +130,12 @@ var TaskList = /*#__PURE__*/function () {
 }();
 
 var Task = /*#__PURE__*/function () {
-  function Task(id, text) {
-    var status = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  function Task(taskList, id, text) {
+    var status = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
     _classCallCheck(this, Task);
 
+    this.taskList = taskList;
     this.id = id;
     this.text = text;
     this.status = status;
@@ -155,16 +159,16 @@ var Task = /*#__PURE__*/function () {
       }
 
       finishButton.onclick = function () {
-        taskList.finishTask(node);
+        node.taskList.finishTask(node);
       };
 
       var removeButton = document.createElement("input");
       removeButton.setAttribute("type", "button");
-      removeButton.setAttribute("value", "Удалить");
+      removeButton.setAttribute("value", "X");
       removeButton.setAttribute("class", "task_remove_button");
 
       removeButton.onclick = function () {
-        taskList.removeTask(node);
+        node.taskList.removeTask(node);
       };
 
       var par = document.createElement("p");
@@ -192,181 +196,290 @@ var Task = /*#__PURE__*/function () {
       }
 
       finishButton.onclick = function () {
-        taskList.finishTask(node);
+        node.taskList.finishTask(node);
       };
 
       removeButton.onclick = function () {
-        taskList.removeTask(node);
+        node.taskList.removeTask(node);
       };
     }
   }]);
 
   return Task;
-}(); //todo
-// create login class (functions onLad, login, switchLogin, userRegister)
+}();
 
+var Login = /*#__PURE__*/function () {
+  function Login() {
+    _classCallCheck(this, Login);
 
-function onLoad(userName) {
-  /**
-   * POST: userName = 'string'
-   * GET:
-   * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-   *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
-   *                                          ...
-   *                                          ]
-   *             }
-   * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-   * 'error_message': 'string' or null}
-   */
-  var sendData = {
-    'userName': userName
-  };
+    var self = this;
+    var switchRegisterButton = document.getElementById("register_button");
+    var switchLoginButton = document.getElementById("login_button");
+    var logInButton = document.getElementById("login_field_button");
+    var logOutButton = document.getElementById('logout_button');
+    var userRegisterButton = document.getElementById("register_form_button");
 
-  function loadTasks(answer) {
-    var menu = document.getElementById("auth_menu");
-    var infoMessage = document.getElementById('login_form_info');
+    switchRegisterButton.onclick = function () {
+      self.switchLogin(this.value);
+    };
 
-    if (answer['ok'] === true) {
-      menu.style.opacity = '0%';
-      setTimeout(function () {
-        menu.style.display = 'none';
-        document.getElementById('task_input_field').focus();
-      }, 500);
-      var userId = answer['user_id'];
-      var tasksFromServer = answer['tasks'];
-      taskList.userId = userId;
+    switchLoginButton.onclick = function () {
+      self.switchLogin(this.value);
+    };
 
-      var _iterator = _createForOfIteratorHelper(tasksFromServer),
-          _step;
+    logInButton.onclick = function () {
+      self.logInButton();
+    };
 
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var task = _step.value;
-          taskList.tasks.push(new Task(task["task_id"], task["task_text"], task["status"]));
+    logOutButton.onclick = function () {
+      self.logOutButton();
+    };
+
+    userRegisterButton.onclick = function () {
+      self.userRegisterButton();
+    };
+  }
+
+  _createClass(Login, [{
+    key: "onLoad",
+    value: function onLoad(userName) {
+      /**
+       * POST: userName = 'string'
+       * GET:
+       * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
+       *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
+       *                                          ...
+       *                                          ]
+       *             }
+       * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+       * 'error_message': 'string' or null}
+       */
+      var sendData = {
+        'userName': userName
+      };
+
+      function loadTasks(answer) {
+        var authMenu = document.getElementById("auth_menu");
+        var infoMessage = document.getElementById('login_form_info');
+
+        if (answer['ok'] === true) {
+          infoMessage.textContent = '';
+          authMenu.style.opacity = '0%';
+          setTimeout(function () {
+            authMenu.style.display = 'none';
+            document.getElementById('task_input_field').focus();
+          }, 500);
+          var userNameField = document.getElementById('user_name_field');
+          var logOutButton = document.getElementById('logout_button');
+          userNameField.append(userName);
+          logOutButton.disabled = false;
+          var userId = answer['user_id'];
+          var tasksFromServer = answer['tasks'];
+          createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+        } else {
+          infoMessage.textContent = 'Проблема(((((';
         }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
       }
 
-      taskList.updateDom();
-    } else {
-      infoMessage.textContent = 'Проблема(((((';
+      knock_knock('load', sendData, loadTasks);
     }
-  }
+  }, {
+    key: "switchLogin",
+    value: function switchLogin(val) {
+      var loginWindow = document.getElementById('login_form');
+      var registerButton = document.getElementById('register_button');
+      var registerWindow = document.getElementById('register_form');
+      var loginButton = document.getElementById('login_button');
 
-  knock_knock('load', sendData, loadTasks);
-}
+      if (val === 'register') {
+        windowChange(registerWindow, loginButton, loginWindow, registerButton, 'login_form_info');
+      } else if (val === 'login') {
+        windowChange(loginWindow, registerButton, registerWindow, loginButton, 'register_form_info');
+      }
 
-function switchLogin(val) {
-  var loginWindow = document.getElementById('login_form');
-  var registerButton = document.getElementById('register_button');
-  var registerWindow = document.getElementById('register_form');
-  var loginButton = document.getElementById('login_button');
-
-  if (val === 'register') {
-    windowChange(registerWindow, loginButton, loginWindow, registerButton);
-  } else if (val === 'login') {
-    windowChange(loginWindow, registerButton, registerWindow, loginButton);
-  }
-
-  function windowChange(activate, activateButton, deactivate, deactivateButton) {
-    deactivate.style.opacity = '0%';
-    deactivateButton.disabled = true;
-    activate.style.display = 'block';
-    setTimeout(function () {
-      activate.style.opacity = '100%';
-    });
-    setTimeout(function () {
-      deactivate.style.display = 'none';
-      activateButton.disabled = false;
-    }, 500);
-  }
-}
-
-function loginButton() {
-  /**
-   * POST: json =  {userName: 'string'}
-   * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
-   'error_message': 'string' or null}
-   */
-  var userName = document.getElementById("login_field").value;
-  document.getElementById("login_field").value = '';
-  var infoMessage = document.getElementById('login_form_info');
-  var sendData = {
-    'userName': userName
-  };
-
-  function login(answer) {
-    if (answer['ok'] === true) {
-      onLoad(userName);
-    } else {
-      infoMessage.textContent = 'Авторизация не удалась =(';
+      function windowChange(activate, activateButton, deactivate, deactivateButton, infoFieldName) {
+        var infoField = document.getElementById(infoFieldName);
+        infoField.textContent = '';
+        deactivate.style.opacity = '0%';
+        deactivateButton.disabled = true;
+        activate.style.display = 'block';
+        setTimeout(function () {
+          activate.style.opacity = '100%';
+        });
+        setTimeout(function () {
+          deactivate.style.display = 'none';
+          activateButton.disabled = false;
+        }, 500);
+      }
     }
-  }
+  }, {
+    key: "logInButton",
+    value: function logInButton() {
+      /**
+       * POST: json =  {userName: 'string'}
+       * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
+       'error_message': 'string' or null}
+       */
+      var self = this;
+      var infoMessage = document.getElementById('login_form_info');
 
-  knock_knock('login', sendData, login);
-}
+      if (document.getElementById("login_field").value) {
+        var login = function login(answer) {
+          if (answer['ok'] === true) {
+            self.onLoad(userName);
+          } else {
+            infoMessage.textContent = 'Авторизация не удалась =(';
+          }
+        };
 
-function userRegisterButton() {
-  /**
-   * POST: json =  {newUserName: 'string'}
-   * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
-   'error_message': 'string' or null}
-   */
-  var infoMessage = document.getElementById("register_form_info");
-
-  if (document.getElementById('register_form_text').value) {
-    var register = function register(answer) {
-      if (answer['ok'] === true) {
-        infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
-      } else if (answer['error_code'] === 1062) {
-        infoMessage.textContent = 'Name ' + newUserName + ' is already used!';
+        var userName = document.getElementById("login_field").value;
+        document.getElementById("login_field").value = '';
+        var sendData = {
+          'userName': userName
+        };
+        knock_knock('login', sendData, login);
       } else {
-        infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
+        infoMessage.textContent = 'Please, enter user name!';
       }
-    };
+    }
+  }, {
+    key: "logOutButton",
+    value: function logOutButton() {
+      var userName = document.getElementById('user_name_field');
+      var logOutButton = document.getElementById('logout_button');
+      var domTasks = document.getElementsByClassName('task');
+      var authMenu = document.getElementById('auth_menu');
+      userName.textContent = '';
+      logOutButton.disabled = true;
 
-    var newUserName = document.getElementById('register_form_text').value;
-    var sendData = {
-      'newUserName': newUserName
-    };
-    knock_knock('user_register', sendData, register);
-  } else {
-    infoMessage.textContent = 'Please, enter new user name!';
-    infoMessage.style.color = 'red';
-  }
-}
+      for (var i = domTasks.length - 1; i >= 0; i--) {
+        domTasks[i].remove();
+      }
+
+      authMenu.style.display = 'block';
+      setTimeout(function () {
+        authMenu.style.opacity = '100%';
+      });
+    }
+  }, {
+    key: "userRegisterButton",
+    value: function userRegisterButton() {
+      /**
+       * POST: json =  {newUserName: 'string'}
+       * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
+       'error_message': 'string' or null}
+       */
+      var infoMessage = document.getElementById("register_form_info");
+
+      if (document.getElementById('register_form_text').value) {
+        var register = function register(answer) {
+          if (answer['ok'] === true) {
+            infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
+          } else if (answer['error_code'] === 1062) {
+            infoMessage.textContent = 'Name ' + newUserName + ' is already used!';
+          } else {
+            infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
+          }
+        };
+
+        var newUserName = document.getElementById('register_form_text').value;
+        var sendData = {
+          'newUserName': newUserName
+        };
+        knock_knock('user_register', sendData, register);
+      } else {
+        infoMessage.textContent = 'Please, enter new user name!';
+        infoMessage.style.color = 'red';
+      }
+    }
+  }]);
+
+  return Login;
+}();
 
 function events() {
-  function noEnterRefresh(event) {
+  function noEnterRefreshLogin(event) {
     if (event.keyCode === 13) {
       event.preventDefault();
       document.getElementById("task_input_button").click();
     }
   }
 
+  function noEnterRefreshRegister(event) {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      document.getElementById("register_form_button").click();
+    }
+  }
+
   var taskInputField = document.getElementById("task_input_field");
-  taskInputField.addEventListener("keydown", noEnterRefresh, false);
+  taskInputField.addEventListener("keydown", noEnterRefreshLogin, false);
+  var registerField = document.getElementById("register_form_text");
+  registerField.addEventListener('keydown', noEnterRefreshRegister, false);
 }
 
 function knock_knock(path, sendData, func) {
-  var req = new XMLHttpRequest();
-  req.open('POST', 'http://127.0.0.1:5000/' + path);
-  req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-  req.send(JSON.stringify(sendData));
-
-  req.onreadystatechange = function () {
-    if (req.readyState === 4) {
-      if (req.status === 200 && req.getResponseHeader('Content-type') === 'application/json') {
-        func(JSON.parse(req.responseText));
+  if (window.fetch) {
+    var init = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify(sendData)
+    };
+    fetch('http://127.0.0.1:5000/' + path, init).then(function (answer) {
+      if (answer.ok && answer.headers.get('Content-Type') === 'application/json') {
+        return answer.json();
       }
-    }
-  };
+    }).then(function (answer) {
+      func(answer);
+    });
+  } else {
+    var req = new XMLHttpRequest();
+    req.open('POST', 'http://127.0.0.1:5000/' + path);
+    req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    req.send(JSON.stringify(sendData));
+
+    req.onreadystatechange = function () {
+      if (req.readyState === 4) {
+        if (req.status === 200 && req.getResponseHeader('Content-type') === 'application/json') {
+          func(JSON.parse(req.responseText));
+        }
+      }
+    };
+  }
 }
 
-var taskList = new TaskList();
-events();
+function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParentId, existsTasksClass) {
+  var taskList = new TaskList();
+  var taskInputButton = document.getElementById(taskInputButtonId);
+
+  taskInputButton.onclick = function () {
+    taskList.addTask();
+  };
+
+  taskList.userId = userId;
+
+  var _iterator = _createForOfIteratorHelper(tasksFromServer),
+      _step;
+
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var task = _step.value;
+      taskList.tasks.push(new Task(taskList, task["task_id"], task["task_text"], task["status"]));
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
+
+  taskList.updateDom(taskParentId, existsTasksClass);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  var login = new Login();
+  events();
+});
 
 //# sourceMappingURL=script-compiled.js.map
