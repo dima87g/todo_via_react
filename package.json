@@ -2,24 +2,33 @@
   "name": "todo",
   "version": "0.0.1",
   "scripts": {
-    "watch": "babel ./static/js/script.js --watch --source-maps --out-file ./static/js/script-compiled.js"
+    "js": "babel ./static/js/script.js --watch --source-maps --out-file ./static/js/script-compiled.js",
+    "css": "postcss --watch ./static/css/style.css -o ./static/css/style_compiled.css"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
     "@babel/core": "^7.10.2",
-    "@babel/preset-env": "^7.10.2"
+    "@babel/preset-env": "^7.10.2",
+    "autoprefixer": "^9.8.0",
+    "postcss-cli": "^7.1.1",
+    "postcss-preset-env": "^6.7.0"
+  },
+  "browserslist": [
+  	"defaults",
+    "ie >= 10",
+    "chrome >= 72",
+    "firefox >= 60"
+  ],
+  "postcss": {
+    "plugins": {
+      "postcss-preset-env": {},
+      "autoprefixer": {}
+    }
   },
   "babel": {
     "presets": [
       [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "ie": "9",
-            "chrome": "72",
-            "firefox": "60"
-          }
-        }
+        "@babel/preset-env"
       ]
     ]
   }

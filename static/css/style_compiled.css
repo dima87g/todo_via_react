@@ -152,7 +152,9 @@
 /* test */
 
 .flex-container {
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
+  -ms-flex-direction: column;
+      flex-direction: column;
 }
 
