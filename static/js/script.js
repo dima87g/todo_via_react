@@ -209,7 +209,7 @@ class Login {
 
             if (answer['ok'] === true) {
                 infoMessage.textContent = '';
-                authMenu.style.opacity = '0%';
+                authMenu.style.opacity = '0';
                 setTimeout(function() {
                     authMenu.style.display = 'none';
                     document.getElementById('task_input_field').focus();
@@ -250,11 +250,11 @@ class Login {
             let infoField = document.getElementById(infoFieldName);
 
             infoField.textContent = '';
-            deactivate.style.opacity = '0%';
+            deactivate.style.opacity = '0';
             deactivateButton.disabled = true;
             activate.style.display = 'block';
             setTimeout(function () {
-                activate.style.opacity = '100%';
+                activate.style.opacity = '100';
             });
             setTimeout(function () {
                 deactivate.style.display = 'none';
@@ -302,7 +302,7 @@ class Login {
         }
         authMenu.style.display = 'block';
         setTimeout(function() {
-            authMenu.style.opacity = '100%';
+            authMenu.style.opacity = '100';
         });
     }
 

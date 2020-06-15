@@ -264,7 +264,7 @@ var Login = /*#__PURE__*/function () {
 
         if (answer['ok'] === true) {
           infoMessage.textContent = '';
-          authMenu.style.opacity = '0%';
+          authMenu.style.opacity = '0';
           setTimeout(function () {
             authMenu.style.display = 'none';
             document.getElementById('task_input_field').focus();
@@ -300,11 +300,11 @@ var Login = /*#__PURE__*/function () {
       function windowChange(activate, activateButton, deactivate, deactivateButton, infoFieldName) {
         var infoField = document.getElementById(infoFieldName);
         infoField.textContent = '';
-        deactivate.style.opacity = '0%';
+        deactivate.style.opacity = '0';
         deactivateButton.disabled = true;
         activate.style.display = 'block';
         setTimeout(function () {
-          activate.style.opacity = '100%';
+          activate.style.opacity = '100';
         });
         setTimeout(function () {
           deactivate.style.display = 'none';
@@ -358,7 +358,7 @@ var Login = /*#__PURE__*/function () {
 
       authMenu.style.display = 'block';
       setTimeout(function () {
-        authMenu.style.opacity = '100%';
+        authMenu.style.opacity = '100';
       });
     }
   }, {
