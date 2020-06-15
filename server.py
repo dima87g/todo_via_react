@@ -82,6 +82,14 @@ def user_register():
         data = request.json
         user_name = data['newUserName']
 
+        cur.execute('SELECT * FROM users WHERE user_name = %s', (user_name,))
+
+        cur.fetchall()
+        count = cur.rowcount
+
+        if count > 0:
+            return jsonify({'ok': False, 'error_code': 1062, 'error_message': None})
+
         cur.execute('INSERT INTO users (user_name) VALUES (%s)', (user_name,))
 
         connection.commit()

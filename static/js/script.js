@@ -329,7 +329,6 @@ class Login {
             knock_knock('user_register', sendData, register);
         } else {
                 infoMessage.textContent = 'Please, enter new user name!';
-                infoMessage.style.color = 'red';
         }
     }
 }
