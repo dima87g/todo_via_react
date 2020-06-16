@@ -113,15 +113,16 @@ var TaskList = /*#__PURE__*/function () {
         if (existTasks[i]) {
           this.tasks[i].replaceTaskNode(existTasks[i]);
         } else {
-          tasksParent.append(this.tasks[i].createTaskNode());
+          tasksParent.appendChild(this.tasks[i].createTaskNode());
         }
       }
 
       if (existTasks[i]) {
-        for (i; i < existTasks.length; i++) {
-          existTasks[i].remove();
-          i--;
-        }
+        // for (i; i < existTasks.length; i++) {
+        //     existTasks[i].remove();
+        //     i--;
+        // }
+        tasksParent.removeChild(tasksParent.lastChild);
       }
     }
   }]);
@@ -172,11 +173,11 @@ var Task = /*#__PURE__*/function () {
       };
 
       var par = document.createElement("p");
-      par.append(this.text);
+      par.appendChild(document.createTextNode(this.text));
       par.setAttribute("class", "paragraph");
-      taskDiv.append(finishButton);
-      taskDiv.append(par);
-      taskDiv.append(removeButton);
+      taskDiv.appendChild(finishButton);
+      taskDiv.appendChild(par);
+      taskDiv.appendChild(removeButton);
       return taskDiv;
     }
   }, {
@@ -271,7 +272,7 @@ var Login = /*#__PURE__*/function () {
           }, 500);
           var userNameField = document.getElementById('user_name_field');
           var logOutButton = document.getElementById('logout_button');
-          userNameField.append(userName);
+          userNameField.appendChild(document.createTextNode(userName));
           logOutButton.disabled = false;
           var userId = answer['user_id'];
           var tasksFromServer = answer['tasks'];
@@ -346,14 +347,21 @@ var Login = /*#__PURE__*/function () {
     key: "logOutButton",
     value: function logOutButton() {
       var userName = document.getElementById('user_name_field');
-      var logOutButton = document.getElementById('logout_button');
-      var domTasks = document.getElementsByClassName('task');
-      var authMenu = document.getElementById('auth_menu');
-      userName.textContent = '';
-      logOutButton.disabled = true;
+      var logOutButton = document.getElementById('logout_button'); // let domTasks = document.getElementsByClassName('task');
 
-      for (var i = domTasks.length - 1; i >= 0; i--) {
-        domTasks[i].remove();
+      var tasksParent = document.getElementById("main_tasks");
+      var authMenu = document.getElementById('auth_menu'); // userName.textContent = '';
+
+      while (userName.firstChild) {
+        userName.removeChild(userName.firstChild);
+      }
+
+      logOutButton.disabled = true; // for (let i = domTasks.length - 1; i >= 0; i--) {
+      //     domTasks[i].remove();
+      // }
+
+      while (tasksParent.firstChild) {
+        tasksParent.removeChild(tasksParent.firstChild);
       }
 
       authMenu.style.display = 'block';
