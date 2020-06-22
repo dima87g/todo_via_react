@@ -1,5 +1,6 @@
 .idea/
 .vscode/
+.gitconfig
 todo_venv/
 test_daemon.py
 node_modules/
