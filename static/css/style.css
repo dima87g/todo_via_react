@@ -15,7 +15,7 @@
     height: 400px;
     border: 1px solid;
     /*background-color: cornflowerblue;*/
-    opacity: 100%;
+    opacity: 1;
     left: 50%;
     margin-left: -200px;
     transition: opacity 1s;
@@ -25,7 +25,7 @@
     position: absolute;
     height: 200px;
     width: 200px;
-    opacity: 100;
+    opacity: 1;
     border: 1px solid;
     border-radius: 10px 10px;
     margin-left: 100px;
@@ -141,18 +141,3 @@
 .finished_task > p{
     text-decoration: line-through;
 }
-
-.autoplacement-example {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  grid-gap: 20px;
-}
-
-/* test */
-
-.flex-container {
-  display: flex;
-  flex-direction: column;
-}
-

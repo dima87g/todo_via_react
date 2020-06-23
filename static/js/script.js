@@ -255,7 +255,7 @@ class Login {
             deactivateButton.disabled = true;
             activate.style.display = 'block';
             setTimeout(function () {
-                activate.style.opacity = '100';
+                activate.style.opacity = '1';
             });
             setTimeout(function () {
                 deactivate.style.display = 'none';
@@ -314,7 +314,7 @@ class Login {
 
         authMenu.style.display = 'block';
         setTimeout(function() {
-            authMenu.style.opacity = '100';
+            authMenu.style.opacity = '1';
         });
     }
 

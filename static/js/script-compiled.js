@@ -305,7 +305,7 @@ var Login = /*#__PURE__*/function () {
         deactivateButton.disabled = true;
         activate.style.display = 'block';
         setTimeout(function () {
-          activate.style.opacity = '100';
+          activate.style.opacity = '1';
         });
         setTimeout(function () {
           deactivate.style.display = 'none';
@@ -366,7 +366,7 @@ var Login = /*#__PURE__*/function () {
 
       authMenu.style.display = 'block';
       setTimeout(function () {
-        authMenu.style.opacity = '100';
+        authMenu.style.opacity = '1';
       });
     }
   }, {
