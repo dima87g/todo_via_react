@@ -214,30 +214,35 @@ var Login = /*#__PURE__*/function () {
     _classCallCheck(this, Login);
 
     var self = this;
-    var switchRegisterButton = document.getElementById("register_button");
-    var switchLoginButton = document.getElementById("login_button");
-    var logInButton = document.getElementById("login_field_button");
-    var logOutButton = document.getElementById('logout_button');
-    var userRegisterButton = document.getElementById("register_form_button");
+    this.switchRegisterButton = document.getElementById("register_button");
+    this.switchLoginButton = document.getElementById("login_button");
+    this.logInButton = document.getElementById("login_field_button");
+    this.logOutButton = document.getElementById('user_logout_button');
+    this.userDeleteButton = document.getElementById("user_delete_button");
+    this.userRegisterButton = document.getElementById("register_form_button");
 
-    switchRegisterButton.onclick = function () {
+    this.switchRegisterButton.onclick = function () {
       self.switchLogin(this.value);
     };
 
-    switchLoginButton.onclick = function () {
+    this.switchLoginButton.onclick = function () {
       self.switchLogin(this.value);
     };
 
-    logInButton.onclick = function () {
-      self.logInButton();
+    this.logInButton.onclick = function () {
+      self.logIn();
     };
 
-    logOutButton.onclick = function () {
-      self.logOutButton();
+    this.logOutButton.onclick = function () {
+      self.logOut();
     };
 
-    userRegisterButton.onclick = function () {
-      self.userRegisterButton();
+    this.userDeleteButton.onclick = function () {
+      self.userDelete();
+    };
+
+    this.userRegisterButton.onclick = function () {
+      self.userRegister();
     };
   }
 
@@ -287,15 +292,14 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "switchLogin",
     value: function switchLogin(val) {
-      var loginWindow = document.getElementById('login_form');
-      var registerButton = document.getElementById('register_button');
-      var registerWindow = document.getElementById('register_form');
-      var loginButton = document.getElementById('login_button');
+      var loginWindow = document.getElementById('login_form'); // let registerButton = document.getElementById('register_button');
+
+      var registerWindow = document.getElementById('register_form'); // let loginButton = document.getElementById('login_button');
 
       if (val === 'register') {
-        windowChange(registerWindow, loginButton, loginWindow, registerButton, 'login_form_info');
+        windowChange(registerWindow, this.switchLoginButton, loginWindow, this.switchRegisterButton, 'login_form_info');
       } else if (val === 'login') {
-        windowChange(loginWindow, registerButton, registerWindow, loginButton, 'register_form_info');
+        windowChange(loginWindow, this.switchRegisterButton, registerWindow, this.switchLoginButton, 'register_form_info');
       }
 
       function windowChange(activate, activateButton, deactivate, deactivateButton, infoFieldName) {
@@ -314,8 +318,8 @@ var Login = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "logInButton",
-    value: function logInButton() {
+    key: "logIn",
+    value: function logIn() {
       /**
        * POST: json =  {userName: 'string'}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
@@ -344,11 +348,10 @@ var Login = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "logOutButton",
-    value: function logOutButton() {
+    key: "logOut",
+    value: function logOut() {
       var userName = document.getElementById('user_name_field');
-      var logOutButton = document.getElementById('logout_button'); // let domTasks = document.getElementsByClassName('task');
-
+      var logOutButton = document.getElementById('user_logout_button');
       var tasksParent = document.getElementById("main_tasks");
       var authMenu = document.getElementById('auth_menu'); // userName.textContent = '';
 
@@ -356,9 +359,7 @@ var Login = /*#__PURE__*/function () {
         userName.removeChild(userName.firstChild);
       }
 
-      logOutButton.disabled = true; // for (let i = domTasks.length - 1; i >= 0; i--) {
-      //     domTasks[i].remove();
-      // }
+      logOutButton.disabled = true;
 
       while (tasksParent.firstChild) {
         tasksParent.removeChild(tasksParent.firstChild);
@@ -370,8 +371,15 @@ var Login = /*#__PURE__*/function () {
       });
     }
   }, {
-    key: "userRegisterButton",
-    value: function userRegisterButton() {
+    key: "userDelete",
+    value: function userDelete() {
+      function del() {}
+
+      createConfirmWindow(del, "Are you sure, you want to delete user?");
+    }
+  }, {
+    key: "userRegister",
+    value: function userRegister() {
       /**
        * POST: json =  {newUserName: 'string'}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
@@ -482,6 +490,14 @@ function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParen
   }
 
   taskList.updateDom(taskParentId, existsTasksClass);
+}
+
+function createConfirmWindow(func, message) {
+  var shadow = document.getElementById("shadow");
+  var confirmWindow = document.getElementById("confirm_window");
+  var confirmWindowMessage = document.getElementById("confirm_window_message");
+  var confirmWindowOkButton = document.getElementById("confirm_window_ok_button");
+  var confirmWindowCancelbutton = document.getElementById("confirm_window_cancel_button");
 }
 
 document.addEventListener('DOMContentLoaded', function () {

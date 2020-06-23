@@ -3,6 +3,10 @@
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
 .container {
     position: relative;
     max-width: 1366px;
@@ -88,7 +92,24 @@
 
 .header {
     outline: blue solid 1px;
-    height: 50px;
+    /* height: 60px; */
+}
+
+.header > *{
+    margin-bottom: 5px;
+}
+
+.user_name_field {
+    height: 20px;
+}
+
+.user_logout_button {
+    display: block;
+}
+
+.user_delete_button {
+    display: block;
+    margin-bottom: 0;
 }
 
 .main_window {
@@ -138,6 +159,28 @@
     border-radius: 50%;
 }
 
-.finished_task > p{
+.finished_task > p {
     text-decoration: line-through;
 }
+
+.confirm_window {
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    background-color: aqua;
+    left: 50%;
+    margin-left: -100px;
+    display: none;
+}
+
+.shadow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: grey;
+    opacity: 0;
+    top: 0;
+    display: none;
+    transition: opacity 0.5s;
+}
+

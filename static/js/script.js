@@ -165,27 +165,31 @@ class Task {
 
 class Login {
     constructor() {
-        let self = this;
-        let switchRegisterButton = document.getElementById("register_button");
-        let switchLoginButton = document.getElementById("login_button");
-        let logInButton = document.getElementById("login_field_button");
-        let logOutButton = document.getElementById('logout_button');
-        let userRegisterButton = document.getElementById("register_form_button");
+        const self = this;
+        this.switchRegisterButton = document.getElementById("register_button");
+        this.switchLoginButton = document.getElementById("login_button");
+        this.logInButton = document.getElementById("login_field_button");
+        this.logOutButton = document.getElementById('user_logout_button');
+        this.userDeleteButton = document.getElementById("user_delete_button");
+        this.userRegisterButton = document.getElementById("register_form_button");
 
-        switchRegisterButton.onclick = function() {
+        this.switchRegisterButton.onclick = function() {
             self.switchLogin(this.value);
         }
-        switchLoginButton.onclick = function() {
+        this.switchLoginButton.onclick = function() {
             self.switchLogin(this.value);
         }
-        logInButton.onclick = function() {
-            self.logInButton();
+        this.logInButton.onclick = function() {
+            self.logIn();
         }
-        logOutButton.onclick = function() {
-            self.logOutButton();
+        this.logOutButton.onclick = function() {
+            self.logOut();
         }
-        userRegisterButton.onclick = function() {
-            self.userRegisterButton();
+        this.userDeleteButton.onclick = function() {
+            self.userDelete();
+        }
+        this.userRegisterButton.onclick = function() {
+            self.userRegister();
         }
     }
 
@@ -236,15 +240,15 @@ class Login {
 
     switchLogin(val) {
         let loginWindow = document.getElementById('login_form');
-        let registerButton = document.getElementById('register_button');
+        // let registerButton = document.getElementById('register_button');
         let registerWindow = document.getElementById('register_form');
-        let loginButton = document.getElementById('login_button');
+        // let loginButton = document.getElementById('login_button');
 
 
         if (val === 'register') {
-            windowChange(registerWindow, loginButton, loginWindow, registerButton, 'login_form_info');
+            windowChange(registerWindow, this.switchLoginButton, loginWindow, this.switchRegisterButton, 'login_form_info');
         } else if (val === 'login') {
-            windowChange(loginWindow, registerButton, registerWindow, loginButton, 'register_form_info');
+            windowChange(loginWindow, this.switchRegisterButton, registerWindow, this.switchLoginButton, 'register_form_info');
         }
 
             function windowChange(activate, activateButton, deactivate, deactivateButton, infoFieldName) {
@@ -264,7 +268,7 @@ class Login {
         }
     }
 
-    logInButton() {
+    logIn() {
     /**
      * POST: json =  {userName: 'string'}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
@@ -290,10 +294,9 @@ class Login {
         }
     }
 
-    logOutButton() {
+    logOut() {
         let userName = document.getElementById('user_name_field');
-        let logOutButton = document.getElementById('logout_button');
-        // let domTasks = document.getElementsByClassName('task');
+        let logOutButton = document.getElementById('user_logout_button');
         let tasksParent = document.getElementById("main_tasks");
         let authMenu = document.getElementById('auth_menu');
 
@@ -303,10 +306,6 @@ class Login {
         }
 
         logOutButton.disabled = true;
-
-        // for (let i = domTasks.length - 1; i >= 0; i--) {
-        //     domTasks[i].remove();
-        // }
 
         while (tasksParent.firstChild) {
             tasksParent.removeChild(tasksParent.firstChild);
@@ -318,7 +317,14 @@ class Login {
         });
     }
 
-    userRegisterButton() {
+    userDelete() {
+        function del() {
+
+        }
+        createConfirmWindow(del, "Are you sure, you want to delete user?");
+    }
+
+    userRegister() {
     /**
      * POST: json =  {newUserName: 'string'}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
@@ -414,6 +420,14 @@ function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParen
     taskList.updateDom(taskParentId, existsTasksClass);
 }
 
+function createConfirmWindow(func, message) {
+    let shadow = document.getElementById("shadow");
+    let confirmWindow = document.getElementById("confirm_window");
+    let confirmWindowMessage = document.getElementById("confirm_window_message");
+    let confirmWindowOkButton = document.getElementById("confirm_window_ok_button");
+    let confirmWindowCancelbutton = document.getElementById("confirm_window_cancel_button");
+
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     let login = new Login();
