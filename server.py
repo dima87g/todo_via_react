@@ -49,8 +49,12 @@ def login():
         cur.fetchall()
         count = cur.rowcount
 
-        return jsonify({'ok': bool(count), 'error_code': None,
-                        'error_message': None})
+        if count == 1:
+            return jsonify({'ok': True, 'error_code': None,
+                            'error_message': None})
+        else:
+            return jsonify({"ok": False, "error_code": None, 
+                            "error_message": "No user " + user_name + " or incorrect password"})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -95,6 +99,41 @@ def user_register():
         connection.commit()
 
         return jsonify({'ok': True, 'error_code': None, 'error_message': None})
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': None,
+                        'error_message': error.args[0]})
+    finally:
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
+
+@app.route("/user_delete", methods=["GET", "POST"])
+def user_delete():
+    """
+    request: json = {"userName": "str"}
+    response: json = {'ok': 'bool', 'error_code': 'int' or None,
+     'error_message': 'str' or None}
+    """
+    connection = None
+    cur = None
+
+    try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
+        data = request.json
+        user_name = data["userName"]
+
+        cur.execute("DELETE FROM users WHERE user_name = %s", (user_name,))
+
+        connection.commit()
+
+        return jsonify({"ok": True, "error_code": None, 
+                        "error_message": None})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
