@@ -267,16 +267,18 @@ var Login = /*#__PURE__*/function () {
       function loadTasks(answer) {
         var authMenu = document.getElementById("auth_menu");
         var infoMessage = document.getElementById('login_form_info');
+        var shadow = document.getElementById("shadow");
 
         if (answer['ok'] === true) {
           infoMessage.textContent = '';
           authMenu.style.opacity = '0';
+          shadow.style.display = "none";
           setTimeout(function () {
             authMenu.style.display = 'none';
             document.getElementById('task_input_field').focus();
           }, 500);
           var userNameField = document.getElementById('user_name_field');
-          var logOutButton = document.getElementById('logout_button');
+          var logOutButton = document.getElementById('user_logout_button');
           userNameField.appendChild(document.createTextNode(userName));
           logOutButton.disabled = false;
           var userId = answer['user_id'];
@@ -333,7 +335,7 @@ var Login = /*#__PURE__*/function () {
           if (answer['ok'] === true) {
             self.onLoad(userName);
           } else {
-            infoMessage.textContent = 'Авторизация не удалась =(';
+            infoMessage.textContent = answer["error_message"];
           }
         };
 
@@ -373,9 +375,23 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userDelete",
     value: function userDelete() {
-      function del() {}
+      var self = this;
+      var userName = document.getElementById('user_name_field').textContent;
+      var sendData = {
+        "userName": userName
+      };
 
-      createConfirmWindow(del, "Are you sure, you want to delete user?");
+      var conf = function conf() {
+        knock_knock("user_delete", sendData, del);
+      };
+
+      function del(answer) {
+        if (answer["ok"] === true) {
+          self.logOut();
+        }
+      }
+
+      createConfirmWindow(conf, "Are you sure, you want to delete user?");
     }
   }, {
     key: "userRegister",
@@ -496,8 +512,26 @@ function createConfirmWindow(func, message) {
   var shadow = document.getElementById("shadow");
   var confirmWindow = document.getElementById("confirm_window");
   var confirmWindowMessage = document.getElementById("confirm_window_message");
-  var confirmWindowOkButton = document.getElementById("confirm_window_ok_button");
-  var confirmWindowCancelbutton = document.getElementById("confirm_window_cancel_button");
+  var okButton = document.getElementById("confirm_window_ok_button");
+  var cancelButton = document.getElementById("confirm_window_cancel_button");
+  shadow.style.display = "block";
+  confirmWindowMessage.appendChild(document.createTextNode(message));
+  confirmWindow.style.display = "block";
+  setTimeout(function () {
+    shadow.style.opacity = "0.5";
+  });
+  okButton.onclick = click;
+  cancelButton.onclick = click;
+
+  function click() {
+    if (this.value === "OK") {
+      func();
+    }
+
+    shadow.style.display = "none";
+    confirmWindow.style.display = "none";
+    confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -211,17 +211,20 @@ class Login {
         function loadTasks(answer) {
             let authMenu = document.getElementById("auth_menu");
             let infoMessage = document.getElementById('login_form_info');
+            let shadow = document.getElementById("shadow");
 
             if (answer['ok'] === true) {
                 infoMessage.textContent = '';
                 authMenu.style.opacity = '0';
+                shadow.style.display = "none";
+                
                 setTimeout(function() {
                     authMenu.style.display = 'none';
                     document.getElementById('task_input_field').focus();
                     }, 500);
 
                 let userNameField = document.getElementById('user_name_field');
-                let logOutButton = document.getElementById('logout_button');
+                let logOutButton = document.getElementById('user_logout_button');
 
                 userNameField.appendChild(document.createTextNode(userName));
                 logOutButton.disabled = false;
@@ -285,7 +288,7 @@ class Login {
                 if (answer['ok'] === true) {
                     self.onLoad(userName);
                 } else {
-                    infoMessage.textContent = 'Авторизация не удалась =(';
+                    infoMessage.textContent = answer["error_message"];
                 }
             }
             knock_knock('login', sendData, login);
@@ -318,10 +321,21 @@ class Login {
     }
 
     userDelete() {
-        function del() {
+        const self = this;
+        let userName = document.getElementById('user_name_field').textContent;
+        let sendData = {"userName": userName};
 
+        let conf = function() {
+            knock_knock("user_delete", sendData, del);
         }
-        createConfirmWindow(del, "Are you sure, you want to delete user?");
+
+        function del(answer) {
+            if (answer["ok"] === true) {
+                self.logOut();
+            }
+        }
+
+        createConfirmWindow(conf, "Are you sure, you want to delete user?");
     }
 
     userRegister() {
@@ -424,9 +438,28 @@ function createConfirmWindow(func, message) {
     let shadow = document.getElementById("shadow");
     let confirmWindow = document.getElementById("confirm_window");
     let confirmWindowMessage = document.getElementById("confirm_window_message");
-    let confirmWindowOkButton = document.getElementById("confirm_window_ok_button");
-    let confirmWindowCancelbutton = document.getElementById("confirm_window_cancel_button");
+    let okButton = document.getElementById("confirm_window_ok_button");
+    let cancelButton = document.getElementById("confirm_window_cancel_button");
 
+    shadow.style.display = "block";
+    confirmWindowMessage.appendChild(document.createTextNode(message));
+    confirmWindow.style.display = "block";
+
+    setTimeout(function() {
+        shadow.style.opacity = "0.5";
+    })
+
+    okButton.onclick = click;
+    cancelButton.onclick = click;
+
+    function click() {
+        if (this.value === "OK") {
+            func();
+        }
+        shadow.style.display = "none";
+        confirmWindow.style.display = "none";
+        confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
