@@ -1,3 +1,5 @@
+"use strict";
+
 class TaskList {
     constructor() {
         this.userId = undefined;
