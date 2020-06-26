@@ -39,19 +39,19 @@ html, body {
     transition: opacity 0.5s;
 }
 
-.login_field {
+.login_form_username {
     display: block;
     margin: 0 auto;
     border-radius: 20px 20px;
 }
 
-.pass {
+.login_form_password {
     display: block;
     margin: 0 auto;
     border-radius: 20px 20px;
 }
 
-.login_field_button {
+.login_form_button {
     border-radius: 20px 20px;
 }
 
@@ -75,7 +75,13 @@ html, body {
     display: none;
 }
 
-.register_form_text{
+.register_form_username{
+    display: block;
+    margin: 0 auto;
+    border-radius: 20px 20px;
+}
+
+.register_form_password {
     display: block;
     margin: 0 auto;
     border-radius: 20px 20px;

@@ -214,12 +214,16 @@ var Login = /*#__PURE__*/function () {
     _classCallCheck(this, Login);
 
     var self = this;
+    this.loginFormUsername = document.getElementById("login_form_username");
+    this.registerFormUsername = document.getElementById("register_form_username");
     this.switchRegisterButton = document.getElementById("register_button");
     this.switchLoginButton = document.getElementById("login_button");
-    this.logInButton = document.getElementById("login_field_button");
+    this.logInButton = document.getElementById("login_form_button");
     this.logOutButton = document.getElementById('user_logout_button');
     this.userDeleteButton = document.getElementById("user_delete_button");
     this.userRegisterButton = document.getElementById("register_form_button");
+    this.shadow = document.getElementById("shadow");
+    this.loginFormUsername.focus();
 
     this.switchRegisterButton.onclick = function () {
       self.switchLogin(this.value);
@@ -294,22 +298,22 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "switchLogin",
     value: function switchLogin(val) {
-      var loginWindow = document.getElementById('login_form'); // let registerButton = document.getElementById('register_button');
-
-      var registerWindow = document.getElementById('register_form'); // let loginButton = document.getElementById('login_button');
+      var loginWindow = document.getElementById('login_form');
+      var registerWindow = document.getElementById('register_form');
 
       if (val === 'register') {
-        windowChange(registerWindow, this.switchLoginButton, loginWindow, this.switchRegisterButton, 'login_form_info');
+        windowChange(registerWindow, this.switchLoginButton, loginWindow, this.switchRegisterButton, this.registerFormUsername, 'login_form_info');
       } else if (val === 'login') {
-        windowChange(loginWindow, this.switchRegisterButton, registerWindow, this.switchLoginButton, 'register_form_info');
+        windowChange(loginWindow, this.switchRegisterButton, registerWindow, this.switchLoginButton, this.loginFormUsername, 'register_form_info');
       }
 
-      function windowChange(activate, activateButton, deactivate, deactivateButton, infoFieldName) {
+      function windowChange(activate, activateButton, deactivate, deactivateButton, focusField, infoFieldName) {
         var infoField = document.getElementById(infoFieldName);
         infoField.textContent = '';
         deactivate.style.opacity = '0';
         deactivateButton.disabled = true;
         activate.style.display = 'block';
+        focusField.focus();
         setTimeout(function () {
           activate.style.opacity = '1';
         });
@@ -330,7 +334,7 @@ var Login = /*#__PURE__*/function () {
       var self = this;
       var infoMessage = document.getElementById('login_form_info');
 
-      if (document.getElementById("login_field").value) {
+      if (document.getElementById("login_form_username").value) {
         var login = function login(answer) {
           if (answer['ok'] === true) {
             self.onLoad(userName);
@@ -339,8 +343,8 @@ var Login = /*#__PURE__*/function () {
           }
         };
 
-        var userName = document.getElementById("login_field").value;
-        document.getElementById("login_field").value = '';
+        var userName = document.getElementById("login_form_username").value;
+        document.getElementById("login_form_username").value = '';
         var sendData = {
           'userName': userName
         };
@@ -356,6 +360,8 @@ var Login = /*#__PURE__*/function () {
       var logOutButton = document.getElementById('user_logout_button');
       var tasksParent = document.getElementById("main_tasks");
       var authMenu = document.getElementById('auth_menu'); // userName.textContent = '';
+
+      this.shadow.style.display = "block";
 
       while (userName.firstChild) {
         userName.removeChild(userName.firstChild);
@@ -403,7 +409,7 @@ var Login = /*#__PURE__*/function () {
        */
       var infoMessage = document.getElementById("register_form_info");
 
-      if (document.getElementById('register_form_text').value) {
+      if (document.getElementById('register_form_username').value) {
         var register = function register(answer) {
           if (answer['ok'] === true) {
             infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
@@ -414,7 +420,7 @@ var Login = /*#__PURE__*/function () {
           }
         };
 
-        var newUserName = document.getElementById('register_form_text').value;
+        var newUserName = document.getElementById('register_form_username').value;
         var sendData = {
           'newUserName': newUserName
         };
@@ -445,7 +451,7 @@ function events() {
 
   var taskInputField = document.getElementById("task_input_field");
   taskInputField.addEventListener("keydown", noEnterRefreshLogin, false);
-  var registerField = document.getElementById("register_form_text");
+  var registerField = document.getElementById("register_form_username");
   registerField.addEventListener('keydown', noEnterRefreshRegister, false);
 }
 
