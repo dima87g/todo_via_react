@@ -168,17 +168,21 @@ class Task {
 class Login {
     constructor() {
         const self = this;
+        this.authMenu = document.getElementById("auth_menu");
+        this.loginFormInfo = document.getElementById("login_form_info");
         this.loginFormUsername = document.getElementById("login_form_username");
+        this.logInButton = document.getElementById("login_form_button");
         this.registerFormUsername = document.getElementById("register_form_username");
+        this.userRegisterButton = document.getElementById("register_form_button");
         this.switchRegisterButton = document.getElementById("register_button");
         this.switchLoginButton = document.getElementById("login_button");
-        this.logInButton = document.getElementById("login_form_button");
-        this.logOutButton = document.getElementById('user_logout_button');
+        this.userNameField = document.getElementById("user_name_field");
+        this.userLogOutButton = document.getElementById('user_logout_button');
         this.userDeleteButton = document.getElementById("user_delete_button");
-        this.userRegisterButton = document.getElementById("register_form_button");
         this.shadow = document.getElementById("shadow");
 
         this.loginFormUsername.focus();
+        this.userLogOutButton.disabled = true;
 
         this.switchRegisterButton.onclick = function() {
             self.switchLogin(this.value);
@@ -189,7 +193,7 @@ class Login {
         this.logInButton.onclick = function() {
             self.logIn();
         }
-        this.logOutButton.onclick = function() {
+        this.userLogOutButton.onclick = function() {
             self.logOut();
         }
         this.userDeleteButton.onclick = function() {
@@ -213,28 +217,21 @@ class Login {
      * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
      * 'error_message': 'string' or null}
      */
-        let sendData = {'userName': userName};
+        const sendData = {'userName': userName};
 
-        function loadTasks(answer) {
-            let authMenu = document.getElementById("auth_menu");
-            let infoMessage = document.getElementById('login_form_info');
-            let shadow = document.getElementById("shadow");
-
+        const loadTasks = (answer) => {
             if (answer['ok'] === true) {
-                infoMessage.textContent = '';
-                authMenu.style.opacity = '0';
-                shadow.style.display = "none";
+                this.loginFormInfo.removeChild(this.loginFormInfo.firstChild);
+                this.authMenu.style.opacity = '0';
+                this.shadow.style.display = "none";
                 
-                setTimeout(function() {
-                    authMenu.style.display = 'none';
+                setTimeout(() => {
+                    this.authMenu.style.display = 'none';
                     document.getElementById('task_input_field').focus();
                     }, 500);
 
-                let userNameField = document.getElementById('user_name_field');
-                let logOutButton = document.getElementById('user_logout_button');
-
-                userNameField.appendChild(document.createTextNode(userName));
-                logOutButton.disabled = false;
+                this.userNameField.appendChild(document.createTextNode(userName));
+                this.userLogOutButton.disabled = false;
 
                 let userId = answer['user_id'];
                 let tasksFromServer = answer['tasks'];
@@ -242,7 +239,7 @@ class Login {
                 createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
 
             } else {
-                infoMessage.textContent = 'Проблема(((((';
+                this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
                 }
         }
         knock_knock('load', sendData, loadTasks);
@@ -304,28 +301,24 @@ class Login {
     }
 
     logOut() {
-        let userName = document.getElementById('user_name_field');
-        let logOutButton = document.getElementById('user_logout_button');
+        let userNameField = document.getElementById('user_name_field');
         let tasksParent = document.getElementById("main_tasks");
-        let authMenu = document.getElementById('auth_menu');
-
-        // userName.textContent = '';
         
         this.shadow.style.display = "block";
 
-        while (userName.firstChild) {
-            userName.removeChild(userName.firstChild);
+        while (userNameField.firstChild) {
+            userNameField.removeChild(userNameField.firstChild);
         }
 
-        logOutButton.disabled = true;
+        this.userLogOutButton.disabled = true;
 
         while (tasksParent.firstChild) {
             tasksParent.removeChild(tasksParent.firstChild);
         }
 
-        authMenu.style.display = 'block';
-        setTimeout(function() {
-            authMenu.style.opacity = '1';
+        this.authMenu.style.display = 'block';
+        setTimeout(() => {
+            this.authMenu.style.opacity = '1';
         });
     }
 

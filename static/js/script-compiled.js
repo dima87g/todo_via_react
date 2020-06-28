@@ -214,16 +214,20 @@ var Login = /*#__PURE__*/function () {
     _classCallCheck(this, Login);
 
     var self = this;
+    this.authMenu = document.getElementById("auth_menu");
+    this.loginFormInfo = document.getElementById("login_form_info");
     this.loginFormUsername = document.getElementById("login_form_username");
+    this.logInButton = document.getElementById("login_form_button");
     this.registerFormUsername = document.getElementById("register_form_username");
+    this.userRegisterButton = document.getElementById("register_form_button");
     this.switchRegisterButton = document.getElementById("register_button");
     this.switchLoginButton = document.getElementById("login_button");
-    this.logInButton = document.getElementById("login_form_button");
-    this.logOutButton = document.getElementById('user_logout_button');
+    this.userNameField = document.getElementById("user_name_field");
+    this.userLogOutButton = document.getElementById('user_logout_button');
     this.userDeleteButton = document.getElementById("user_delete_button");
-    this.userRegisterButton = document.getElementById("register_form_button");
     this.shadow = document.getElementById("shadow");
     this.loginFormUsername.focus();
+    this.userLogOutButton.disabled = true;
 
     this.switchRegisterButton.onclick = function () {
       self.switchLogin(this.value);
@@ -237,7 +241,7 @@ var Login = /*#__PURE__*/function () {
       self.logIn();
     };
 
-    this.logOutButton.onclick = function () {
+    this.userLogOutButton.onclick = function () {
       self.logOut();
     };
 
@@ -253,6 +257,8 @@ var Login = /*#__PURE__*/function () {
   _createClass(Login, [{
     key: "onLoad",
     value: function onLoad(userName) {
+      var _this = this;
+
       /**
        * POST: userName = 'string'
        * GET:
@@ -268,30 +274,27 @@ var Login = /*#__PURE__*/function () {
         'userName': userName
       };
 
-      function loadTasks(answer) {
-        var authMenu = document.getElementById("auth_menu");
-        var infoMessage = document.getElementById('login_form_info');
-        var shadow = document.getElementById("shadow");
-
+      var loadTasks = function loadTasks(answer) {
         if (answer['ok'] === true) {
-          infoMessage.textContent = '';
-          authMenu.style.opacity = '0';
-          shadow.style.display = "none";
+          _this.loginFormInfo.removeChild(_this.loginFormInfo.firstChild);
+
+          _this.authMenu.style.opacity = '0';
+          _this.shadow.style.display = "none";
           setTimeout(function () {
-            authMenu.style.display = 'none';
+            _this.authMenu.style.display = 'none';
             document.getElementById('task_input_field').focus();
           }, 500);
-          var userNameField = document.getElementById('user_name_field');
-          var logOutButton = document.getElementById('user_logout_button');
-          userNameField.appendChild(document.createTextNode(userName));
-          logOutButton.disabled = false;
+
+          _this.userNameField.appendChild(document.createTextNode(userName));
+
+          _this.userLogOutButton.disabled = false;
           var userId = answer['user_id'];
           var tasksFromServer = answer['tasks'];
           createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
         } else {
-          infoMessage.textContent = 'Проблема(((((';
+          _this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
         }
-      }
+      };
 
       knock_knock('load', sendData, loadTasks);
     }
@@ -356,26 +359,25 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logOut",
     value: function logOut() {
-      var userName = document.getElementById('user_name_field');
-      var logOutButton = document.getElementById('user_logout_button');
-      var tasksParent = document.getElementById("main_tasks");
-      var authMenu = document.getElementById('auth_menu'); // userName.textContent = '';
+      var _this2 = this;
 
+      var userNameField = document.getElementById('user_name_field');
+      var tasksParent = document.getElementById("main_tasks");
       this.shadow.style.display = "block";
 
-      while (userName.firstChild) {
-        userName.removeChild(userName.firstChild);
+      while (userNameField.firstChild) {
+        userNameField.removeChild(userNameField.firstChild);
       }
 
-      logOutButton.disabled = true;
+      this.userLogOutButton.disabled = true;
 
       while (tasksParent.firstChild) {
         tasksParent.removeChild(tasksParent.firstChild);
       }
 
-      authMenu.style.display = 'block';
+      this.authMenu.style.display = 'block';
       setTimeout(function () {
-        authMenu.style.opacity = '1';
+        _this2.authMenu.style.opacity = '1';
       });
     }
   }, {
