@@ -27,6 +27,15 @@ html, body {
     transition: opacity 1s;
 }
 
+.auth_menu_forms_labels {
+    font-weight: bold;
+    margin-left: 50px;
+}
+
+.auth_menu_labels {
+    margin-left: 10px;
+}
+
 .login_form {
     position: absolute;
     height: 200px;
@@ -40,12 +49,14 @@ html, body {
 }
 
 .login_form_username {
+    width: 176px;
     display: block;
     margin: 0 auto;
     border-radius: 20px 20px;
 }
 
 .login_form_password {
+    width: 176px;
     display: block;
     margin: 0 auto;
     border-radius: 20px 20px;
@@ -53,6 +64,7 @@ html, body {
 
 .login_form_button {
     border-radius: 20px 20px;
+    margin-left: 9.5px;
 }
 
 .register_button {
@@ -76,12 +88,21 @@ html, body {
 }
 
 .register_form_username{
+    width: 176px;
     display: block;
     margin: 0 auto;
     border-radius: 20px 20px;
 }
 
 .register_form_password {
+    width: 176px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 20px 20px;
+}
+
+.register_form_password_confirm {
+    width: 176px;
     display: block;
     margin: 0 auto;
     border-radius: 20px 20px;
@@ -89,6 +110,7 @@ html, body {
 
 .register_form_button {
     border-radius: 20px 20px;
+    margin-left: 9.5px;
 }
 
 .login_button {

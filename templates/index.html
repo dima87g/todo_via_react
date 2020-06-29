@@ -15,21 +15,24 @@
     </div>
     <div id="auth_menu" class="auth_menu">
         <div id="login_form" class="login_form">
+            <p class="auth_menu_forms_labels">Login window</p>
             <form>
-                <label for="login_form_username"></label><input type="text" id="login_form_username" class="login_form_username" value="admin">
-                <label for="login_form_password"></label><input type="password" id="login_form_password" class="login_form_password">
+                <label for="login_form_username" class="auth_menu_labels">Enter username</label><input type="text" name="login_form_username" id="login_form_username" class="login_form_username" value="admin" placeholder="User Name">
+                <label for="login_form_password" class="auth_menu_labels">Enter password</label><input type="password" name="login_form_password" id="login_form_password" class="login_form_password" placeholder="Password">
                 <input type="button" id="login_form_button" class="login_form_button" value="Отправить">
             </form>
             <p id="login_form_info" class="login_form_info"></p>
             <button type="button" value='register' id="register_button" class="register_button">Register</button>
         </div>
         <div id="register_form" class="register_form">
+            <p class="auth_menu_forms_labels">Register window</p>
             <form>
-                <label for="register_form_username"></label><input type="text" name="register_form_username" id="register_form_username" class="register_form_username">
-                <label for="register_form_password"></label><input type="password" name="register_form_password" id="register_form_password" class="register_form_password">
+                <label for="register_form_username" class="auth_menu_labels">Enter username</label><input type="text" name="register_form_username" id="register_form_username" class="register_form_username" placeholder="User Name">
+                <label for="register_form_password" class="auth_menu_labels">Enter password</label><input type="password" name="register_form_password" id="register_form_password" class="register_form_password" placeholder="Password">
+                <label for="register_form_password_confirm" class="auth_menu_labels">Confirm password</label><input type="password" name="register_form_password_confirm" id="register_form_password_confirm" class="register_form_password_confirm" placeholder="Confirm password">
                 <input type="button" value="Создать" id="register_form_button" class="register_form_button">
             </form>
-            <p id="register_form_info" class="register_form_info">Enter new user name</p>
+            <p id="register_form_info" class="register_form_info"></p>
             <button type="button" value='login' disabled="disabled" id="login_button" class="login_button">Log In</button>
         </div>
     </div>
