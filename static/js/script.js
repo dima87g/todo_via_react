@@ -172,10 +172,13 @@ class Login {
         this.loginForm = document.getElementById("login_form");
         this.loginFormInfo = document.getElementById("login_form_info");
         this.loginFormUsername = document.getElementById("login_form_username");
+        this.loginFormPassword = document.getElementById("login_form_password");
         this.loginButton = document.getElementById("login_form_button");
         this.registerForm = document.getElementById("register_form");
         this.registerFormInfo = document.getElementById("register_form_info");
         this.registerFormUsername = document.getElementById("register_form_username");
+        this.registerFormPassword = document.getElementById("register_form_password");
+        this.registerFormPasswordConfirm = document.getElementById("register_form_password_confirm");
         this.userRegisterButton = document.getElementById("register_form_button");
         this.switchRegisterButton = document.getElementById("register_button");
         this.switchLoginButton = document.getElementById("login_button");
@@ -208,46 +211,46 @@ class Login {
     }
 
 
-    onLoad(userName) {
-    /**
-     * POST: userName = 'string'
-     * GET:
-     * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-     *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
-     *                                          ...
-     *                                          ]
-     *             }
-     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-     * 'error_message': 'string' or null}
-     */
-        const sendData = {'userName': userName};
+    // onLoad(userName) {
+    // /**
+    //  * POST: userName = 'string'
+    //  * GET:
+    //  * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
+    //  *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
+    //  *                                          ...
+    //  *                                          ]
+    //  *             }
+    //  * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+    //  * 'error_message': 'string' or null}
+    //  */
+    //     const sendData = {'userName': userName};
 
-        const loadTasks = (answer) => {
-            if (answer['ok'] === true) {
-                removeChilds(this.loginFormInfo);
-                this.authMenu.style.opacity = '0';
-                this.shadow.style.display = "none";
+    //     const loadTasks = (answer) => {
+    //         if (answer['ok'] === true) {
+    //             removeChilds(this.loginFormInfo);
+    //             this.authMenu.style.opacity = '0';
+    //             this.shadow.style.display = "none";
                 
-                setTimeout(() => {
-                    this.authMenu.style.display = 'none';
-                    document.getElementById('task_input_field').focus();
-                    }, 500);
+    //             setTimeout(() => {
+    //                 this.authMenu.style.display = 'none';
+    //                 document.getElementById('task_input_field').focus();
+    //                 }, 500);
 
-                this.userNameField.appendChild(document.createTextNode(userName));
-                this.userLogOutButton.disabled = false;
+    //             this.userNameField.appendChild(document.createTextNode(userName));
+    //             this.userLogOutButton.disabled = false;
 
-                let userId = answer['user_id'];
-                let tasksFromServer = answer['tasks'];
+    //             let userId = answer['user_id'];
+    //             let tasksFromServer = answer['tasks'];
 
-                createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+    //             createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
 
-            } else {
-                removeChilds(this.loginFormInfo);
-                this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
-                }
-        }
-        knock_knock('load', sendData, loadTasks);
-    }
+    //         } else {
+    //             removeChilds(this.loginFormInfo);
+    //             this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
+    //             }
+    //     }
+    //     knock_knock('load', sendData, loadTasks);
+    // }
 
     switchLogin(val) {
         if (val === 'register') {
@@ -274,27 +277,47 @@ class Login {
 
     logIn() {
     /**
-     * POST: json =  {userName: 'string'}
+     * POST: json =  {userName: 'string', password: "string"}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
+        removeChilds(this.loginFormInfo);
         if (this.loginFormUsername.value) {
-            let userName = this.loginFormUsername.value;
-            const sendData = {'userName': userName};
+            if (this.loginFormPassword) {
+                let userName = this.loginFormUsername.value;
+                let password = this.loginFormPassword.value;
+                const sendData = {"userName": userName, "password": password};
 
-            this.loginFormUsername.value = "";
+                this.loginFormUsername.value = "";
+                this.loginFormPassword.value = "";
 
-            const login = (answer) => {
-                if (answer["ok"] === true) {
-                    this.onLoad(userName);
-                } else {
-                    removeChilds(this.loginFormInfo);
-                    this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
+                const login = (answer) => {
+                    if (answer["ok"] === true) {
+                        removeChilds(this.loginFormInfo);
+                        this.authMenu.style.opacity = '0';
+                        this.shadow.style.display = "none";
+                        
+                        setTimeout(() => {
+                            this.authMenu.style.display = 'none';
+                            document.getElementById('task_input_field').focus();
+                            }, 500);
+
+                        this.userNameField.appendChild(document.createTextNode(userName));
+                        this.userLogOutButton.disabled = false;
+
+                        let userId = answer['user_id'];
+                        let tasksFromServer = answer['tasks'];
+
+                        createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+                    } else {
+                        this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
+                    }
                 }
+                knock_knock('login', sendData, login);
+            } else {
+                this.loginFormInfo.appendChild(document.createTextNode("Enter password!"));
             }
-            knock_knock('login', sendData, login);
         } else {
-            removeChilds(this.loginFormInfo);
             this.loginFormInfo.appendChild(document.createTextNode('Please, enter user name!'));
         }
     }
@@ -308,6 +331,7 @@ class Login {
         this.userLogOutButton.disabled = true;
         removeChilds(tasksParent);
         this.authMenu.style.display = 'block';
+        this.loginFormUsername.focus();
         setTimeout(() => {
             this.authMenu.style.opacity = '1';
         });
@@ -339,19 +363,34 @@ class Login {
         // let infoMessage = document.getElementById("register_form_info");
         removeChilds(this.registerFormInfo);
         if (this.registerFormUsername.value) {
-            let newUserName = this.registerFormUsername.value;
-            let sendData = {'newUserName': newUserName};
+            if (this.registerFormPassword.value) {
+                if (this.registerFormPasswordConfirm.value) {
+                    let newUserName = this.registerFormUsername.value;
+                    let password = this.registerFormPassword.value;
+                    let passwordConform = this.registerFormPasswordConfirm.value;
 
-            const register = (answer) => {
-                if (answer['ok'] === true) {
-                    this.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
-                } else if (answer['error_code'] === 1062) {
-                    this.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+                    if (password === passwordConform) {
+                        const sendData = {"newUserName": newUserName, "password": password};
+        
+                        const register = (answer) => {
+                            if (answer['ok'] === true) {
+                                this.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+                            } else if (answer['error_code'] === 1062) {
+                                this.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+                            } else {
+                                this.registerFormInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+                            }
+                        }
+                        knock_knock('user_register', sendData, register);
+                    } else {
+                        this.registerFormInfo.appendChild(document.createTextNode("Passwords arenot match!"));
+                    }
                 } else {
-                    this.registerFormInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+                    this.registerFormInfo.appendChild(document.createTextNode("Please, confirm password!"));
                 }
+            } else {
+                this.registerFormInfo.appendChild(document.createTextNode("Please, enter new password!"))
             }
-            knock_knock('user_register', sendData, register);
         } else {
             this.registerFormInfo.appendChild(document.createTextNode("Please, enter new user name!"));
         }

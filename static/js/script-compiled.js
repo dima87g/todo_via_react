@@ -218,10 +218,13 @@ var Login = /*#__PURE__*/function () {
     this.loginForm = document.getElementById("login_form");
     this.loginFormInfo = document.getElementById("login_form_info");
     this.loginFormUsername = document.getElementById("login_form_username");
+    this.loginFormPassword = document.getElementById("login_form_password");
     this.loginButton = document.getElementById("login_form_button");
     this.registerForm = document.getElementById("register_form");
     this.registerFormInfo = document.getElementById("register_form_info");
     this.registerFormUsername = document.getElementById("register_form_username");
+    this.registerFormPassword = document.getElementById("register_form_password");
+    this.registerFormPasswordConfirm = document.getElementById("register_form_password_confirm");
     this.userRegisterButton = document.getElementById("register_form_button");
     this.switchRegisterButton = document.getElementById("register_button");
     this.switchLoginButton = document.getElementById("login_button");
@@ -255,54 +258,43 @@ var Login = /*#__PURE__*/function () {
     this.userRegisterButton.onclick = function () {
       self.userRegister();
     };
-  }
+  } // onLoad(userName) {
+  // /**
+  //  * POST: userName = 'string'
+  //  * GET:
+  //  * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
+  //  *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
+  //  *                                          ...
+  //  *                                          ]
+  //  *             }
+  //  * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+  //  * 'error_message': 'string' or null}
+  //  */
+  //     const sendData = {'userName': userName};
+  //     const loadTasks = (answer) => {
+  //         if (answer['ok'] === true) {
+  //             removeChilds(this.loginFormInfo);
+  //             this.authMenu.style.opacity = '0';
+  //             this.shadow.style.display = "none";
+  //             setTimeout(() => {
+  //                 this.authMenu.style.display = 'none';
+  //                 document.getElementById('task_input_field').focus();
+  //                 }, 500);
+  //             this.userNameField.appendChild(document.createTextNode(userName));
+  //             this.userLogOutButton.disabled = false;
+  //             let userId = answer['user_id'];
+  //             let tasksFromServer = answer['tasks'];
+  //             createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+  //         } else {
+  //             removeChilds(this.loginFormInfo);
+  //             this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
+  //             }
+  //     }
+  //     knock_knock('load', sendData, loadTasks);
+  // }
+
 
   _createClass(Login, [{
-    key: "onLoad",
-    value: function onLoad(userName) {
-      var _this = this;
-
-      /**
-       * POST: userName = 'string'
-       * GET:
-       * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-       *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
-       *                                          ...
-       *                                          ]
-       *             }
-       * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-       * 'error_message': 'string' or null}
-       */
-      var sendData = {
-        'userName': userName
-      };
-
-      var loadTasks = function loadTasks(answer) {
-        if (answer['ok'] === true) {
-          removeChilds(_this.loginFormInfo);
-          _this.authMenu.style.opacity = '0';
-          _this.shadow.style.display = "none";
-          setTimeout(function () {
-            _this.authMenu.style.display = 'none';
-            document.getElementById('task_input_field').focus();
-          }, 500);
-
-          _this.userNameField.appendChild(document.createTextNode(userName));
-
-          _this.userLogOutButton.disabled = false;
-          var userId = answer['user_id'];
-          var tasksFromServer = answer['tasks'];
-          createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
-        } else {
-          removeChilds(_this.loginFormInfo);
-
-          _this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
-        }
-      };
-
-      knock_knock('load', sendData, loadTasks);
-    }
-  }, {
     key: "switchLogin",
     value: function switchLogin(val) {
       if (val === 'register') {
@@ -329,40 +321,59 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logIn",
     value: function logIn() {
-      var _this2 = this;
+      var _this = this;
 
       /**
-       * POST: json =  {userName: 'string'}
+       * POST: json =  {userName: 'string', password: "string"}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
        'error_message': 'string' or null}
        */
+      removeChilds(this.loginFormInfo);
+
       if (this.loginFormUsername.value) {
-        var userName = this.loginFormUsername.value;
-        var sendData = {
-          'userName': userName
-        };
-        this.loginFormUsername.value = "";
+        if (this.loginFormPassword) {
+          var userName = this.loginFormUsername.value;
+          var password = this.loginFormPassword.value;
+          var sendData = {
+            "userName": userName,
+            "password": password
+          };
+          this.loginFormUsername.value = "";
+          this.loginFormPassword.value = "";
 
-        var login = function login(answer) {
-          if (answer["ok"] === true) {
-            _this2.onLoad(userName);
-          } else {
-            removeChilds(_this2.loginFormInfo);
+          var login = function login(answer) {
+            if (answer["ok"] === true) {
+              removeChilds(_this.loginFormInfo);
+              _this.authMenu.style.opacity = '0';
+              _this.shadow.style.display = "none";
+              setTimeout(function () {
+                _this.authMenu.style.display = 'none';
+                document.getElementById('task_input_field').focus();
+              }, 500);
 
-            _this2.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
-          }
-        };
+              _this.userNameField.appendChild(document.createTextNode(userName));
 
-        knock_knock('login', sendData, login);
+              _this.userLogOutButton.disabled = false;
+              var userId = answer['user_id'];
+              var tasksFromServer = answer['tasks'];
+              createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+            } else {
+              _this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
+            }
+          };
+
+          knock_knock('login', sendData, login);
+        } else {
+          this.loginFormInfo.appendChild(document.createTextNode("Enter password!"));
+        }
       } else {
-        removeChilds(this.loginFormInfo);
         this.loginFormInfo.appendChild(document.createTextNode('Please, enter user name!'));
       }
     }
   }, {
     key: "logOut",
     value: function logOut() {
-      var _this3 = this;
+      var _this2 = this;
 
       // let userNameField = document.getElementById('user_name_field');
       var tasksParent = document.getElementById("main_tasks");
@@ -371,14 +382,15 @@ var Login = /*#__PURE__*/function () {
       this.userLogOutButton.disabled = true;
       removeChilds(tasksParent);
       this.authMenu.style.display = 'block';
+      this.loginFormUsername.focus();
       setTimeout(function () {
-        _this3.authMenu.style.opacity = '1';
+        _this2.authMenu.style.opacity = '1';
       });
     }
   }, {
     key: "userDelete",
     value: function userDelete() {
-      var _this4 = this;
+      var _this3 = this;
 
       var userName = document.getElementById('user_name_field').textContent;
       var sendData = {
@@ -391,7 +403,7 @@ var Login = /*#__PURE__*/function () {
 
       var del = function del(answer) {
         if (answer["ok"] === true) {
-          _this4.logOut();
+          _this3.logOut();
         }
       };
 
@@ -400,7 +412,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userRegister",
     value: function userRegister() {
-      var _this5 = this;
+      var _this4 = this;
 
       /**
        * POST: json =  {newUserName: 'string'}
@@ -411,22 +423,38 @@ var Login = /*#__PURE__*/function () {
       removeChilds(this.registerFormInfo);
 
       if (this.registerFormUsername.value) {
-        var newUserName = this.registerFormUsername.value;
-        var sendData = {
-          'newUserName': newUserName
-        };
+        if (this.registerFormPassword.value) {
+          if (this.registerFormPasswordConfirm.value) {
+            var newUserName = this.registerFormUsername.value;
+            var password = this.registerFormPassword.value;
+            var passwordConform = this.registerFormPasswordConfirm.value;
 
-        var register = function register(answer) {
-          if (answer['ok'] === true) {
-            _this5.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
-          } else if (answer['error_code'] === 1062) {
-            _this5.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+            if (password === passwordConform) {
+              var sendData = {
+                "newUserName": newUserName,
+                "password": password
+              };
+
+              var register = function register(answer) {
+                if (answer['ok'] === true) {
+                  _this4.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+                } else if (answer['error_code'] === 1062) {
+                  _this4.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+                } else {
+                  _this4.registerFormInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+                }
+              };
+
+              knock_knock('user_register', sendData, register);
+            } else {
+              this.registerFormInfo.appendChild(document.createTextNode("Passwords arenot match!"));
+            }
           } else {
-            _this5.registerFormInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+            this.registerFormInfo.appendChild(document.createTextNode("Please, confirm password!"));
           }
-        };
-
-        knock_knock('user_register', sendData, register);
+        } else {
+          this.registerFormInfo.appendChild(document.createTextNode("Please, enter new password!"));
+        }
       } else {
         this.registerFormInfo.appendChild(document.createTextNode("Please, enter new user name!"));
       }

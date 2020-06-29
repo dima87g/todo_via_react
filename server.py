@@ -29,7 +29,7 @@ def main():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    request: json = {userName: 'str'}
+    request: json = {"userName": 'str', "password": "str"}
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
      'error_message': 'str' or None}
     """
@@ -43,18 +43,28 @@ def login():
 
         data = request.json
         user_name = data['userName']
+        user_password = data["password"]
 
         cur.execute('SELECT * FROM users WHERE user_name = %s', (user_name,))
 
         cur.fetchall()
         count = cur.rowcount
 
-        if count == 1:
-            return jsonify({'ok': True, 'error_code': None,
-                            'error_message': None})
-        else:
-            return jsonify({"ok": False, "error_code": None, 
-                            "error_message": "No user " + user_name + " or incorrect password"})
+        if count != 1:
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "No user " + user_name})
+
+        cur.execute("SELECT user_password FROM users WHERE user_name = %s", (user_name,))
+
+        password_list = cur.fetchall()
+        saved_password = password_list[0][0]
+
+        if user_password != saved_password:
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "Incorrect password"})
+
+        load()
+
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -71,7 +81,7 @@ def login():
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
     """
-    request: json = {userName: 'str'}
+    request: json = {userName: 'str', password: 'str'}
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
      'error_message': 'str' or None}
     """
@@ -84,7 +94,8 @@ def user_register():
         cur = connection.cursor()
 
         data = request.json
-        user_name = data['newUserName']
+        user_name = data["newUserName"]
+        user_password = data["password"]
 
         cur.execute('SELECT * FROM users WHERE user_name = %s', (user_name,))
 
@@ -94,7 +105,8 @@ def user_register():
         if count > 0:
             return jsonify({'ok': False, 'error_code': 1062, 'error_message': None})
 
-        cur.execute('INSERT INTO users (user_name) VALUES (%s)', (user_name,))
+        cur.execute('INSERT INTO users (user_name, user_password) VALUES (%s, %s)'
+                    , (user_name, user_password,))
 
         connection.commit()
 
@@ -147,7 +159,7 @@ def user_delete():
             connection.close()
 
 
-@app.route("/load", methods=['GET', 'POST'])
+# @app.route("/load", methods=['GET', 'POST'])
 def load():
     """
     request: user_name = 'str'
