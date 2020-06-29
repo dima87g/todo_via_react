@@ -169,9 +169,12 @@ class Login {
     constructor() {
         const self = this;
         this.authMenu = document.getElementById("auth_menu");
+        this.loginForm = document.getElementById("login_form");
         this.loginFormInfo = document.getElementById("login_form_info");
         this.loginFormUsername = document.getElementById("login_form_username");
-        this.logInButton = document.getElementById("login_form_button");
+        this.loginButton = document.getElementById("login_form_button");
+        this.registerForm = document.getElementById("register_form");
+        this.registerFormInfo = document.getElementById("register_form_info");
         this.registerFormUsername = document.getElementById("register_form_username");
         this.userRegisterButton = document.getElementById("register_form_button");
         this.switchRegisterButton = document.getElementById("register_button");
@@ -180,7 +183,7 @@ class Login {
         this.userLogOutButton = document.getElementById('user_logout_button');
         this.userDeleteButton = document.getElementById("user_delete_button");
         this.shadow = document.getElementById("shadow");
-
+        
         this.loginFormUsername.focus();
         this.userLogOutButton.disabled = true;
 
@@ -190,7 +193,7 @@ class Login {
         this.switchLoginButton.onclick = function() {
             self.switchLogin(this.value);
         }
-        this.logInButton.onclick = function() {
+        this.loginButton.onclick = function() {
             self.logIn();
         }
         this.userLogOutButton.onclick = function() {
@@ -221,7 +224,7 @@ class Login {
 
         const loadTasks = (answer) => {
             if (answer['ok'] === true) {
-                this.loginFormInfo.removeChild(this.loginFormInfo.firstChild);
+                removeChilds(this.loginFormInfo);
                 this.authMenu.style.opacity = '0';
                 this.shadow.style.display = "none";
                 
@@ -239,6 +242,7 @@ class Login {
                 createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
 
             } else {
+                removeChilds(this.loginFormInfo);
                 this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
                 }
         }
@@ -246,20 +250,14 @@ class Login {
     }
 
     switchLogin(val) {
-        let loginWindow = document.getElementById('login_form');
-        let registerWindow = document.getElementById('register_form');
-
-
         if (val === 'register') {
-            windowChange(registerWindow, this.switchLoginButton, loginWindow, this.switchRegisterButton, this.registerFormUsername, 'login_form_info');
+            windowChange(this.registerForm, this.switchLoginButton, this.loginForm, this.switchRegisterButton, this.registerFormUsername, this.loginFormInfo);
         } else if (val === 'login') {
-            windowChange(loginWindow, this.switchRegisterButton, registerWindow, this.switchLoginButton, this.loginFormUsername, 'register_form_info');
+            windowChange(this.loginForm, this.switchRegisterButton, this.registerForm, this.switchLoginButton, this.loginFormUsername, this.registerFormInfo);
         }
 
-            function windowChange(activate, activateButton, deactivate, deactivateButton, focusField, infoFieldName) {
-            let infoField = document.getElementById(infoFieldName);
-
-            infoField.textContent = '';
+        function windowChange(activate, activateButton, deactivate, deactivateButton, focusField, infoField) {
+            removeChilds(infoField);
             deactivate.style.opacity = '0';
             deactivateButton.disabled = true;
             activate.style.display = 'block';
@@ -280,42 +278,35 @@ class Login {
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
-        const self = this;
-        let infoMessage = document.getElementById('login_form_info');
-        if (document.getElementById("login_form_username").value) {
-            let userName = document.getElementById("login_form_username").value;
-            document.getElementById("login_form_username").value = '';
-            let sendData = {'userName': userName};
+        if (this.loginFormUsername.value) {
+            let userName = this.loginFormUsername.value;
+            const sendData = {'userName': userName};
 
-            function login(answer) {
-                if (answer['ok'] === true) {
-                    self.onLoad(userName);
+            this.loginFormUsername.value = "";
+
+            const login = (answer) => {
+                if (answer["ok"] === true) {
+                    this.onLoad(userName);
                 } else {
-                    infoMessage.textContent = answer["error_message"];
+                    removeChilds(this.loginFormInfo);
+                    this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
                 }
             }
             knock_knock('login', sendData, login);
         } else {
-            infoMessage.textContent = 'Please, enter user name!';
+            removeChilds(this.loginFormInfo);
+            this.loginFormInfo.appendChild(document.createTextNode('Please, enter user name!'));
         }
     }
 
     logOut() {
-        let userNameField = document.getElementById('user_name_field');
+        // let userNameField = document.getElementById('user_name_field');
         let tasksParent = document.getElementById("main_tasks");
         
         this.shadow.style.display = "block";
-
-        while (userNameField.firstChild) {
-            userNameField.removeChild(userNameField.firstChild);
-        }
-
+        removeChilds(this.userNameField);
         this.userLogOutButton.disabled = true;
-
-        while (tasksParent.firstChild) {
-            tasksParent.removeChild(tasksParent.firstChild);
-        }
-
+        removeChilds(tasksParent);
         this.authMenu.style.display = 'block';
         setTimeout(() => {
             this.authMenu.style.opacity = '1';
@@ -323,21 +314,20 @@ class Login {
     }
 
     userDelete() {
-        const self = this;
         let userName = document.getElementById('user_name_field').textContent;
-        let sendData = {"userName": userName};
+        const sendData = {"userName": userName};
 
-        let conf = function() {
+        const confirm = function() {
             knock_knock("user_delete", sendData, del);
         }
 
-        function del(answer) {
+        const del = (answer) => {
             if (answer["ok"] === true) {
-                self.logOut();
+                this.logOut();
             }
         }
 
-        createConfirmWindow(conf, "Are you sure, you want to delete user?");
+        createConfirmWindow(confirm, "Are you sure, you want to delete user?");
     }
 
     userRegister() {
@@ -346,23 +336,24 @@ class Login {
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
-        let infoMessage = document.getElementById("register_form_info");
-        if (document.getElementById('register_form_username').value) {
-            let newUserName = document.getElementById('register_form_username').value;
+        // let infoMessage = document.getElementById("register_form_info");
+        removeChilds(this.registerFormInfo);
+        if (this.registerFormUsername.value) {
+            let newUserName = this.registerFormUsername.value;
             let sendData = {'newUserName': newUserName};
 
-            function register(answer) {
-            if (answer['ok'] === true) {
-                infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
-            } else if (answer['error_code'] === 1062) {
-                infoMessage.textContent = 'Name ' + newUserName + ' is already used!';
-            } else {
-                infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
+            const register = (answer) => {
+                if (answer['ok'] === true) {
+                    this.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+                } else if (answer['error_code'] === 1062) {
+                    this.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+                } else {
+                    this.registerFormInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+                }
             }
-        }
             knock_knock('user_register', sendData, register);
         } else {
-                infoMessage.textContent = 'Please, enter new user name!';
+            this.registerFormInfo.appendChild(document.createTextNode("Please, enter new user name!"));
         }
     }
 }
@@ -461,6 +452,12 @@ function createConfirmWindow(func, message) {
         shadow.style.display = "none";
         confirmWindow.style.display = "none";
         confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+    }
+}
+
+function removeChilds(field) {
+    while (field.firstChild) {
+        field.removeChild(field.firstChild);
     }
 }
 

@@ -215,9 +215,12 @@ var Login = /*#__PURE__*/function () {
 
     var self = this;
     this.authMenu = document.getElementById("auth_menu");
+    this.loginForm = document.getElementById("login_form");
     this.loginFormInfo = document.getElementById("login_form_info");
     this.loginFormUsername = document.getElementById("login_form_username");
-    this.logInButton = document.getElementById("login_form_button");
+    this.loginButton = document.getElementById("login_form_button");
+    this.registerForm = document.getElementById("register_form");
+    this.registerFormInfo = document.getElementById("register_form_info");
     this.registerFormUsername = document.getElementById("register_form_username");
     this.userRegisterButton = document.getElementById("register_form_button");
     this.switchRegisterButton = document.getElementById("register_button");
@@ -237,7 +240,7 @@ var Login = /*#__PURE__*/function () {
       self.switchLogin(this.value);
     };
 
-    this.logInButton.onclick = function () {
+    this.loginButton.onclick = function () {
       self.logIn();
     };
 
@@ -276,8 +279,7 @@ var Login = /*#__PURE__*/function () {
 
       var loadTasks = function loadTasks(answer) {
         if (answer['ok'] === true) {
-          _this.loginFormInfo.removeChild(_this.loginFormInfo.firstChild);
-
+          removeChilds(_this.loginFormInfo);
           _this.authMenu.style.opacity = '0';
           _this.shadow.style.display = "none";
           setTimeout(function () {
@@ -292,6 +294,8 @@ var Login = /*#__PURE__*/function () {
           var tasksFromServer = answer['tasks'];
           createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
         } else {
+          removeChilds(_this.loginFormInfo);
+
           _this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
         }
       };
@@ -301,18 +305,14 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "switchLogin",
     value: function switchLogin(val) {
-      var loginWindow = document.getElementById('login_form');
-      var registerWindow = document.getElementById('register_form');
-
       if (val === 'register') {
-        windowChange(registerWindow, this.switchLoginButton, loginWindow, this.switchRegisterButton, this.registerFormUsername, 'login_form_info');
+        windowChange(this.registerForm, this.switchLoginButton, this.loginForm, this.switchRegisterButton, this.registerFormUsername, this.loginFormInfo);
       } else if (val === 'login') {
-        windowChange(loginWindow, this.switchRegisterButton, registerWindow, this.switchLoginButton, this.loginFormUsername, 'register_form_info');
+        windowChange(this.loginForm, this.switchRegisterButton, this.registerForm, this.switchLoginButton, this.loginFormUsername, this.registerFormInfo);
       }
 
-      function windowChange(activate, activateButton, deactivate, deactivateButton, focusField, infoFieldName) {
-        var infoField = document.getElementById(infoFieldName);
-        infoField.textContent = '';
+      function windowChange(activate, activateButton, deactivate, deactivateButton, focusField, infoField) {
+        removeChilds(infoField);
         deactivate.style.opacity = '0';
         deactivateButton.disabled = true;
         activate.style.display = 'block';
@@ -329,106 +329,106 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logIn",
     value: function logIn() {
+      var _this2 = this;
+
       /**
        * POST: json =  {userName: 'string'}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
        'error_message': 'string' or null}
        */
-      var self = this;
-      var infoMessage = document.getElementById('login_form_info');
-
-      if (document.getElementById("login_form_username").value) {
-        var login = function login(answer) {
-          if (answer['ok'] === true) {
-            self.onLoad(userName);
-          } else {
-            infoMessage.textContent = answer["error_message"];
-          }
-        };
-
-        var userName = document.getElementById("login_form_username").value;
-        document.getElementById("login_form_username").value = '';
+      if (this.loginFormUsername.value) {
+        var userName = this.loginFormUsername.value;
         var sendData = {
           'userName': userName
         };
+        this.loginFormUsername.value = "";
+
+        var login = function login(answer) {
+          if (answer["ok"] === true) {
+            _this2.onLoad(userName);
+          } else {
+            removeChilds(_this2.loginFormInfo);
+
+            _this2.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
+          }
+        };
+
         knock_knock('login', sendData, login);
       } else {
-        infoMessage.textContent = 'Please, enter user name!';
+        removeChilds(this.loginFormInfo);
+        this.loginFormInfo.appendChild(document.createTextNode('Please, enter user name!'));
       }
     }
   }, {
     key: "logOut",
     value: function logOut() {
-      var _this2 = this;
+      var _this3 = this;
 
-      var userNameField = document.getElementById('user_name_field');
+      // let userNameField = document.getElementById('user_name_field');
       var tasksParent = document.getElementById("main_tasks");
       this.shadow.style.display = "block";
-
-      while (userNameField.firstChild) {
-        userNameField.removeChild(userNameField.firstChild);
-      }
-
+      removeChilds(this.userNameField);
       this.userLogOutButton.disabled = true;
-
-      while (tasksParent.firstChild) {
-        tasksParent.removeChild(tasksParent.firstChild);
-      }
-
+      removeChilds(tasksParent);
       this.authMenu.style.display = 'block';
       setTimeout(function () {
-        _this2.authMenu.style.opacity = '1';
+        _this3.authMenu.style.opacity = '1';
       });
     }
   }, {
     key: "userDelete",
     value: function userDelete() {
-      var self = this;
+      var _this4 = this;
+
       var userName = document.getElementById('user_name_field').textContent;
       var sendData = {
         "userName": userName
       };
 
-      var conf = function conf() {
+      var confirm = function confirm() {
         knock_knock("user_delete", sendData, del);
       };
 
-      function del(answer) {
+      var del = function del(answer) {
         if (answer["ok"] === true) {
-          self.logOut();
+          _this4.logOut();
         }
-      }
+      };
 
-      createConfirmWindow(conf, "Are you sure, you want to delete user?");
+      createConfirmWindow(confirm, "Are you sure, you want to delete user?");
     }
   }, {
     key: "userRegister",
     value: function userRegister() {
+      var _this5 = this;
+
       /**
        * POST: json =  {newUserName: 'string'}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
        'error_message': 'string' or null}
        */
-      var infoMessage = document.getElementById("register_form_info");
+      // let infoMessage = document.getElementById("register_form_info");
+      removeChilds(this.registerFormInfo);
 
-      if (document.getElementById('register_form_username').value) {
-        var register = function register(answer) {
-          if (answer['ok'] === true) {
-            infoMessage.textContent = 'New user ' + newUserName + ' successfully created!';
-          } else if (answer['error_code'] === 1062) {
-            infoMessage.textContent = 'Name ' + newUserName + ' is already used!';
-          } else {
-            infoMessage.textContent = answer['error_message'] + ' Код ошибки: ' + answer['error_code'];
-          }
-        };
-
-        var newUserName = document.getElementById('register_form_username').value;
+      if (this.registerFormUsername.value) {
+        var newUserName = this.registerFormUsername.value;
         var sendData = {
           'newUserName': newUserName
         };
+
+        var register = function register(answer) {
+          if (answer['ok'] === true) {
+            _this5.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+          } else if (answer['error_code'] === 1062) {
+            _this5.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+          } else {
+            _this5.registerFormInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+          }
+        };
+
         knock_knock('user_register', sendData, register);
       } else {
-        infoMessage.textContent = 'Please, enter new user name!';
+        this.registerFormInfo.appendChild(document.createTextNode("Please, enter new user name!"));
       }
     }
   }]);
@@ -539,6 +539,12 @@ function createConfirmWindow(func, message) {
     shadow.style.display = "none";
     confirmWindow.style.display = "none";
     confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+  }
+}
+
+function removeChilds(field) {
+  while (field.firstChild) {
+    field.removeChild(field.firstChild);
   }
 }
 
