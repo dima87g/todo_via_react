@@ -258,41 +258,7 @@ var Login = /*#__PURE__*/function () {
     this.userRegisterButton.onclick = function () {
       self.userRegister();
     };
-  } // onLoad(userName) {
-  // /**
-  //  * POST: userName = 'string'
-  //  * GET:
-  //  * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-  //  *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
-  //  *                                          ...
-  //  *                                          ]
-  //  *             }
-  //  * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-  //  * 'error_message': 'string' or null}
-  //  */
-  //     const sendData = {'userName': userName};
-  //     const loadTasks = (answer) => {
-  //         if (answer['ok'] === true) {
-  //             removeChilds(this.loginFormInfo);
-  //             this.authMenu.style.opacity = '0';
-  //             this.shadow.style.display = "none";
-  //             setTimeout(() => {
-  //                 this.authMenu.style.display = 'none';
-  //                 document.getElementById('task_input_field').focus();
-  //                 }, 500);
-  //             this.userNameField.appendChild(document.createTextNode(userName));
-  //             this.userLogOutButton.disabled = false;
-  //             let userId = answer['user_id'];
-  //             let tasksFromServer = answer['tasks'];
-  //             createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
-  //         } else {
-  //             removeChilds(this.loginFormInfo);
-  //             this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
-  //             }
-  //     }
-  //     knock_knock('load', sendData, loadTasks);
-  // }
-
+  }
 
   _createClass(Login, [{
     key: "switchLogin",
@@ -324,25 +290,29 @@ var Login = /*#__PURE__*/function () {
       var _this = this;
 
       /**
-       * POST: json =  {userName: 'string', password: "string"}
-       * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
-       'error_message': 'string' or null}
+       * POST: json = {"userName": "string", "password": "string"}
+       * GET:
+       * if OK = true: json = {"ok": "boolean", "user_id": "number",
+       *                         "tasks": [{"task_id": "number", "task_text": "string", "status": "boolean"},
+       *                                  ..........] }
+       * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+       *                        'error_message': 'string' or null}
        */
       removeChilds(this.loginFormInfo);
 
       if (this.loginFormUsername.value) {
-        if (this.loginFormPassword) {
+        if (this.loginFormPassword.value) {
           var userName = this.loginFormUsername.value;
           var password = this.loginFormPassword.value;
           var sendData = {
             "userName": userName,
             "password": password
           };
-          this.loginFormUsername.value = "";
           this.loginFormPassword.value = "";
 
           var login = function login(answer) {
             if (answer["ok"] === true) {
+              _this.loginFormUsername.value = "";
               removeChilds(_this.loginFormInfo);
               _this.authMenu.style.opacity = '0';
               _this.shadow.style.display = "none";
@@ -437,6 +407,10 @@ var Login = /*#__PURE__*/function () {
 
               var register = function register(answer) {
                 if (answer['ok'] === true) {
+                  _this4.registerFormUsername.value = "";
+                  _this4.registerFormPassword.value = "";
+                  _this4.registerFormPasswordConfirm.value = "";
+
                   _this4.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
                 } else if (answer['error_code'] === 1062) {
                   _this4.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));

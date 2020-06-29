@@ -211,47 +211,6 @@ class Login {
     }
 
 
-    // onLoad(userName) {
-    // /**
-    //  * POST: userName = 'string'
-    //  * GET:
-    //  * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-    //  *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
-    //  *                                          ...
-    //  *                                          ]
-    //  *             }
-    //  * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-    //  * 'error_message': 'string' or null}
-    //  */
-    //     const sendData = {'userName': userName};
-
-    //     const loadTasks = (answer) => {
-    //         if (answer['ok'] === true) {
-    //             removeChilds(this.loginFormInfo);
-    //             this.authMenu.style.opacity = '0';
-    //             this.shadow.style.display = "none";
-                
-    //             setTimeout(() => {
-    //                 this.authMenu.style.display = 'none';
-    //                 document.getElementById('task_input_field').focus();
-    //                 }, 500);
-
-    //             this.userNameField.appendChild(document.createTextNode(userName));
-    //             this.userLogOutButton.disabled = false;
-
-    //             let userId = answer['user_id'];
-    //             let tasksFromServer = answer['tasks'];
-
-    //             createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
-
-    //         } else {
-    //             removeChilds(this.loginFormInfo);
-    //             this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
-    //             }
-    //     }
-    //     knock_knock('load', sendData, loadTasks);
-    // }
-
     switchLogin(val) {
         if (val === 'register') {
             windowChange(this.registerForm, this.switchLoginButton, this.loginForm, this.switchRegisterButton, this.registerFormUsername, this.loginFormInfo);
@@ -276,23 +235,28 @@ class Login {
     }
 
     logIn() {
-    /**
-     * POST: json =  {userName: 'string', password: "string"}
-     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
-     'error_message': 'string' or null}
-     */
+        /**
+         * POST: json = {"userName": "string", "password": "string"}
+         * GET:
+         * if OK = true: json = {"ok": "boolean", "user_id": "number",
+         *                         "tasks": [{"task_id": "number", "task_text": "string", "status": "boolean"},
+         *                                  ..........] }
+         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+         *                        'error_message': 'string' or null}
+         */
+
         removeChilds(this.loginFormInfo);
         if (this.loginFormUsername.value) {
-            if (this.loginFormPassword) {
+            if (this.loginFormPassword.value) {
                 let userName = this.loginFormUsername.value;
                 let password = this.loginFormPassword.value;
                 const sendData = {"userName": userName, "password": password};
 
-                this.loginFormUsername.value = "";
                 this.loginFormPassword.value = "";
 
                 const login = (answer) => {
                     if (answer["ok"] === true) {
+                        this.loginFormUsername.value = "";
                         removeChilds(this.loginFormInfo);
                         this.authMenu.style.opacity = '0';
                         this.shadow.style.display = "none";
@@ -374,6 +338,9 @@ class Login {
         
                         const register = (answer) => {
                             if (answer['ok'] === true) {
+                                this.registerFormUsername.value = "";
+                                this.registerFormPassword.value = "";
+                                this.registerFormPasswordConfirm.value = "";
                                 this.registerFormInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
                             } else if (answer['error_code'] === 1062) {
                                 this.registerFormInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));

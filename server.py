@@ -30,7 +30,12 @@ def main():
 def login():
     """
     request: json = {"userName": 'str', "password": "str"}
-    response: json = {'ok': 'bool', 'error_code': 'int' or None,
+    response:
+    if OK = True: json = {'ok': 'bool', 'user_id':'int',
+                        'tasks': [{"task_id": "int", "user_id": "int",
+                                "task_text": "text", "status": "str"},
+                                ....... ]
+    if OK = False: json = {'ok': 'bool', 'error_code': 'int' or None,
      'error_message': 'str' or None}
     """
 
@@ -63,7 +68,7 @@ def login():
             return jsonify({"ok": False, "error_code": None,
                             "error_message": "Incorrect password"})
 
-        load()
+        return load_tasks(user_name)
 
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
@@ -157,59 +162,6 @@ def user_delete():
             cur.close()
         if connection is not None:
             connection.close()
-
-
-# @app.route("/load", methods=['GET', 'POST'])
-def load():
-    """
-    request: user_name = 'str'
-    response:
-    if OK = True: json = {'ok': 'bool', 'user_id':
-    'int', 'tasks': [ {"task_id": "int", "user_id": "int" "task_text":
-    "text", "status": "str"}, ....... ]
-    if OK = False: json = {'ok': 'bool', 'error_code': 'int' or None,
-     'error_message': 'str' or None}
-    """
-
-    connection = None
-    cur = None
-
-    try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
-
-        data = request.json
-        user_name = data['userName']
-        tasks = []
-
-        cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name,))
-
-        id_list = cur.fetchall()
-
-        if id_list:
-            user_id = id_list[0][0]
-
-            cur.execute('SELECT * from tasks_test WHERE user_id = %s',
-                        (user_id,))
-            for task in cur:
-                tasks.append({"task_id": task[0], "user_id": task[1],
-                              "task_text": task[2],
-                              "status": bool(task[3])})
-            return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
-        else:
-            return jsonify({'ok': False})
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
-    except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
-    finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
-
 
 @app.route("/save", methods=["GET", "POST"])
 def save():
@@ -329,6 +281,44 @@ def finish_task():
         if connection is not None:
             connection.close()
 
+def load_tasks(user_name):
+    
+    connection = None
+    cur = None
+
+    try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
+        tasks = []
+
+        cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name,))
+
+        id_list = cur.fetchall()
+
+        if id_list:
+            user_id = id_list[0][0]
+
+            cur.execute('SELECT * from tasks_test WHERE user_id = %s',
+                        (user_id,))
+            for task in cur:
+                tasks.append({"task_id": task[0],
+                              "task_text": task[2],
+                              "status": bool(task[3])})
+            return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
+        else:
+            return jsonify({'ok': False})
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': None,
+                        'error_message': error.args[0]})
+    finally:
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 if __name__ == "__main__":
     app.run(debug=True)
