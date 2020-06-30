@@ -234,6 +234,48 @@ class Login {
         }
     }
 
+    onLoad(userName, password) {
+        /**
+         * POST: userName = 'string'
+         * GET:
+         * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
+         *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
+         *                                          ...
+         *                                          ]
+         *             }
+         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+         * 'error_message': 'string' or null}
+         */
+            const sendData = {'userName': userName, "password": password};
+    
+            const loadTasks = (answer) => {
+                if (answer['ok'] === true) {
+                    this.loginFormUsername.value = "";
+                    removeChilds(this.loginFormInfo);
+                    this.authMenu.style.opacity = '0';
+                    this.shadow.style.display = "none";
+                    
+                    setTimeout(() => {
+                        this.authMenu.style.display = 'none';
+                        document.getElementById('task_input_field').focus();
+                        }, 500);
+
+                    this.userNameField.appendChild(document.createTextNode(userName));
+                    this.userLogOutButton.disabled = false;
+
+                    let userId = answer['user_id'];
+                    let tasksFromServer = answer['tasks'];
+
+                    createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+    
+                } else {
+                    removeChilds(this.loginFormInfo);
+                    this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
+                    }
+            }
+            knock_knock('load_tasks', sendData, loadTasks);
+        }
+
     logIn() {
         /**
          * POST: json = {"userName": "string", "password": "string"}
@@ -256,23 +298,7 @@ class Login {
 
                 const login = (answer) => {
                     if (answer["ok"] === true) {
-                        this.loginFormUsername.value = "";
-                        removeChilds(this.loginFormInfo);
-                        this.authMenu.style.opacity = '0';
-                        this.shadow.style.display = "none";
-                        
-                        setTimeout(() => {
-                            this.authMenu.style.display = 'none';
-                            document.getElementById('task_input_field').focus();
-                            }, 500);
-
-                        this.userNameField.appendChild(document.createTextNode(userName));
-                        this.userLogOutButton.disabled = false;
-
-                        let userId = answer['user_id'];
-                        let tasksFromServer = answer['tasks'];
-
-                        createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+                        this.onLoad(userName, password)
                     } else {
                         this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
                     }

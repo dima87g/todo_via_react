@@ -50,26 +50,22 @@ def login():
         user_name = data['userName']
         user_password = data["password"]
 
-        cur.execute('SELECT * FROM users WHERE user_name = %s', (user_name,))
+        cur.execute('SELECT user_password FROM users WHERE user_name = %s', (user_name,))
 
-        cur.fetchall()
-        count = cur.rowcount
+        rows = cur.fetchall()
+        print(rows)
 
-        if count != 1:
+        if not rows:
             return jsonify({"ok": False, "error_code": None,
-                            "error_message": "No user " + user_name})
-
-        cur.execute("SELECT user_password FROM users WHERE user_name = %s", (user_name,))
-
-        password_list = cur.fetchall()
-        saved_password = password_list[0][0]
+                            "error_message": "Username or Password are incorrect!"})
+        saved_password = rows[0][0]
 
         if user_password != saved_password:
             return jsonify({"ok": False, "error_code": None,
                             "error_message": "Incorrect password"})
-
-        return load_tasks(user_name)
-
+        
+        return jsonify({"ok": True, "error_code": None,
+                        "error_message": None})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -82,6 +78,53 @@ def login():
         if connection is not None:
             connection.close()
 
+@app.route("/load_tasks", methods=["GET", "POST"])
+def load_tasks():
+    
+    connection = None
+    cur = None
+
+    try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
+        tasks = []
+        data = request.json
+        user_name = data["userName"]
+        user_password = data["password"]
+
+        cur.execute('SELECT id, user_password FROM users WHERE user_name = %s', (user_name,))
+
+        rows = cur.fetchall()
+
+        if not rows:
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "1"})
+        user_id = rows[0][0]
+        saved_password = rows[0][1]
+
+        if user_password != saved_password:
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "2"})
+
+        cur.execute('SELECT * from tasks_test WHERE user_id = %s', (user_id,))
+            
+        for task in cur:
+            tasks.append({"task_id": task[0],
+                          "task_text": task[2],
+                          "status": bool(task[3])})
+        return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': None,
+                        'error_message': error.args[0]})
+    finally:
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
@@ -203,7 +246,6 @@ def save():
         if connection is not None:
             connection.close()
 
-
 @app.route("/delete", methods=["POST"])
 def delete():
     """
@@ -241,7 +283,6 @@ def delete():
         if connection is not None:
             connection.close()
 
-
 @app.route("/finish_task", methods=["GET", "POST"])
 def finish_task():
     """
@@ -269,45 +310,6 @@ def finish_task():
         connection.commit()
 
         return jsonify({"ok": True})
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
-    except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
-    finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
-
-def load_tasks(user_name):
-    
-    connection = None
-    cur = None
-
-    try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
-
-        tasks = []
-
-        cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name,))
-
-        id_list = cur.fetchall()
-
-        if id_list:
-            user_id = id_list[0][0]
-
-            cur.execute('SELECT * from tasks_test WHERE user_id = %s',
-                        (user_id,))
-            for task in cur:
-                tasks.append({"task_id": task[0],
-                              "task_text": task[2],
-                              "status": bool(task[3])})
-            return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
-        else:
-            return jsonify({'ok': False})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
