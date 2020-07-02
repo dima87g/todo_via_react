@@ -1,10 +1,15 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
+from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
+import random
 import mysql.connector
 from mysql.connector import pooling
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.config['JSON_AS_ASCII'] = False
+
+static_salt = "pcdo2g0w2Bra6MT_SAy6XGjv6pqzBvebAUGJDpE-sVhZYEkFfLN4ig72L5GdcDlg"
 
 # Pool connection add
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(
@@ -30,13 +35,8 @@ def main():
 def login():
     """
     request: json = {"userName": 'str', "password": "str"}
-    response:
-    if OK = True: json = {'ok': 'bool', 'user_id':'int',
-                        'tasks': [{"task_id": "int", "user_id": "int",
-                                "task_text": "text", "status": "str"},
-                                ....... ]
-    if OK = False: json = {'ok': 'bool', 'error_code': 'int' or None,
-     'error_message': 'str' or None}
+    response: json = {"ok": bool, "error_code": "int" or None,
+                    "error_message": "str" or None}
     """
 
     connection = None
@@ -50,22 +50,29 @@ def login():
         user_name = data['userName']
         user_password = data["password"]
 
-        cur.execute('SELECT user_password FROM users WHERE user_name = %s', (user_name,))
+        cur.execute('SELECT user_text_id, user_password FROM users WHERE user_name = %s', (user_name,))
 
         rows = cur.fetchall()
-        print(rows)
 
         if not rows:
             return jsonify({"ok": False, "error_code": None,
                             "error_message": "Username or Password are incorrect!"})
-        saved_password = rows[0][0]
 
-        if user_password != saved_password:
+        user_text_id = rows[0][0]
+        hashed_password = rows[0][1]
+
+        if check_password_hash(hashed_password, user_password) != True:
             return jsonify({"ok": False, "error_code": None,
-                            "error_message": "Incorrect password"})
+                            "error_message": "Username or Password are incorrect!"})
         
-        return jsonify({"ok": True, "error_code": None,
-                        "error_message": None})
+        sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
+
+        response = make_response(jsonify({"ok": True, "error_code": None,
+                                        "error_message": None}))
+        response.set_cookie("id", user_text_id)
+        response.set_cookie("sign", sign)
+
+        return response
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -91,21 +98,24 @@ def load_tasks():
         tasks = []
         data = request.json
         user_name = data["userName"]
-        user_password = data["password"]
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+        
+        control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
 
-        cur.execute('SELECT id, user_password FROM users WHERE user_name = %s', (user_name,))
+        if sign != control_sign:
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "This will be a disconnect in future!;))))"})
+
+        cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name,))
 
         rows = cur.fetchall()
 
         if not rows:
             return jsonify({"ok": False, "error_code": None,
-                            "error_message": "1"})
+                            "error_message": "Some Error"})
         user_id = rows[0][0]
-        saved_password = rows[0][1]
 
-        if user_password != saved_password:
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "2"})
 
         cur.execute('SELECT * from tasks_test WHERE user_id = %s', (user_id,))
             
@@ -145,16 +155,11 @@ def user_register():
         user_name = data["newUserName"]
         user_password = data["password"]
 
-        cur.execute('SELECT * FROM users WHERE user_name = %s', (user_name,))
+        user_text_id = create_text_id()
+        hashed_password = generate_password_hash(user_password)
 
-        cur.fetchall()
-        count = cur.rowcount
-
-        if count > 0:
-            return jsonify({'ok': False, 'error_code': 1062, 'error_message': None})
-
-        cur.execute('INSERT INTO users (user_name, user_password) VALUES (%s, %s)'
-                    , (user_name, user_password,))
+        cur.execute('INSERT INTO users (user_text_id, user_name, user_password) VALUES (%s, %s, %s)'
+                    , (user_text_id, user_name, hashed_password,))
 
         connection.commit()
 
@@ -321,6 +326,12 @@ def finish_task():
             cur.close()
         if connection is not None:
             connection.close()
+
+def create_text_id():
+    symbols = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_")
+    salt = random.choices(symbols, k=64)
+
+    return "".join(salt)
 
 if __name__ == "__main__":
     app.run(debug=True)
