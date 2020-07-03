@@ -50,7 +50,7 @@ def login():
         user_name = data['userName']
         user_password = data["password"]
 
-        cur.execute('SELECT user_text_id, user_password FROM users WHERE user_name = %s', (user_name,))
+        cur.execute('SELECT user_text_id, hashed_password FROM users WHERE user_name = %s', (user_name,))
 
         rows = cur.fetchall()
 
@@ -96,18 +96,20 @@ def load_tasks():
         cur = connection.cursor()
 
         tasks = []
-        data = request.json
-        user_name = data["userName"]
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
         
-        control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
+        # control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
+# 
+        # if sign != control_sign:
+            # return jsonify({"ok": False, "error_code": None,
+                            # "error_message": "This will be a disconnect in future!;))))"})
 
-        if sign != control_sign:
+        if not check_cookies(user_text_id, sign):
             return jsonify({"ok": False, "error_code": None,
-                            "error_message": "This will be a disconnect in future!;))))"})
+                            "error_message": "This will be disconnect in future!"})
 
-        cur.execute('SELECT id FROM users WHERE user_name = %s', (user_name,))
+        cur.execute('SELECT id FROM users WHERE user_text_id = %s', (user_text_id,))
 
         rows = cur.fetchall()
 
@@ -158,7 +160,7 @@ def user_register():
         user_text_id = create_text_id()
         hashed_password = generate_password_hash(user_password)
 
-        cur.execute('INSERT INTO users (user_text_id, user_name, user_password) VALUES (%s, %s, %s)'
+        cur.execute('INSERT INTO users (user_text_id, user_name, hashed_password) VALUES (%s, %s, %s)'
                     , (user_text_id, user_name, hashed_password,))
 
         connection.commit()
@@ -190,10 +192,21 @@ def user_delete():
         connection = connection_pool.get_connection()
         cur = connection.cursor()
 
-        data = request.json
-        user_name = data["userName"]
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
 
-        cur.execute("DELETE FROM users WHERE user_name = %s", (user_name,))
+        # control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
+
+        # if sign != control_sign:
+        #     return jsonify({"ok": False, "error_code": None,
+        #                     "error_message": "This will be disconect in future!"})
+
+        if not check_cookies(user_text_id, sign):
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "This will be disconnect in future!"})
+
+
+        cur.execute("DELETE FROM users WHERE user_text_id = %s", (user_text_id,))
 
         connection.commit()
 
@@ -229,8 +242,18 @@ def save():
         cur = connection.cursor()
 
         data = request.json
-        user_id = data['userId']
         task_text = data['taskText']
+
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        if not check_cookies(user_text_id, sign):
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "This willbe disconnect in future!"})
+        cur.execute("SELECT id FROM users WHERE user_text_id = %s", (user_text_id,))
+
+        rows = cur.fetchall()
+        user_id = rows[0][0]
 
         cur.execute('INSERT INTO tasks_test (user_id, text, status) VALUES ('
                     '%s, %s, %s)', (user_id, task_text, 0))
@@ -271,7 +294,20 @@ def delete():
         data = request.json
         task_id = data['taskId']
 
-        cur.execute('DELETE FROM tasks_test WHERE id = %s', (task_id,))
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        if not check_cookies(user_text_id, sign):
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "This will be disconnect in future!"})
+
+        cur.execute("SELECT id FROM users where user_text_id = %s", (user_text_id,))
+
+        rows = cur.fetchall()
+        user_id = rows[0][0]
+
+
+        cur.execute('DELETE FROM tasks_test WHERE id = %s and user_id = %s', (task_id, user_id,))
 
         connection.commit()
 
@@ -308,9 +344,21 @@ def finish_task():
         data = request.json
         task_id = data["taskId"]
         task_status = int(data['status'])
+        
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
 
-        cur.execute('UPDATE tasks_test SET status = %s WHERE id = %s',
-                    (task_status, task_id))
+        if not check_cookies(user_text_id, sign):
+            return jsonify({"ok": False, "error_code": None,
+                            "error_message": "This will be disconnect in future!"})
+        
+        cur.execute("SELECT id FROM users WHERE user_text_id = %s", (user_text_id,))
+
+        rows = cur.fetchall()
+        user_id = rows[0][0]
+
+        cur.execute('UPDATE tasks_test SET status = %s WHERE id = %s and user_id = %s',
+                    (task_status, task_id, user_id,))
 
         connection.commit()
 
@@ -332,6 +380,16 @@ def create_text_id():
     salt = random.choices(symbols, k=64)
 
     return "".join(salt)
+
+def  check_cookies(user_text_id, sign):
+    if not user_text_id or not sign:
+        return False
+    
+    control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
+
+    if sign != control_sign:
+        return False
+    return True 
 
 if __name__ == "__main__":
     app.run(debug=True)
