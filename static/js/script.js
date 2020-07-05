@@ -1,6 +1,7 @@
 "use strict";
 
 class TaskList {
+    // TODO: Сделать небольшой рефактор, серверу больше не нужны многие данные
     constructor() {
         this.userId = undefined;
         this.tasks = [];
@@ -234,9 +235,9 @@ class Login {
         }
     }
 
-    onLoad(userName, password) {
+    onLoad() {
         /**
-         * POST: userName = 'string'
+         * POST:
          * GET:
          * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
          *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
@@ -246,35 +247,33 @@ class Login {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-            const sendData = {'userName': userName, "password": password};
-    
-            const loadTasks = (answer) => {
-                if (answer['ok'] === true) {
-                    this.loginFormUsername.value = "";
-                    removeChilds(this.loginFormInfo);
-                    this.authMenu.style.opacity = '0';
-                    this.shadow.style.display = "none";
-                    
-                    setTimeout(() => {
-                        this.authMenu.style.display = 'none';
-                        document.getElementById('task_input_field').focus();
-                        }, 500);
+        const loadTasks = (answer) => {
+            if (answer['ok'] === true) {
+                this.loginFormUsername.value = "";
+                removeChilds(this.loginFormInfo);
+                this.authMenu.style.opacity = '0';
+                this.shadow.style.display = "none";
+                
+                setTimeout(() => {
+                    this.authMenu.style.display = 'none';
+                    document.getElementById('task_input_field').focus();
+                    }, 500);
 
-                    this.userNameField.appendChild(document.createTextNode(userName));
-                    this.userLogOutButton.disabled = false;
+                this.userNameField.appendChild(document.createTextNode(userName));
+                this.userLogOutButton.disabled = false;
 
-                    let userId = answer['user_id'];
-                    let tasksFromServer = answer['tasks'];
+                let userId = answer['user_id'];
+                let tasksFromServer = answer['tasks'];
 
-                    createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
-    
-                } else {
-                    removeChilds(this.loginFormInfo);
-                    this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
-                    }
-            }
-            knock_knock('load_tasks', sendData, loadTasks);
+                createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+
+            } else {
+                removeChilds(this.loginFormInfo);
+                this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
+                }
         }
+        knock_knock('load_tasks', loadTasks);
+    }
 
     logIn() {
         /**
@@ -298,7 +297,7 @@ class Login {
 
                 const login = (answer) => {
                     if (answer["ok"] === true) {
-                        this.onLoad(userName, password)
+                        this.onLoad()
                     } else {
                         this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
                     }
@@ -313,7 +312,6 @@ class Login {
     }
 
     logOut() {
-        // let userNameField = document.getElementById('user_name_field');
         let tasksParent = document.getElementById("main_tasks");
         
         this.shadow.style.display = "block";
@@ -328,11 +326,8 @@ class Login {
     }
 
     userDelete() {
-        let userName = document.getElementById('user_name_field').textContent;
-        const sendData = {"userName": userName};
-
         const confirm = function() {
-            knock_knock("user_delete", sendData, del);
+            knock_knock("user_delete", del);
         }
 
         const del = (answer) => {
@@ -345,8 +340,9 @@ class Login {
     }
 
     userRegister() {
+        // TODO: Слишком большая вложенность, нужно попробовать переписать метод через конструкцию SWITCH
     /**
-     * POST: json =  {newUserName: 'string'}
+     * POST: json =  {"newUserName": "string",  "password": "string"}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
@@ -376,7 +372,7 @@ class Login {
                         }
                         knock_knock('user_register', sendData, register);
                     } else {
-                        this.registerFormInfo.appendChild(document.createTextNode("Passwords arenot match!"));
+                        this.registerFormInfo.appendChild(document.createTextNode("Passwords are not match!"));
                     }
                 } else {
                     this.registerFormInfo.appendChild(document.createTextNode("Please, confirm password!"));
@@ -413,7 +409,7 @@ function events() {
     registerField.addEventListener('keydown', noEnterRefreshRegister, false);
 }
 
-function knock_knock(path, sendData, func) {
+function knock_knock(path, sendData = undefined, func) {
     if (window.fetch) {
         let init = {method: 'POST',
                     headers: {'Content-Type': 'application/json; charset=utf-8'},

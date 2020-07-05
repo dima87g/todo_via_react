@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `todo`.`users` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_text_id` VARCHAR(255) NOT NULL,
   `user_name` VARCHAR(45) NOT NULL,
-  `user_password` VARCHAR(255) NOT NULL,
+  `hashed_password` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
   UNIQUE INDEX `user_name_UNIQUE` (`user_name` ASC) VISIBLE,
@@ -39,9 +39,9 @@ COLLATE = utf8mb4_0900_ai_ci;
 
 
 -- -----------------------------------------------------
--- Table `todo`.`tasks_test`
+-- Table `todo`.`tasks`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `todo`.`tasks_test` (
+CREATE TABLE IF NOT EXISTS `todo`.`tasks` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
   `text` VARCHAR(45) NOT NULL,

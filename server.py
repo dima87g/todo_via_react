@@ -98,12 +98,6 @@ def load_tasks():
         tasks = []
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        
-        # control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
-# 
-        # if sign != control_sign:
-            # return jsonify({"ok": False, "error_code": None,
-                            # "error_message": "This will be a disconnect in future!;))))"})
 
         if not check_cookies(user_text_id, sign):
             return jsonify({"ok": False, "error_code": None,
@@ -181,7 +175,7 @@ def user_register():
 @app.route("/user_delete", methods=["GET", "POST"])
 def user_delete():
     """
-    request: json = {"userName": "str"}
+    request: cookies: "id", "sign"
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
      'error_message': 'str' or None}
     """
@@ -194,12 +188,6 @@ def user_delete():
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-
-        # control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
-
-        # if sign != control_sign:
-        #     return jsonify({"ok": False, "error_code": None,
-        #                     "error_message": "This will be disconect in future!"})
 
         if not check_cookies(user_text_id, sign):
             return jsonify({"ok": False, "error_code": None,

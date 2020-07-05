@@ -13,6 +13,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var TaskList = /*#__PURE__*/function () {
+  // TODO: Сделать небольшой рефактор, серверу больше не нужны многие данные
   function TaskList() {
     _classCallCheck(this, TaskList);
 
@@ -286,11 +287,11 @@ var Login = /*#__PURE__*/function () {
     }
   }, {
     key: "onLoad",
-    value: function onLoad(userName, password) {
+    value: function onLoad() {
       var _this = this;
 
       /**
-       * POST: userName = 'string'
+       * POST:
        * GET:
        * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
        *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
@@ -300,11 +301,6 @@ var Login = /*#__PURE__*/function () {
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
        * 'error_message': 'string' or null}
        */
-      var sendData = {
-        'userName': userName,
-        "password": password
-      };
-
       var loadTasks = function loadTasks(answer) {
         if (answer['ok'] === true) {
           _this.loginFormUsername.value = "";
@@ -329,7 +325,7 @@ var Login = /*#__PURE__*/function () {
         }
       };
 
-      knock_knock('load_tasks', sendData, loadTasks);
+      knock_knock('load_tasks', loadTasks);
     }
   }, {
     key: "logIn",
@@ -349,17 +345,17 @@ var Login = /*#__PURE__*/function () {
 
       if (this.loginFormUsername.value) {
         if (this.loginFormPassword.value) {
-          var userName = this.loginFormUsername.value;
+          var _userName = this.loginFormUsername.value;
           var password = this.loginFormPassword.value;
           var sendData = {
-            "userName": userName,
+            "userName": _userName,
             "password": password
           };
           this.loginFormPassword.value = "";
 
           var login = function login(answer) {
             if (answer["ok"] === true) {
-              _this2.onLoad(userName, password);
+              _this2.onLoad();
             } else {
               _this2.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
             }
@@ -378,7 +374,6 @@ var Login = /*#__PURE__*/function () {
     value: function logOut() {
       var _this3 = this;
 
-      // let userNameField = document.getElementById('user_name_field');
       var tasksParent = document.getElementById("main_tasks");
       this.shadow.style.display = "block";
       removeChilds(this.userNameField);
@@ -395,13 +390,8 @@ var Login = /*#__PURE__*/function () {
     value: function userDelete() {
       var _this4 = this;
 
-      var userName = document.getElementById('user_name_field').textContent;
-      var sendData = {
-        "userName": userName
-      };
-
       var confirm = function confirm() {
-        knock_knock("user_delete", sendData, del);
+        knock_knock("user_delete", del);
       };
 
       var del = function del(answer) {
@@ -417,8 +407,10 @@ var Login = /*#__PURE__*/function () {
     value: function userRegister() {
       var _this5 = this;
 
+      // TODO: Слишком большая вложенность, нужно попробовать переписать метод через конструкцию SWITCH
+
       /**
-       * POST: json =  {newUserName: 'string'}
+       * POST: json =  {"newUserName": "string",  "password": "string"}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
        'error_message': 'string' or null}
        */
@@ -454,7 +446,7 @@ var Login = /*#__PURE__*/function () {
 
               knock_knock('user_register', sendData, register);
             } else {
-              this.registerFormInfo.appendChild(document.createTextNode("Passwords arenot match!"));
+              this.registerFormInfo.appendChild(document.createTextNode("Passwords are not match!"));
             }
           } else {
             this.registerFormInfo.appendChild(document.createTextNode("Please, confirm password!"));
@@ -492,7 +484,10 @@ function events() {
   registerField.addEventListener('keydown', noEnterRefreshRegister, false);
 }
 
-function knock_knock(path, sendData, func) {
+function knock_knock(path) {
+  var sendData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+  var func = arguments.length > 2 ? arguments[2] : undefined;
+
   if (window.fetch) {
     var init = {
       method: 'POST',
