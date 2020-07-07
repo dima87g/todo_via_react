@@ -113,7 +113,7 @@ def load_tasks():
         user_id = rows[0][0]
 
 
-        cur.execute('SELECT * from tasks_test WHERE user_id = %s', (user_id,))
+        cur.execute('SELECT * from tasks WHERE user_id = %s', (user_id,))
             
         for task in cur:
             tasks.append({"task_id": task[0],
@@ -243,7 +243,7 @@ def save():
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-        cur.execute('INSERT INTO tasks_test (user_id, text, status) VALUES ('
+        cur.execute('INSERT INTO tasks (user_id, text, status) VALUES ('
                     '%s, %s, %s)', (user_id, task_text, 0))
 
         connection.commit()
@@ -295,7 +295,7 @@ def delete():
         user_id = rows[0][0]
 
 
-        cur.execute('DELETE FROM tasks_test WHERE id = %s and user_id = %s', (task_id, user_id,))
+        cur.execute('DELETE FROM tasks WHERE id = %s and user_id = %s', (task_id, user_id,))
 
         connection.commit()
 
@@ -345,7 +345,7 @@ def finish_task():
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-        cur.execute('UPDATE tasks_test SET status = %s WHERE id = %s and user_id = %s',
+        cur.execute('UPDATE tasks SET status = %s WHERE id = %s and user_id = %s',
                     (task_status, task_id, user_id,))
 
         connection.commit()
