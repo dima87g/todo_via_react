@@ -75,7 +75,7 @@ var TaskList = /*#__PURE__*/function () {
         }
       }
 
-      knock_knock('finish_task', sendData, finish);
+      knock_knock('finish_task', finish, sendData);
     }
   }, {
     key: "removeTask",
@@ -311,11 +311,6 @@ var Login = /*#__PURE__*/function () {
             _this.authMenu.style.display = 'none';
             document.getElementById('task_input_field').focus();
           }, 500);
-          var userName = answer["user_name"];
-
-          _this.userNameField.appendChild(document.createTextNode(userName));
-
-          _this.userLogOutButton.disabled = false;
           var userId = answer['user_id'];
           var tasksFromServer = answer['tasks'];
           createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
@@ -356,6 +351,12 @@ var Login = /*#__PURE__*/function () {
 
           var login = function login(answer) {
             if (answer["ok"] === true) {
+              var _userName = answer["user_name"];
+
+              _this2.userNameField.appendChild(document.createTextNode(_userName));
+
+              _this2.userLogOutButton.disabled = false;
+
               _this2.onLoad();
             } else {
               _this2.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));

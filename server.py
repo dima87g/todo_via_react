@@ -50,7 +50,7 @@ def login():
         user_name = data['userName']
         user_password = data["password"]
 
-        cur.execute('SELECT user_text_id, hashed_password FROM users WHERE user_name = %s', (user_name,))
+        cur.execute('SELECT user_text_id, user_name, hashed_password FROM users WHERE user_name = %s', (user_name,))
 
         rows = cur.fetchall()
 
@@ -59,7 +59,8 @@ def login():
                             "error_message": "Username or Password are incorrect!"})
 
         user_text_id = rows[0][0]
-        hashed_password = rows[0][1]
+        user_name = rows[0][1]
+        hashed_password = rows[0][2]
 
         if check_password_hash(hashed_password, user_password) != True:
             return jsonify({"ok": False, "error_code": None,
@@ -67,8 +68,7 @@ def login():
         
         sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
 
-        response = make_response(jsonify({"ok": True, "error_code": None,
-                                        "error_message": None}))
+        response = make_response(jsonify({"ok": True, "user_name": user_name}))
         response.set_cookie("id", user_text_id)
         response.set_cookie("sign", sign)
 
@@ -111,8 +111,6 @@ def load_tasks():
             return jsonify({"ok": False, "error_code": None,
                             "error_message": "Some Error"})
         user_id = rows[0][0]
-        user_name = rows[0][1]
-
 
         cur.execute('SELECT * from tasks WHERE user_id = %s', (user_id,))
             
@@ -120,7 +118,7 @@ def load_tasks():
             tasks.append({"task_id": task[0],
                           "task_text": task[2],
                           "status": bool(task[3])})
-        return jsonify({'ok': True, 'user_id': user_id, "user_name": user_name, 'tasks': tasks})
+        return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})

@@ -52,7 +52,7 @@ class TaskList {
                 self.updateDom();
             }
         }
-        knock_knock('finish_task', sendData, finish);
+        knock_knock('finish_task', finish, sendData);
     }
 
     removeTask(node) {
@@ -258,11 +258,6 @@ class Login {
                     this.authMenu.style.display = 'none';
                     document.getElementById('task_input_field').focus();
                     }, 500);
-                
-                let userName = answer["user_name"];
-
-                this.userNameField.appendChild(document.createTextNode(userName));
-                this.userLogOutButton.disabled = false;
 
                 let userId = answer['user_id'];
                 let tasksFromServer = answer['tasks'];
@@ -299,6 +294,11 @@ class Login {
 
                 const login = (answer) => {
                     if (answer["ok"] === true) {
+                        let userName = answer["user_name"];
+
+                        this.userNameField.appendChild(document.createTextNode(userName));
+                        this.userLogOutButton.disabled = false;
+
                         this.onLoad()
                     } else {
                         this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
