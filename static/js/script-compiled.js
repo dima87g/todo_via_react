@@ -45,11 +45,11 @@ var TaskList = /*#__PURE__*/function () {
 
         var taskText = document.getElementById("task_input_field").value;
         document.getElementById("task_input_field").value = "";
-        var sendData = {
+        var _sendData = {
           'userId': this.userId,
           'taskText': taskText
         };
-        knock_knock('save', sendData, add);
+        knock_knock('save', _sendData, add);
       }
     }
   }, {
@@ -325,7 +325,7 @@ var Login = /*#__PURE__*/function () {
         }
       };
 
-      knock_knock('load_tasks', loadTasks);
+      knock_knock('load_tasks', sendData = undefined, loadTasks);
     }
   }, {
     key: "logIn",
@@ -347,7 +347,7 @@ var Login = /*#__PURE__*/function () {
         if (this.loginFormPassword.value) {
           var _userName = this.loginFormUsername.value;
           var password = this.loginFormPassword.value;
-          var sendData = {
+          var _sendData2 = {
             "userName": _userName,
             "password": password
           };
@@ -361,7 +361,7 @@ var Login = /*#__PURE__*/function () {
             }
           };
 
-          knock_knock('login', sendData, login);
+          knock_knock('login', _sendData2, login);
         } else {
           this.loginFormInfo.appendChild(document.createTextNode("Enter password!"));
         }
@@ -391,7 +391,7 @@ var Login = /*#__PURE__*/function () {
       var _this4 = this;
 
       var confirm = function confirm() {
-        knock_knock("user_delete", del);
+        knock_knock("user_delete", sendData = undefined, del);
       };
 
       var del = function del(answer) {
@@ -425,7 +425,7 @@ var Login = /*#__PURE__*/function () {
             var passwordConform = this.registerFormPasswordConfirm.value;
 
             if (password === passwordConform) {
-              var sendData = {
+              var _sendData3 = {
                 "newUserName": newUserName,
                 "password": password
               };
@@ -444,7 +444,7 @@ var Login = /*#__PURE__*/function () {
                 }
               };
 
-              knock_knock('user_register', sendData, register);
+              knock_knock('user_register', _sendData3, register);
             } else {
               this.registerFormInfo.appendChild(document.createTextNode("Passwords are not match!"));
             }

@@ -272,7 +272,7 @@ class Login {
                 this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
                 }
         }
-        knock_knock('load_tasks', loadTasks);
+        knock_knock('load_tasks',sendData = undefined, loadTasks);
     }
 
     logIn() {
@@ -327,7 +327,7 @@ class Login {
 
     userDelete() {
         const confirm = function() {
-            knock_knock("user_delete", del);
+            knock_knock("user_delete", sendData = undefined, del);
         }
 
         const del = (answer) => {
