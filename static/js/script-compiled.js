@@ -45,11 +45,11 @@ var TaskList = /*#__PURE__*/function () {
 
         var taskText = document.getElementById("task_input_field").value;
         document.getElementById("task_input_field").value = "";
-        var _sendData = {
+        var sendData = {
           'userId': this.userId,
           'taskText': taskText
         };
-        knock_knock('save', _sendData, add);
+        knock_knock('save', add, sendData);
       }
     }
   }, {
@@ -99,7 +99,7 @@ var TaskList = /*#__PURE__*/function () {
         }
       }
 
-      knock_knock('delete', sendData, remove);
+      knock_knock('delete', remove, sendData);
     }
   }, {
     key: "updateDom",
@@ -311,6 +311,7 @@ var Login = /*#__PURE__*/function () {
             _this.authMenu.style.display = 'none';
             document.getElementById('task_input_field').focus();
           }, 500);
+          var userName = answer["user_name"];
 
           _this.userNameField.appendChild(document.createTextNode(userName));
 
@@ -325,7 +326,7 @@ var Login = /*#__PURE__*/function () {
         }
       };
 
-      knock_knock('load_tasks', sendData = undefined, loadTasks);
+      knock_knock('load_tasks', loadTasks);
     }
   }, {
     key: "logIn",
@@ -345,10 +346,10 @@ var Login = /*#__PURE__*/function () {
 
       if (this.loginFormUsername.value) {
         if (this.loginFormPassword.value) {
-          var _userName = this.loginFormUsername.value;
+          var userName = this.loginFormUsername.value;
           var password = this.loginFormPassword.value;
-          var _sendData2 = {
-            "userName": _userName,
+          var sendData = {
+            "userName": userName,
             "password": password
           };
           this.loginFormPassword.value = "";
@@ -361,7 +362,7 @@ var Login = /*#__PURE__*/function () {
             }
           };
 
-          knock_knock('login', _sendData2, login);
+          knock_knock('login', login, sendData);
         } else {
           this.loginFormInfo.appendChild(document.createTextNode("Enter password!"));
         }
@@ -391,7 +392,7 @@ var Login = /*#__PURE__*/function () {
       var _this4 = this;
 
       var confirm = function confirm() {
-        knock_knock("user_delete", sendData = undefined, del);
+        knock_knock("user_delete", del);
       };
 
       var del = function del(answer) {
@@ -425,7 +426,7 @@ var Login = /*#__PURE__*/function () {
             var passwordConform = this.registerFormPasswordConfirm.value;
 
             if (password === passwordConform) {
-              var _sendData3 = {
+              var sendData = {
                 "newUserName": newUserName,
                 "password": password
               };
@@ -444,7 +445,7 @@ var Login = /*#__PURE__*/function () {
                 }
               };
 
-              knock_knock('user_register', _sendData3, register);
+              knock_knock('user_register', register, sendData);
             } else {
               this.registerFormInfo.appendChild(document.createTextNode("Passwords are not match!"));
             }
@@ -484,9 +485,8 @@ function events() {
   registerField.addEventListener('keydown', noEnterRefreshRegister, false);
 }
 
-function knock_knock(path) {
-  var sendData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
-  var func = arguments.length > 2 ? arguments[2] : undefined;
+function knock_knock(path, func) {
+  var sendData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
 
   if (window.fetch) {
     var init = {

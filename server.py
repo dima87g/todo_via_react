@@ -103,7 +103,7 @@ def load_tasks():
             return jsonify({"ok": False, "error_code": None,
                             "error_message": "This will be disconnect in future!"})
 
-        cur.execute('SELECT id FROM users WHERE user_text_id = %s', (user_text_id,))
+        cur.execute('SELECT id, user_name FROM users WHERE user_text_id = %s', (user_text_id,))
 
         rows = cur.fetchall()
 
@@ -111,6 +111,7 @@ def load_tasks():
             return jsonify({"ok": False, "error_code": None,
                             "error_message": "Some Error"})
         user_id = rows[0][0]
+        user_name = rows[0][1]
 
 
         cur.execute('SELECT * from tasks WHERE user_id = %s', (user_id,))
@@ -119,7 +120,7 @@ def load_tasks():
             tasks.append({"task_id": task[0],
                           "task_text": task[2],
                           "status": bool(task[3])})
-        return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
+        return jsonify({'ok': True, 'user_id': user_id, "user_name": user_name, 'tasks': tasks})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})

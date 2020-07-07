@@ -31,7 +31,7 @@ class TaskList {
                     self.updateDom();
                 }
             }
-            knock_knock('save', sendData, add);
+            knock_knock('save', add, sendData);
         }
     }
 
@@ -72,7 +72,7 @@ class TaskList {
                 self.updateDom();
             }
         }
-        knock_knock('delete', sendData, remove);
+        knock_knock('delete', remove, sendData);
     }
 
     updateDom(tasksParentId = 'main_tasks', existsTasksClass = 'task') {
@@ -258,6 +258,8 @@ class Login {
                     this.authMenu.style.display = 'none';
                     document.getElementById('task_input_field').focus();
                     }, 500);
+                
+                let userName = answer["user_name"];
 
                 this.userNameField.appendChild(document.createTextNode(userName));
                 this.userLogOutButton.disabled = false;
@@ -272,7 +274,7 @@ class Login {
                 this.loginFormInfo.appendChild(document.createTextNode("Проблема((((("));
                 }
         }
-        knock_knock('load_tasks',sendData = undefined, loadTasks);
+        knock_knock('load_tasks', loadTasks);
     }
 
     logIn() {
@@ -302,7 +304,7 @@ class Login {
                         this.loginFormInfo.appendChild(document.createTextNode(answer["error_message"]));
                     }
                 }
-                knock_knock('login', sendData, login);
+                knock_knock('login', login, sendData);
             } else {
                 this.loginFormInfo.appendChild(document.createTextNode("Enter password!"));
             }
@@ -327,7 +329,7 @@ class Login {
 
     userDelete() {
         const confirm = function() {
-            knock_knock("user_delete", sendData = undefined, del);
+            knock_knock("user_delete", del);
         }
 
         const del = (answer) => {
@@ -370,7 +372,7 @@ class Login {
                                 this.registerFormInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
                             }
                         }
-                        knock_knock('user_register', sendData, register);
+                        knock_knock('user_register', register, sendData);
                     } else {
                         this.registerFormInfo.appendChild(document.createTextNode("Passwords are not match!"));
                     }
@@ -409,7 +411,7 @@ function events() {
     registerField.addEventListener('keydown', noEnterRefreshRegister, false);
 }
 
-function knock_knock(path, sendData = undefined, func) {
+function knock_knock(path, func, sendData = undefined) {
     if (window.fetch) {
         let init = {method: 'POST',
                     headers: {'Content-Type': 'application/json; charset=utf-8'},
