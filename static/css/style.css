@@ -36,7 +36,7 @@ html, body {
     margin-left: 10px;
 }
 
-.login_form {
+.login_window {
     position: absolute;
     height: 200px;
     width: 200px;
@@ -74,7 +74,7 @@ html, body {
     border-radius: 20px 20px;
 }
 
-.register_form {
+.register_window {
     position: absolute;
     height: 200px;
     width: 200px;

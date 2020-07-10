@@ -336,8 +336,12 @@ def finish_task():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "This will be disconnect in future!"})
+            response = make_response(jsonify({"ok": False, "error_code": 401,
+                            "error_message": "Disconnect"}))
+            response.delete_cookie("id")
+            response.delete_cookie("sign")
+
+            return response
         
         cur.execute("SELECT id FROM users WHERE user_text_id = %s", (user_text_id,))
 
