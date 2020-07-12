@@ -29,10 +29,84 @@ print("Connection Pool Size - ", connection_pool.pool_size)
 @app.route("/")
 def main():
     return render_template("index.html")
+    # connection = None
+    # cur = None
 
+    # try:
+    #     connection  = connection_pool.get_connection()
+    #     cur = connection.cursor()
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+    #     user_text_id = request.cookies.get("id")
+    #     sign = request.cookies.get("sign")
+
+    #     if not check_cookies(user_text_id, sign):
+    #         return render_template("index.html")
+        
+    #     cur.execute("SELECT user_name FROM users WHERE user_text_id = %s", (user_text_id,))
+
+    #     rows = cur.fetchall()
+
+    #     user_name = rows[0][0]
+
+    #     response = make_response(render_template("index.html"))
+    #     response.set_cookie("login", "yes", max_age = 1)
+    #     response.set_cookie("user_name", user_name, max_age = 1)
+
+    #     return response
+    # except mysql.connector.Error as error:
+    #     return jsonify({'ok': False, 'error_code': error.errno,
+    #                     'error_message': error.msg})
+    # except Exception as error:
+    #     return jsonify({'ok': False, 'error_code': None,
+    #                     'error_message': error.args[0]})
+    # finally:
+    #     if cur is not None:
+    #         cur.close()
+    #     if connection is not None:
+    #         connection.close()
+
+@app.route('/user_register', methods=['GET', 'POST'])
+def user_register():
+    """
+    request: json = {userName: 'str', password: 'str'}
+    response: json = {'ok': 'bool', 'error_code': 'int' or None,
+     'error_message': 'str' or None}
+    """
+
+    connection = None
+    cur = None
+
+    try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
+        data = request.json
+        user_name = data["newUserName"]
+        user_password = data["password"]
+
+        user_text_id = create_text_id()
+        hashed_password = generate_password_hash(user_password)
+
+        cur.execute('INSERT INTO users (user_text_id, user_name, hashed_password) VALUES (%s, %s, %s)'
+                    , (user_text_id, user_name, hashed_password,))
+
+        connection.commit()
+
+        return jsonify({'ok': True, 'error_code': None, 'error_message': None})
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': None,
+                        'error_message': error.args[0]})
+    finally:
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
+
+@app.route('/user_login', methods=['GET', 'POST'])
+def user_login():
     """
     request: json = {"userName": 'str', "password": "str"}
     response: json = {"ok": bool, "error_code": "int" or None,
@@ -100,10 +174,14 @@ def load_tasks():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "This will be disconnect in future!"})
+            response = make_response(jsonify({"ok": False, "error_code": 401,
+                            "error_message": "Disconnect"}))
+            response.delete_cookie("id")
+            response.delete_cookie("sign")
 
-        cur.execute('SELECT id, user_name FROM users WHERE user_text_id = %s', (user_text_id,))
+            return response
+
+        cur.execute('SELECT id FROM users WHERE user_text_id = %s', (user_text_id,))
 
         rows = cur.fetchall()
 
@@ -118,47 +196,17 @@ def load_tasks():
             tasks.append({"task_id": task[0],
                           "task_text": task[2],
                           "status": bool(task[3])})
-        return jsonify({'ok': True, 'user_id': user_id, 'tasks': tasks})
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
-    except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
-    finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
 
-@app.route('/user_register', methods=['GET', 'POST'])
-def user_register():
-    """
-    request: json = {userName: 'str', password: 'str'}
-    response: json = {'ok': 'bool', 'error_code': 'int' or None,
-     'error_message': 'str' or None}
-    """
+        response = make_response(jsonify({
+                                        'ok': True, 
+                                        'user_id': user_id, 
+                                        'tasks': tasks
+                                        }))
 
-    connection = None
-    cur = None
+        response.set_cookie("id", user_text_id)
+        response.set_cookie("sign", sign)
 
-    try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
-
-        data = request.json
-        user_name = data["newUserName"]
-        user_password = data["password"]
-
-        user_text_id = create_text_id()
-        hashed_password = generate_password_hash(user_password)
-
-        cur.execute('INSERT INTO users (user_text_id, user_name, hashed_password) VALUES (%s, %s, %s)'
-                    , (user_text_id, user_name, hashed_password,))
-
-        connection.commit()
-
-        return jsonify({'ok': True, 'error_code': None, 'error_message': None})
+        return response
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -189,16 +237,27 @@ def user_delete():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "This will be disconnect in future!"})
+            response = make_response(jsonify({"ok": False, "error_code": 401,
+                            "error_message": "Disconnect"}))
+            response.delete_cookie("id")
+            response.delete_cookie("sign")
 
+            return response
 
         cur.execute("DELETE FROM users WHERE user_text_id = %s", (user_text_id,))
 
         connection.commit()
 
-        return jsonify({"ok": True, "error_code": None, 
-                        "error_message": None})
+        response = make_response(jsonify({
+                                        "ok": True, 
+                                        "error_code": None, 
+                                        "error_message": None
+                                        }))
+
+        response.delete_cookie("id")
+        response.delete_cookie("sign")
+
+        return response
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -211,8 +270,8 @@ def user_delete():
         if connection is not None:
             connection.close()
 
-@app.route("/save", methods=["GET", "POST"])
-def save():
+@app.route("/save_task", methods=["GET", "POST"])
+def save_task():
     """
     request: json = {'userId' = 'int', 'taskText' = 'str'}
     response:
@@ -235,8 +294,13 @@ def save():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "This willbe disconnect in future!"})
+            response = make_response(jsonify({"ok": False, "error_code": 401,
+                            "error_message": "Disconnect"}))               
+            response.delete_cookie("id")
+            response.delete_cookie("sign")
+
+            return response
+
         cur.execute("SELECT id FROM users WHERE user_text_id = %s", (user_text_id,))
 
         rows = cur.fetchall()
@@ -248,7 +312,14 @@ def save():
         connection.commit()
         task_id = cur.lastrowid
 
-        return jsonify({'ok': True, 'task_id': task_id})
+        response = make_response(jsonify({
+                                        'ok': True, 
+                                        'task_id': task_id
+                                        }))
+        response.set_cookie("id", user_text_id)
+        response.set_cookie("sign", sign)
+
+        return response
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -261,8 +332,8 @@ def save():
         if connection is not None:
             connection.close()
 
-@app.route("/delete", methods=["POST"])
-def delete():
+@app.route("/delete_task", methods=["POST"])
+def delete_task():
     """
     request: 'task_id' = 'int'
     response:
@@ -285,20 +356,29 @@ def delete():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "This will be disconnect in future!"})
+            response = make_response(jsonify({"ok": False, "error_code": 401,
+                            "error_message": "Disconnect"}))
+            response.delete_cookie("id")
+            response.delete_cookie("sign")
+
+            return response
 
         cur.execute("SELECT id FROM users where user_text_id = %s", (user_text_id,))
 
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-
         cur.execute('DELETE FROM tasks WHERE id = %s and user_id = %s', (task_id, user_id,))
 
         connection.commit()
 
-        return jsonify({"ok": True})
+        response = make_response(jsonify({
+                                        "ok": True
+                                        }))
+        response.set_cookie("id", user_text_id)
+        response.set_cookie("sign", sign)
+
+        return response
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
@@ -353,6 +433,12 @@ def finish_task():
 
         connection.commit()
 
+        response = make_response(jsonify({
+                                        "ok": True
+                                        }))
+        response.set_cookie("id", user_text_id)
+        response.set_cookie("sign", sign)
+
         return jsonify({"ok": True})
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
@@ -372,7 +458,7 @@ def create_text_id():
 
     return "".join(salt)
 
-def  check_cookies(user_text_id, sign):
+def check_cookies(user_text_id, sign):
     if not user_text_id or not sign:
         return False
     
