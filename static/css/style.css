@@ -203,6 +203,28 @@ html, body {
     display: none;
 }
 
+.info_window {
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    background-color: aqua;
+    left: 50%;
+    margin-left: -100px;
+    z-index: 1;
+    display: none;
+}
+
+.loading_window {
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    background-color: aqua;
+    left: 50%;
+    margin-left: -100px;
+    z-index: 1;
+    display: none;
+}
+
 .shadow {
     position: absolute;
     width: 100%;

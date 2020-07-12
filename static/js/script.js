@@ -1,10 +1,10 @@
 "use strict";
 
 class TaskList {
-    // TODO: Сделать небольшой рефактор, серверу больше не нужны многие данные
     constructor() {
         this.userId = undefined;
         this.tasks = [];
+        this.loginClass = undefined;
     }
 
     addTask() {
@@ -19,9 +19,9 @@ class TaskList {
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
-            let sendData = {'userId': this.userId, 'taskText': taskText};
+            let sendData = {"taskText": taskText};
 
-            function add(answer) {
+            const add = (answer) => {
                 if (answer['ok'] === true) {
                     let taskId = answer['task_id'];
                     let newTask = new Task(self, taskId, taskText);
@@ -30,8 +30,12 @@ class TaskList {
 
                     self.updateDom();
                 }
+                if (answer["error_code"] === 401) {
+                    this.loginClass.logOut();
+                    showInfoWindow("Authorisation problem!");
+                }
             }
-            knock_knock('save', add, sendData);
+            knock_knock('save_task', add, sendData);
         }
     }
 
@@ -47,12 +51,13 @@ class TaskList {
         node.status = node.status === false;
         let sendData = {"taskId": node.id, "status": node.status};
 
-        function finish(answer) {
+        const finish = (answer) => {
             if (answer['ok'] === true) {
                 self.updateDom();
             }
             if (answer["error_code"] === 401) {
-                window.location = "http://127.0.0.1:5000";
+                this.loginClass.logOut();
+                showInfoWindow("Authorisation problem!");
             }
         }
         knock_knock('finish_task', finish, sendData);
@@ -69,13 +74,17 @@ class TaskList {
         const self = this;
         let sendData = {'taskId': node.id}
 
-        function remove(answer) {
+        const remove = (answer) => {
             if (answer['ok'] === true) {
                 self.tasks.splice(self.tasks.indexOf(node), 1);
                 self.updateDom();
             }
+            if (answer["error_code"] === 401) {
+                this.loginClass.logOut();
+                showInfoWindow("Authorisation problem!");
+            }
         }
-        knock_knock('delete', remove, sendData);
+        knock_knock('delete_task', remove, sendData);
     }
 
     updateDom(tasksParentId = 'main_tasks', existsTasksClass = 'task') {
@@ -172,6 +181,7 @@ class Task {
 class Login {
     constructor() {
         const self = this;
+        this.taskList = undefined;
         this.authMenu = document.getElementById("auth_menu");
         this.loginWindow = document.getElementById("login_window");
         this.loginWindowInfo = document.getElementById("login_window_info");
@@ -252,25 +262,29 @@ class Login {
          */
         const loadTasks = (answer) => {
             if (answer['ok'] === true) {
-                this.loginFormUsername.value = "";
-                removeChilds(this.loginWindowInfo);
-                this.authMenu.style.opacity = '0';
-                this.shadow.style.display = "none";
-                
-                setTimeout(() => {
-                    this.authMenu.style.display = 'none';
-                    document.getElementById('task_input_field').focus();
-                    }, 500);
-
                 let userId = answer['user_id'];
                 let tasksFromServer = answer['tasks'];
 
-                createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task');
+                // createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task', this);
+                this.taskList = new TaskList();
+                this.taskList.loginClass = this;
+                let taskInputButton = document.getElementById("task_input_button");
 
-            } else {
-                removeChilds(this.loginWindowInfo);
-                this.loginWindowInfo.appendChild(document.createTextNode("Проблема((((("));
+                taskInputButton.onclick = function() {
+                    this.taskList.addTask();
                 }
+
+                this.taskList.userId = userId;
+                for (let task of tasksFromServer) {
+                    this.taskList.tasks.push(new Task(this.taskList, task["task_id"], task["task_text"], task["status"]));
+                }
+                this.taskList.updateDom();
+
+            }
+            if (answer["error_code"] === 401) {
+                this.logOut();
+                showInfoWindow("Authorisation problem!");
+            }
         }
         knock_knock('load_tasks', loadTasks);
     }
@@ -302,12 +316,24 @@ class Login {
                         this.userNameField.appendChild(document.createTextNode(userName));
                         this.userLogOutButton.disabled = false;
 
+                        this.loginFormUsername.value = "";
+                        removeChilds(this.loginWindowInfo);
+                        this.authMenu.style.opacity = '0';
+                        this.shadow.style.display = "none";
+                        
+                        setTimeout(() => {
+                            this.authMenu.style.display = 'none';
+                            document.getElementById('task_input_field').focus();
+                        }, 500);
+
+
                         this.onLoad()
+                        startLoadingWindow();
                     } else {
                         this.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
                     }
                 }
-                knock_knock('login', login, sendData);
+                knock_knock('user_login', login, sendData);
             } else {
                 this.loginWindowInfo.appendChild(document.createTextNode("Enter password!"));
             }
@@ -317,6 +343,10 @@ class Login {
     }
 
     logOut() {
+        this.taskList = undefined;
+        document.cookie = "id=; expires=-1";
+        document.cookie = "sign=; expires=-1";
+
         let tasksParent = document.getElementById("main_tasks");
         
         this.shadow.style.display = "block";
@@ -339,9 +369,13 @@ class Login {
             if (answer["ok"] === true) {
                 this.logOut();
             }
+            if (answer["error_code"] === 401) {
+                this.logOut();
+                showInfoWindow("Authorisation problem!");
+            }
         }
 
-        createConfirmWindow(confirm, "Are you sure, you want to delete user?");
+        showConfirmWindow(confirm, "Are you sure, you want to delete user?");
     }
 
     userRegister() {
@@ -454,22 +488,22 @@ function knock_knock(path, func, sendData = undefined) {
     }
 }
 
-function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParentId, existsTasksClass) {
-    let taskList = new TaskList();
-    let taskInputButton = document.getElementById(taskInputButtonId);
+// function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParentId, existsTasksClass, loginClass) {
+//     let taskList = new TaskList(loginClass);
+//     let taskInputButton = document.getElementById(taskInputButtonId);
 
-    taskInputButton.onclick = function() {
-        taskList.addTask();
-    }
+//     taskInputButton.onclick = function() {
+//         taskList.addTask();
+//     }
 
-    taskList.userId = userId;
-    for (let task of tasksFromServer) {
-        taskList.tasks.push(new Task(taskList, task["task_id"], task["task_text"], task["status"]));
-    }
-    taskList.updateDom(taskParentId, existsTasksClass);
-}
+//     taskList.userId = userId;
+//     for (let task of tasksFromServer) {
+//         taskList.tasks.push(new Task(taskList, task["task_id"], task["task_text"], task["status"]));
+//     }
+//     taskList.updateDom(taskParentId, existsTasksClass);
+// }
 
-function createConfirmWindow(func, message) {
+function showConfirmWindow(func, message) {
     let shadow = document.getElementById("shadow");
     let confirmWindow = document.getElementById("confirm_window");
     let confirmWindowMessage = document.getElementById("confirm_window_message");
@@ -497,13 +531,58 @@ function createConfirmWindow(func, message) {
     }
 }
 
+function showInfoWindow(message) {
+    let infoWindow = document.getElementById("info_window");
+    let infoWindowMessage = document.getElementById("info_window_message");
+
+    infoWindowMessage.appendChild(document.createTextNode(message));
+    infoWindow.style.display = "block";
+
+    setTimeout(function() {
+        infoWindow.style.display = "none";
+    }, 3000)
+}
+
+function startLoadingWindow() {
+    let loadingWindow = document.getElementById("loading_window");
+    let loadingWindowMessage = document.getElementById("loading_window_message");
+
+    loadingWindow.style.display = "block";
+
+    setTimeout(function() {
+        loadingWindow.style.display = "none";
+    }, 3000);
+}
+
 function removeChilds(field) {
     while (field.firstChild) {
         field.removeChild(field.firstChild);
     }
 }
 
+function getCookie(name) {
+    let matches = document.cookie.match(new RegExp(
+      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+  }
+
 document.addEventListener('DOMContentLoaded', function() {
-    let login = new Login();
+    let mainLogin = new Login();
+    if (getCookie("login") === "yes") {
+        mainLogin.userNameField.appendChild(document.createTextNode(getCookie("user_name")));
+        mainLogin.userLogOutButton.disabled = false;
+
+        mainLogin.loginFormUsername.value = "";
+        removeChilds(mainLogin.loginWindowInfo);
+        mainLogin.authMenu.style.opacity = '0';
+        mainLogin.shadow.style.display = "none";
+        
+        setTimeout(() => {
+            mainLogin.authMenu.style.display = 'none';
+            document.getElementById('task_input_field').focus();
+        }, 500);
+        mainLogin.onLoad();
+    }
     events();
 });
