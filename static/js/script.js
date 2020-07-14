@@ -248,12 +248,38 @@ class Login {
         }
     }
 
+
+    hideLoginWindow() {
+        this.loginFormUsername.value = "";
+        removeChilds(this.loginWindowInfo);
+        this.authMenu.style.opacity = '0';
+        this.shadow.style.display = "none";
+
+        setTimeout(() => {
+            this.authMenu.style.display = 'none';
+            document.getElementById('task_input_field').focus();
+        }, 500);
+    }
+
+
+    showLoginWindow() {
+        this.shadow.style.display = "block";
+        removeChilds(this.userNameField);
+        this.userLogOutButton.disabled = true;
+        this.authMenu.style.display = 'block';
+        this.loginFormUsername.focus();
+        setTimeout(() => {
+            this.authMenu.style.opacity = '1';
+        });
+    }
+
+
     onLoad() {
         /**
          * POST:
          * GET:
          * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-         *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
+         *                                          {"task_id": "number", 'task_text': 'string', 'status': 'string'},
          *                                          ...
          *                                          ]
          *             }
@@ -263,14 +289,19 @@ class Login {
         const loadTasks = (answer) => {
             if (answer['ok'] === true) {
                 let userId = answer['user_id'];
+                let userName = answer["user_name"];
                 let tasksFromServer = answer['tasks'];
 
-                // createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task', this);
+                if (!this.userNameField.firstChild) {
+                    this.userNameField.appendChild(document.createTextNode(userName));
+                    this.userLogOutButton.disabled = false;
+                }
+
                 this.taskList = new TaskList();
                 this.taskList.loginClass = this;
                 let taskInputButton = document.getElementById("task_input_button");
 
-                taskInputButton.onclick = function() {
+                taskInputButton.onclick = () => {
                     this.taskList.addTask();
                 }
 
@@ -316,16 +347,7 @@ class Login {
                         this.userNameField.appendChild(document.createTextNode(userName));
                         this.userLogOutButton.disabled = false;
 
-                        this.loginFormUsername.value = "";
-                        removeChilds(this.loginWindowInfo);
-                        this.authMenu.style.opacity = '0';
-                        this.shadow.style.display = "none";
-                        
-                        setTimeout(() => {
-                            this.authMenu.style.display = 'none';
-                            document.getElementById('task_input_field').focus();
-                        }, 500);
-
+                        this.hideLoginWindow();
 
                         this.onLoad()
                         startLoadingWindow();
@@ -348,16 +370,10 @@ class Login {
         document.cookie = "sign=; expires=-1";
 
         let tasksParent = document.getElementById("main_tasks");
-        
-        this.shadow.style.display = "block";
-        removeChilds(this.userNameField);
-        this.userLogOutButton.disabled = true;
         removeChilds(tasksParent);
-        this.authMenu.style.display = 'block';
-        this.loginFormUsername.focus();
-        setTimeout(() => {
-            this.authMenu.style.opacity = '1';
-        });
+
+        this.showLoginWindow();
+
     }
 
     userDelete() {
@@ -560,6 +576,16 @@ function removeChilds(field) {
     }
 }
 
+function authCheck(mainLogin) {
+    const check = (answer) => {
+        if (answer["ok"] === true) {
+            mainLogin.hideLoginWindow();
+            mainLogin.onLoad();
+        }
+    }
+    knock_knock("/auth_check", check);
+}
+
 function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
       "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
@@ -569,20 +595,6 @@ function getCookie(name) {
 
 document.addEventListener('DOMContentLoaded', function() {
     let mainLogin = new Login();
-    if (getCookie("login") === "yes") {
-        mainLogin.userNameField.appendChild(document.createTextNode(getCookie("user_name")));
-        mainLogin.userLogOutButton.disabled = false;
-
-        mainLogin.loginFormUsername.value = "";
-        removeChilds(mainLogin.loginWindowInfo);
-        mainLogin.authMenu.style.opacity = '0';
-        mainLogin.shadow.style.display = "none";
-        
-        setTimeout(() => {
-            mainLogin.authMenu.style.display = 'none';
-            document.getElementById('task_input_field').focus();
-        }, 500);
-        mainLogin.onLoad();
-    }
+    authCheck(mainLogin);
     events();
 });

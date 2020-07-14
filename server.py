@@ -4,6 +4,7 @@ import hashlib
 import random
 import mysql.connector
 from mysql.connector import pooling
+import time
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -29,41 +30,7 @@ print("Connection Pool Size - ", connection_pool.pool_size)
 @app.route("/")
 def main():
     return render_template("index.html")
-    # connection = None
-    # cur = None
 
-    # try:
-    #     connection  = connection_pool.get_connection()
-    #     cur = connection.cursor()
-
-    #     user_text_id = request.cookies.get("id")
-    #     sign = request.cookies.get("sign")
-
-    #     if not check_cookies(user_text_id, sign):
-    #         return render_template("index.html")
-        
-    #     cur.execute("SELECT user_name FROM users WHERE user_text_id = %s", (user_text_id,))
-
-    #     rows = cur.fetchall()
-
-    #     user_name = rows[0][0]
-
-    #     response = make_response(render_template("index.html"))
-    #     response.set_cookie("login", "yes", max_age = 1)
-    #     response.set_cookie("user_name", user_name, max_age = 1)
-
-    #     return response
-    # except mysql.connector.Error as error:
-    #     return jsonify({'ok': False, 'error_code': error.errno,
-    #                     'error_message': error.msg})
-    # except Exception as error:
-    #     return jsonify({'ok': False, 'error_code': None,
-    #                     'error_message': error.args[0]})
-    # finally:
-    #     if cur is not None:
-    #         cur.close()
-    #     if connection is not None:
-    #         connection.close()
 
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
@@ -104,6 +71,7 @@ def user_register():
             cur.close()
         if connection is not None:
             connection.close()
+
 
 @app.route('/user_login', methods=['GET', 'POST'])
 def user_login():
@@ -146,6 +114,8 @@ def user_login():
         response.set_cookie("id", user_text_id)
         response.set_cookie("sign", sign)
 
+        # time.sleep(5)
+
         return response
     except mysql.connector.Error as error:
         return jsonify({'ok': False, 'error_code': error.errno,
@@ -158,6 +128,7 @@ def user_login():
             cur.close()
         if connection is not None:
             connection.close()
+
 
 @app.route("/load_tasks", methods=["GET", "POST"])
 def load_tasks():
@@ -181,7 +152,7 @@ def load_tasks():
 
             return response
 
-        cur.execute('SELECT id FROM users WHERE user_text_id = %s', (user_text_id,))
+        cur.execute('SELECT id, user_name FROM users WHERE user_text_id = %s', (user_text_id,))
 
         rows = cur.fetchall()
 
@@ -189,6 +160,7 @@ def load_tasks():
             return jsonify({"ok": False, "error_code": None,
                             "error_message": "Some Error"})
         user_id = rows[0][0]
+        user_name = rows[0][1]
 
         cur.execute('SELECT * from tasks WHERE user_id = %s', (user_id,))
             
@@ -198,7 +170,8 @@ def load_tasks():
                           "status": bool(task[3])})
 
         response = make_response(jsonify({
-                                        'ok': True, 
+                                        'ok': True,
+                                        "user_name": user_name,
                                         'user_id': user_id, 
                                         'tasks': tasks
                                         }))
@@ -218,6 +191,7 @@ def load_tasks():
             cur.close()
         if connection is not None:
             connection.close()
+
 
 @app.route("/user_delete", methods=["GET", "POST"])
 def user_delete():
@@ -269,6 +243,7 @@ def user_delete():
             cur.close()
         if connection is not None:
             connection.close()
+
 
 @app.route("/save_task", methods=["GET", "POST"])
 def save_task():
@@ -332,6 +307,7 @@ def save_task():
         if connection is not None:
             connection.close()
 
+
 @app.route("/delete_task", methods=["POST"])
 def delete_task():
     """
@@ -390,6 +366,7 @@ def delete_task():
             cur.close()
         if connection is not None:
             connection.close()
+
 
 @app.route("/finish_task", methods=["GET", "POST"])
 def finish_task():
@@ -452,11 +429,31 @@ def finish_task():
         if connection is not None:
             connection.close()
 
+
+@app.route("/auth_check", methods=["GET", "POST"])
+def auth_check():
+    try:
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        if not check_cookies(user_text_id, sign):
+            response = make_response(jsonify({"ok": False}))
+            return response
+        response = make_response(jsonify({"ok": True}))
+        response.set_cookie("id", user_text_id)
+        response.set_cookie("sign", sign)
+        return response
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': None,
+                        'error_message': error.args[0]})
+
+
 def create_text_id():
     symbols = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_")
     salt = random.choices(symbols, k=64)
 
     return "".join(salt)
+
 
 def check_cookies(user_text_id, sign):
     if not user_text_id or not sign:
@@ -467,6 +464,7 @@ def check_cookies(user_text_id, sign):
     if sign != control_sign:
         return False
     return True 
+
 
 if __name__ == "__main__":
     app.run(debug=True)

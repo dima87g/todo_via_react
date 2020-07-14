@@ -311,15 +311,43 @@ var Login = /*#__PURE__*/function () {
       }
     }
   }, {
+    key: "hideLoginWindow",
+    value: function hideLoginWindow() {
+      var _this4 = this;
+
+      this.loginFormUsername.value = "";
+      removeChilds(this.loginWindowInfo);
+      this.authMenu.style.opacity = '0';
+      this.shadow.style.display = "none";
+      setTimeout(function () {
+        _this4.authMenu.style.display = 'none';
+        document.getElementById('task_input_field').focus();
+      }, 500);
+    }
+  }, {
+    key: "showLoginWindow",
+    value: function showLoginWindow() {
+      var _this5 = this;
+
+      this.shadow.style.display = "block";
+      removeChilds(this.userNameField);
+      this.userLogOutButton.disabled = true;
+      this.authMenu.style.display = 'block';
+      this.loginFormUsername.focus();
+      setTimeout(function () {
+        _this5.authMenu.style.opacity = '1';
+      });
+    }
+  }, {
     key: "onLoad",
     value: function onLoad() {
-      var _this4 = this;
+      var _this6 = this;
 
       /**
        * POST:
        * GET:
        * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-       *                                          {'user_id': 'number', 'task_text': 'string', 'status': 'string'},
+       *                                          {"task_id": "number", 'task_text': 'string', 'status': 'string'},
        *                                          ...
        *                                          ]
        *             }
@@ -329,17 +357,24 @@ var Login = /*#__PURE__*/function () {
       var loadTasks = function loadTasks(answer) {
         if (answer['ok'] === true) {
           var userId = answer['user_id'];
-          var tasksFromServer = answer['tasks']; // createNewTaskList(userId, tasksFromServer, 'task_input_button', 'main_tasks', 'task', this);
+          var userName = answer["user_name"];
+          var tasksFromServer = answer['tasks'];
 
-          _this4.taskList = new TaskList();
-          _this4.taskList.loginClass = _this4;
+          if (!_this6.userNameField.firstChild) {
+            _this6.userNameField.appendChild(document.createTextNode(userName));
+
+            _this6.userLogOutButton.disabled = false;
+          }
+
+          _this6.taskList = new TaskList();
+          _this6.taskList.loginClass = _this6;
           var taskInputButton = document.getElementById("task_input_button");
 
           taskInputButton.onclick = function () {
-            this.taskList.addTask();
+            _this6.taskList.addTask();
           };
 
-          _this4.taskList.userId = userId;
+          _this6.taskList.userId = userId;
 
           var _iterator = _createForOfIteratorHelper(tasksFromServer),
               _step;
@@ -348,7 +383,7 @@ var Login = /*#__PURE__*/function () {
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var task = _step.value;
 
-              _this4.taskList.tasks.push(new Task(_this4.taskList, task["task_id"], task["task_text"], task["status"]));
+              _this6.taskList.tasks.push(new Task(_this6.taskList, task["task_id"], task["task_text"], task["status"]));
             }
           } catch (err) {
             _iterator.e(err);
@@ -356,11 +391,11 @@ var Login = /*#__PURE__*/function () {
             _iterator.f();
           }
 
-          _this4.taskList.updateDom();
+          _this6.taskList.updateDom();
         }
 
         if (answer["error_code"] === 401) {
-          _this4.logOut();
+          _this6.logOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -371,7 +406,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logIn",
     value: function logIn() {
-      var _this5 = this;
+      var _this7 = this;
 
       /**
        * POST: json = {"userName": "string", "password": "string"}
@@ -398,23 +433,17 @@ var Login = /*#__PURE__*/function () {
             if (answer["ok"] === true) {
               var _userName = answer["user_name"];
 
-              _this5.userNameField.appendChild(document.createTextNode(_userName));
+              _this7.userNameField.appendChild(document.createTextNode(_userName));
 
-              _this5.userLogOutButton.disabled = false;
-              _this5.loginFormUsername.value = "";
-              removeChilds(_this5.loginWindowInfo);
-              _this5.authMenu.style.opacity = '0';
-              _this5.shadow.style.display = "none";
-              setTimeout(function () {
-                _this5.authMenu.style.display = 'none';
-                document.getElementById('task_input_field').focus();
-              }, 500);
+              _this7.userLogOutButton.disabled = false;
 
-              _this5.onLoad();
+              _this7.hideLoginWindow();
+
+              _this7.onLoad();
 
               startLoadingWindow();
             } else {
-              _this5.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
+              _this7.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
             }
           };
 
@@ -429,26 +458,17 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logOut",
     value: function logOut() {
-      var _this6 = this;
-
       this.taskList = undefined;
       document.cookie = "id=; expires=-1";
       document.cookie = "sign=; expires=-1";
       var tasksParent = document.getElementById("main_tasks");
-      this.shadow.style.display = "block";
-      removeChilds(this.userNameField);
-      this.userLogOutButton.disabled = true;
       removeChilds(tasksParent);
-      this.authMenu.style.display = 'block';
-      this.loginFormUsername.focus();
-      setTimeout(function () {
-        _this6.authMenu.style.opacity = '1';
-      });
+      this.showLoginWindow();
     }
   }, {
     key: "userDelete",
     value: function userDelete() {
-      var _this7 = this;
+      var _this8 = this;
 
       var confirm = function confirm() {
         knock_knock("user_delete", del);
@@ -456,11 +476,11 @@ var Login = /*#__PURE__*/function () {
 
       var del = function del(answer) {
         if (answer["ok"] === true) {
-          _this7.logOut();
+          _this8.logOut();
         }
 
         if (answer["error_code"] === 401) {
-          _this7.logOut();
+          _this8.logOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -471,7 +491,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userRegister",
     value: function userRegister() {
-      var _this8 = this;
+      var _this9 = this;
 
       // TODO: Слишком большая вложенность, нужно попробовать переписать метод через конструкцию SWITCH
 
@@ -497,15 +517,15 @@ var Login = /*#__PURE__*/function () {
 
               var register = function register(answer) {
                 if (answer['ok'] === true) {
-                  _this8.registerFormUsername.value = "";
-                  _this8.registerFormPassword.value = "";
-                  _this8.registerFormPasswordConfirm.value = "";
+                  _this9.registerFormUsername.value = "";
+                  _this9.registerFormPassword.value = "";
+                  _this9.registerFormPasswordConfirm.value = "";
 
-                  _this8.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+                  _this9.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
                 } else if (answer['error_code'] === 1062) {
-                  _this8.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+                  _this9.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
                 } else {
-                  _this8.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+                  _this9.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
                 }
               };
 
@@ -655,6 +675,17 @@ function removeChilds(field) {
   }
 }
 
+function authCheck(mainLogin) {
+  var check = function check(answer) {
+    if (answer["ok"] === true) {
+      mainLogin.hideLoginWindow();
+      mainLogin.onLoad();
+    }
+  };
+
+  knock_knock("/auth_check", check);
+}
+
 function getCookie(name) {
   var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
   return matches ? decodeURIComponent(matches[1]) : undefined;
@@ -662,21 +693,7 @@ function getCookie(name) {
 
 document.addEventListener('DOMContentLoaded', function () {
   var mainLogin = new Login();
-
-  if (getCookie("login") === "yes") {
-    mainLogin.userNameField.appendChild(document.createTextNode(getCookie("user_name")));
-    mainLogin.userLogOutButton.disabled = false;
-    mainLogin.loginFormUsername.value = "";
-    removeChilds(mainLogin.loginWindowInfo);
-    mainLogin.authMenu.style.opacity = '0';
-    mainLogin.shadow.style.display = "none";
-    setTimeout(function () {
-      mainLogin.authMenu.style.display = 'none';
-      document.getElementById('task_input_field').focus();
-    }, 500);
-    mainLogin.onLoad();
-  }
-
+  authCheck(mainLogin);
   events();
 });
 
