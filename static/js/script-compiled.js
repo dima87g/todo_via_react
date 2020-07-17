@@ -580,6 +580,7 @@ function events() {
 
 function knock_knock(path, func) {
   var sendData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+  showLoadingWindow();
 
   if (window.fetch) {
     var init = {
@@ -594,6 +595,7 @@ function knock_knock(path, func) {
         return answer.json();
       }
     }).then(function (answer) {
+      showLoadingWindow();
       func(answer);
     });
   } else {
@@ -610,19 +612,7 @@ function knock_knock(path, func) {
       }
     };
   }
-} // function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParentId, existsTasksClass, loginClass) {
-//     let taskList = new TaskList(loginClass);
-//     let taskInputButton = document.getElementById(taskInputButtonId);
-//     taskInputButton.onclick = function() {
-//         taskList.addTask();
-//     }
-//     taskList.userId = userId;
-//     for (let task of tasksFromServer) {
-//         taskList.tasks.push(new Task(taskList, task["task_id"], task["task_text"], task["status"]));
-//     }
-//     taskList.updateDom(taskParentId, existsTasksClass);
-// }
-
+}
 
 function showConfirmWindow(func, message) {
   var shadow = document.getElementById("shadow");
@@ -660,14 +650,31 @@ function showInfoWindow(message) {
   }, 3000);
 }
 
-function startLoadingWindow() {
-  var loadingWindow = document.getElementById("loading_window");
-  var loadingWindowMessage = document.getElementById("loading_window_message");
-  loadingWindow.style.display = "block";
-  setTimeout(function () {
-    loadingWindow.style.display = "none";
-  }, 3000);
+function loadingWindowTimer() {
+  var timerShow;
+  var timerHide;
+  return function () {
+    var loadingWindow = document.getElementById("loading_window");
+
+    if (!timerShow && !timerHide) {
+      timerShow = setTimeout(function () {
+        loadingWindow.style.display = "block";
+      }, 1);
+    } else if (timerShow) {
+      timerShow = clearTimeout(timerShow);
+      timerHide = setTimeout(function () {
+        loadingWindow.style.display = "none";
+      }, 500);
+    } else if (timerHide) {
+      timerHide = clearTimeout(timerHide);
+      timerShow = setTimeout(function () {
+        loadingWindow.style.display = "block";
+      }, 1);
+    }
+  };
 }
+
+var showLoadingWindow = loadingWindowTimer();
 
 function removeChilds(field) {
   while (field.firstChild) {
