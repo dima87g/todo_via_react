@@ -474,7 +474,6 @@ function events() {
 }
 
 function knock_knock(path, func, sendData = undefined) {
-    // let showLoadingWindow = loadingWindowTimer();
     showLoadingWindow();
     if (window.fetch) {
         let init = {method: 'POST',
@@ -506,21 +505,6 @@ function knock_knock(path, func, sendData = undefined) {
         }
     }
 }
-
-// function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParentId, existsTasksClass, loginClass) {
-//     let taskList = new TaskList(loginClass);
-//     let taskInputButton = document.getElementById(taskInputButtonId);
-
-//     taskInputButton.onclick = function() {
-//         taskList.addTask();
-//     }
-
-//     taskList.userId = userId;
-//     for (let task of tasksFromServer) {
-//         taskList.tasks.push(new Task(taskList, task["task_id"], task["task_text"], task["status"]));
-//     }
-//     taskList.updateDom(taskParentId, existsTasksClass);
-// }
 
 function showConfirmWindow(func, message) {
     let shadow = document.getElementById("shadow");
@@ -563,7 +547,6 @@ function showInfoWindow(message) {
 }
 
 function loadingWindowTimer() {
-    // let loadingWindow = document.getElementById("loading_window");
     let timerShow;
     let timerHide;
     return function() {
@@ -578,7 +561,7 @@ function loadingWindowTimer() {
                 loadingWindow.style.display = "none";
             }, 500);
         } else if (timerHide) {
-            timerHide = clearInterval(timerHide);
+            timerHide = clearTimeout(timerHide);
             timerShow = setTimeout(() => {
                 loadingWindow.style.display = "block";
             }, 1);

@@ -580,7 +580,6 @@ function events() {
 
 function knock_knock(path, func) {
   var sendData = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
-  // let showLoadingWindow = loadingWindowTimer();
   showLoadingWindow();
 
   if (window.fetch) {
@@ -613,19 +612,7 @@ function knock_knock(path, func) {
       }
     };
   }
-} // function createNewTaskList(userId, tasksFromServer, taskInputButtonId, taskParentId, existsTasksClass, loginClass) {
-//     let taskList = new TaskList(loginClass);
-//     let taskInputButton = document.getElementById(taskInputButtonId);
-//     taskInputButton.onclick = function() {
-//         taskList.addTask();
-//     }
-//     taskList.userId = userId;
-//     for (let task of tasksFromServer) {
-//         taskList.tasks.push(new Task(taskList, task["task_id"], task["task_text"], task["status"]));
-//     }
-//     taskList.updateDom(taskParentId, existsTasksClass);
-// }
-
+}
 
 function showConfirmWindow(func, message) {
   var shadow = document.getElementById("shadow");
@@ -664,7 +651,6 @@ function showInfoWindow(message) {
 }
 
 function loadingWindowTimer() {
-  // let loadingWindow = document.getElementById("loading_window");
   var timerShow;
   var timerHide;
   return function () {
@@ -680,7 +666,7 @@ function loadingWindowTimer() {
         loadingWindow.style.display = "none";
       }, 500);
     } else if (timerHide) {
-      timerHide = clearInterval(timerHide);
+      timerHide = clearTimeout(timerHide);
       timerShow = setTimeout(function () {
         loadingWindow.style.display = "block";
       }, 1);
