@@ -474,6 +474,8 @@ function events() {
 }
 
 function knock_knock(path, func, sendData = undefined) {
+    // let showLoadingWindow = loadingWindowTimer();
+    showLoadingWindow();
     if (window.fetch) {
         let init = {method: 'POST',
                     headers: {'Content-Type': 'application/json; charset=utf-8'},
@@ -486,6 +488,7 @@ function knock_knock(path, func, sendData = undefined) {
                 }
             })
             .then((answer) => {
+                showLoadingWindow();
                 func(answer);
             })
     } else {
@@ -559,16 +562,31 @@ function showInfoWindow(message) {
     }, 3000)
 }
 
-function startLoadingWindow() {
-    let loadingWindow = document.getElementById("loading_window");
-    let loadingWindowMessage = document.getElementById("loading_window_message");
-
-    loadingWindow.style.display = "block";
-
-    setTimeout(function() {
-        loadingWindow.style.display = "none";
-    }, 3000);
+function loadingWindowTimer() {
+    // let loadingWindow = document.getElementById("loading_window");
+    let timerShow;
+    let timerHide;
+    return function() {
+        let loadingWindow = document.getElementById("loading_window");
+        if (!timerShow && !timerHide) {
+            timerShow = setTimeout(() => {
+                loadingWindow.style.display = "block";
+            }, 1);
+        } else if (timerShow) {
+            timerShow = clearTimeout(timerShow);
+            timerHide = setTimeout(() => {
+                loadingWindow.style.display = "none";
+            }, 500);
+        } else if (timerHide) {
+            timerHide = clearInterval(timerHide);
+            timerShow = setTimeout(() => {
+                loadingWindow.style.display = "block";
+            }, 1);
+        }
+    }
 }
+
+let showLoadingWindow = loadingWindowTimer();
 
 function removeChilds(field) {
     while (field.firstChild) {
