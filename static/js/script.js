@@ -350,7 +350,6 @@ class Login {
                         this.hideLoginWindow();
 
                         this.onLoad()
-                        startLoadingWindow();
                     } else {
                         this.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
                     }
@@ -441,6 +440,49 @@ class Login {
 }
 
 
+class Loadingwindow {
+    constructor() {
+        this.isAlive = false;
+        this.reqCount = 0;
+        this.timerShow = undefined;
+        this.timerHide = undefined;
+        this.startTime = undefined;
+        this.stopTime = undefined;
+    }
+    showWindow(loadingWindow) {
+        this.reqCount++;
+     if (this.reqCount === 1) {
+        this.timerHide = clearTimeout(this.timerHide);
+        this.timerShow = setTimeout(() => {
+            loadingWindow.style.display = "block";
+            this.startTime = Date.now();
+            this.isAlive = true;
+        }, 200);
+     }
+    }
+    hideWindow(loadingWindow) {
+        if (this.reqCount > 0) {
+            this.reqCount--;
+            this.stopTime = Date.now();
+        }   if (this.reqCount === 0) {
+            this.timerShow = clearTimeout(this.timerShow);
+            if (this.isAlive) {
+                if (this.stopTime - this.startTime >= 200) {
+                    loadingWindow.style.display = "none";
+                    this.isAlive = false;
+                } else {
+                    this.timerHide = setTimeout(() => {
+                        loadingWindow.style.display = "none";
+                        this.isAlive = false;
+                    }, 200 - (this.stopTime - this.startTime));
+                }
+            }
+        }
+    }
+}
+
+let showLoading = new Loadingwindow();
+
 function events() {
     function noEnterRefreshTaskInput(event) {
         if (event.keyCode === 13) {
@@ -474,7 +516,8 @@ function events() {
 }
 
 function knock_knock(path, func, sendData = undefined) {
-    showLoadingWindow();
+    let loadingWindow = document.getElementById("loading_window");
+    showLoading.showWindow(loadingWindow);
     if (window.fetch) {
         let init = {method: 'POST',
                     headers: {'Content-Type': 'application/json; charset=utf-8'},
@@ -487,7 +530,7 @@ function knock_knock(path, func, sendData = undefined) {
                 }
             })
             .then((answer) => {
-                showLoadingWindow();
+                showLoading.hideWindow(loadingWindow);
                 func(answer);
             })
     } else {
@@ -499,7 +542,8 @@ function knock_knock(path, func, sendData = undefined) {
         req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 if (req.status === 200 && req.getResponseHeader('Content-type') === 'application/json') {
-                        func(JSON.parse(req.responseText));
+                    showLoading.hideWindow(loadingWindow);
+                    func(JSON.parse(req.responseText));
                 }
             }
         }
@@ -545,31 +589,6 @@ function showInfoWindow(message) {
         infoWindow.style.display = "none";
     }, 3000)
 }
-
-function loadingWindowTimer() {
-    let timerShow;
-    let timerHide;
-    return function() {
-        let loadingWindow = document.getElementById("loading_window");
-        if (!timerShow && !timerHide) {
-            timerShow = setTimeout(() => {
-                loadingWindow.style.display = "block";
-            }, 1);
-        } else if (timerShow) {
-            timerShow = clearTimeout(timerShow);
-            timerHide = setTimeout(() => {
-                loadingWindow.style.display = "none";
-            }, 500);
-        } else if (timerHide) {
-            timerHide = clearTimeout(timerHide);
-            timerShow = setTimeout(() => {
-                loadingWindow.style.display = "block";
-            }, 1);
-        }
-    }
-}
-
-let showLoadingWindow = loadingWindowTimer();
 
 function removeChilds(field) {
     while (field.firstChild) {
