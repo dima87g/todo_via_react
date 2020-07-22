@@ -515,7 +515,6 @@ function events() {
     taskInputField.addEventListener("keydown", noEnterRefreshTaskInput, false);
 }
 
-// TODO: Исправить в методе fetch ошибку в промисах (срабатывает даже при не выполнении условия if)
 function knock_knock(path, func, sendData = undefined) {
     let loadingWindow = document.getElementById("loading_window");
     showLoading.showWindow(loadingWindow);
@@ -528,12 +527,17 @@ function knock_knock(path, func, sendData = undefined) {
             .then((answer) => {
                 if (answer.ok && answer.headers.get('Content-Type') === 'application/json') {
                     return answer.json();
+                } else {
+                    return Promise.reject({"ok": false});
                 }
             })
             .then((answer) => {
                 showLoading.hideWindow(loadingWindow);
                 func(answer);
-            })
+            }, (error) => {
+                showLoading.hideWindow(loadingWindow);
+                func(error);
+            });
     } else {
         let req = new XMLHttpRequest();
         req.open('POST', 'http://127.0.0.1:5000/' + path);
@@ -580,8 +584,11 @@ function showConfirmWindow(func, message) {
 }
 
 function showInfoWindow(message) {
+
     let infoWindow = document.getElementById("info_window");
     let infoWindowMessage = document.getElementById("info_window_message");
+
+    removeChilds(infoWindowMessage);
 
     infoWindowMessage.appendChild(document.createTextNode(message));
     infoWindow.style.display = "block";
