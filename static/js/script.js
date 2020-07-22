@@ -515,6 +515,7 @@ function events() {
     taskInputField.addEventListener("keydown", noEnterRefreshTaskInput, false);
 }
 
+// TODO: Исправить в методе fetch ошибку в промисах (срабатывает даже при не выполнении условия if)
 function knock_knock(path, func, sendData = undefined) {
     let loadingWindow = document.getElementById("loading_window");
     showLoading.showWindow(loadingWindow);
