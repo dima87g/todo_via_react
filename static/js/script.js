@@ -440,7 +440,7 @@ class Login {
 }
 
 
-class Loadingwindow {
+class LoadingWindow {
     constructor() {
         this.isAlive = false;
         this.reqCount = 0;
@@ -481,7 +481,7 @@ class Loadingwindow {
     }
 }
 
-let showLoading = new Loadingwindow();
+let showLoading = new LoadingWindow();
 
 function events() {
     function noEnterRefreshTaskInput(event) {
