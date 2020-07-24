@@ -43,7 +43,9 @@ html, body {
     opacity: 1;
     border: 1px solid;
     border-radius: 10px 10px;
-    margin-left: 100px;
+    /* margin-left: 100px; */
+    left: 50%;
+    margin-left: -100px;
     margin-top: 100px;
     transition: opacity 0.5s;
 }
@@ -233,5 +235,23 @@ html, body {
     opacity: 0.5;
     top: 0;
     transition: opacity 0.5s;
+}
+
+@media (max-width: 400px) {
+    .auth_menu {
+        width: 100%;
+        margin-left: -50%;
+        box-sizing: border-box;
+    }
+
+    .main_window {
+        width: 100%;
+    }
+
+    .task {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
 }
 
