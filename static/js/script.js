@@ -40,6 +40,8 @@ class TaskList {
     }
 
     finishTask(node) {
+        //FIXME Сделать изменение статуса задачи ТОЛЬКО после полодительного ответа от сервера, а не перед отправкой запроса на сервер.
+        //FIXME Make task status change ONLY after positive answer from server, not before send request to server.
         /**
          * POST: json = {'task_id': 'number', 'status': 'boolean'}
          * GET:
