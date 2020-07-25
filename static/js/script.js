@@ -49,13 +49,14 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const self = this;
-        node.status = node.status === false;
-        let sendData = {"taskId": node.id, "status": node.status};
+        let taskStatus = node.status === false;
+        let sendData = {"taskId": node.id, "status": taskStatus};
 
         const finish = (answer) => {
             if (answer['ok'] === true) {
-                self.updateDom();
+                node.status = node.status === false;
+
+                this.updateDom();
             }
             if (answer["error_code"] === 401) {
                 this.loginClass.logOut();
