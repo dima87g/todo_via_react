@@ -160,6 +160,7 @@ html, body {
 }
 
 .task {
+    position: relative;
     color: red;
     background-color: cyan;
     border-radius: 20px 20px;
@@ -167,7 +168,6 @@ html, body {
     height: auto;
     margin: 5px auto ;
     border: solid 1px;
-    /*border-radius: 50%;*/
 }
 
 .task_finish_button {
@@ -178,15 +178,19 @@ html, body {
 
 .paragraph {
     display: inline-block;
-    width: 60%;
+    width: 65%;
     vertical-align: middle;
     word-break: break-all;
+    margin-left: 5px;
 }
 
 .task_remove_button {
-    display: inline-block;
+    position: absolute;
     width: 20px;
     height: 20px;
+    right: 0;
+    top: 50%;
+    margin-top: -10px;
     border-radius: 50%;
 }
 
