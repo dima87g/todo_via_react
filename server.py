@@ -167,7 +167,8 @@ def load_tasks():
         for task in cur:
             tasks.append({"task_id": task[0],
                           "task_text": task[2],
-                          "status": bool(task[3])})
+                          "task_status": bool(task[3]),
+                          "parent_id": task[4]})
 
         response = make_response(jsonify({
                                         'ok': True,
