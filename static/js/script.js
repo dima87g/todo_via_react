@@ -4,6 +4,7 @@ class TaskList {
     constructor() {
         this.userId = undefined;
         this.tasks = [];
+        this.tasksTree = new Map();
         this.loginClass = undefined;
     }
 
@@ -19,7 +20,7 @@ class TaskList {
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
-            let sendData = {"taskText": taskText};
+            let sendData = {"taskText": taskText, "parentId": 0};
 
             const add = (answer) => {
                 if (answer['ok'] === true) {
@@ -90,35 +91,82 @@ class TaskList {
         knock_knock('delete_task', remove, sendData);
     }
 
-    updateDom(tasksParentId = 'main_tasks', existsTasksClass = 'task') {
-        let tasksParent = document.getElementById(tasksParentId);
-        let existTasks = document.getElementsByClassName(existsTasksClass);
+    updateDom() {
+        let tasksParent = document.getElementById("main_tasks");
+        let existTasks = document.getElementsByClassName("task");
+
+        let linearTasksList = [];
+
+        function linearTaskListFiller(tasks) {
+            for (let task of tasks) {
+                linearTasksList.push(task);
+                if (task.subtasks.length > 0) {
+                    linearTaskListFiller(task.subtasks);
+                }
+            }
+        }
+
+        linearTaskListFiller(this.tasks);
+
+        console.log(linearTasksList);
+
         let i = 0;
 
-        for (i; i < this.tasks.length; i++) {
+        for (i; i < linearTasksList.length; i++) {
             if (existTasks[i]) {
-                this.tasks[i].replaceTaskNode(existTasks[i]);
+                linearTasksList[i].replaceTaskNode(existTasks[i]);
             } else {
-                tasksParent.appendChild(this.tasks[i].createTaskNode());
+                tasksParent.appendChild(linearTasksList[i].createTaskNode());
             }
         }
         if (existTasks[i]) {
-            // for (i; i < existTasks.length; i++) {
-            //     existTasks[i].remove();
-            //     i--;
-            // }
             tasksParent.removeChild(tasksParent.lastChild);
         }
+
+        // removeChilds(tasksParent);
+        //
+        // const req = (parent, tasks) => {
+        //     for (let task of tasks) {
+        //         parent.appendChild(task.createTaskNode());
+        //         if (task.subtasks.length > 0) {
+        //             req(parent.lastElementChild, task.subtasks);
+        //         }
+        //     }
+        // }
+        // const req = (parent, tasks) => {
+        //     let childrenList = [];
+        //     for (let el of parent.children) {
+        //         if (el.classList.contains('task')) {
+        //             childrenList.push(el);
+        //         }
+        //     }
+        //
+        //     for (let i = 0; i < tasks.length; i++) {
+        //         if (childrenList[i]) {
+        //             tasks[i].replaceTaskNode(childrenList[i]);
+        //         } else {
+        //             parent.appendChild(tasks[i].createTaskNode());
+        //         }
+        //         if (tasks[i].subtasks.length > 0) {
+        //             req(parent.lastElementChild, tasks[i].subtasks);
+        //         }
+        //     }
+        //     childrenList.length = tasks.length;
+        // }
+        //
+        // req(tasksParent, this.tasks);
     }
 }
 
 
 class Task {
-    constructor(taskList, id, text, status = false) {
+    constructor(taskList, id, text, parentId, status = false) {
         this.taskList = taskList;
         this.id = id;
         this.text = text;
+        this.parentId = parentId;
         this.status = status;
+        this.subtasks = [];
     }
 
     createTaskNode() {
@@ -309,9 +357,30 @@ class Login {
                 }
 
                 this.taskList.userId = userId;
+
+                let tasksTree = this.taskList.tasksTree;
+
                 for (let task of tasksFromServer) {
-                    this.taskList.tasks.push(new Task(this.taskList, task["task_id"], task["task_text"], task["status"]));
+                    let taskId = task["task_id"];
+                    let taskText = task["task_text"];
+                    let taskStatus = task["task_status"];
+                    let parentId = task["parent_id"];
+
+                    tasksTree.set(taskId, new Task(this.taskList, taskId, taskText, parentId, taskStatus));
                 }
+
+                for (let task of tasksTree.values()) {
+                    if (task.parentId === 0) {
+                        this.taskList.tasks.push(task);
+                    } else {
+                        tasksTree.get(task.parentId).subtasks.push(task);
+                    }
+                }
+
+                console.log(this.taskList.tasks);
+                console.log(this.taskList.tasksTree);
+
+
                 this.taskList.updateDom();
 
             }
