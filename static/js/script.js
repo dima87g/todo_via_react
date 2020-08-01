@@ -16,20 +16,20 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const self = this;
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
-            let sendData = {"taskText": taskText, "parentId": 0};
+            let sendData = {"taskText": taskText, "parentId": null};
 
             const add = (answer) => {
                 if (answer['ok'] === true) {
                     let taskId = answer['task_id'];
-                    let newTask = new Task(self, taskId, taskText);
+                    let newTask = new Task(this, taskId, taskText);
 
-                    self.tasks.push(newTask);
+                    this.tasksTree.set(newTask.id, newTask);
+                    this.tasks.push(newTask);
 
-                    self.updateDom();
+                    this.updateDom();
                 }
                 if (answer["error_code"] === 401) {
                     this.loginClass.logOut();
@@ -39,6 +39,30 @@ class TaskList {
             knock_knock('save_task', add, sendData);
         }
     }
+
+    addSubtask(taskObject, DOMElement) {
+        let taskDiv = DOMElement.parentNode;
+        let taskText = 'sub ' + taskDiv.getElementsByTagName('p')[0].textContent;
+        let parentId = taskObject.id;
+        let sendData = {'taskText': taskText, 'parentId': parentId}
+
+        const add = (answer) => {
+            if (answer['ok'] === true) {
+                let taskId = answer['task_id'];
+                let newTask = new Task(this, taskId, taskText, parentId);
+
+                this.tasksTree.set(taskId, newTask);
+                taskObject.subtasks.push(newTask);
+
+                this.updateDom();
+            } else if (answer['error_code'] === 401) {
+                this.loginClass.logOut();
+                showInfoWindow("Authorisation problem!");
+            }
+        }
+        knock_knock('save_task', add, sendData);
+    }
+
 
     finishTask(node) {
         //FIXME Сделать изменение статуса задачи ТОЛЬКО после полодительного ответа от сервера, а не перед отправкой запроса на сервер.
@@ -129,7 +153,7 @@ class TaskList {
 
 
 class Task {
-    constructor(taskList, id, text, parentId, status = false) {
+    constructor(taskList, id, text, parentId = null, status = false) {
         this.taskList = taskList;
         this.id = id;
         this.text = text;
@@ -139,9 +163,10 @@ class Task {
     }
 
     createTaskNode() {
-        const node = this;
+        const self = this;
         let taskDiv = document.createElement("div");
         taskDiv.setAttribute("class", "task");
+
         let finishButton = document.createElement("input");
         finishButton.setAttribute("type", "button");
         finishButton.setAttribute("class", "task_finish_button");
@@ -153,7 +178,17 @@ class Task {
             taskDiv.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
-            node.taskList.finishTask(node);
+            self.taskList.finishTask(self);
+        };
+
+        let addSubtaskButton = document.createElement('input');
+        addSubtaskButton.setAttribute('type', 'button');
+        addSubtaskButton.setAttribute('class', 'add_subtask_button');
+        addSubtaskButton.setAttribute('value', 'sub');
+        addSubtaskButton.onclick = function() {
+            // self argument - for delivery Task() object to method addSubtask,
+            // this argument - for delivery valid DOMElement to method addSubtask.
+            self.taskList.addSubtask(self, this);
         };
 
         let removeButton = document.createElement("input");
@@ -162,7 +197,7 @@ class Task {
         removeButton.setAttribute("value", "X");
         removeButton.setAttribute("class", "task_remove_button");
         removeButton.onclick = function () {
-            node.taskList.removeTask(node);
+            self.taskList.removeTask(self);
         };
 
         let par = document.createElement("p");
@@ -170,6 +205,7 @@ class Task {
         par.appendChild(document.createTextNode(this.text));
         par.setAttribute("class", "paragraph");
         taskDiv.appendChild(finishButton);
+        taskDiv.appendChild(addSubtaskButton);
         taskDiv.appendChild(par);
         taskDiv.appendChild(removeButton);
 
@@ -177,8 +213,9 @@ class Task {
     }
 
     replaceTaskNode(existTask) {
-        const node = this;
+        const self = this;
         let finishButton = existTask.getElementsByClassName("task_finish_button")[0];
+        let addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
         let removeButton = existTask.getElementsByClassName("task_remove_button")[0];
         existTask.getElementsByTagName("p")[0].textContent = this.text;
         if (this.status === false) {
@@ -189,10 +226,13 @@ class Task {
             existTask.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
-            node.taskList.finishTask(node);
+            self.taskList.finishTask(self);
+        };
+        addSubtaskButton.onclick = function() {
+            self.taskList.addSubtask(self, this);
         };
         removeButton.onclick = function () {
-            node.taskList.removeTask(node);
+            self.taskList.removeTask(self);
         };
     }
 }

@@ -265,6 +265,7 @@ def save_task():
 
         data = request.json
         task_text = data['taskText']
+        parent_id = data['parentId']
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
@@ -282,8 +283,8 @@ def save_task():
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-        cur.execute('INSERT INTO tasks (user_id, text, status) VALUES ('
-                    '%s, %s, %s)', (user_id, task_text, 0))
+        cur.execute('INSERT INTO tasks (user_id, text, status, parent_id) VALUES ('
+                    '%s, %s, %s, %s)', (user_id, task_text, 0, parent_id))
 
         connection.commit()
         task_id = cur.lastrowid
