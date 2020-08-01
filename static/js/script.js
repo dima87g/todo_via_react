@@ -75,15 +75,19 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const self = this;
         let sendData = {'taskId': node.id}
 
         const remove = (answer) => {
             if (answer['ok'] === true) {
-                self.tasks.splice(self.tasks.indexOf(node), 1);
-                self.updateDom();
-            }
-            if (answer["error_code"] === 401) {
+                if (this.tasksTree.has(node.parentId)) {
+                    let parentList = this.tasksTree.get(node.parentId).subtasks;
+                    parentList.splice(parentList.indexOf(node), 1);
+                } else {
+                    this.tasks.splice(this.tasks.indexOf(node), 1);
+                }
+                this.tasksTree.delete(node.id);
+                this.updateDom();
+            } else if (answer["error_code"] === 401) {
                 this.loginClass.logOut();
                 showInfoWindow("Authorisation problem!");
             }
@@ -108,8 +112,6 @@ class TaskList {
 
         linearTaskListFiller(this.tasks);
 
-        console.log(linearTasksList);
-
         let i = 0;
 
         for (i; i < linearTasksList.length; i++) {
@@ -119,42 +121,9 @@ class TaskList {
                 tasksParent.appendChild(linearTasksList[i].createTaskNode());
             }
         }
-        if (existTasks[i]) {
+        while (existTasks[i]) {
             tasksParent.removeChild(tasksParent.lastChild);
         }
-
-        // removeChilds(tasksParent);
-        //
-        // const req = (parent, tasks) => {
-        //     for (let task of tasks) {
-        //         parent.appendChild(task.createTaskNode());
-        //         if (task.subtasks.length > 0) {
-        //             req(parent.lastElementChild, task.subtasks);
-        //         }
-        //     }
-        // }
-        // const req = (parent, tasks) => {
-        //     let childrenList = [];
-        //     for (let el of parent.children) {
-        //         if (el.classList.contains('task')) {
-        //             childrenList.push(el);
-        //         }
-        //     }
-        //
-        //     for (let i = 0; i < tasks.length; i++) {
-        //         if (childrenList[i]) {
-        //             tasks[i].replaceTaskNode(childrenList[i]);
-        //         } else {
-        //             parent.appendChild(tasks[i].createTaskNode());
-        //         }
-        //         if (tasks[i].subtasks.length > 0) {
-        //             req(parent.lastElementChild, tasks[i].subtasks);
-        //         }
-        //     }
-        //     childrenList.length = tasks.length;
-        // }
-        //
-        // req(tasksParent, this.tasks);
     }
 }
 
@@ -370,16 +339,12 @@ class Login {
                 }
 
                 for (let task of tasksTree.values()) {
-                    if (task.parentId === 0) {
-                        this.taskList.tasks.push(task);
-                    } else {
+                    if (tasksTree.has(task.parentId)) {
                         tasksTree.get(task.parentId).subtasks.push(task);
+                    } else {
+                        this.taskList.tasks.push(task);
                     }
                 }
-
-                console.log(this.taskList.tasks);
-                console.log(this.taskList.tasksTree);
-
 
                 this.taskList.updateDom();
 
@@ -436,7 +401,7 @@ class Login {
     }
 
     logOut() {
-        this.taskList = undefined;
+        this.taskList = null;
         document.cookie = "id=; expires=-1";
         document.cookie = "sign=; expires=-1";
 
