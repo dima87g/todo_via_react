@@ -41,26 +41,30 @@ class TaskList {
     }
 
     addSubtask(taskObject, DOMElement) {
-        let taskDiv = DOMElement.parentNode;
-        let taskText = 'sub ' + taskDiv.getElementsByTagName('p')[0].textContent;
-        let parentId = taskObject.id;
-        let sendData = {'taskText': taskText, 'parentId': parentId}
+        let subtaskDiv = DOMElement.parentNode;
+        let taskDiv = subtaskDiv.parentNode;
+        if (subtaskDiv.getElementsByClassName('subtask_text_field')[0].value) {
+            let taskText = subtaskDiv.getElementsByClassName('subtask_text_field')[0].value;
+            subtaskDiv.getElementsByClassName('subtask_text_field')[0].value = '';
+            taskDiv.getElementsByClassName('show_subtask_input_button')[0].click();
+            let parentId = taskObject.id;
+            let sendData = {'taskText': taskText, 'parentId': parentId}
+            const add = (answer) => {
+                if (answer['ok'] === true) {
+                    let taskId = answer['task_id'];
+                    let newTask = new Task(this, taskId, taskText, parentId);
 
-        const add = (answer) => {
-            if (answer['ok'] === true) {
-                let taskId = answer['task_id'];
-                let newTask = new Task(this, taskId, taskText, parentId);
+                    this.tasksTree.set(taskId, newTask);
+                    taskObject.subtasks.push(newTask);
 
-                this.tasksTree.set(taskId, newTask);
-                taskObject.subtasks.push(newTask);
-
-                this.updateDom();
-            } else if (answer['error_code'] === 401) {
-                this.loginClass.logOut();
-                showInfoWindow("Authorisation problem!");
+                    this.updateDom();
+                } else if (answer['error_code'] === 401) {
+                    this.loginClass.logOut();
+                    showInfoWindow("Authorisation problem!");
+                }
             }
+            knock_knock('save_task', add, sendData);
         }
-        knock_knock('save_task', add, sendData);
     }
 
 
@@ -162,6 +166,49 @@ class Task {
         this.subtasks = [];
     }
 
+    showSubtaskInput() {
+        let showed = false;
+        let timerShow = null;
+        let timerHide = null;
+        return function() {
+            let subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
+            let subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
+            let addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
+            if (showed === false) {
+                showed = true;
+                timerHide = clearTimeout(timerHide);
+                subtaskDiv.style.display = 'inline-block';
+                subtaskTextField.style.display = 'inline-block';
+                addSubtaskButton.style.display = 'inline-block';
+
+                timerShow = setTimeout(function() {
+                    subtaskTextField.style.opacity = '1';
+                    subtaskTextField.style.width = '65%';
+                    subtaskTextField.focus();
+                    addSubtaskButton.style.transitionDelay = '0.5s';
+                    addSubtaskButton.style.opacity = '1';
+                    addSubtaskButton.style.width = '75px';
+                }, 50);
+            } else {
+                showed = false;
+                timerShow = clearTimeout(timerShow);
+                subtaskTextField.value = '';
+                subtaskTextField.style.opacity = '0';
+                subtaskTextField.style.width = '0';
+                addSubtaskButton.style.transitionDelay = '0s';
+                addSubtaskButton.style.opacity = '0';
+                addSubtaskButton.style.width = '0';
+                document.getElementById('task_input_field').focus();
+
+                timerHide = setTimeout(function() {
+                    subtaskDiv.style.display = 'none';
+                    subtaskTextField.style.display = 'none';
+                    addSubtaskButton.style.display = 'none';
+                }, 1000);
+            }
+        }
+    }
+
     createTaskNode() {
         const self = this;
         let taskDiv = document.createElement("div");
@@ -181,15 +228,37 @@ class Task {
             self.taskList.finishTask(self);
         };
 
+        let showSubtaskInputButton = document.createElement('input');
+        showSubtaskInputButton.setAttribute('type', 'button');
+        showSubtaskInputButton.setAttribute('class', 'show_subtask_input_button');
+        showSubtaskInputButton.setAttribute('value', 'sub');
+        showSubtaskInputButton.onclick = this.showSubtaskInput();
+
+        let subtaskDiv = document.createElement('div');
+        subtaskDiv.setAttribute('class', 'subtask_div');
+
+        let subtaskTextField = document.createElement('input');
+        subtaskTextField.setAttribute('type', 'text');
+        subtaskTextField.setAttribute('class', 'subtask_text_field');
+
         let addSubtaskButton = document.createElement('input');
         addSubtaskButton.setAttribute('type', 'button');
         addSubtaskButton.setAttribute('class', 'add_subtask_button');
-        addSubtaskButton.setAttribute('value', 'sub');
-        addSubtaskButton.onclick = function() {
-            // self argument - for delivery Task() object to method addSubtask,
-            // this argument - for delivery valid DOMElement to method addSubtask.
+        addSubtaskButton.setAttribute('value', 'add subtask');
+
+        subtaskTextField.addEventListener('keydown', function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                addSubtaskButton.click();
+            }
+        })
+
+        addSubtaskButton.onclick = function () {
             self.taskList.addSubtask(self, this);
-        };
+        }
+
+        subtaskDiv.appendChild(subtaskTextField);
+        subtaskDiv.appendChild(addSubtaskButton);
 
         let removeButton = document.createElement("input");
 
@@ -205,7 +274,8 @@ class Task {
         par.appendChild(document.createTextNode(this.text));
         par.setAttribute("class", "paragraph");
         taskDiv.appendChild(finishButton);
-        taskDiv.appendChild(addSubtaskButton);
+        taskDiv.appendChild(showSubtaskInputButton);
+        taskDiv.appendChild(subtaskDiv);
         taskDiv.appendChild(par);
         taskDiv.appendChild(removeButton);
 
@@ -215,6 +285,7 @@ class Task {
     replaceTaskNode(existTask) {
         const self = this;
         let finishButton = existTask.getElementsByClassName("task_finish_button")[0];
+        let showSubtaskInputButton = existTask.getElementsByClassName('show_subtask_input_button')[0];
         let addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
         let removeButton = existTask.getElementsByClassName("task_remove_button")[0];
         existTask.getElementsByTagName("p")[0].textContent = this.text;
