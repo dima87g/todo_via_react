@@ -167,7 +167,8 @@ def load_tasks():
         for task in cur:
             tasks.append({"task_id": task[0],
                           "task_text": task[2],
-                          "status": bool(task[3])})
+                          "task_status": bool(task[3]),
+                          "parent_id": task[4]})
 
         response = make_response(jsonify({
                                         'ok': True,
@@ -264,6 +265,7 @@ def save_task():
 
         data = request.json
         task_text = data['taskText']
+        parent_id = data['parentId']
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
@@ -281,8 +283,8 @@ def save_task():
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-        cur.execute('INSERT INTO tasks (user_id, text, status) VALUES ('
-                    '%s, %s, %s)', (user_id, task_text, 0))
+        cur.execute('INSERT INTO tasks (user_id, text, status, parent_id) VALUES ('
+                    '%s, %s, %s, %s)', (user_id, task_text, 0, parent_id))
 
         connection.commit()
         task_id = cur.lastrowid

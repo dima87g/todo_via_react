@@ -176,6 +176,38 @@ html, body {
     width: 100px;
 }
 
+.show_subtask_input_button {
+    border-radius: 20px 20px;
+}
+
+.subtask_div {
+    position: absolute;
+    display: inline-block;
+    width: 70%;
+    height: 20px;
+    top: 50%;
+    margin-top: -10px;
+    box-sizing: border-box;
+    display: none;
+}
+
+.subtask_text_field {
+    width: 0;
+    opacity: 0;
+    display: none;
+    transition: width 1s,
+                opacity 1s;
+}
+
+.add_subtask_button {
+    width: 0;
+    opacity: 0;
+    display: none;
+    border-radius: 20px 20px;
+    transition: width 0.5s,
+                opacity 0.5s;
+}
+
 .paragraph {
     display: inline-block;
     width: 65%;

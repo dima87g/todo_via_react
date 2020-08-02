@@ -4,6 +4,7 @@ class TaskList {
     constructor() {
         this.userId = undefined;
         this.tasks = [];
+        this.tasksTree = new Map();
         this.loginClass = undefined;
     }
 
@@ -15,20 +16,20 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const self = this;
         if (document.getElementById("task_input_field").value) {
             let taskText = document.getElementById("task_input_field").value;
             document.getElementById("task_input_field").value = "";
-            let sendData = {"taskText": taskText};
+            let sendData = {"taskText": taskText, "parentId": null};
 
             const add = (answer) => {
                 if (answer['ok'] === true) {
                     let taskId = answer['task_id'];
-                    let newTask = new Task(self, taskId, taskText);
+                    let newTask = new Task(this, taskId, taskText);
 
-                    self.tasks.push(newTask);
+                    this.tasksTree.set(newTask.id, newTask);
+                    this.tasks.push(newTask);
 
-                    self.updateDom();
+                    this.updateDom();
                 }
                 if (answer["error_code"] === 401) {
                     this.loginClass.logOut();
@@ -39,7 +40,37 @@ class TaskList {
         }
     }
 
+    addSubtask(taskObject, DOMElement) {
+        let subtaskDiv = DOMElement.parentNode;
+        let taskDiv = subtaskDiv.parentNode;
+        if (subtaskDiv.getElementsByClassName('subtask_text_field')[0].value) {
+            let taskText = subtaskDiv.getElementsByClassName('subtask_text_field')[0].value;
+            subtaskDiv.getElementsByClassName('subtask_text_field')[0].value = '';
+            taskDiv.getElementsByClassName('show_subtask_input_button')[0].click();
+            let parentId = taskObject.id;
+            let sendData = {'taskText': taskText, 'parentId': parentId}
+            const add = (answer) => {
+                if (answer['ok'] === true) {
+                    let taskId = answer['task_id'];
+                    let newTask = new Task(this, taskId, taskText, parentId);
+
+                    this.tasksTree.set(taskId, newTask);
+                    taskObject.subtasks.push(newTask);
+
+                    this.updateDom();
+                } else if (answer['error_code'] === 401) {
+                    this.loginClass.logOut();
+                    showInfoWindow("Authorisation problem!");
+                }
+            }
+            knock_knock('save_task', add, sendData);
+        }
+    }
+
+
     finishTask(node) {
+        //FIXME Сделать изменение статуса задачи ТОЛЬКО после полодительного ответа от сервера, а не перед отправкой запроса на сервер.
+        //FIXME Make task status change ONLY after positive answer from server, not before send request to server.
         /**
          * POST: json = {'task_id': 'number', 'status': 'boolean'}
          * GET:
@@ -47,13 +78,14 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const self = this;
-        node.status = node.status === false;
-        let sendData = {"taskId": node.id, "status": node.status};
+        let taskStatus = node.status === false;
+        let sendData = {"taskId": node.id, "status": taskStatus};
 
         const finish = (answer) => {
             if (answer['ok'] === true) {
-                self.updateDom();
+                node.status = node.status === false;
+
+                this.updateDom();
             }
             if (answer["error_code"] === 401) {
                 this.loginClass.logOut();
@@ -71,15 +103,19 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        const self = this;
         let sendData = {'taskId': node.id}
 
         const remove = (answer) => {
             if (answer['ok'] === true) {
-                self.tasks.splice(self.tasks.indexOf(node), 1);
-                self.updateDom();
-            }
-            if (answer["error_code"] === 401) {
+                if (this.tasksTree.has(node.parentId)) {
+                    let parentList = this.tasksTree.get(node.parentId).subtasks;
+                    parentList.splice(parentList.indexOf(node), 1);
+                } else {
+                    this.tasks.splice(this.tasks.indexOf(node), 1);
+                }
+                this.tasksTree.delete(node.id);
+                this.updateDom();
+            } else if (answer["error_code"] === 401) {
                 this.loginClass.logOut();
                 showInfoWindow("Authorisation problem!");
             }
@@ -87,23 +123,33 @@ class TaskList {
         knock_knock('delete_task', remove, sendData);
     }
 
-    updateDom(tasksParentId = 'main_tasks', existsTasksClass = 'task') {
-        let tasksParent = document.getElementById(tasksParentId);
-        let existTasks = document.getElementsByClassName(existsTasksClass);
-        let i = 0;
+    updateDom() {
+        let tasksParent = document.getElementById("main_tasks");
+        let existTasks = document.getElementsByClassName("task");
 
-        for (i; i < this.tasks.length; i++) {
-            if (existTasks[i]) {
-                this.tasks[i].replaceTaskNode(existTasks[i]);
-            } else {
-                tasksParent.appendChild(this.tasks[i].createTaskNode());
+        let linearTasksList = [];
+
+        function linearTaskListFiller(tasks) {
+            for (let task of tasks) {
+                linearTasksList.push(task);
+                if (task.subtasks.length > 0) {
+                    linearTaskListFiller(task.subtasks);
+                }
             }
         }
-        if (existTasks[i]) {
-            // for (i; i < existTasks.length; i++) {
-            //     existTasks[i].remove();
-            //     i--;
-            // }
+
+        linearTaskListFiller(this.tasks);
+
+        let i = 0;
+
+        for (i; i < linearTasksList.length; i++) {
+            if (existTasks[i]) {
+                linearTasksList[i].replaceTaskNode(existTasks[i]);
+            } else {
+                tasksParent.appendChild(linearTasksList[i].createTaskNode());
+            }
+        }
+        while (existTasks[i]) {
             tasksParent.removeChild(tasksParent.lastChild);
         }
     }
@@ -111,17 +157,63 @@ class TaskList {
 
 
 class Task {
-    constructor(taskList, id, text, status = false) {
+    constructor(taskList, id, text, parentId = null, status = false) {
         this.taskList = taskList;
         this.id = id;
         this.text = text;
+        this.parentId = parentId;
         this.status = status;
+        this.subtasks = [];
+    }
+
+    showSubtaskInput() {
+        let showed = false;
+        let timerShow = null;
+        let timerHide = null;
+        return function() {
+            let subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
+            let subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
+            let addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
+            if (showed === false) {
+                showed = true;
+                timerHide = clearTimeout(timerHide);
+                subtaskDiv.style.display = 'inline-block';
+                subtaskTextField.style.display = 'inline-block';
+                addSubtaskButton.style.display = 'inline-block';
+
+                timerShow = setTimeout(function() {
+                    subtaskTextField.style.opacity = '1';
+                    subtaskTextField.style.width = '65%';
+                    subtaskTextField.focus();
+                    addSubtaskButton.style.transitionDelay = '0.5s';
+                    addSubtaskButton.style.opacity = '1';
+                    addSubtaskButton.style.width = '75px';
+                }, 50);
+            } else {
+                showed = false;
+                timerShow = clearTimeout(timerShow);
+                subtaskTextField.value = '';
+                subtaskTextField.style.opacity = '0';
+                subtaskTextField.style.width = '0';
+                addSubtaskButton.style.transitionDelay = '0s';
+                addSubtaskButton.style.opacity = '0';
+                addSubtaskButton.style.width = '0';
+                document.getElementById('task_input_field').focus();
+
+                timerHide = setTimeout(function() {
+                    subtaskDiv.style.display = 'none';
+                    subtaskTextField.style.display = 'none';
+                    addSubtaskButton.style.display = 'none';
+                }, 1000);
+            }
+        }
     }
 
     createTaskNode() {
-        const node = this;
+        const self = this;
         let taskDiv = document.createElement("div");
         taskDiv.setAttribute("class", "task");
+
         let finishButton = document.createElement("input");
         finishButton.setAttribute("type", "button");
         finishButton.setAttribute("class", "task_finish_button");
@@ -133,8 +225,40 @@ class Task {
             taskDiv.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
-            node.taskList.finishTask(node);
+            self.taskList.finishTask(self);
         };
+
+        let showSubtaskInputButton = document.createElement('input');
+        showSubtaskInputButton.setAttribute('type', 'button');
+        showSubtaskInputButton.setAttribute('class', 'show_subtask_input_button');
+        showSubtaskInputButton.setAttribute('value', 'sub');
+        showSubtaskInputButton.onclick = this.showSubtaskInput();
+
+        let subtaskDiv = document.createElement('div');
+        subtaskDiv.setAttribute('class', 'subtask_div');
+
+        let subtaskTextField = document.createElement('input');
+        subtaskTextField.setAttribute('type', 'text');
+        subtaskTextField.setAttribute('class', 'subtask_text_field');
+
+        let addSubtaskButton = document.createElement('input');
+        addSubtaskButton.setAttribute('type', 'button');
+        addSubtaskButton.setAttribute('class', 'add_subtask_button');
+        addSubtaskButton.setAttribute('value', 'add subtask');
+
+        subtaskTextField.addEventListener('keydown', function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                addSubtaskButton.click();
+            }
+        })
+
+        addSubtaskButton.onclick = function () {
+            self.taskList.addSubtask(self, this);
+        }
+
+        subtaskDiv.appendChild(subtaskTextField);
+        subtaskDiv.appendChild(addSubtaskButton);
 
         let removeButton = document.createElement("input");
 
@@ -142,7 +266,7 @@ class Task {
         removeButton.setAttribute("value", "X");
         removeButton.setAttribute("class", "task_remove_button");
         removeButton.onclick = function () {
-            node.taskList.removeTask(node);
+            self.taskList.removeTask(self);
         };
 
         let par = document.createElement("p");
@@ -150,6 +274,8 @@ class Task {
         par.appendChild(document.createTextNode(this.text));
         par.setAttribute("class", "paragraph");
         taskDiv.appendChild(finishButton);
+        taskDiv.appendChild(showSubtaskInputButton);
+        taskDiv.appendChild(subtaskDiv);
         taskDiv.appendChild(par);
         taskDiv.appendChild(removeButton);
 
@@ -157,8 +283,10 @@ class Task {
     }
 
     replaceTaskNode(existTask) {
-        const node = this;
+        const self = this;
         let finishButton = existTask.getElementsByClassName("task_finish_button")[0];
+        let showSubtaskInputButton = existTask.getElementsByClassName('show_subtask_input_button')[0];
+        let addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
         let removeButton = existTask.getElementsByClassName("task_remove_button")[0];
         existTask.getElementsByTagName("p")[0].textContent = this.text;
         if (this.status === false) {
@@ -169,10 +297,13 @@ class Task {
             existTask.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
-            node.taskList.finishTask(node);
+            self.taskList.finishTask(self);
+        };
+        addSubtaskButton.onclick = function() {
+            self.taskList.addSubtask(self, this);
         };
         removeButton.onclick = function () {
-            node.taskList.removeTask(node);
+            self.taskList.removeTask(self);
         };
     }
 }
@@ -306,9 +437,26 @@ class Login {
                 }
 
                 this.taskList.userId = userId;
+
+                let tasksTree = this.taskList.tasksTree;
+
                 for (let task of tasksFromServer) {
-                    this.taskList.tasks.push(new Task(this.taskList, task["task_id"], task["task_text"], task["status"]));
+                    let taskId = task["task_id"];
+                    let taskText = task["task_text"];
+                    let taskStatus = task["task_status"];
+                    let parentId = task["parent_id"];
+
+                    tasksTree.set(taskId, new Task(this.taskList, taskId, taskText, parentId, taskStatus));
                 }
+
+                for (let task of tasksTree.values()) {
+                    if (tasksTree.has(task.parentId)) {
+                        tasksTree.get(task.parentId).subtasks.push(task);
+                    } else {
+                        this.taskList.tasks.push(task);
+                    }
+                }
+
                 this.taskList.updateDom();
 
             }
@@ -364,7 +512,7 @@ class Login {
     }
 
     logOut() {
-        this.taskList = undefined;
+        this.taskList = null;
         document.cookie = "id=; expires=-1";
         document.cookie = "sign=; expires=-1";
 
@@ -440,7 +588,7 @@ class Login {
 }
 
 
-class Loadingwindow {
+class LoadingWindow {
     constructor() {
         this.isAlive = false;
         this.reqCount = 0;
@@ -481,7 +629,7 @@ class Loadingwindow {
     }
 }
 
-let showLoading = new Loadingwindow();
+let showLoading = new LoadingWindow();
 
 function events() {
     function noEnterRefreshTaskInput(event) {
