@@ -334,6 +334,7 @@ class Login {
         
         this.loginFormUsername.focus();
         this.userLogOutButton.disabled = true;
+        this.userDeleteButton.disabled = true;
 
         this.switchRegisterButton.onclick = function() {
             self.switchLogin(this.value);
@@ -397,6 +398,7 @@ class Login {
         this.shadow.style.display = "block";
         removeChilds(this.userNameField);
         this.userLogOutButton.disabled = true;
+        this.userDeleteButton.disabled = true;
         this.authMenu.style.display = 'block';
         this.loginFormUsername.focus();
         setTimeout(() => {
@@ -426,6 +428,7 @@ class Login {
                 if (!this.userNameField.firstChild) {
                     this.userNameField.appendChild(document.createTextNode(userName));
                     this.userLogOutButton.disabled = false;
+                    this.userDeleteButton.disabled = false;
                 }
 
                 this.taskList = new TaskList();
