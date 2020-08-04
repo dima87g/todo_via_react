@@ -18,6 +18,7 @@ var TaskList = /*#__PURE__*/function () {
 
     this.userId = undefined;
     this.tasks = [];
+    this.tasksTree = new Map();
     this.loginClass = undefined;
   }
 
@@ -33,21 +34,24 @@ var TaskList = /*#__PURE__*/function () {
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
        * 'error_message': 'string' or null}
        */
-      var self = this;
-
       if (document.getElementById("task_input_field").value) {
         var taskText = document.getElementById("task_input_field").value;
         document.getElementById("task_input_field").value = "";
         var sendData = {
-          "taskText": taskText
+          "taskText": taskText,
+          "parentId": null
         };
 
         var add = function add(answer) {
           if (answer['ok'] === true) {
             var taskId = answer['task_id'];
-            var newTask = new Task(self, taskId, taskText);
-            self.tasks.push(newTask);
-            self.updateDom();
+            var newTask = new Task(_this, taskId, taskText);
+
+            _this.tasksTree.set(newTask.id, newTask);
+
+            _this.tasks.push(newTask);
+
+            _this.updateDom();
           }
 
           if (answer["error_code"] === 401) {
@@ -61,9 +65,50 @@ var TaskList = /*#__PURE__*/function () {
       }
     }
   }, {
+    key: "addSubtask",
+    value: function addSubtask(taskObject, DOMElement) {
+      var _this2 = this;
+
+      var subtaskDiv = DOMElement.parentNode;
+      var taskDiv = subtaskDiv.parentNode;
+
+      if (subtaskDiv.getElementsByClassName('subtask_text_field')[0].value) {
+        var taskText = subtaskDiv.getElementsByClassName('subtask_text_field')[0].value;
+        subtaskDiv.getElementsByClassName('subtask_text_field')[0].value = '';
+        taskDiv.getElementsByClassName('show_subtask_input_button')[0].click();
+        var parentId = taskObject.id;
+        var sendData = {
+          'taskText': taskText,
+          'parentId': parentId
+        };
+
+        var add = function add(answer) {
+          if (answer['ok'] === true) {
+            var taskId = answer['task_id'];
+            var newTask = new Task(_this2, taskId, taskText, parentId);
+
+            _this2.tasksTree.set(taskId, newTask);
+
+            taskObject.subtasks.push(newTask);
+
+            _this2.updateDom();
+          } else if (answer['error_code'] === 401) {
+            _this2.loginClass.logOut();
+
+            showInfoWindow("Authorisation problem!");
+          }
+        };
+
+        knock_knock('save_task', add, sendData);
+      }
+    }
+  }, {
     key: "finishTask",
     value: function finishTask(node) {
-      var _this2 = this;
+      var _this3 = this;
+
+      //FIXME Сделать изменение статуса задачи ТОЛЬКО после полодительного ответа от сервера, а не перед отправкой запроса на сервер.
+      //FIXME Make task status change ONLY after positive answer from server, not before send request to server.
 
       /**
        * POST: json = {'task_id': 'number', 'status': 'boolean'}
@@ -72,20 +117,21 @@ var TaskList = /*#__PURE__*/function () {
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
        * 'error_message': 'string' or null}
        */
-      var self = this;
-      node.status = node.status === false;
+      var taskStatus = node.status === false;
       var sendData = {
         "taskId": node.id,
-        "status": node.status
+        "status": taskStatus
       };
 
       var finish = function finish(answer) {
         if (answer['ok'] === true) {
-          self.updateDom();
+          node.status = node.status === false;
+
+          _this3.updateDom();
         }
 
         if (answer["error_code"] === 401) {
-          _this2.loginClass.logOut();
+          _this3.loginClass.logOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -96,7 +142,7 @@ var TaskList = /*#__PURE__*/function () {
   }, {
     key: "removeTask",
     value: function removeTask(node) {
-      var _this3 = this;
+      var _this4 = this;
 
       /**
        * POST: {taskId: 'number'}
@@ -105,19 +151,25 @@ var TaskList = /*#__PURE__*/function () {
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
        * 'error_message': 'string' or null}
        */
-      var self = this;
       var sendData = {
         'taskId': node.id
       };
 
       var remove = function remove(answer) {
         if (answer['ok'] === true) {
-          self.tasks.splice(self.tasks.indexOf(node), 1);
-          self.updateDom();
-        }
+          if (_this4.tasksTree.has(node.parentId)) {
+            var parentList = _this4.tasksTree.get(node.parentId).subtasks;
 
-        if (answer["error_code"] === 401) {
-          _this3.loginClass.logOut();
+            parentList.splice(parentList.indexOf(node), 1);
+          } else {
+            _this4.tasks.splice(_this4.tasks.indexOf(node), 1);
+          }
+
+          _this4.tasksTree.delete(node.id);
+
+          _this4.updateDom();
+        } else if (answer["error_code"] === 401) {
+          _this4.loginClass.logOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -128,25 +180,42 @@ var TaskList = /*#__PURE__*/function () {
   }, {
     key: "updateDom",
     value: function updateDom() {
-      var tasksParentId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'main_tasks';
-      var existsTasksClass = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'task';
-      var tasksParent = document.getElementById(tasksParentId);
-      var existTasks = document.getElementsByClassName(existsTasksClass);
-      var i = 0;
+      var tasksParent = document.getElementById("main_tasks");
+      var existTasks = document.getElementsByClassName("task");
+      var linearTasksList = [];
 
-      for (i; i < this.tasks.length; i++) {
-        if (existTasks[i]) {
-          this.tasks[i].replaceTaskNode(existTasks[i]);
-        } else {
-          tasksParent.appendChild(this.tasks[i].createTaskNode());
+      function linearTaskListFiller(tasks) {
+        var _iterator = _createForOfIteratorHelper(tasks),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var task = _step.value;
+            linearTasksList.push(task);
+
+            if (task.subtasks.length > 0) {
+              linearTaskListFiller(task.subtasks);
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
         }
       }
 
-      if (existTasks[i]) {
-        // for (i; i < existTasks.length; i++) {
-        //     existTasks[i].remove();
-        //     i--;
-        // }
+      linearTaskListFiller(this.tasks);
+      var i = 0;
+
+      for (i; i < linearTasksList.length; i++) {
+        if (existTasks[i]) {
+          linearTasksList[i].replaceTaskNode(existTasks[i]);
+        } else {
+          tasksParent.appendChild(linearTasksList[i].createTaskNode());
+        }
+      }
+
+      while (existTasks[i]) {
         tasksParent.removeChild(tasksParent.lastChild);
       }
     }
@@ -157,20 +226,66 @@ var TaskList = /*#__PURE__*/function () {
 
 var Task = /*#__PURE__*/function () {
   function Task(taskList, id, text) {
-    var status = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var parentId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+    var status = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
     _classCallCheck(this, Task);
 
     this.taskList = taskList;
     this.id = id;
     this.text = text;
+    this.parentId = parentId;
     this.status = status;
+    this.subtasks = [];
   }
 
   _createClass(Task, [{
+    key: "showSubtaskInput",
+    value: function showSubtaskInput() {
+      var showed = false;
+      var timerShow = null;
+      var timerHide = null;
+      return function () {
+        var subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
+        var subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
+        var addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
+
+        if (showed === false) {
+          showed = true;
+          timerHide = clearTimeout(timerHide);
+          subtaskDiv.style.display = 'inline-block';
+          subtaskTextField.style.display = 'inline-block';
+          addSubtaskButton.style.display = 'inline-block';
+          timerShow = setTimeout(function () {
+            subtaskTextField.style.opacity = '1';
+            subtaskTextField.style.width = '65%';
+            subtaskTextField.focus();
+            addSubtaskButton.style.transitionDelay = '0.5s';
+            addSubtaskButton.style.opacity = '1';
+            addSubtaskButton.style.width = '75px';
+          }, 50);
+        } else {
+          showed = false;
+          timerShow = clearTimeout(timerShow);
+          subtaskTextField.value = '';
+          subtaskTextField.style.opacity = '0';
+          subtaskTextField.style.width = '0';
+          addSubtaskButton.style.transitionDelay = '0s';
+          addSubtaskButton.style.opacity = '0';
+          addSubtaskButton.style.width = '0';
+          document.getElementById('task_input_field').focus();
+          timerHide = setTimeout(function () {
+            subtaskDiv.style.display = 'none';
+            subtaskTextField.style.display = 'none';
+            addSubtaskButton.style.display = 'none';
+          }, 1000);
+        }
+      };
+    }
+  }, {
     key: "createTaskNode",
     value: function createTaskNode() {
-      var node = this;
+      var self = this;
       var taskDiv = document.createElement("div");
       taskDiv.setAttribute("class", "task");
       var finishButton = document.createElement("input");
@@ -185,22 +300,51 @@ var Task = /*#__PURE__*/function () {
       }
 
       finishButton.onclick = function () {
-        node.taskList.finishTask(node);
+        self.taskList.finishTask(self);
       };
 
+      var showSubtaskInputButton = document.createElement('input');
+      showSubtaskInputButton.setAttribute('type', 'button');
+      showSubtaskInputButton.setAttribute('class', 'show_subtask_input_button');
+      showSubtaskInputButton.setAttribute('value', 'sub');
+      showSubtaskInputButton.onclick = this.showSubtaskInput();
+      var subtaskDiv = document.createElement('div');
+      subtaskDiv.setAttribute('class', 'subtask_div');
+      var subtaskTextField = document.createElement('input');
+      subtaskTextField.setAttribute('type', 'text');
+      subtaskTextField.setAttribute('class', 'subtask_text_field');
+      var addSubtaskButton = document.createElement('input');
+      addSubtaskButton.setAttribute('type', 'button');
+      addSubtaskButton.setAttribute('class', 'add_subtask_button');
+      addSubtaskButton.setAttribute('value', 'add subtask');
+      subtaskTextField.addEventListener('keydown', function (event) {
+        if (event.keyCode === 13) {
+          event.preventDefault();
+          addSubtaskButton.click();
+        }
+      });
+
+      addSubtaskButton.onclick = function () {
+        self.taskList.addSubtask(self, this);
+      };
+
+      subtaskDiv.appendChild(subtaskTextField);
+      subtaskDiv.appendChild(addSubtaskButton);
       var removeButton = document.createElement("input");
       removeButton.setAttribute("type", "button");
       removeButton.setAttribute("value", "X");
       removeButton.setAttribute("class", "task_remove_button");
 
       removeButton.onclick = function () {
-        node.taskList.removeTask(node);
+        self.taskList.removeTask(self);
       };
 
       var par = document.createElement("p");
       par.appendChild(document.createTextNode(this.text));
       par.setAttribute("class", "paragraph");
       taskDiv.appendChild(finishButton);
+      taskDiv.appendChild(showSubtaskInputButton);
+      taskDiv.appendChild(subtaskDiv);
       taskDiv.appendChild(par);
       taskDiv.appendChild(removeButton);
       return taskDiv;
@@ -208,8 +352,10 @@ var Task = /*#__PURE__*/function () {
   }, {
     key: "replaceTaskNode",
     value: function replaceTaskNode(existTask) {
-      var node = this;
+      var self = this;
       var finishButton = existTask.getElementsByClassName("task_finish_button")[0];
+      var showSubtaskInputButton = existTask.getElementsByClassName('show_subtask_input_button')[0];
+      var addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
       var removeButton = existTask.getElementsByClassName("task_remove_button")[0];
       existTask.getElementsByTagName("p")[0].textContent = this.text;
 
@@ -222,11 +368,15 @@ var Task = /*#__PURE__*/function () {
       }
 
       finishButton.onclick = function () {
-        node.taskList.finishTask(node);
+        self.taskList.finishTask(self);
+      };
+
+      addSubtaskButton.onclick = function () {
+        self.taskList.addSubtask(self, this);
       };
 
       removeButton.onclick = function () {
-        node.taskList.removeTask(node);
+        self.taskList.removeTask(self);
       };
     }
   }]);
@@ -260,6 +410,7 @@ var Login = /*#__PURE__*/function () {
     this.shadow = document.getElementById("shadow");
     this.loginFormUsername.focus();
     this.userLogOutButton.disabled = true;
+    this.userDeleteButton.disabled = true;
 
     this.switchRegisterButton.onclick = function () {
       self.switchLogin(this.value);
@@ -313,35 +464,36 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "hideLoginWindow",
     value: function hideLoginWindow() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.loginFormUsername.value = "";
       removeChilds(this.loginWindowInfo);
       this.authMenu.style.opacity = '0';
       this.shadow.style.display = "none";
       setTimeout(function () {
-        _this4.authMenu.style.display = 'none';
+        _this5.authMenu.style.display = 'none';
         document.getElementById('task_input_field').focus();
       }, 500);
     }
   }, {
     key: "showLoginWindow",
     value: function showLoginWindow() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.shadow.style.display = "block";
       removeChilds(this.userNameField);
       this.userLogOutButton.disabled = true;
+      this.userDeleteButton.disabled = true;
       this.authMenu.style.display = 'block';
       this.loginFormUsername.focus();
       setTimeout(function () {
-        _this5.authMenu.style.opacity = '1';
+        _this6.authMenu.style.opacity = '1';
       });
     }
   }, {
     key: "onLoad",
     value: function onLoad() {
-      var _this6 = this;
+      var _this7 = this;
 
       /**
        * POST:
@@ -360,42 +512,66 @@ var Login = /*#__PURE__*/function () {
           var userName = answer["user_name"];
           var tasksFromServer = answer['tasks'];
 
-          if (!_this6.userNameField.firstChild) {
-            _this6.userNameField.appendChild(document.createTextNode(userName));
+          if (!_this7.userNameField.firstChild) {
+            _this7.userNameField.appendChild(document.createTextNode(userName));
 
-            _this6.userLogOutButton.disabled = false;
+            _this7.userLogOutButton.disabled = false;
+            _this7.userDeleteButton.disabled = false;
           }
 
-          _this6.taskList = new TaskList();
-          _this6.taskList.loginClass = _this6;
+          _this7.taskList = new TaskList();
+          _this7.taskList.loginClass = _this7;
           var taskInputButton = document.getElementById("task_input_button");
 
           taskInputButton.onclick = function () {
-            _this6.taskList.addTask();
+            _this7.taskList.addTask();
           };
 
-          _this6.taskList.userId = userId;
+          _this7.taskList.userId = userId;
+          var tasksTree = _this7.taskList.tasksTree;
 
-          var _iterator = _createForOfIteratorHelper(tasksFromServer),
-              _step;
+          var _iterator2 = _createForOfIteratorHelper(tasksFromServer),
+              _step2;
 
           try {
-            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var task = _step.value;
-
-              _this6.taskList.tasks.push(new Task(_this6.taskList, task["task_id"], task["task_text"], task["status"]));
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+              var task = _step2.value;
+              var taskId = task["task_id"];
+              var taskText = task["task_text"];
+              var taskStatus = task["task_status"];
+              var parentId = task["parent_id"];
+              tasksTree.set(taskId, new Task(_this7.taskList, taskId, taskText, parentId, taskStatus));
             }
           } catch (err) {
-            _iterator.e(err);
+            _iterator2.e(err);
           } finally {
-            _iterator.f();
+            _iterator2.f();
           }
 
-          _this6.taskList.updateDom();
+          var _iterator3 = _createForOfIteratorHelper(tasksTree.values()),
+              _step3;
+
+          try {
+            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+              var _task = _step3.value;
+
+              if (tasksTree.has(_task.parentId)) {
+                tasksTree.get(_task.parentId).subtasks.push(_task);
+              } else {
+                _this7.taskList.tasks.push(_task);
+              }
+            }
+          } catch (err) {
+            _iterator3.e(err);
+          } finally {
+            _iterator3.f();
+          }
+
+          _this7.taskList.updateDom();
         }
 
         if (answer["error_code"] === 401) {
-          _this6.logOut();
+          _this7.logOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -406,7 +582,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logIn",
     value: function logIn() {
-      var _this7 = this;
+      var _this8 = this;
 
       /**
        * POST: json = {"userName": "string", "password": "string"}
@@ -433,15 +609,15 @@ var Login = /*#__PURE__*/function () {
             if (answer["ok"] === true) {
               var _userName = answer["user_name"];
 
-              _this7.userNameField.appendChild(document.createTextNode(_userName));
+              _this8.userNameField.appendChild(document.createTextNode(_userName));
 
-              _this7.userLogOutButton.disabled = false;
+              _this8.userLogOutButton.disabled = false;
 
-              _this7.hideLoginWindow();
+              _this8.hideLoginWindow();
 
-              _this7.onLoad();
+              _this8.onLoad();
             } else {
-              _this7.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
+              _this8.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
             }
           };
 
@@ -456,7 +632,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logOut",
     value: function logOut() {
-      this.taskList = undefined;
+      this.taskList = null;
       document.cookie = "id=; expires=-1";
       document.cookie = "sign=; expires=-1";
       var tasksParent = document.getElementById("main_tasks");
@@ -466,7 +642,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userDelete",
     value: function userDelete() {
-      var _this8 = this;
+      var _this9 = this;
 
       var confirm = function confirm() {
         knock_knock("user_delete", del);
@@ -474,11 +650,11 @@ var Login = /*#__PURE__*/function () {
 
       var del = function del(answer) {
         if (answer["ok"] === true) {
-          _this8.logOut();
+          _this9.logOut();
         }
 
         if (answer["error_code"] === 401) {
-          _this8.logOut();
+          _this9.logOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -489,7 +665,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userRegister",
     value: function userRegister() {
-      var _this9 = this;
+      var _this10 = this;
 
       // TODO: Слишком большая вложенность, нужно попробовать переписать метод через конструкцию SWITCH
 
@@ -515,15 +691,15 @@ var Login = /*#__PURE__*/function () {
 
               var register = function register(answer) {
                 if (answer['ok'] === true) {
-                  _this9.registerFormUsername.value = "";
-                  _this9.registerFormPassword.value = "";
-                  _this9.registerFormPasswordConfirm.value = "";
+                  _this10.registerFormUsername.value = "";
+                  _this10.registerFormPassword.value = "";
+                  _this10.registerFormPasswordConfirm.value = "";
 
-                  _this9.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+                  _this10.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
                 } else if (answer['error_code'] === 1062) {
-                  _this9.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+                  _this10.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
                 } else {
-                  _this9.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+                  _this10.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
                 }
               };
 
@@ -561,7 +737,7 @@ var LoadingWindow = /*#__PURE__*/function () {
   _createClass(LoadingWindow, [{
     key: "showWindow",
     value: function showWindow(loadingWindow) {
-      var _this10 = this;
+      var _this11 = this;
 
       this.reqCount++;
 
@@ -569,15 +745,15 @@ var LoadingWindow = /*#__PURE__*/function () {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
           loadingWindow.style.display = "block";
-          _this10.startTime = Date.now();
-          _this10.isAlive = true;
+          _this11.startTime = Date.now();
+          _this11.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow(loadingWindow) {
-      var _this11 = this;
+      var _this12 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -594,7 +770,7 @@ var LoadingWindow = /*#__PURE__*/function () {
           } else {
             this.timerHide = setTimeout(function () {
               loadingWindow.style.display = "none";
-              _this11.isAlive = false;
+              _this12.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }
@@ -650,7 +826,7 @@ function knock_knock(path, func) {
       },
       body: JSON.stringify(sendData)
     };
-    fetch('http://127.0.0.1:5000/' + path, init).then(function (answer) {
+    fetch(path, init).then(function (answer) {
       if (answer.ok && answer.headers.get('Content-Type') === 'application/json') {
         return answer.json();
       } else {
@@ -667,7 +843,7 @@ function knock_knock(path, func) {
     });
   } else {
     var req = new XMLHttpRequest();
-    req.open('POST', 'http://127.0.0.1:5000/' + path);
+    req.open('POST', path);
     req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
     req.send(JSON.stringify(sendData));
 
