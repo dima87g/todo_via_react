@@ -184,7 +184,7 @@ class Task {
                 timerShow = setTimeout(function() {
                     subtaskTextField.style.opacity = '1';
                     subtaskTextField.style.width = '65%';
-                    subtaskTextField.focus();
+                    // subtaskTextField.focus();
                     addSubtaskButton.style.transitionDelay = '0.5s';
                     addSubtaskButton.style.opacity = '1';
                     addSubtaskButton.style.width = '75px';
@@ -198,7 +198,7 @@ class Task {
                 addSubtaskButton.style.transitionDelay = '0s';
                 addSubtaskButton.style.opacity = '0';
                 addSubtaskButton.style.width = '0';
-                document.getElementById('task_input_field').focus();
+                // document.getElementById('task_input_field').focus();
 
                 timerHide = setTimeout(function() {
                     subtaskDiv.style.display = 'none';
@@ -214,14 +214,24 @@ class Task {
         let taskDiv = document.createElement("div");
         taskDiv.setAttribute("class", "task");
 
-        let finishButton = document.createElement("input");
-        finishButton.setAttribute("type", "button");
-        finishButton.setAttribute("class", "task_finish_button");
+        let taskDivContent = document.createElement('div');
+        taskDivContent.setAttribute('class', 'task_div_content');
+
+        // let finishButton = document.createElement("input");
+        // finishButton.setAttribute("type", "button");
+        // finishButton.setAttribute("class", "task_finish_button");
+
+        let finishButton = document.createElement('button');
+        finishButton.setAttribute('type', 'submit');
+        finishButton.setAttribute('class', 'task_finish_button');
+        let finishButtonIcon = document.createElement('img');
+        finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
+        finishButton.appendChild(finishButtonIcon);
 
         if (this.status === false) {
-            finishButton.setAttribute("value", "Выполнено");
+            finishButton.setAttribute("value", "V");
         } else {
-            finishButton.setAttribute("value", "Не выполнено");
+            finishButton.setAttribute("value", "V");
             taskDiv.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
@@ -260,11 +270,23 @@ class Task {
         subtaskDiv.appendChild(subtaskTextField);
         subtaskDiv.appendChild(addSubtaskButton);
 
-        let removeButton = document.createElement("input");
+        // let removeButton = document.createElement("input");
+        //
+        // removeButton.setAttribute("type", "button");
+        // removeButton.setAttribute("value", "X");
+        // removeButton.setAttribute("class", "task_remove_button");
 
-        removeButton.setAttribute("type", "button");
-        removeButton.setAttribute("value", "X");
-        removeButton.setAttribute("class", "task_remove_button");
+        let removeButton = document.createElement('button');
+
+        removeButton.setAttribute('type', 'submit');
+        removeButton.setAttribute('class', 'task_remove_button');
+
+        let removeButtonIcon = document.createElement('img');
+
+        removeButtonIcon.setAttribute('src','static/icons/delete.svg');
+
+        removeButton.appendChild(removeButtonIcon);
+
         removeButton.onclick = function () {
             self.taskList.removeTask(self);
         };
@@ -273,6 +295,15 @@ class Task {
 
         par.appendChild(document.createTextNode(this.text));
         par.setAttribute("class", "paragraph");
+
+        // taskDivContent.appendChild(finishButton);
+        // taskDivContent.appendChild(showSubtaskInputButton);
+        // taskDivContent.appendChild(subtaskDiv);
+        // taskDivContent.appendChild(par);
+        // taskDivContent.appendChild(removeButton);
+        //
+        // taskDiv.appendChild(taskDivContent);
+
         taskDiv.appendChild(finishButton);
         taskDiv.appendChild(showSubtaskInputButton);
         taskDiv.appendChild(subtaskDiv);
@@ -290,10 +321,10 @@ class Task {
         let removeButton = existTask.getElementsByClassName("task_remove_button")[0];
         existTask.getElementsByTagName("p")[0].textContent = this.text;
         if (this.status === false) {
-            finishButton.setAttribute("value", "Выполнено");
+            finishButton.setAttribute("value", "V");
             existTask.setAttribute("class", "task");
         } else {
-            finishButton.setAttribute("value", "Не выполнено");
+            finishButton.setAttribute("value", "V");
             existTask.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {

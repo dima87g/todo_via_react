@@ -5,6 +5,7 @@
 
 html, body {
     height: 100%;
+    font-size: 18px;
 }
 
 .container {
@@ -135,7 +136,7 @@ html, body {
 /*}*/
 
 .main_window {
-    width: 90vw;
+    width: 95vw;
     margin: 0 auto;
 }
 
@@ -146,23 +147,44 @@ html, body {
 
 .task_input_button {
     float: right;
+    width: 20px;
+    height: 20px;
     border-radius: 20px 20px;
 }
 
 .task {
     position: relative;
-    color: red;
-    background-color: cyan;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+        align-items: center;
+    -ms-flex-pack: justify;
+        justify-content: space-between;
+    /*color: red;*/
+    /*background-color: cyan;*/
     border-radius: 20px 20px;
     width: 100%;
-    height: auto;
+    min-height: 40px;
     margin: 5px auto ;
     border: solid 1px;
 }
 
 .task_finish_button {
     display: inline-block;
+    width: 40px;
+    height: 40px;
     border-radius: 20px 20px;
+    box-shadow: 0 0 3px;
+    border: none;
+    outline: none;
+}
+
+.task_finish_button:active {
+    box-shadow: 0 0 5px;
+}
+
+.task_finish_button:active > img {
+    transform: scale(0.9);
 }
 
 .show_subtask_input_button {
@@ -201,23 +223,26 @@ html, body {
     display: inline-block;
     width: 60%;
     vertical-align: middle;
-    word-break: break-all;
+    word-break: break-word;
     margin-left: 5px;
 }
 
 .task_remove_button {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    right: 0;
-    top: 50%;
-    margin-top: -10px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
+    box-shadow: 0 0 3px;
+    outline: none;
+    border: none;
 }
 
 .finished_task > p {
     text-decoration: line-through;
 }
+
+/*.finished_task > .task_div_content > p {*/
+/*    text-decoration: line-through;*/
+/*}*/
 
 .confirm_window {
     position: absolute;
