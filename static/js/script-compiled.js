@@ -246,38 +246,55 @@ var Task = /*#__PURE__*/function () {
       var timerShow = null;
       var timerHide = null;
       return function () {
+        var removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
         var subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
         var subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
         var addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
+        var addSubtaskButtonIcon = addSubtaskButton.firstChild;
 
         if (showed === false) {
           showed = true;
+          removeButton.disabled = true;
           timerHide = clearTimeout(timerHide);
-          subtaskDiv.style.display = 'inline-block';
+          subtaskDiv.style.display = 'flex';
           subtaskTextField.style.display = 'inline-block';
           addSubtaskButton.style.display = 'inline-block';
+          addSubtaskButtonIcon.style.display = 'inline-block';
           timerShow = setTimeout(function () {
             subtaskTextField.style.opacity = '1';
             subtaskTextField.style.width = '65%'; // subtaskTextField.focus();
 
             addSubtaskButton.style.transitionDelay = '0.5s';
             addSubtaskButton.style.opacity = '1';
-            addSubtaskButton.style.width = '75px';
+            addSubtaskButton.style.transform = 'scale(1)'; // addSubtaskButton.style.width = '48px';
+            // addSubtaskButton.style.height = '48px';
+            // addSubtaskButtonIcon.style.transitionDelay = '0.5s';
+            // addSubtaskButtonIcon.style.opacity = '1';
+            // addSubtaskButtonIcon.style.width = '48px';
+            // addSubtaskButtonIcon.style.height = '48px';
           }, 50);
         } else {
           showed = false;
+          removeButton.disabled = false;
           timerShow = clearTimeout(timerShow);
           subtaskTextField.value = '';
           subtaskTextField.style.opacity = '0';
           subtaskTextField.style.width = '0';
           addSubtaskButton.style.transitionDelay = '0s';
           addSubtaskButton.style.opacity = '0';
-          addSubtaskButton.style.width = '0'; // document.getElementById('task_input_field').focus();
+          addSubtaskButton.style.transform = 'scale(0)'; // addSubtaskButton.style.width = '0';
+          // addSubtaskButton.style.height = '0';
+          // addSubtaskButtonIcon.style.transitionDelay = '0s';
+          // addSubtaskButtonIcon.style.opacity = '0';
+          // addSubtaskButtonIcon.style.width = '0';
+          // addSubtaskButtonIcon.style.height = '0';
+          // document.getElementById('task_input_field').focus();
 
           timerHide = setTimeout(function () {
             subtaskDiv.style.display = 'none';
             subtaskTextField.style.display = 'none';
             addSubtaskButton.style.display = 'none';
+            addSubtaskButtonIcon.style.display = 'none';
           }, 1000);
         }
       };
@@ -320,11 +337,17 @@ var Task = /*#__PURE__*/function () {
       subtaskDiv.setAttribute('class', 'subtask_div');
       var subtaskTextField = document.createElement('input');
       subtaskTextField.setAttribute('type', 'text');
-      subtaskTextField.setAttribute('class', 'subtask_text_field');
-      var addSubtaskButton = document.createElement('input');
-      addSubtaskButton.setAttribute('type', 'button');
+      subtaskTextField.setAttribute('class', 'subtask_text_field'); // let addSubtaskButton = document.createElement('input');
+      // addSubtaskButton.setAttribute('type', 'button');
+      // addSubtaskButton.setAttribute('class', 'add_subtask_button');
+      // addSubtaskButton.setAttribute('value', 'add subtask');
+
+      var addSubtaskButton = document.createElement('button');
+      addSubtaskButton.setAttribute('type', 'submit');
       addSubtaskButton.setAttribute('class', 'add_subtask_button');
-      addSubtaskButton.setAttribute('value', 'add subtask');
+      var addSubtaskButtonIcon = document.createElement('img');
+      addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
+      addSubtaskButton.appendChild(addSubtaskButtonIcon);
       subtaskTextField.addEventListener('keydown', function (event) {
         if (event.keyCode === 13) {
           event.preventDefault();
@@ -547,6 +570,8 @@ var Login = /*#__PURE__*/function () {
 
           taskInputButton.onclick = function () {
             _this7.taskList.addTask();
+
+            return false;
           };
 
           _this7.taskList.userId = userId;
@@ -634,6 +659,7 @@ var Login = /*#__PURE__*/function () {
               _this8.userNameField.appendChild(document.createTextNode(_userName));
 
               _this8.userLogOutButton.disabled = false;
+              _this8.userDeleteButton.disabled = false;
 
               _this8.hideLoginWindow();
 

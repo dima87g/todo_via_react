@@ -140,16 +140,46 @@ html, body {
     margin: 0 auto;
 }
 
+.task_input {
+    margin-top: 10px;
+}
+
+.task_input > form {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+        align-items: center;
+    -ms-flex-pack: justify;
+        justify-content: space-between;
+}
+
 .task_input_field {
-    width: 200px;
+    /*width: 200px;*/
+    font-size: 18px;
     border-radius: 20px 20px;
+    outline: none;
 }
 
 .task_input_button {
     float: right;
-    width: 20px;
-    height: 20px;
-    border-radius: 20px 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    box-shadow: 1px 1px 3px;
+}
+
+.task_input_button:active {
+    box-shadow: inset 1px 1px 1px;
+}
+
+.task_input_button > img {
+    transition: transform 0.1s;
+}
+
+.task_input_button:active > img {
+    transform: scale(0.9);
 }
 
 .task {
@@ -162,25 +192,30 @@ html, body {
         justify-content: space-between;
     /*color: red;*/
     /*background-color: cyan;*/
-    border-radius: 20px 20px;
+    border-radius: 25px;
     width: 100%;
     min-height: 40px;
-    margin: 5px auto ;
-    border: solid 1px;
+    margin: 10px auto ;
+    /*border: solid 1px;*/
+    box-shadow: 0 0 3px;
 }
 
 .task_finish_button {
     display: inline-block;
-    width: 40px;
-    height: 40px;
-    border-radius: 20px 20px;
-    box-shadow: 0 0 3px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     border: none;
     outline: none;
+    box-shadow: 1px 1px 3px;
 }
 
 .task_finish_button:active {
-    box-shadow: 0 0 5px;
+    box-shadow: inset 1px 1px 3px;
+}
+
+.task_finish_button > img {
+    transition: transform 0.1s;
 }
 
 .task_finish_button:active > img {
@@ -193,9 +228,14 @@ html, body {
 
 .subtask_div {
     position: absolute;
-    width: 70%;
+    -ms-flex-align: center;
+        align-items: center;
+    -ms-flex-pack: justify;
+        justify-content: space-between;
+    width: 75%;
     height: 20px;
     top: 50%;
+    left: 25%;
     margin-top: -10px;
     box-sizing: border-box;
     display: none;
@@ -204,19 +244,41 @@ html, body {
 
 .subtask_text_field {
     width: 0;
+    font-size: 18px;
     opacity: 0;
+    outline: none;
     display: none;
     transition: width 1s,
                 opacity 1s;
 }
 
 .add_subtask_button {
-    width: 0;
+    width: 48px;
+    height: 48px;
+    transform: scale(0);
     opacity: 0;
     display: none;
-    border-radius: 20px 20px;
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    box-shadow: 1px 1px 3px;
     transition: width 0.5s,
-                opacity 0.5s;
+                height 0.5s,
+                opacity 0.5s,
+                transform 0.5s;
+}
+
+.add_subtask_button:active {
+    box-shadow: inset 1px 1px 1px;
+}
+
+.add_subtask_button > img {
+    display: none;
+    transition: transform 0.1s;
+}
+
+.add_subtask_button:active > img {
+    transform: scale(0.9);
 }
 
 .paragraph {
@@ -228,12 +290,24 @@ html, body {
 }
 
 .task_remove_button {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    box-shadow: 0 0 3px;
     outline: none;
     border: none;
+    box-shadow: 1px 1px 3px;
+}
+
+.task_remove_button:active {
+    box-shadow: inset 1px 1px 1px;
+}
+
+.task_remove_button > img {
+    transition: transform 0.1s;
+}
+
+.task_remove_button:active > img {
+    transform: scale(0.9);
 }
 
 .finished_task > p {

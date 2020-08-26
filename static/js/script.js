@@ -171,15 +171,19 @@ class Task {
         let timerShow = null;
         let timerHide = null;
         return function() {
+            let removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
             let subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
             let subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
             let addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
+            let addSubtaskButtonIcon = addSubtaskButton.firstChild;
             if (showed === false) {
                 showed = true;
+                removeButton.disabled = true;
                 timerHide = clearTimeout(timerHide);
-                subtaskDiv.style.display = 'inline-block';
+                subtaskDiv.style.display = 'flex';
                 subtaskTextField.style.display = 'inline-block';
                 addSubtaskButton.style.display = 'inline-block';
+                addSubtaskButtonIcon.style.display = 'inline-block';
 
                 timerShow = setTimeout(function() {
                     subtaskTextField.style.opacity = '1';
@@ -187,23 +191,37 @@ class Task {
                     // subtaskTextField.focus();
                     addSubtaskButton.style.transitionDelay = '0.5s';
                     addSubtaskButton.style.opacity = '1';
-                    addSubtaskButton.style.width = '75px';
+                    addSubtaskButton.style.transform = 'scale(1)';
+                    // addSubtaskButton.style.width = '48px';
+                    // addSubtaskButton.style.height = '48px';
+                    // addSubtaskButtonIcon.style.transitionDelay = '0.5s';
+                    // addSubtaskButtonIcon.style.opacity = '1';
+                    // addSubtaskButtonIcon.style.width = '48px';
+                    // addSubtaskButtonIcon.style.height = '48px';
                 }, 50);
             } else {
                 showed = false;
+                removeButton.disabled = false;
                 timerShow = clearTimeout(timerShow);
                 subtaskTextField.value = '';
                 subtaskTextField.style.opacity = '0';
                 subtaskTextField.style.width = '0';
                 addSubtaskButton.style.transitionDelay = '0s';
                 addSubtaskButton.style.opacity = '0';
-                addSubtaskButton.style.width = '0';
+                addSubtaskButton.style.transform = 'scale(0)';
+                // addSubtaskButton.style.width = '0';
+                // addSubtaskButton.style.height = '0';
+                // addSubtaskButtonIcon.style.transitionDelay = '0s';
+                // addSubtaskButtonIcon.style.opacity = '0';
+                // addSubtaskButtonIcon.style.width = '0';
+                // addSubtaskButtonIcon.style.height = '0';
                 // document.getElementById('task_input_field').focus();
 
                 timerHide = setTimeout(function() {
                     subtaskDiv.style.display = 'none';
                     subtaskTextField.style.display = 'none';
                     addSubtaskButton.style.display = 'none';
+                    addSubtaskButtonIcon.style.display = 'none';
                 }, 1000);
             }
         }
@@ -224,6 +242,7 @@ class Task {
         let finishButton = document.createElement('button');
         finishButton.setAttribute('type', 'submit');
         finishButton.setAttribute('class', 'task_finish_button');
+
         let finishButtonIcon = document.createElement('img');
         finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
         finishButton.appendChild(finishButtonIcon);
@@ -242,6 +261,7 @@ class Task {
         showSubtaskInputButton.setAttribute('type', 'button');
         showSubtaskInputButton.setAttribute('class', 'show_subtask_input_button');
         showSubtaskInputButton.setAttribute('value', 'sub');
+
         showSubtaskInputButton.onclick = this.showSubtaskInput();
 
         let subtaskDiv = document.createElement('div');
@@ -251,10 +271,20 @@ class Task {
         subtaskTextField.setAttribute('type', 'text');
         subtaskTextField.setAttribute('class', 'subtask_text_field');
 
-        let addSubtaskButton = document.createElement('input');
-        addSubtaskButton.setAttribute('type', 'button');
+        // let addSubtaskButton = document.createElement('input');
+        // addSubtaskButton.setAttribute('type', 'button');
+        // addSubtaskButton.setAttribute('class', 'add_subtask_button');
+        // addSubtaskButton.setAttribute('value', 'add subtask');
+
+        let addSubtaskButton = document.createElement('button');
+
+        addSubtaskButton.setAttribute('type', 'submit');
         addSubtaskButton.setAttribute('class', 'add_subtask_button');
-        addSubtaskButton.setAttribute('value', 'add subtask');
+
+        let addSubtaskButtonIcon = document.createElement('img');
+
+        addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
+        addSubtaskButton.appendChild(addSubtaskButtonIcon);
 
         subtaskTextField.addEventListener('keydown', function(event) {
             if (event.keyCode === 13) {
@@ -468,6 +498,7 @@ class Login {
 
                 taskInputButton.onclick = () => {
                     this.taskList.addTask();
+                    return false;
                 }
 
                 this.taskList.userId = userId;
@@ -528,6 +559,7 @@ class Login {
 
                         this.userNameField.appendChild(document.createTextNode(userName));
                         this.userLogOutButton.disabled = false;
+                        this.userDeleteButton.disabled = false;
 
                         this.hideLoginWindow();
 
