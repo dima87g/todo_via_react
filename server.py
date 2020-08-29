@@ -4,13 +4,13 @@ import hashlib
 import random
 import mysql.connector
 from mysql.connector import pooling
-import time
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.config['JSON_AS_ASCII'] = False
 
-static_salt = "pcdo2g0w2Bra6MT_SAy6XGjv6pqzBvebAUGJDpE-sVhZYEkFfLN4ig72L5GdcDlg"
+static_salt = "pcdo2g0w2Bra6MT_SAy6XGjv6pqzBvebAUGJDpE" \
+              "-sVhZYEkFfLN4ig72L5GdcDlg "
 
 # Pool connection add
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(
@@ -54,7 +54,8 @@ def user_register():
         user_text_id = create_text_id()
         hashed_password = generate_password_hash(user_password)
 
-        cur.execute('INSERT INTO users (user_text_id, user_name, hashed_password) VALUES (%s, %s, %s)'
+        cur.execute('INSERT INTO users (user_text_id, user_name, '
+                    'hashed_password) VALUES (%s, %s, %s)'
                     , (user_text_id, user_name, hashed_password,))
 
         connection.commit()
@@ -92,29 +93,33 @@ def user_login():
         user_name = data['userName']
         user_password = data["password"]
 
-        cur.execute('SELECT user_text_id, user_name, hashed_password FROM users WHERE user_name = %s', (user_name,))
+        cur.execute('SELECT user_text_id, user_name, hashed_password FROM '
+                    'users WHERE user_name = %s', (user_name,))
 
         rows = cur.fetchall()
 
         if not rows:
             return jsonify({"ok": False, "error_code": None,
-                            "error_message": "Username or Password are incorrect!"})
+                            "error_message": "Username or Password are "
+                                             "incorrect!"})
 
         user_text_id = rows[0][0]
         user_name = rows[0][1]
         hashed_password = rows[0][2]
 
-        if check_password_hash(hashed_password, user_password) != True:
+        if not check_password_hash(hashed_password, user_password):
             return jsonify({"ok": False, "error_code": None,
-                            "error_message": "Username or Password are incorrect!"})
-        
-        sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
+                            "error_message": "Username or Password are "
+                                             "incorrect!"})
+
+        sign = hashlib.sha256()
+        sign.update(static_salt.encode())
+        sign.update(user_text_id.encode())
+        sign = sign.hexdigest()
 
         response = make_response(jsonify({"ok": True, "user_name": user_name}))
         response.set_cookie("id", user_text_id)
         response.set_cookie("sign", sign)
-
-        # time.sleep(5)
 
         return response
     except mysql.connector.Error as error:
@@ -132,7 +137,7 @@ def user_login():
 
 @app.route("/load_tasks", methods=["GET", "POST"])
 def load_tasks():
-    
+
     connection = None
     cur = None
 
@@ -145,14 +150,18 @@ def load_tasks():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False, "error_code": 401,
-                            "error_message": "Disconnect"}))
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }))
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
             return response
 
-        cur.execute('SELECT id, user_name FROM users WHERE user_text_id = %s', (user_text_id,))
+        cur.execute('SELECT id, user_name FROM users WHERE user_text_id = %s',
+                    (user_text_id,))
 
         rows = cur.fetchall()
 
@@ -163,7 +172,7 @@ def load_tasks():
         user_name = rows[0][1]
 
         cur.execute('SELECT * from tasks WHERE user_id = %s', (user_id,))
-            
+
         for task in cur:
             tasks.append({"task_id": task[0],
                           "task_text": task[2],
@@ -173,7 +182,6 @@ def load_tasks():
         response = make_response(jsonify({
                                         'ok': True,
                                         "user_name": user_name,
-                                        'user_id': user_id, 
                                         'tasks': tasks
                                         }))
 
@@ -199,7 +207,7 @@ def user_delete():
     """
     request: cookies: "id", "sign"
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
-     'error_message': 'str' or None}
+    'error_message': 'str' or None}
     """
     connection = None
     cur = None
@@ -212,20 +220,24 @@ def user_delete():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False, "error_code": 401,
-                            "error_message": "Disconnect"}))
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }))
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
             return response
 
-        cur.execute("DELETE FROM users WHERE user_text_id = %s", (user_text_id,))
+        cur.execute("DELETE FROM users WHERE user_text_id = %s",
+                    (user_text_id,))
 
         connection.commit()
 
         response = make_response(jsonify({
-                                        "ok": True, 
-                                        "error_code": None, 
+                                        "ok": True,
+                                        "error_code": None,
                                         "error_message": None
                                         }))
 
@@ -249,11 +261,11 @@ def user_delete():
 @app.route("/save_task", methods=["GET", "POST"])
 def save_task():
     """
-    request: json = {'userId' = 'int', 'taskText' = 'str'}
+    request: json = {'taskText' = 'str', 'parentId' = 'int'}
     response:
     if OK = True: json = {'ok': 'bool', 'task_id' = 'int'}
     if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
-     'error_message': 'str' or None}
+    'error_message': 'str' or None}
     """
 
     connection = None
@@ -271,26 +283,31 @@ def save_task():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False, "error_code": 401,
-                            "error_message": "Disconnect"}))               
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }))
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
             return response
 
-        cur.execute("SELECT id FROM users WHERE user_text_id = %s", (user_text_id,))
+        cur.execute("SELECT id FROM users WHERE user_text_id = %s",
+                    (user_text_id,))
 
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-        cur.execute('INSERT INTO tasks (user_id, text, status, parent_id) VALUES ('
+        cur.execute('INSERT INTO tasks (user_id, text, status, parent_id) '
+                    'VALUES ( '
                     '%s, %s, %s, %s)', (user_id, task_text, 0, parent_id))
 
         connection.commit()
         task_id = cur.lastrowid
 
         response = make_response(jsonify({
-                                        'ok': True, 
+                                        'ok': True,
                                         'task_id': task_id
                                         }))
         response.set_cookie("id", user_text_id)
@@ -334,19 +351,24 @@ def delete_task():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False, "error_code": 401,
-                            "error_message": "Disconnect"}))
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }))
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
             return response
 
-        cur.execute("SELECT id FROM users where user_text_id = %s", (user_text_id,))
+        cur.execute("SELECT id FROM users where user_text_id = %s",
+                    (user_text_id,))
 
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-        cur.execute('DELETE FROM tasks WHERE id = %s and user_id = %s', (task_id, user_id,))
+        cur.execute('DELETE FROM tasks WHERE id = %s and user_id = %s',
+                    (task_id, user_id,))
 
         connection.commit()
 
@@ -390,24 +412,29 @@ def finish_task():
         data = request.json
         task_id = data["taskId"]
         task_status = int(data['status'])
-        
+
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False, "error_code": 401,
-                            "error_message": "Disconnect"}))
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }))
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
             return response
-        
-        cur.execute("SELECT id FROM users WHERE user_text_id = %s", (user_text_id,))
+
+        cur.execute("SELECT id FROM users WHERE user_text_id = %s",
+                    (user_text_id,))
 
         rows = cur.fetchall()
         user_id = rows[0][0]
 
-        cur.execute('UPDATE tasks SET status = %s WHERE id = %s and user_id = %s',
+        cur.execute('UPDATE tasks SET status = %s WHERE id = %s and user_id '
+                    '= %s',
                     (task_status, task_id, user_id,))
 
         connection.commit()
@@ -451,21 +478,26 @@ def auth_check():
 
 
 def create_text_id():
-    symbols = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_")
+    symbols = list(
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_"
+    )
     salt = random.choices(symbols, k=64)
 
     return "".join(salt)
 
 
-def check_cookies(user_text_id, sign):
+def check_cookies(user_text_id: str, sign):
     if not user_text_id or not sign:
         return False
-    
-    control_sign = hashlib.sha256((static_salt + user_text_id).encode()).hexdigest()
+
+    control_sign = hashlib.sha256()
+    control_sign.update(static_salt.encode())
+    control_sign.update(user_text_id.encode())
+    control_sign = control_sign.hexdigest()
 
     if sign != control_sign:
         return False
-    return True 
+    return True
 
 
 if __name__ == "__main__":

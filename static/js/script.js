@@ -2,15 +2,14 @@
 
 class TaskList {
     constructor() {
-        this.userId = undefined;
         this.tasks = [];
         this.tasksTree = new Map();
-        this.loginClass = undefined;
+        this.loginClass = null;
     }
 
     addTask() {
         /**
-         * POST: json = {'user_id': 'number', taskText = 'string'}
+         * POST: json = {'taskText': 'string', 'parentId' = 'number'}
          * GET:
          * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
@@ -41,6 +40,13 @@ class TaskList {
     }
 
     addSubtask(taskObject, DOMElement) {
+        /**
+         * POST: json = {'taskText': 'string', 'parentId': 'number'}
+         * GET:
+         * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+         * 'error_message': 'string' or null}
+         */
         let subtaskDiv = DOMElement.parentNode;
         let taskDiv = subtaskDiv.parentNode;
         if (subtaskDiv.getElementsByClassName('subtask_text_field')[0].value) {
@@ -67,10 +73,7 @@ class TaskList {
         }
     }
 
-
     finishTask(node) {
-        //FIXME Сделать изменение статуса задачи ТОЛЬКО после полодительного ответа от сервера, а не перед отправкой запроса на сервер.
-        //FIXME Make task status change ONLY after positive answer from server, not before send request to server.
         /**
          * POST: json = {'task_id': 'number', 'status': 'boolean'}
          * GET:
@@ -83,7 +86,7 @@ class TaskList {
 
         const finish = (answer) => {
             if (answer['ok'] === true) {
-                node.status = node.status === false;
+                node.status = taskStatus;
 
                 this.updateDom();
             }
@@ -97,6 +100,7 @@ class TaskList {
 
     removeTask(node) {
         /**
+         * @param {object} - Task instance object
          * POST: {taskId: 'number'}
          * GET:
          * if OK = true: json = {'ok': true}
@@ -104,7 +108,6 @@ class TaskList {
          * 'error_message': 'string' or null}
          */
         let sendData = {'taskId': node.id}
-
         const remove = (answer) => {
             if (answer['ok'] === true) {
                 if (this.tasksTree.has(node.parentId)) {
@@ -122,11 +125,9 @@ class TaskList {
         }
         knock_knock('delete_task', remove, sendData);
     }
-
     updateDom() {
         let tasksParent = document.getElementById("main_tasks");
         let existTasks = document.getElementsByClassName("task");
-
         let linearTasksList = [];
 
         function linearTaskListFiller(tasks) {
@@ -188,16 +189,9 @@ class Task {
                 timerShow = setTimeout(function() {
                     subtaskTextField.style.opacity = '1';
                     subtaskTextField.style.width = '65%';
-                    // subtaskTextField.focus();
                     addSubtaskButton.style.transitionDelay = '0.5s';
                     addSubtaskButton.style.opacity = '1';
                     addSubtaskButton.style.transform = 'scale(1)';
-                    // addSubtaskButton.style.width = '48px';
-                    // addSubtaskButton.style.height = '48px';
-                    // addSubtaskButtonIcon.style.transitionDelay = '0.5s';
-                    // addSubtaskButtonIcon.style.opacity = '1';
-                    // addSubtaskButtonIcon.style.width = '48px';
-                    // addSubtaskButtonIcon.style.height = '48px';
                 }, 50);
             } else {
                 showed = false;
@@ -209,13 +203,6 @@ class Task {
                 addSubtaskButton.style.transitionDelay = '0s';
                 addSubtaskButton.style.opacity = '0';
                 addSubtaskButton.style.transform = 'scale(0)';
-                // addSubtaskButton.style.width = '0';
-                // addSubtaskButton.style.height = '0';
-                // addSubtaskButtonIcon.style.transitionDelay = '0s';
-                // addSubtaskButtonIcon.style.opacity = '0';
-                // addSubtaskButtonIcon.style.width = '0';
-                // addSubtaskButtonIcon.style.height = '0';
-                // document.getElementById('task_input_field').focus();
 
                 timerHide = setTimeout(function() {
                     subtaskDiv.style.display = 'none';
@@ -235,10 +222,6 @@ class Task {
         let taskDivContent = document.createElement('div');
         taskDivContent.setAttribute('class', 'task_div_content');
 
-        // let finishButton = document.createElement("input");
-        // finishButton.setAttribute("type", "button");
-        // finishButton.setAttribute("class", "task_finish_button");
-
         let finishButton = document.createElement('button');
         finishButton.setAttribute('type', 'submit');
         finishButton.setAttribute('class', 'task_finish_button');
@@ -247,12 +230,10 @@ class Task {
         finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
         finishButton.appendChild(finishButtonIcon);
 
-        if (this.status === false) {
-            finishButton.setAttribute("value", "V");
-        } else {
-            finishButton.setAttribute("value", "V");
+        if (this.status === true) {
             taskDiv.setAttribute("class", "task finished_task");
         }
+
         finishButton.onclick = function () {
             self.taskList.finishTask(self);
         };
@@ -271,11 +252,6 @@ class Task {
         subtaskTextField.setAttribute('type', 'text');
         subtaskTextField.setAttribute('class', 'subtask_text_field');
 
-        // let addSubtaskButton = document.createElement('input');
-        // addSubtaskButton.setAttribute('type', 'button');
-        // addSubtaskButton.setAttribute('class', 'add_subtask_button');
-        // addSubtaskButton.setAttribute('value', 'add subtask');
-
         let addSubtaskButton = document.createElement('button');
 
         addSubtaskButton.setAttribute('type', 'submit');
@@ -286,12 +262,14 @@ class Task {
         addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
         addSubtaskButton.appendChild(addSubtaskButtonIcon);
 
-        subtaskTextField.addEventListener('keydown', function(event) {
+        function noEnterRefreshAddSubtaskButton(event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
                 addSubtaskButton.click();
             }
-        })
+        }
+
+        subtaskTextField.addEventListener('keydown', noEnterRefreshAddSubtaskButton, false);
 
         addSubtaskButton.onclick = function () {
             self.taskList.addSubtask(self, this);
@@ -299,12 +277,6 @@ class Task {
 
         subtaskDiv.appendChild(subtaskTextField);
         subtaskDiv.appendChild(addSubtaskButton);
-
-        // let removeButton = document.createElement("input");
-        //
-        // removeButton.setAttribute("type", "button");
-        // removeButton.setAttribute("value", "X");
-        // removeButton.setAttribute("class", "task_remove_button");
 
         let removeButton = document.createElement('button');
 
@@ -326,14 +298,6 @@ class Task {
         par.appendChild(document.createTextNode(this.text));
         par.setAttribute("class", "paragraph");
 
-        // taskDivContent.appendChild(finishButton);
-        // taskDivContent.appendChild(showSubtaskInputButton);
-        // taskDivContent.appendChild(subtaskDiv);
-        // taskDivContent.appendChild(par);
-        // taskDivContent.appendChild(removeButton);
-        //
-        // taskDiv.appendChild(taskDivContent);
-
         taskDiv.appendChild(finishButton);
         taskDiv.appendChild(showSubtaskInputButton);
         taskDiv.appendChild(subtaskDiv);
@@ -346,15 +310,12 @@ class Task {
     replaceTaskNode(existTask) {
         const self = this;
         let finishButton = existTask.getElementsByClassName("task_finish_button")[0];
-        let showSubtaskInputButton = existTask.getElementsByClassName('show_subtask_input_button')[0];
         let addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
         let removeButton = existTask.getElementsByClassName("task_remove_button")[0];
         existTask.getElementsByTagName("p")[0].textContent = this.text;
         if (this.status === false) {
-            finishButton.setAttribute("value", "V");
             existTask.setAttribute("class", "task");
         } else {
-            finishButton.setAttribute("value", "V");
             existTask.setAttribute("class", "task finished_task");
         }
         finishButton.onclick = function () {
@@ -392,7 +353,7 @@ class Login {
         this.userLogOutButton = document.getElementById('user_logout_button');
         this.userDeleteButton = document.getElementById("user_delete_button");
         this.shadow = document.getElementById("shadow");
-        
+
         this.loginFormUsername.focus();
         this.userLogOutButton.disabled = true;
         this.userDeleteButton.disabled = true;
@@ -430,7 +391,7 @@ class Login {
             deactivate.style.opacity = '0';
             deactivateButton.disabled = true;
             activate.style.display = 'block';
-            focusField.focus();
+            // focusField.focus();
             setTimeout(function () {
                 activate.style.opacity = '1';
             });
@@ -444,6 +405,9 @@ class Login {
 
     hideLoginWindow() {
         this.loginFormUsername.value = "";
+        this.registerFormUsername.value = '';
+        this.registerFormPassword.value = '';
+        this.registerFormPasswordConfirm.value = '';
         removeChilds(this.loginWindowInfo);
         this.authMenu.style.opacity = '0';
         this.shadow.style.display = "none";
@@ -482,7 +446,6 @@ class Login {
          */
         const loadTasks = (answer) => {
             if (answer['ok'] === true) {
-                let userId = answer['user_id'];
                 let userName = answer["user_name"];
                 let tasksFromServer = answer['tasks'];
 
@@ -500,8 +463,6 @@ class Login {
                     this.taskList.addTask();
                     return false;
                 }
-
-                this.taskList.userId = userId;
 
                 let tasksTree = this.taskList.tasksTree;
 
@@ -545,35 +506,34 @@ class Login {
          */
 
         removeChilds(this.loginWindowInfo);
-        if (this.loginFormUsername.value) {
-            if (this.loginFormPassword.value) {
-                let userName = this.loginFormUsername.value;
-                let password = this.loginFormPassword.value;
-                const sendData = {"userName": userName, "password": password};
 
-                this.loginFormPassword.value = "";
+        if (this.loginFormUsername.value && this.loginFormPassword.value) {
+            let userName = this.loginFormUsername.value;
+            let password = this.loginFormPassword.value;
+            const sendData = {"userName": userName, "password": password};
 
-                const login = (answer) => {
-                    if (answer["ok"] === true) {
-                        let userName = answer["user_name"];
+            this.loginFormPassword.value = "";
 
-                        this.userNameField.appendChild(document.createTextNode(userName));
-                        this.userLogOutButton.disabled = false;
-                        this.userDeleteButton.disabled = false;
+            const login = (answer) => {
+                if (answer["ok"] === true) {
+                    let userName = answer["user_name"];
 
-                        this.hideLoginWindow();
+                    this.userNameField.appendChild(document.createTextNode(userName));
+                    this.userLogOutButton.disabled = false;
+                    this.userDeleteButton.disabled = false;
 
-                        this.onLoad()
-                    } else {
-                        this.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
-                    }
+                    this.hideLoginWindow();
+
+                    this.onLoad()
+                } else {
+                    this.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
                 }
-                knock_knock('user_login', login, sendData);
-            } else {
-                this.loginWindowInfo.appendChild(document.createTextNode("Enter password!"));
             }
-        } else {
+            knock_knock('user_login', login, sendData);
+        } else if (!this.loginFormUsername.value) {
             this.loginWindowInfo.appendChild(document.createTextNode('Please, enter user name!'));
+        } else if (!this.loginFormPassword.value) {
+            this.loginWindowInfo.appendChild(document.createTextNode('Please, enter password!'))
         }
     }
 
@@ -608,47 +568,42 @@ class Login {
     }
 
     userRegister() {
-        // TODO: Слишком большая вложенность, нужно попробовать переписать метод через конструкцию SWITCH
     /**
      * POST: json =  {"newUserName": "string",  "password": "string"}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
      */
         removeChilds(this.registerWindowInfo);
-        if (this.registerFormUsername.value) {
-            if (this.registerFormPassword.value) {
-                if (this.registerFormPasswordConfirm.value) {
-                    let newUserName = this.registerFormUsername.value;
-                    let password = this.registerFormPassword.value;
-                    let passwordConform = this.registerFormPasswordConfirm.value;
 
-                    if (password === passwordConform) {
-                        const sendData = {"newUserName": newUserName, "password": password};
-        
-                        const register = (answer) => {
-                            if (answer['ok'] === true) {
-                                this.registerFormUsername.value = "";
-                                this.registerFormPassword.value = "";
-                                this.registerFormPasswordConfirm.value = "";
-                                this.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
-                            } else if (answer['error_code'] === 1062) {
-                                this.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
-                            } else {
-                                this.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
-                            }
-                        }
-                        knock_knock('user_register', register, sendData);
+        if (this.registerFormUsername.value && this.registerFormPassword.value && this.registerFormPasswordConfirm.value) {
+            if (this.registerFormPassword.value === this.registerFormPasswordConfirm.value) {
+                let newUserName = this.registerFormUsername.value;
+                let password = this.registerFormPassword.value;
+
+                const sendData = {"newUserName": newUserName, "password": password};
+
+                const register = (answer) => {
+                    if (answer['ok'] === true) {
+                        this.registerFormUsername.value = "";
+                        this.registerFormPassword.value = "";
+                        this.registerFormPasswordConfirm.value = "";
+                        this.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+                    } else if (answer['error_code'] === 1062) {
+                        this.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
                     } else {
-                        this.registerWindowInfo.appendChild(document.createTextNode("Passwords are not match!"));
+                        this.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
                     }
-                } else {
-                    this.registerWindowInfo.appendChild(document.createTextNode("Please, confirm password!"));
                 }
+                knock_knock('user_register', register, sendData);
             } else {
-                this.registerWindowInfo.appendChild(document.createTextNode("Please, enter new password!"))
+                this.registerWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
             }
-        } else {
-            this.registerWindowInfo.appendChild(document.createTextNode("Please, enter new user name!"));
+        } else if (!this.registerFormUsername.value) {
+            this.registerWindowInfo.appendChild(document.createTextNode('Please, enter new user name!'));
+        } else if (!this.registerFormPassword.value) {
+            this.registerWindowInfo.appendChild(document.createTextNode('Please, enter Password!'));
+        } else if (!this.registerFormPasswordConfirm.value) {
+            this.registerWindowInfo.appendChild(document.createTextNode('Please, confirm Password!'));
         }
     }
 }
@@ -698,13 +653,14 @@ class LoadingWindow {
 let showLoading = new LoadingWindow();
 
 function events() {
+
     function noEnterRefreshTaskInput(event) {
         if (event.keyCode === 13) {
             event.preventDefault();
             document.getElementById("task_input_button").click();
         }
     }
-    
+
     function noEnterRefreshLogin(event) {
         if (event.keyCode === 13) {
             event.preventDefault();
@@ -737,7 +693,7 @@ function knock_knock(path, func, sendData = undefined) {
                     headers: {'Content-Type': 'application/json; charset=utf-8'},
                     body: JSON.stringify(sendData)}
 
-        fetch('http://127.0.0.1:5000/' + path, init)
+        fetch(path, init)
             .then((answer) => {
                 if (answer.ok && answer.headers.get('Content-Type') === 'application/json') {
                     return answer.json();
@@ -754,7 +710,7 @@ function knock_knock(path, func, sendData = undefined) {
             });
     } else {
         let req = new XMLHttpRequest();
-        req.open('POST', 'http://127.0.0.1:5000/' + path);
+        req.open('POST', path);
         req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
         req.send(JSON.stringify(sendData));
 

@@ -30,8 +30,8 @@ html, body {
 }
 
 .auth_menu_forms_labels {
+    text-align: center;
     font-weight: bold;
-    margin-left: 50px;
 }
 
 .auth_menu_labels {
@@ -112,6 +112,11 @@ html, body {
     width: 60px;
     bottom: 0;
     border-radius: 20px 20px;
+}
+
+.login_window_info, .register_window_info {
+    text-align: center;
+    font-size: 16px;
 }
 
 .header {

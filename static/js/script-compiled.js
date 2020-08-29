@@ -16,10 +16,9 @@ var TaskList = /*#__PURE__*/function () {
   function TaskList() {
     _classCallCheck(this, TaskList);
 
-    this.userId = undefined;
     this.tasks = [];
     this.tasksTree = new Map();
-    this.loginClass = undefined;
+    this.loginClass = null;
   }
 
   _createClass(TaskList, [{
@@ -28,7 +27,7 @@ var TaskList = /*#__PURE__*/function () {
       var _this = this;
 
       /**
-       * POST: json = {'user_id': 'number', taskText = 'string'}
+       * POST: json = {'taskText': 'string', 'parentId' = 'number'}
        * GET:
        * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
        * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
@@ -69,6 +68,13 @@ var TaskList = /*#__PURE__*/function () {
     value: function addSubtask(taskObject, DOMElement) {
       var _this2 = this;
 
+      /**
+       * POST: json = {'taskText': 'string', 'parentId': 'number'}
+       * GET:
+       * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+       * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+       * 'error_message': 'string' or null}
+       */
       var subtaskDiv = DOMElement.parentNode;
       var taskDiv = subtaskDiv.parentNode;
 
@@ -107,9 +113,6 @@ var TaskList = /*#__PURE__*/function () {
     value: function finishTask(node) {
       var _this3 = this;
 
-      //FIXME Сделать изменение статуса задачи ТОЛЬКО после полодительного ответа от сервера, а не перед отправкой запроса на сервер.
-      //FIXME Make task status change ONLY after positive answer from server, not before send request to server.
-
       /**
        * POST: json = {'task_id': 'number', 'status': 'boolean'}
        * GET:
@@ -125,7 +128,7 @@ var TaskList = /*#__PURE__*/function () {
 
       var finish = function finish(answer) {
         if (answer['ok'] === true) {
-          node.status = node.status === false;
+          node.status = taskStatus;
 
           _this3.updateDom();
         }
@@ -145,6 +148,7 @@ var TaskList = /*#__PURE__*/function () {
       var _this4 = this;
 
       /**
+       * @param {object} - Task instance object
        * POST: {taskId: 'number'}
        * GET:
        * if OK = true: json = {'ok': true}
@@ -262,16 +266,10 @@ var Task = /*#__PURE__*/function () {
           addSubtaskButtonIcon.style.display = 'inline-block';
           timerShow = setTimeout(function () {
             subtaskTextField.style.opacity = '1';
-            subtaskTextField.style.width = '65%'; // subtaskTextField.focus();
-
+            subtaskTextField.style.width = '65%';
             addSubtaskButton.style.transitionDelay = '0.5s';
             addSubtaskButton.style.opacity = '1';
-            addSubtaskButton.style.transform = 'scale(1)'; // addSubtaskButton.style.width = '48px';
-            // addSubtaskButton.style.height = '48px';
-            // addSubtaskButtonIcon.style.transitionDelay = '0.5s';
-            // addSubtaskButtonIcon.style.opacity = '1';
-            // addSubtaskButtonIcon.style.width = '48px';
-            // addSubtaskButtonIcon.style.height = '48px';
+            addSubtaskButton.style.transform = 'scale(1)';
           }, 50);
         } else {
           showed = false;
@@ -282,14 +280,7 @@ var Task = /*#__PURE__*/function () {
           subtaskTextField.style.width = '0';
           addSubtaskButton.style.transitionDelay = '0s';
           addSubtaskButton.style.opacity = '0';
-          addSubtaskButton.style.transform = 'scale(0)'; // addSubtaskButton.style.width = '0';
-          // addSubtaskButton.style.height = '0';
-          // addSubtaskButtonIcon.style.transitionDelay = '0s';
-          // addSubtaskButtonIcon.style.opacity = '0';
-          // addSubtaskButtonIcon.style.width = '0';
-          // addSubtaskButtonIcon.style.height = '0';
-          // document.getElementById('task_input_field').focus();
-
+          addSubtaskButton.style.transform = 'scale(0)';
           timerHide = setTimeout(function () {
             subtaskDiv.style.display = 'none';
             subtaskTextField.style.display = 'none';
@@ -306,10 +297,7 @@ var Task = /*#__PURE__*/function () {
       var taskDiv = document.createElement("div");
       taskDiv.setAttribute("class", "task");
       var taskDivContent = document.createElement('div');
-      taskDivContent.setAttribute('class', 'task_div_content'); // let finishButton = document.createElement("input");
-      // finishButton.setAttribute("type", "button");
-      // finishButton.setAttribute("class", "task_finish_button");
-
+      taskDivContent.setAttribute('class', 'task_div_content');
       var finishButton = document.createElement('button');
       finishButton.setAttribute('type', 'submit');
       finishButton.setAttribute('class', 'task_finish_button');
@@ -317,10 +305,7 @@ var Task = /*#__PURE__*/function () {
       finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
       finishButton.appendChild(finishButtonIcon);
 
-      if (this.status === false) {
-        finishButton.setAttribute("value", "V");
-      } else {
-        finishButton.setAttribute("value", "V");
+      if (this.status === true) {
         taskDiv.setAttribute("class", "task finished_task");
       }
 
@@ -337,35 +322,29 @@ var Task = /*#__PURE__*/function () {
       subtaskDiv.setAttribute('class', 'subtask_div');
       var subtaskTextField = document.createElement('input');
       subtaskTextField.setAttribute('type', 'text');
-      subtaskTextField.setAttribute('class', 'subtask_text_field'); // let addSubtaskButton = document.createElement('input');
-      // addSubtaskButton.setAttribute('type', 'button');
-      // addSubtaskButton.setAttribute('class', 'add_subtask_button');
-      // addSubtaskButton.setAttribute('value', 'add subtask');
-
+      subtaskTextField.setAttribute('class', 'subtask_text_field');
       var addSubtaskButton = document.createElement('button');
       addSubtaskButton.setAttribute('type', 'submit');
       addSubtaskButton.setAttribute('class', 'add_subtask_button');
       var addSubtaskButtonIcon = document.createElement('img');
       addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
       addSubtaskButton.appendChild(addSubtaskButtonIcon);
-      subtaskTextField.addEventListener('keydown', function (event) {
+
+      function noEnterRefreshAddSubtaskButton(event) {
         if (event.keyCode === 13) {
           event.preventDefault();
           addSubtaskButton.click();
         }
-      });
+      }
+
+      subtaskTextField.addEventListener('keydown', noEnterRefreshAddSubtaskButton, false);
 
       addSubtaskButton.onclick = function () {
         self.taskList.addSubtask(self, this);
       };
 
       subtaskDiv.appendChild(subtaskTextField);
-      subtaskDiv.appendChild(addSubtaskButton); // let removeButton = document.createElement("input");
-      //
-      // removeButton.setAttribute("type", "button");
-      // removeButton.setAttribute("value", "X");
-      // removeButton.setAttribute("class", "task_remove_button");
-
+      subtaskDiv.appendChild(addSubtaskButton);
       var removeButton = document.createElement('button');
       removeButton.setAttribute('type', 'submit');
       removeButton.setAttribute('class', 'task_remove_button');
@@ -379,14 +358,7 @@ var Task = /*#__PURE__*/function () {
 
       var par = document.createElement("p");
       par.appendChild(document.createTextNode(this.text));
-      par.setAttribute("class", "paragraph"); // taskDivContent.appendChild(finishButton);
-      // taskDivContent.appendChild(showSubtaskInputButton);
-      // taskDivContent.appendChild(subtaskDiv);
-      // taskDivContent.appendChild(par);
-      // taskDivContent.appendChild(removeButton);
-      //
-      // taskDiv.appendChild(taskDivContent);
-
+      par.setAttribute("class", "paragraph");
       taskDiv.appendChild(finishButton);
       taskDiv.appendChild(showSubtaskInputButton);
       taskDiv.appendChild(subtaskDiv);
@@ -399,16 +371,13 @@ var Task = /*#__PURE__*/function () {
     value: function replaceTaskNode(existTask) {
       var self = this;
       var finishButton = existTask.getElementsByClassName("task_finish_button")[0];
-      var showSubtaskInputButton = existTask.getElementsByClassName('show_subtask_input_button')[0];
       var addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
       var removeButton = existTask.getElementsByClassName("task_remove_button")[0];
       existTask.getElementsByTagName("p")[0].textContent = this.text;
 
       if (this.status === false) {
-        finishButton.setAttribute("value", "V");
         existTask.setAttribute("class", "task");
       } else {
-        finishButton.setAttribute("value", "V");
         existTask.setAttribute("class", "task finished_task");
       }
 
@@ -495,8 +464,8 @@ var Login = /*#__PURE__*/function () {
         removeChilds(infoField);
         deactivate.style.opacity = '0';
         deactivateButton.disabled = true;
-        activate.style.display = 'block';
-        focusField.focus();
+        activate.style.display = 'block'; // focusField.focus();
+
         setTimeout(function () {
           activate.style.opacity = '1';
         });
@@ -512,6 +481,9 @@ var Login = /*#__PURE__*/function () {
       var _this5 = this;
 
       this.loginFormUsername.value = "";
+      this.registerFormUsername.value = '';
+      this.registerFormPassword.value = '';
+      this.registerFormPasswordConfirm.value = '';
       removeChilds(this.loginWindowInfo);
       this.authMenu.style.opacity = '0';
       this.shadow.style.display = "none";
@@ -553,7 +525,6 @@ var Login = /*#__PURE__*/function () {
        */
       var loadTasks = function loadTasks(answer) {
         if (answer['ok'] === true) {
-          var userId = answer['user_id'];
           var userName = answer["user_name"];
           var tasksFromServer = answer['tasks'];
 
@@ -574,7 +545,6 @@ var Login = /*#__PURE__*/function () {
             return false;
           };
 
-          _this7.taskList.userId = userId;
           var tasksTree = _this7.taskList.tasksTree;
 
           var _iterator2 = _createForOfIteratorHelper(tasksFromServer),
@@ -642,39 +612,37 @@ var Login = /*#__PURE__*/function () {
        */
       removeChilds(this.loginWindowInfo);
 
-      if (this.loginFormUsername.value) {
-        if (this.loginFormPassword.value) {
-          var userName = this.loginFormUsername.value;
-          var password = this.loginFormPassword.value;
-          var sendData = {
-            "userName": userName,
-            "password": password
-          };
-          this.loginFormPassword.value = "";
+      if (this.loginFormUsername.value && this.loginFormPassword.value) {
+        var userName = this.loginFormUsername.value;
+        var password = this.loginFormPassword.value;
+        var sendData = {
+          "userName": userName,
+          "password": password
+        };
+        this.loginFormPassword.value = "";
 
-          var login = function login(answer) {
-            if (answer["ok"] === true) {
-              var _userName = answer["user_name"];
+        var login = function login(answer) {
+          if (answer["ok"] === true) {
+            var _userName = answer["user_name"];
 
-              _this8.userNameField.appendChild(document.createTextNode(_userName));
+            _this8.userNameField.appendChild(document.createTextNode(_userName));
 
-              _this8.userLogOutButton.disabled = false;
-              _this8.userDeleteButton.disabled = false;
+            _this8.userLogOutButton.disabled = false;
+            _this8.userDeleteButton.disabled = false;
 
-              _this8.hideLoginWindow();
+            _this8.hideLoginWindow();
 
-              _this8.onLoad();
-            } else {
-              _this8.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
-            }
-          };
+            _this8.onLoad();
+          } else {
+            _this8.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
+          }
+        };
 
-          knock_knock('user_login', login, sendData);
-        } else {
-          this.loginWindowInfo.appendChild(document.createTextNode("Enter password!"));
-        }
-      } else {
+        knock_knock('user_login', login, sendData);
+      } else if (!this.loginFormUsername.value) {
         this.loginWindowInfo.appendChild(document.createTextNode('Please, enter user name!'));
+      } else if (!this.loginFormPassword.value) {
+        this.loginWindowInfo.appendChild(document.createTextNode('Please, enter password!'));
       }
     }
   }, {
@@ -715,8 +683,6 @@ var Login = /*#__PURE__*/function () {
     value: function userRegister() {
       var _this10 = this;
 
-      // TODO: Слишком большая вложенность, нужно попробовать переписать метод через конструкцию SWITCH
-
       /**
        * POST: json =  {"newUserName": "string",  "password": "string"}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
@@ -724,45 +690,39 @@ var Login = /*#__PURE__*/function () {
        */
       removeChilds(this.registerWindowInfo);
 
-      if (this.registerFormUsername.value) {
-        if (this.registerFormPassword.value) {
-          if (this.registerFormPasswordConfirm.value) {
-            var newUserName = this.registerFormUsername.value;
-            var password = this.registerFormPassword.value;
-            var passwordConform = this.registerFormPasswordConfirm.value;
+      if (this.registerFormUsername.value && this.registerFormPassword.value && this.registerFormPasswordConfirm.value) {
+        if (this.registerFormPassword.value === this.registerFormPasswordConfirm.value) {
+          var newUserName = this.registerFormUsername.value;
+          var password = this.registerFormPassword.value;
+          var sendData = {
+            "newUserName": newUserName,
+            "password": password
+          };
 
-            if (password === passwordConform) {
-              var sendData = {
-                "newUserName": newUserName,
-                "password": password
-              };
+          var register = function register(answer) {
+            if (answer['ok'] === true) {
+              _this10.registerFormUsername.value = "";
+              _this10.registerFormPassword.value = "";
+              _this10.registerFormPasswordConfirm.value = "";
 
-              var register = function register(answer) {
-                if (answer['ok'] === true) {
-                  _this10.registerFormUsername.value = "";
-                  _this10.registerFormPassword.value = "";
-                  _this10.registerFormPasswordConfirm.value = "";
-
-                  _this10.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
-                } else if (answer['error_code'] === 1062) {
-                  _this10.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
-                } else {
-                  _this10.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
-                }
-              };
-
-              knock_knock('user_register', register, sendData);
+              _this10.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+            } else if (answer['error_code'] === 1062) {
+              _this10.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
             } else {
-              this.registerWindowInfo.appendChild(document.createTextNode("Passwords are not match!"));
+              _this10.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
             }
-          } else {
-            this.registerWindowInfo.appendChild(document.createTextNode("Please, confirm password!"));
-          }
+          };
+
+          knock_knock('user_register', register, sendData);
         } else {
-          this.registerWindowInfo.appendChild(document.createTextNode("Please, enter new password!"));
+          this.registerWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
         }
-      } else {
-        this.registerWindowInfo.appendChild(document.createTextNode("Please, enter new user name!"));
+      } else if (!this.registerFormUsername.value) {
+        this.registerWindowInfo.appendChild(document.createTextNode('Please, enter new user name!'));
+      } else if (!this.registerFormPassword.value) {
+        this.registerWindowInfo.appendChild(document.createTextNode('Please, enter Password!'));
+      } else if (!this.registerFormPasswordConfirm.value) {
+        this.registerWindowInfo.appendChild(document.createTextNode('Please, confirm Password!'));
       }
     }
   }]);
@@ -874,7 +834,7 @@ function knock_knock(path, func) {
       },
       body: JSON.stringify(sendData)
     };
-    fetch('http://127.0.0.1:5000/' + path, init).then(function (answer) {
+    fetch(path, init).then(function (answer) {
       if (answer.ok && answer.headers.get('Content-Type') === 'application/json') {
         return answer.json();
       } else {
@@ -891,7 +851,7 @@ function knock_knock(path, func) {
     });
   } else {
     var req = new XMLHttpRequest();
-    req.open('POST', 'http://127.0.0.1:5000/' + path);
+    req.open('POST', path);
     req.setRequestHeader('Content-type', 'application/json; charset=utf-8');
     req.send(JSON.stringify(sendData));
 
