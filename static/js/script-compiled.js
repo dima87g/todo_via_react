@@ -909,21 +909,11 @@ function removeChilds(field) {
   }
 }
 
-function authCheck(mainLogin) {
-  var check = function check(answer) {
-    if (answer["ok"] === true) {
-      mainLogin.hideLoginWindow();
-      mainLogin.onLoad();
-    }
-  };
-
-  knock_knock("/auth_check", check);
-}
-
 function showCookiesAlertWindow() {
   var userLanguage = window.navigator.language;
   var cookiesAlertWindow = document.getElementById('cookies_alert_window');
   var cookiesAlertWindowText = document.getElementById('cookies_alert_window_text');
+  var cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
 
   if (userLanguage === 'en-US' || userLanguage === 'en') {
     cookiesAlertWindowText.appendChild(document.createTextNode('By continuing to use our site, you consent to the processing of' + ' cookies, which ensure the correct operation of the site.'));
@@ -931,19 +921,28 @@ function showCookiesAlertWindow() {
     cookiesAlertWindowText.appendChild(document.createTextNode('Продолжая использовать наш сайт, вы даете согласие на обработку' + '  файлов cookie, которые обеспечивают правильную работу сайта.'));
   }
 
-  cookiesAlertWindow.style.display = 'block';
-}
-
-function closeCookiesAlertWindow() {
-  var cookiesAlertWindow = document.getElementById('cookies_alert_window');
-  var cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
-
-  cookiesAlertWindowConfirmButton.onclick = function () {
+  document.onclick = function () {
+    document.onclick = null;
     cookiesAlertWindow.style.opacity = '0';
     setTimeout(function () {
       cookiesAlertWindow.style.display = 'none';
     }, 500);
   };
+
+  cookiesAlertWindow.style.display = 'block';
+}
+
+function authCheck(mainLogin) {
+  var check = function check(answer) {
+    if (answer["ok"] === true) {
+      mainLogin.hideLoginWindow();
+      mainLogin.onLoad();
+    } else {
+      showCookiesAlertWindow();
+    }
+  };
+
+  knock_knock("/auth_check", check);
 }
 
 function getCookie(name) {
@@ -952,8 +951,6 @@ function getCookie(name) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  showCookiesAlertWindow();
-  closeCookiesAlertWindow();
   var mainLogin = new Login();
   authCheck(mainLogin);
   events();

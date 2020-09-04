@@ -774,20 +774,11 @@ function removeChilds(field) {
     }
 }
 
-function authCheck(mainLogin) {
-    const check = (answer) => {
-        if (answer["ok"] === true) {
-            mainLogin.hideLoginWindow();
-            mainLogin.onLoad();
-        }
-    }
-    knock_knock("/auth_check", check);
-}
-
 function showCookiesAlertWindow() {
     let userLanguage = window.navigator.language;
     let cookiesAlertWindow = document.getElementById('cookies_alert_window');
     let cookiesAlertWindowText = document.getElementById('cookies_alert_window_text');
+    let cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
 
     if (userLanguage === 'en-US' || userLanguage === 'en') {
         cookiesAlertWindowText.appendChild(document.createTextNode(
@@ -798,20 +789,28 @@ function showCookiesAlertWindow() {
             'Продолжая использовать наш сайт, вы даете согласие на обработку' +
             '  файлов cookie, которые обеспечивают правильную работу сайта.'));
     }
-    cookiesAlertWindow.style.display = 'block';
-}
 
-function closeCookiesAlertWindow() {
-    let cookiesAlertWindow = document.getElementById('cookies_alert_window');
-    let cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
-
-    cookiesAlertWindowConfirmButton.onclick = function() {
+    document.onclick = function() {
+        document.onclick = null;
         cookiesAlertWindow.style.opacity = '0';
 
         setTimeout(function() {
             cookiesAlertWindow.style.display = 'none';
         }, 500);
     }
+    cookiesAlertWindow.style.display = 'block';
+}
+
+function authCheck(mainLogin) {
+    const check = (answer) => {
+        if (answer["ok"] === true) {
+            mainLogin.hideLoginWindow();
+            mainLogin.onLoad();
+        } else {
+            showCookiesAlertWindow();
+        }
+    }
+    knock_knock("/auth_check", check);
 }
 
 function getCookie(name) {
@@ -822,8 +821,6 @@ function getCookie(name) {
   }
 
 document.addEventListener('DOMContentLoaded', function() {
-    showCookiesAlertWindow();
-    closeCookiesAlertWindow();
     let mainLogin = new Login();
     authCheck(mainLogin);
     events();

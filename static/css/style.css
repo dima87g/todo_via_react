@@ -365,9 +365,10 @@ html, body {
 }
 
 .cookies_alert_window {
-    position: absolute;
+    position: fixed;
     top: 0;
     background-color: black;
+    opacity: 0.8;
     z-index: 1000;
     display: none;
     transition: opacity 0.5s;
