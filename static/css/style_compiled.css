@@ -372,6 +372,19 @@ html, body {
     transition: opacity 0.5s;
 }
 
+.cookies_alert_window {
+    position: absolute;
+    top: 0;
+    background-color: black;
+    z-index: 1000;
+    transition: opacity 0.5s;
+}
+
+.cookies_alert_text {
+    text-align: center;
+    color: white;
+}
+
 /*@media (max-width: 400px) {*/
 /*    .auth_menu {*/
 /*        width: 100%;*/

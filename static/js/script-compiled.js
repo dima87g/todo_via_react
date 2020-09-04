@@ -920,12 +920,25 @@ function authCheck(mainLogin) {
   knock_knock("/auth_check", check);
 }
 
+function closeCookiesAlertWindow() {
+  var cookiesAlertWindow = document.getElementById('cookies_alert_window');
+  var cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
+
+  cookiesAlertWindowConfirmButton.onclick = function () {
+    cookiesAlertWindow.style.opacity = '0';
+    setTimeout(function () {
+      cookiesAlertWindow.style.display = 'none';
+    }, 500);
+  };
+}
+
 function getCookie(name) {
   var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
   return matches ? decodeURIComponent(matches[1]) : undefined;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  closeCookiesAlertWindow();
   var mainLogin = new Login();
   authCheck(mainLogin);
   events();

@@ -784,6 +784,19 @@ function authCheck(mainLogin) {
     knock_knock("/auth_check", check);
 }
 
+function closeCookiesAlertWindow() {
+    let cookiesAlertWindow = document.getElementById('cookies_alert_window');
+    let cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
+
+    cookiesAlertWindowConfirmButton.onclick = function() {
+        cookiesAlertWindow.style.opacity = '0';
+
+        setTimeout(function() {
+            cookiesAlertWindow.style.display = 'none';
+        }, 500);
+    }
+}
+
 function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
       "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
@@ -792,6 +805,7 @@ function getCookie(name) {
   }
 
 document.addEventListener('DOMContentLoaded', function() {
+    closeCookiesAlertWindow();
     let mainLogin = new Login();
     authCheck(mainLogin);
     events();
