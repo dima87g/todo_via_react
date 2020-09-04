@@ -369,10 +369,11 @@ html, body {
     top: 0;
     background-color: black;
     z-index: 1000;
+    display: none;
     transition: opacity 0.5s;
 }
 
-.cookies_alert_text {
+.cookies_alert_window_text {
     text-align: center;
     color: white;
 }

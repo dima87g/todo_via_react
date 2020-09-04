@@ -920,6 +920,20 @@ function authCheck(mainLogin) {
   knock_knock("/auth_check", check);
 }
 
+function showCookiesAlertWindow() {
+  var userLanguage = window.navigator.language;
+  var cookiesAlertWindow = document.getElementById('cookies_alert_window');
+  var cookiesAlertWindowText = document.getElementById('cookies_alert_window_text');
+
+  if (userLanguage === 'en-US' || userLanguage === 'en') {
+    cookiesAlertWindowText.appendChild(document.createTextNode('By continuing to use our site, you consent to the processing of' + ' cookies, which ensure the correct operation of the site.'));
+  } else if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+    cookiesAlertWindowText.appendChild(document.createTextNode('Продолжая использовать наш сайт, вы даете согласие на обработку' + '  файлов cookie, которые обеспечивают правильную работу сайта.'));
+  }
+
+  cookiesAlertWindow.style.display = 'block';
+}
+
 function closeCookiesAlertWindow() {
   var cookiesAlertWindow = document.getElementById('cookies_alert_window');
   var cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
@@ -938,6 +952,7 @@ function getCookie(name) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  showCookiesAlertWindow();
   closeCookiesAlertWindow();
   var mainLogin = new Login();
   authCheck(mainLogin);
