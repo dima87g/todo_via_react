@@ -15,6 +15,9 @@ html, body {
 }
 
 .auth_menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     width: 100vw;
     height: 400px;
@@ -40,30 +43,28 @@ html, body {
 
 .login_window, .register_window {
     position: absolute;
-    height: 200px;
-    width: 200px;
+    height: 70%;
+    width: 70%;
     opacity: 1;
     border: 1px solid;
     border-radius: 10px 10px;
-    left: 50%;
-    margin-left: -100px;
-    margin-top: 100px;
     transition: opacity 0.5s;
 }
 
-.login_form_username {
-    width: 176px;
+.login_form_username, .login_form_password {
+    /*width: 176px;*/
+    width: 90%;
     display: block;
-    margin: 0 auto;
+    margin: 0 10px;
     border-radius: 20px 20px;
 }
 
-.login_form_password {
-    width: 176px;
-    display: block;
-    margin: 0 auto;
-    border-radius: 20px 20px;
-}
+/*.login_form_password {*/
+/*    width: 176px;*/
+/*    display: block;*/
+/*    margin: 0 auto;*/
+/*    border-radius: 20px 20px;*/
+/*}*/
 
 .login_form_button {
     border-radius: 20px 20px;
@@ -81,25 +82,31 @@ html, body {
     display: none;
 }
 
-.register_form_username{
-    width: 176px;
+.register_form_username, .register_form_password, .register_form_password_confirm{
+    /*width: 176px;*/
+    width: 90%;
     display: block;
-    margin: 0 auto;
+    margin: 0 10px;
     border-radius: 20px 20px;
 }
 
-.register_form_password {
-    width: 176px;
-    display: block;
-    margin: 0 auto;
-    border-radius: 20px 20px;
-}
+/*.register_form_password {*/
+/*    width: 176px;*/
+/*    display: block;*/
+/*    margin: 0 auto;*/
+/*    border-radius: 20px 20px;*/
+/*}*/
 
-.register_form_password_confirm {
-    width: 176px;
-    display: block;
-    margin: 0 auto;
-    border-radius: 20px 20px;
+/*.register_form_password_confirm {*/
+/*    width: 176px;*/
+/*    display: block;*/
+/*    margin: 0 auto;*/
+/*    border-radius: 20px 20px;*/
+/*}*/
+
+.agreement {
+    margin: 10px;
+    font-size: 16px;
 }
 
 .register_form_button {
@@ -156,7 +163,7 @@ html, body {
 }
 
 .task_input_field {
-    /*width: 200px;*/
+    width: 70vw;
     font-size: 18px;
     border-radius: 20px 20px;
     outline: none;
@@ -222,7 +229,10 @@ html, body {
 }
 
 .show_subtask_input_button {
+    width: 20px;
+    height: 20px;
     border-radius: 20px 20px;
+    outline: none;
 }
 
 .subtask_div {
@@ -244,6 +254,7 @@ html, body {
     font-size: 18px;
     opacity: 0;
     outline: none;
+    border-radius: 20px;
     display: none;
     transition: width 1s,
                 opacity 1s;
@@ -319,7 +330,8 @@ html, body {
     position: absolute;
     width: 200px;
     height: 100px;
-    background-color: aqua;
+    text-align: center;
+    background-color: #b7e6e6d1;
     border-radius: 20px;
     top: 20vw;
     left: 50%;
@@ -329,13 +341,14 @@ html, body {
 }
 
 .confirm_window_message {
-
+    margin-top: 10px;
 }
 
 .info_window {
     position: absolute;
     width: 200px;
     height: 100px;
+    top: 20vw;
     background-color: aqua;
     left: 50%;
     margin-left: -100px;
@@ -347,6 +360,7 @@ html, body {
     position: absolute;
     width: 200px;
     height: 100px;
+    top: 20vw;
     background-color: aqua;
     left: 50%;
     margin-left: -100px;

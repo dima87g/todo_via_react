@@ -241,7 +241,7 @@ class Task {
         let showSubtaskInputButton = document.createElement('input');
         showSubtaskInputButton.setAttribute('type', 'button');
         showSubtaskInputButton.setAttribute('class', 'show_subtask_input_button');
-        showSubtaskInputButton.setAttribute('value', 'sub');
+        showSubtaskInputButton.setAttribute('value', '+');
 
         showSubtaskInputButton.onclick = this.showSubtaskInput();
 
@@ -675,10 +675,10 @@ function events() {
         }
     }
 
-    let loginForm = document.forms.login_form;
+    let loginForm = document.forms['login_form'];
     loginForm.addEventListener("keydown", noEnterRefreshLogin, false);
 
-    let registerForm = document.forms.register_form;
+    let registerForm = document.forms['register_form'];
     registerForm.addEventListener("keydown", noEnterRefreshRegister, false);
 
     let taskInputField = document.getElementById("task_input_field");
@@ -790,8 +790,7 @@ function showCookiesAlertWindow() {
             '  файлов cookie, которые обеспечивают правильную работу сайта.'));
     }
 
-    document.onclick = function() {
-        document.onclick = null;
+    cookiesAlertWindowConfirmButton.onclick = function() {
         cookiesAlertWindow.style.opacity = '0';
 
         setTimeout(function() {
@@ -812,13 +811,6 @@ function authCheck(mainLogin) {
     }
     knock_knock("/auth_check", check);
 }
-
-function getCookie(name) {
-    let matches = document.cookie.match(new RegExp(
-      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-    ));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
-  }
 
 document.addEventListener('DOMContentLoaded', function() {
     let mainLogin = new Login();
