@@ -106,7 +106,8 @@ html, body {
 
 .agreement {
     margin: 10px;
-    font-size: 16px;
+    font-size: 14px;
+    word-break: break-word;
 }
 
 .register_form_button {
