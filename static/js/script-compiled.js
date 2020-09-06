@@ -316,7 +316,7 @@ var Task = /*#__PURE__*/function () {
       var showSubtaskInputButton = document.createElement('input');
       showSubtaskInputButton.setAttribute('type', 'button');
       showSubtaskInputButton.setAttribute('class', 'show_subtask_input_button');
-      showSubtaskInputButton.setAttribute('value', 'sub');
+      showSubtaskInputButton.setAttribute('value', '+');
       showSubtaskInputButton.onclick = this.showSubtaskInput();
       var subtaskDiv = document.createElement('div');
       subtaskDiv.setAttribute('class', 'subtask_div');
@@ -813,9 +813,9 @@ function events() {
     }
   }
 
-  var loginForm = document.forms.login_form;
+  var loginForm = document.forms['login_form'];
   loginForm.addEventListener("keydown", noEnterRefreshLogin, false);
-  var registerForm = document.forms.register_form;
+  var registerForm = document.forms['register_form'];
   registerForm.addEventListener("keydown", noEnterRefreshRegister, false);
   var taskInputField = document.getElementById("task_input_field");
   taskInputField.addEventListener("keydown", noEnterRefreshTaskInput, false);
@@ -921,8 +921,7 @@ function showCookiesAlertWindow() {
     cookiesAlertWindowText.appendChild(document.createTextNode('Продолжая использовать наш сайт, вы даете согласие на обработку' + '  файлов cookie, которые обеспечивают правильную работу сайта.'));
   }
 
-  document.onclick = function () {
-    document.onclick = null;
+  cookiesAlertWindowConfirmButton.onclick = function () {
     cookiesAlertWindow.style.opacity = '0';
     setTimeout(function () {
       cookiesAlertWindow.style.display = 'none';
@@ -943,11 +942,6 @@ function authCheck(mainLogin) {
   };
 
   knock_knock("/auth_check", check);
-}
-
-function getCookie(name) {
-  var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
