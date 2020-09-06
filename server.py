@@ -10,13 +10,13 @@ app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.config['JSON_AS_ASCII'] = False
 
-static_salt = "pcdo2g0w2Bra6MT_SAy6XGjv6pqzBvebAUGJDpE" \
-              "-sVhZYEkFfLN4ig72L5GdcDlg "
-
 # Read configs from 'server_config.ini'
 config = configparser.ConfigParser()
 config.read('server_config.ini')
 db_config = config['data_base']
+security_config = config['security']
+
+static_salt = security_config['static_salt']
 
 # Pool connection add
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(
