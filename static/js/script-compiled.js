@@ -249,6 +249,7 @@ var Task = /*#__PURE__*/function () {
       var showed = false;
       var timerShow = null;
       var timerHide = null;
+      var timerEnableButton = null;
       return function () {
         var taskText = this.parentNode.getElementsByClassName('task_text')[0];
         var removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
@@ -259,10 +260,10 @@ var Task = /*#__PURE__*/function () {
 
         if (showed === false) {
           showed = true;
-          removeButton.disabled = true;
-          addSubtaskButton.disabled = false;
-          timerHide = clearTimeout(timerHide); // removeButton.style.transitionDelay = '0.5s';
+          removeButton.disabled = true; // addSubtaskButton.disabled = false;
 
+          timerHide = clearTimeout(timerHide);
+          removeButton.style.transitionDelay = '0s';
           removeButton.style.opacity = '0';
           removeButton.style.transform = 'scale(0)'; // taskText.style.transitionDelay = '0s';
 
@@ -273,33 +274,39 @@ var Task = /*#__PURE__*/function () {
           addSubtaskButtonIcon.style.display = 'inline-block';
           timerShow = setTimeout(function () {
             subtaskTextField.style.opacity = '1';
-            subtaskTextField.style.width = '65%'; // addSubtaskButton.style.transitionDelay = '0.5s';
-
+            subtaskTextField.style.width = '65%';
+            addSubtaskButton.style.transitionDelay = '0.2s';
             addSubtaskButton.style.opacity = '1';
             addSubtaskButton.style.transform = 'scale(1)';
           });
+          timerEnableButton = setTimeout(function () {
+            addSubtaskButton.disabled = false;
+            taskText.style.visibility = 'hidden';
+          }, 700);
         } else {
           showed = false;
-          removeButton.disabled = false;
           addSubtaskButton.disabled = true;
-          timerShow = clearTimeout(timerShow); // removeButton.style.transitionDelay = '0s';
-
+          timerShow = clearTimeout(timerShow);
+          timerEnableButton = clearTimeout(timerEnableButton);
+          removeButton.style.transitionDelay = '0.2s';
           removeButton.style.opacity = '1';
           removeButton.style.transform = 'scale(1)'; // taskText.style.transitionDelay = '0.5s';
 
+          taskText.style.visibility = 'visible';
           taskText.style.opacity = '1';
           subtaskTextField.value = '';
           subtaskTextField.style.opacity = '0';
-          subtaskTextField.style.width = '0'; // addSubtaskButton.style.transitionDelay = '0s';
-
+          subtaskTextField.style.width = '0';
+          addSubtaskButton.style.transitionDelay = '0s';
           addSubtaskButton.style.opacity = '0';
           addSubtaskButton.style.transform = 'scale(0)';
           timerHide = setTimeout(function () {
+            removeButton.disabled = false;
             subtaskDiv.style.display = 'none';
             subtaskTextField.style.display = 'none';
             addSubtaskButton.style.display = 'none';
             addSubtaskButtonIcon.style.display = 'none';
-          }, 500);
+          }, 700);
         }
       };
     }
@@ -514,7 +521,7 @@ var Login = /*#__PURE__*/function () {
       removeChilds(this.userNameField);
       this.userLogOutButton.disabled = true;
       this.userDeleteButton.disabled = true;
-      this.authMenu.style.display = 'block';
+      this.authMenu.style.display = 'flex';
       this.loginFormUsername.focus();
       setTimeout(function () {
         _this6.authMenu.style.opacity = '1';

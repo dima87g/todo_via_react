@@ -171,6 +171,7 @@ class Task {
         let showed = false;
         let timerShow = null;
         let timerHide = null;
+        let timerEnableButton = null;
         return function() {
             let taskText = this.parentNode.getElementsByClassName('task_text')[0];
             let removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
@@ -181,9 +182,9 @@ class Task {
             if (showed === false) {
                 showed = true;
                 removeButton.disabled = true;
-                addSubtaskButton.disabled = false;
+                // addSubtaskButton.disabled = false;
                 timerHide = clearTimeout(timerHide);
-                // removeButton.style.transitionDelay = '0.5s';
+                removeButton.style.transitionDelay = '0s';
                 removeButton.style.opacity = '0';
                 removeButton.style.transform = 'scale(0)'
                 // taskText.style.transitionDelay = '0s';
@@ -196,33 +197,40 @@ class Task {
                 timerShow = setTimeout(function() {
                     subtaskTextField.style.opacity = '1';
                     subtaskTextField.style.width = '65%';
-                    // addSubtaskButton.style.transitionDelay = '0.5s';
+                    addSubtaskButton.style.transitionDelay = '0.2s';
                     addSubtaskButton.style.opacity = '1';
                     addSubtaskButton.style.transform = 'scale(1)';
                 }, );
+
+                timerEnableButton = setTimeout(function() {
+                    addSubtaskButton.disabled = false;
+                    taskText.style.visibility = 'hidden';
+                }, 700);
             } else {
                 showed = false;
-                removeButton.disabled = false;
                 addSubtaskButton.disabled = true;
                 timerShow = clearTimeout(timerShow);
-                // removeButton.style.transitionDelay = '0s';
+                timerEnableButton = clearTimeout(timerEnableButton);
+                removeButton.style.transitionDelay = '0.2s';
                 removeButton.style.opacity = '1';
                 removeButton.style.transform = 'scale(1)';
                 // taskText.style.transitionDelay = '0.5s';
+                taskText.style.visibility = 'visible';
                 taskText.style.opacity = '1';
                 subtaskTextField.value = '';
                 subtaskTextField.style.opacity = '0';
                 subtaskTextField.style.width = '0';
-                // addSubtaskButton.style.transitionDelay = '0s';
+                addSubtaskButton.style.transitionDelay = '0s';
                 addSubtaskButton.style.opacity = '0';
                 addSubtaskButton.style.transform = 'scale(0)';
 
                 timerHide = setTimeout(function() {
+                    removeButton.disabled = false;
                     subtaskDiv.style.display = 'none';
                     subtaskTextField.style.display = 'none';
                     addSubtaskButton.style.display = 'none';
                     addSubtaskButtonIcon.style.display = 'none';
-                }, 500);
+                }, 700);
             }
         }
     }
@@ -437,7 +445,7 @@ class Login {
         removeChilds(this.userNameField);
         this.userLogOutButton.disabled = true;
         this.userDeleteButton.disabled = true;
-        this.authMenu.style.display = 'block';
+        this.authMenu.style.display = 'flex';
         this.loginFormUsername.focus();
         setTimeout(() => {
             this.authMenu.style.opacity = '1';
