@@ -1,5 +1,8 @@
 "use strict";
 
+//TODO In all animations with 'shadow', change 'display' property to 'visibility', think, this will be the best.
+// Maybe i should do it to all 'display' property???????
+
 class TaskList {
     constructor() {
         this.tasks = [];
@@ -559,14 +562,18 @@ class Login {
     }
 
     logOut() {
-        this.taskList = null;
-        document.cookie = "id=; expires=-1";
-        document.cookie = "sign=; expires=-1";
+        const out = () => {
+            this.taskList = null;
+            document.cookie = "id=; expires=-1";
+            document.cookie = "sign=; expires=-1";
 
-        let tasksParent = document.getElementById("main_tasks");
-        removeChilds(tasksParent);
+            let tasksParent = document.getElementById("main_tasks");
+            removeChilds(tasksParent);
 
-        this.showLoginWindow();
+            this.showLoginWindow();
+        }
+
+        showConfirmWindow(out, 'Are you sure, you want to log out?');
 
     }
 
@@ -755,8 +762,9 @@ function showConfirmWindow(func, message) {
 
     shadow.style.display = "block";
     confirmWindowMessage.appendChild(document.createTextNode(message));
-    confirmWindow.style.display = "block";
-
+    // confirmWindow.style.display = "block";
+    confirmWindow.style.visibility = 'visible';
+    confirmWindow.style.opacity = '1';
     setTimeout(function() {
         shadow.style.opacity = "0.5";
     })
@@ -769,8 +777,12 @@ function showConfirmWindow(func, message) {
             func();
         }
         shadow.style.display = "none";
-        confirmWindow.style.display = "none";
-        confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+        // confirmWindow.style.display = "none";
+        confirmWindow.style.opacity = '0';
+        setTimeout(function () {
+            confirmWindow.style.visibility = 'hidden';
+            confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+        }, 500);
     }
 }
 

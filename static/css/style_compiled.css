@@ -258,7 +258,7 @@ html, body {
     margin-top: -10px;
     box-sizing: border-box;
     display: none;
-    z-index: 1;
+    /*z-index: 1;*/
 }
 
 .subtask_text_field {
@@ -352,7 +352,10 @@ html, body {
     left: 50%;
     margin-left: -100px;
     z-index: 1;
-    display: none;
+    /*display: none;*/
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s;
 }
 
 .confirm_window_message {

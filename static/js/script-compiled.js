@@ -1,4 +1,5 @@
-"use strict";
+"use strict"; //TODO In all animations with 'shadow', change 'display' property to 'visibility', think, this will be the best.
+// Maybe i should do it to all 'display' property???????
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
@@ -668,17 +669,24 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logOut",
     value: function logOut() {
-      this.taskList = null;
-      document.cookie = "id=; expires=-1";
-      document.cookie = "sign=; expires=-1";
-      var tasksParent = document.getElementById("main_tasks");
-      removeChilds(tasksParent);
-      this.showLoginWindow();
+      var _this9 = this;
+
+      var out = function out() {
+        _this9.taskList = null;
+        document.cookie = "id=; expires=-1";
+        document.cookie = "sign=; expires=-1";
+        var tasksParent = document.getElementById("main_tasks");
+        removeChilds(tasksParent);
+
+        _this9.showLoginWindow();
+      };
+
+      showConfirmWindow(out, 'Are you sure, you want to log out?');
     }
   }, {
     key: "userDelete",
     value: function userDelete() {
-      var _this9 = this;
+      var _this10 = this;
 
       var confirm = function confirm() {
         knock_knock("user_delete", del);
@@ -686,11 +694,11 @@ var Login = /*#__PURE__*/function () {
 
       var del = function del(answer) {
         if (answer["ok"] === true) {
-          _this9.logOut();
+          _this10.logOut();
         }
 
         if (answer["error_code"] === 401) {
-          _this9.logOut();
+          _this10.logOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -701,7 +709,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userRegister",
     value: function userRegister() {
-      var _this10 = this;
+      var _this11 = this;
 
       /**
        * POST: json =  {"newUserName": "string",  "password": "string"}
@@ -721,15 +729,15 @@ var Login = /*#__PURE__*/function () {
 
           var register = function register(answer) {
             if (answer['ok'] === true) {
-              _this10.registerFormUsername.value = "";
-              _this10.registerFormPassword.value = "";
-              _this10.registerFormPasswordConfirm.value = "";
+              _this11.registerFormUsername.value = "";
+              _this11.registerFormPassword.value = "";
+              _this11.registerFormPasswordConfirm.value = "";
 
-              _this10.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+              _this11.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
             } else if (answer['error_code'] === 1062) {
-              _this10.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+              _this11.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
             } else {
-              _this10.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+              _this11.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
             }
           };
 
@@ -765,7 +773,7 @@ var LoadingWindow = /*#__PURE__*/function () {
   _createClass(LoadingWindow, [{
     key: "showWindow",
     value: function showWindow(loadingWindow) {
-      var _this11 = this;
+      var _this12 = this;
 
       this.reqCount++;
 
@@ -773,15 +781,15 @@ var LoadingWindow = /*#__PURE__*/function () {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
           loadingWindow.style.display = "block";
-          _this11.startTime = Date.now();
-          _this11.isAlive = true;
+          _this12.startTime = Date.now();
+          _this12.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow(loadingWindow) {
-      var _this12 = this;
+      var _this13 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -798,7 +806,7 @@ var LoadingWindow = /*#__PURE__*/function () {
           } else {
             this.timerHide = setTimeout(function () {
               loadingWindow.style.display = "none";
-              _this12.isAlive = false;
+              _this13.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }
@@ -893,8 +901,10 @@ function showConfirmWindow(func, message) {
   var okButton = document.getElementById("confirm_window_ok_button");
   var cancelButton = document.getElementById("confirm_window_cancel_button");
   shadow.style.display = "block";
-  confirmWindowMessage.appendChild(document.createTextNode(message));
-  confirmWindow.style.display = "block";
+  confirmWindowMessage.appendChild(document.createTextNode(message)); // confirmWindow.style.display = "block";
+
+  confirmWindow.style.visibility = 'visible';
+  confirmWindow.style.opacity = '1';
   setTimeout(function () {
     shadow.style.opacity = "0.5";
   });
@@ -906,9 +916,13 @@ function showConfirmWindow(func, message) {
       func();
     }
 
-    shadow.style.display = "none";
-    confirmWindow.style.display = "none";
-    confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+    shadow.style.display = "none"; // confirmWindow.style.display = "none";
+
+    confirmWindow.style.opacity = '0';
+    setTimeout(function () {
+      confirmWindow.style.visibility = 'hidden';
+      confirmWindowMessage.removeChild(confirmWindowMessage.firstChild);
+    }, 500);
   }
 }
 
