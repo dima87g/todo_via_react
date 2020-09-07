@@ -172,6 +172,7 @@ class Task {
         let timerShow = null;
         let timerHide = null;
         return function() {
+            let taskText = this.parentNode.getElementsByClassName('task_text')[0];
             let removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
             let subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
             let subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
@@ -180,7 +181,13 @@ class Task {
             if (showed === false) {
                 showed = true;
                 removeButton.disabled = true;
+                addSubtaskButton.disabled = false;
                 timerHide = clearTimeout(timerHide);
+                // removeButton.style.transitionDelay = '0.5s';
+                removeButton.style.opacity = '0';
+                removeButton.style.transform = 'scale(0)'
+                // taskText.style.transitionDelay = '0s';
+                taskText.style.opacity = '0';
                 subtaskDiv.style.display = 'flex';
                 subtaskTextField.style.display = 'inline-block';
                 addSubtaskButton.style.display = 'inline-block';
@@ -189,18 +196,24 @@ class Task {
                 timerShow = setTimeout(function() {
                     subtaskTextField.style.opacity = '1';
                     subtaskTextField.style.width = '65%';
-                    addSubtaskButton.style.transitionDelay = '0.5s';
+                    // addSubtaskButton.style.transitionDelay = '0.5s';
                     addSubtaskButton.style.opacity = '1';
                     addSubtaskButton.style.transform = 'scale(1)';
-                }, 50);
+                }, );
             } else {
                 showed = false;
                 removeButton.disabled = false;
+                addSubtaskButton.disabled = true;
                 timerShow = clearTimeout(timerShow);
+                // removeButton.style.transitionDelay = '0s';
+                removeButton.style.opacity = '1';
+                removeButton.style.transform = 'scale(1)';
+                // taskText.style.transitionDelay = '0.5s';
+                taskText.style.opacity = '1';
                 subtaskTextField.value = '';
                 subtaskTextField.style.opacity = '0';
                 subtaskTextField.style.width = '0';
-                addSubtaskButton.style.transitionDelay = '0s';
+                // addSubtaskButton.style.transitionDelay = '0s';
                 addSubtaskButton.style.opacity = '0';
                 addSubtaskButton.style.transform = 'scale(0)';
 
@@ -209,7 +222,7 @@ class Task {
                     subtaskTextField.style.display = 'none';
                     addSubtaskButton.style.display = 'none';
                     addSubtaskButtonIcon.style.display = 'none';
-                }, 1000);
+                }, 500);
             }
         }
     }
@@ -238,12 +251,12 @@ class Task {
             self.taskList.finishTask(self);
         };
 
-        let showSubtaskInputButton = document.createElement('input');
-        showSubtaskInputButton.setAttribute('type', 'button');
-        showSubtaskInputButton.setAttribute('class', 'show_subtask_input_button');
-        showSubtaskInputButton.setAttribute('value', '+');
+        let showSubtaskDivButton = document.createElement('input');
+        showSubtaskDivButton.setAttribute('type', 'button');
+        showSubtaskDivButton.setAttribute('class', 'show_subtask_input_button');
+        showSubtaskDivButton.setAttribute('value', '+');
 
-        showSubtaskInputButton.onclick = this.showSubtaskInput();
+        showSubtaskDivButton.onclick = this.showSubtaskInput();
 
         let subtaskDiv = document.createElement('div');
         subtaskDiv.setAttribute('class', 'subtask_div');
@@ -278,6 +291,11 @@ class Task {
         subtaskDiv.appendChild(subtaskTextField);
         subtaskDiv.appendChild(addSubtaskButton);
 
+        let par = document.createElement("p");
+
+        par.appendChild(document.createTextNode(this.text));
+        par.setAttribute("class", "task_text");
+
         let removeButton = document.createElement('button');
 
         removeButton.setAttribute('type', 'submit');
@@ -293,13 +311,8 @@ class Task {
             self.taskList.removeTask(self);
         };
 
-        let par = document.createElement("p");
-
-        par.appendChild(document.createTextNode(this.text));
-        par.setAttribute("class", "paragraph");
-
         taskDiv.appendChild(finishButton);
-        taskDiv.appendChild(showSubtaskInputButton);
+        taskDiv.appendChild(showSubtaskDivButton);
         taskDiv.appendChild(subtaskDiv);
         taskDiv.appendChild(par);
         taskDiv.appendChild(removeButton);

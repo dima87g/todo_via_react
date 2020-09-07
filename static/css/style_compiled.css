@@ -109,7 +109,8 @@ html, body {
 
 .agreement {
     margin: 10px;
-    font-size: 16px;
+    font-size: 14px;
+    word-break: break-word;
 }
 
 .register_form_button {
@@ -267,8 +268,8 @@ html, body {
     outline: none;
     border-radius: 20px;
     display: none;
-    transition: width 1s,
-                opacity 1s;
+    transition: width 0.5s,
+                opacity 0.5s;
 }
 
 .add_subtask_button {
@@ -300,12 +301,13 @@ html, body {
     transform: scale(0.9);
 }
 
-.paragraph {
+.task_text {
     display: inline-block;
     width: 60%;
     vertical-align: middle;
     word-break: break-word;
     margin-left: 5px;
+    transition: opacity 0.5s;
 }
 
 .task_remove_button {
@@ -315,6 +317,8 @@ html, body {
     outline: none;
     border: none;
     box-shadow: 1px 1px 3px;
+    transition: opacity 0.5s,
+                transform 0.5s;
 }
 
 .task_remove_button:active {
