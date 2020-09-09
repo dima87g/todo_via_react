@@ -1,8 +1,5 @@
 "use strict";
 
-//TODO In all animations with 'shadow', change 'display' property to 'visibility', think, this will be the best.
-// Maybe i should do it to all 'display' property???????
-
 class TaskList {
     constructor() {
         this.tasks = [];
