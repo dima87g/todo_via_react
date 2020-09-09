@@ -269,10 +269,13 @@ var Task = /*#__PURE__*/function () {
           removeButton.style.transform = 'scale(0)'; // taskText.style.transitionDelay = '0s';
 
           taskText.style.opacity = '0';
-          subtaskDiv.style.display = 'flex';
-          subtaskTextField.style.display = 'inline-block';
-          addSubtaskButton.style.display = 'inline-block';
-          addSubtaskButtonIcon.style.display = 'inline-block';
+          subtaskDiv.style.visibility = 'visible';
+          subtaskTextField.style.visibility = 'visible';
+          addSubtaskButton.style.visibility = 'visible';
+          addSubtaskButtonIcon.style.visibility = 'visible'; // subtaskTextField.style.display = 'inline-block';
+          // addSubtaskButton.style.display = 'inline-block';
+          // addSubtaskButtonIcon.style.display = 'inline-block';
+
           timerShow = setTimeout(function () {
             subtaskTextField.style.opacity = '1';
             subtaskTextField.style.width = '65%';
@@ -302,11 +305,15 @@ var Task = /*#__PURE__*/function () {
           addSubtaskButton.style.opacity = '0';
           addSubtaskButton.style.transform = 'scale(0)';
           timerHide = setTimeout(function () {
-            removeButton.disabled = false;
-            subtaskDiv.style.display = 'none';
-            subtaskTextField.style.display = 'none';
-            addSubtaskButton.style.display = 'none';
-            addSubtaskButtonIcon.style.display = 'none';
+            removeButton.disabled = false; // subtaskDiv.style.display = 'none';
+            // subtaskTextField.style.display = 'none';
+            // addSubtaskButton.style.display = 'none';
+            // addSubtaskButtonIcon.style.visibility = 'none';
+
+            subtaskTextField.style.visibility = 'hidden';
+            addSubtaskButton.style.visibility = 'hidden';
+            addSubtaskButtonIcon.style.visibility = 'hidden';
+            subtaskDiv.style.visibility = 'hidden';
           }, 700);
         }
       };
@@ -484,14 +491,16 @@ var Login = /*#__PURE__*/function () {
       function windowChange(activate, activateButton, deactivate, deactivateButton, focusField, infoField) {
         removeChilds(infoField);
         deactivate.style.opacity = '0';
-        deactivateButton.disabled = true;
-        activate.style.display = 'block'; // focusField.focus();
+        deactivateButton.disabled = true; // activate.style.display = 'block';
+
+        activate.style.visibility = 'visible'; // focusField.focus();
 
         setTimeout(function () {
           activate.style.opacity = '1';
         });
         setTimeout(function () {
-          deactivate.style.display = 'none';
+          // deactivate.style.display = 'none';
+          deactivate.style.visibility = 'hidden';
           activateButton.disabled = false;
         }, 500);
       }
@@ -510,7 +519,8 @@ var Login = /*#__PURE__*/function () {
 
       hideShadow();
       setTimeout(function () {
-        _this5.authMenu.style.display = 'none';
+        // this.authMenu.style.display = 'none';
+        _this5.authMenu.style.visibility = 'hidden';
         document.getElementById('task_input_field').focus();
       }, 500);
     }
@@ -523,8 +533,9 @@ var Login = /*#__PURE__*/function () {
       showShadow();
       removeChilds(this.userNameField);
       this.userLogOutButton.disabled = true;
-      this.userDeleteButton.disabled = true;
-      this.authMenu.style.display = 'flex';
+      this.userDeleteButton.disabled = true; // this.authMenu.style.display = 'flex';
+
+      this.authMenu.style.visibility = 'visible';
       this.loginFormUsername.focus();
       setTimeout(function () {
         _this6.authMenu.style.opacity = '1';
@@ -758,7 +769,8 @@ var Login = /*#__PURE__*/function () {
   }]);
 
   return Login;
-}();
+}(); //TODO Maybe compile class LoadingWindow and knock_knock function together????
+
 
 var LoadingWindow = /*#__PURE__*/function () {
   function LoadingWindow() {
@@ -782,7 +794,8 @@ var LoadingWindow = /*#__PURE__*/function () {
       if (this.reqCount === 1) {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
-          loadingWindow.style.display = "block";
+          // loadingWindow.style.display = "block";
+          loadingWindow.style.visibility = 'visible';
           _this12.startTime = Date.now();
           _this12.isAlive = true;
         }, 200);
@@ -803,11 +816,13 @@ var LoadingWindow = /*#__PURE__*/function () {
 
         if (this.isAlive) {
           if (this.stopTime - this.startTime >= 200) {
-            loadingWindow.style.display = "none";
+            // loadingWindow.style.display = "none";
+            loadingWindow.style.visibility = 'hidden';
             this.isAlive = false;
           } else {
             this.timerHide = setTimeout(function () {
-              loadingWindow.style.display = "none";
+              // loadingWindow.style.display = "none";
+              loadingWindow.style.visibility = 'hidden';
               _this13.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
@@ -934,10 +949,12 @@ function showInfoWindow(message) {
   var infoWindow = document.getElementById("info_window");
   var infoWindowMessage = document.getElementById("info_window_message");
   removeChilds(infoWindowMessage);
-  infoWindowMessage.appendChild(document.createTextNode(message));
-  infoWindow.style.display = "block";
+  infoWindowMessage.appendChild(document.createTextNode(message)); // infoWindow.style.display = "block";
+
+  infoWindow.style.visibility = 'visible';
   setTimeout(function () {
-    infoWindow.style.display = "none";
+    // infoWindow.style.display = "none";
+    infoWindow.style.visibility = 'hidden';
   }, 3000);
 }
 

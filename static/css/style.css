@@ -29,7 +29,7 @@ html, body {
     /*left: 50%;*/
     /*margin-left: -200px;*/
     z-index: 1;
-    transition: opacity 1s;
+    transition: opacity 0.5s;
 }
 
 .auth_menu_forms_labels {
@@ -79,7 +79,8 @@ html, body {
 }
 
 .register_window {
-    display: none;
+    /*display: none;*/
+    visibility: hidden;
 }
 
 .register_form_username, .register_form_password, .register_form_password_confirm{
@@ -238,6 +239,7 @@ html, body {
 
 .subtask_div {
     position: absolute;
+    display: flex;
     align-items: center;
     justify-content: space-between;
     width: 75%;
@@ -246,8 +248,9 @@ html, body {
     left: 25%;
     margin-top: -10px;
     box-sizing: border-box;
-    display: none;
+    /*display: none;*/
     /*z-index: 1;*/
+    visibility: hidden;
 }
 
 .subtask_text_field {
@@ -256,7 +259,8 @@ html, body {
     opacity: 0;
     outline: none;
     border-radius: 20px;
-    display: none;
+    /*display: none;*/
+    visibility: hidden;
     transition: width 0.5s,
                 opacity 0.5s;
 }
@@ -266,11 +270,12 @@ html, body {
     height: 48px;
     transform: scale(0);
     opacity: 0;
-    display: none;
+    /*display: none;*/
     border-radius: 50%;
     border: none;
     outline: none;
     box-shadow: 1px 1px 3px;
+    visibility: hidden;
     transition: width 0.5s,
                 height 0.5s,
                 opacity 0.5s,
@@ -282,7 +287,8 @@ html, body {
 }
 
 .add_subtask_button > img {
-    display: none;
+    /*display: none;*/
+    visibility: hidden;
     transition: transform 0.1s;
 }
 
@@ -360,7 +366,8 @@ html, body {
     left: 50%;
     margin-left: -100px;
     z-index: 1;
-    display: none;
+    /*display: none;*/
+    visibility: hidden;
 }
 
 .loading_window {
@@ -372,7 +379,9 @@ html, body {
     left: 50%;
     margin-left: -100px;
     z-index: 1;
-    display: none;
+    /*display: none;*/
+    display: block;
+    visibility: hidden;
 }
 
 .shadow {
