@@ -506,8 +506,9 @@ var Login = /*#__PURE__*/function () {
       this.registerFormPassword.value = '';
       this.registerFormPasswordConfirm.value = '';
       removeChilds(this.loginWindowInfo);
-      this.authMenu.style.opacity = '0';
-      this.shadow.style.display = "none";
+      this.authMenu.style.opacity = '0'; // this.shadow.style.display = "none";
+
+      hideShadow();
       setTimeout(function () {
         _this5.authMenu.style.display = 'none';
         document.getElementById('task_input_field').focus();
@@ -518,7 +519,8 @@ var Login = /*#__PURE__*/function () {
     value: function showLoginWindow() {
       var _this6 = this;
 
-      this.shadow.style.display = "block";
+      // this.shadow.style.display = "block";
+      showShadow();
       removeChilds(this.userNameField);
       this.userLogOutButton.disabled = true;
       this.userDeleteButton.disabled = true;
@@ -899,25 +901,27 @@ function showConfirmWindow(func, message) {
   var confirmWindow = document.getElementById("confirm_window");
   var confirmWindowMessage = document.getElementById("confirm_window_message");
   var okButton = document.getElementById("confirm_window_ok_button");
-  var cancelButton = document.getElementById("confirm_window_cancel_button");
-  shadow.style.display = "block";
+  var cancelButton = document.getElementById("confirm_window_cancel_button"); // shadow.style.display = "block";
+
+  showShadow();
   confirmWindowMessage.appendChild(document.createTextNode(message)); // confirmWindow.style.display = "block";
 
   confirmWindow.style.visibility = 'visible';
-  confirmWindow.style.opacity = '1';
-  setTimeout(function () {
-    shadow.style.opacity = "0.5";
-  });
+  confirmWindow.style.opacity = '1'; // setTimeout(function() {
+  //     shadow.style.opacity = "0.5";
+  // })
+
   okButton.onclick = click;
   cancelButton.onclick = click;
 
   function click() {
     if (this.value === "OK") {
       func();
-    }
+    } // shadow.style.display = "none";
+    // confirmWindow.style.display = "none";
 
-    shadow.style.display = "none"; // confirmWindow.style.display = "none";
 
+    hideShadow();
     confirmWindow.style.opacity = '0';
     setTimeout(function () {
       confirmWindow.style.visibility = 'hidden';
@@ -935,6 +939,20 @@ function showInfoWindow(message) {
   setTimeout(function () {
     infoWindow.style.display = "none";
   }, 3000);
+}
+
+function showShadow() {
+  var shadow = document.getElementById('shadow');
+  shadow.style.visibility = 'visible';
+  shadow.style.opacity = '0.5';
+}
+
+function hideShadow() {
+  var shadow = document.getElementById('shadow');
+  shadow.style.opacity = '0';
+  setTimeout(function () {
+    shadow.style.visibility = 'hidden';
+  }, 500);
 }
 
 function removeChilds(field) {

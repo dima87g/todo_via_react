@@ -434,7 +434,8 @@ class Login {
         this.registerFormPasswordConfirm.value = '';
         removeChilds(this.loginWindowInfo);
         this.authMenu.style.opacity = '0';
-        this.shadow.style.display = "none";
+        // this.shadow.style.display = "none";
+        hideShadow();
 
         setTimeout(() => {
             this.authMenu.style.display = 'none';
@@ -444,7 +445,8 @@ class Login {
 
 
     showLoginWindow() {
-        this.shadow.style.display = "block";
+        // this.shadow.style.display = "block";
+        showShadow();
         removeChilds(this.userNameField);
         this.userLogOutButton.disabled = true;
         this.userDeleteButton.disabled = true;
@@ -760,14 +762,15 @@ function showConfirmWindow(func, message) {
     let okButton = document.getElementById("confirm_window_ok_button");
     let cancelButton = document.getElementById("confirm_window_cancel_button");
 
-    shadow.style.display = "block";
+    // shadow.style.display = "block";
+    showShadow();
     confirmWindowMessage.appendChild(document.createTextNode(message));
     // confirmWindow.style.display = "block";
     confirmWindow.style.visibility = 'visible';
     confirmWindow.style.opacity = '1';
-    setTimeout(function() {
-        shadow.style.opacity = "0.5";
-    })
+    // setTimeout(function() {
+    //     shadow.style.opacity = "0.5";
+    // })
 
     okButton.onclick = click;
     cancelButton.onclick = click;
@@ -776,8 +779,9 @@ function showConfirmWindow(func, message) {
         if (this.value === "OK") {
             func();
         }
-        shadow.style.display = "none";
+        // shadow.style.display = "none";
         // confirmWindow.style.display = "none";
+        hideShadow();
         confirmWindow.style.opacity = '0';
         setTimeout(function () {
             confirmWindow.style.visibility = 'hidden';
@@ -799,6 +803,23 @@ function showInfoWindow(message) {
     setTimeout(function() {
         infoWindow.style.display = "none";
     }, 3000)
+}
+
+function showShadow() {
+    let shadow = document.getElementById('shadow');
+
+    shadow.style.visibility = 'visible';
+    shadow.style.opacity = '0.5';
+}
+
+function hideShadow() {
+    let shadow = document.getElementById('shadow');
+
+    shadow.style.opacity = '0';
+
+    setTimeout(function() {
+        shadow.style.visibility = 'hidden';
+    }, 500);
 }
 
 function removeChilds(field) {
