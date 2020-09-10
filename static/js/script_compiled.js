@@ -260,21 +260,16 @@ var Task = /*#__PURE__*/function () {
 
         if (showed === false) {
           showed = true;
-          removeButton.disabled = true; // addSubtaskButton.disabled = false;
-
+          removeButton.disabled = true;
           timerHide = clearTimeout(timerHide);
           removeButton.style.transitionDelay = '0s';
           removeButton.style.opacity = '0';
-          removeButton.style.transform = 'scale(0)'; // taskText.style.transitionDelay = '0s';
-
+          removeButton.style.transform = 'scale(0)';
           taskText.style.opacity = '0';
           subtaskDiv.style.visibility = 'visible';
           subtaskTextField.style.visibility = 'visible';
           addSubtaskButton.style.visibility = 'visible';
-          addSubtaskButtonIcon.style.visibility = 'visible'; // subtaskTextField.style.display = 'inline-block';
-          // addSubtaskButton.style.display = 'inline-block';
-          // addSubtaskButtonIcon.style.display = 'inline-block';
-
+          addSubtaskButtonIcon.style.visibility = 'visible';
           timerShow = setTimeout(function () {
             subtaskTextField.style.opacity = '1';
             subtaskTextField.style.width = '65%';
@@ -293,8 +288,7 @@ var Task = /*#__PURE__*/function () {
           timerEnableButton = clearTimeout(timerEnableButton);
           removeButton.style.transitionDelay = '0.2s';
           removeButton.style.opacity = '1';
-          removeButton.style.transform = 'scale(1)'; // taskText.style.transitionDelay = '0.5s';
-
+          removeButton.style.transform = 'scale(1)';
           taskText.style.visibility = 'visible';
           taskText.style.opacity = '1';
           subtaskTextField.value = '';
@@ -304,11 +298,7 @@ var Task = /*#__PURE__*/function () {
           addSubtaskButton.style.opacity = '0';
           addSubtaskButton.style.transform = 'scale(0)';
           timerHide = setTimeout(function () {
-            removeButton.disabled = false; // subtaskDiv.style.display = 'none';
-            // subtaskTextField.style.display = 'none';
-            // addSubtaskButton.style.display = 'none';
-            // addSubtaskButtonIcon.style.visibility = 'none';
-
+            removeButton.disabled = false;
             subtaskTextField.style.visibility = 'hidden';
             addSubtaskButton.style.visibility = 'hidden';
             addSubtaskButtonIcon.style.visibility = 'hidden';
@@ -448,7 +438,6 @@ var Login = /*#__PURE__*/function () {
     this.userNameField = document.getElementById("user_name_field");
     this.userLogOutButton = document.getElementById('user_logout_button');
     this.userDeleteButton = document.getElementById("user_delete_button");
-    this.shadow = document.getElementById("shadow");
     this.loginFormUsername.focus();
     this.userLogOutButton.disabled = true;
     this.userDeleteButton.disabled = true;
@@ -482,23 +471,20 @@ var Login = /*#__PURE__*/function () {
     key: "switchLogin",
     value: function switchLogin(val) {
       if (val === 'register') {
-        windowChange(this.registerWindow, this.switchLoginButton, this.loginWindow, this.switchRegisterButton, this.registerFormUsername, this.loginWindowInfo);
+        windowChange(this.registerWindow, this.switchLoginButton, this.loginWindow, this.switchRegisterButton, this.loginWindowInfo);
       } else if (val === 'login') {
-        windowChange(this.loginWindow, this.switchRegisterButton, this.registerWindow, this.switchLoginButton, this.loginFormUsername, this.registerWindowInfo);
+        windowChange(this.loginWindow, this.switchRegisterButton, this.registerWindow, this.switchLoginButton, this.registerWindowInfo);
       }
 
-      function windowChange(activate, activateButton, deactivate, deactivateButton, focusField, infoField) {
+      function windowChange(activate, activateButton, deactivate, deactivateButton, infoField) {
         removeChilds(infoField);
         deactivate.style.opacity = '0';
-        deactivateButton.disabled = true; // activate.style.display = 'block';
-
-        activate.style.visibility = 'visible'; // focusField.focus();
-
+        deactivateButton.disabled = true;
+        activate.style.visibility = 'visible';
         setTimeout(function () {
           activate.style.opacity = '1';
         });
         setTimeout(function () {
-          // deactivate.style.display = 'none';
           deactivate.style.visibility = 'hidden';
           activateButton.disabled = false;
         }, 500);
@@ -514,11 +500,9 @@ var Login = /*#__PURE__*/function () {
       this.registerFormPassword.value = '';
       this.registerFormPasswordConfirm.value = '';
       removeChilds(this.loginWindowInfo);
-      this.authMenu.style.opacity = '0'; // this.shadow.style.display = "none";
-
+      this.authMenu.style.opacity = '0';
       hideShadow();
       setTimeout(function () {
-        // this.authMenu.style.display = 'none';
         _this5.authMenu.style.visibility = 'hidden';
         document.getElementById('task_input_field').focus();
       }, 500);
@@ -528,12 +512,10 @@ var Login = /*#__PURE__*/function () {
     value: function showLoginWindow() {
       var _this6 = this;
 
-      // this.shadow.style.display = "block";
       showShadow();
       removeChilds(this.userNameField);
       this.userLogOutButton.disabled = true;
-      this.userDeleteButton.disabled = true; // this.authMenu.style.display = 'flex';
-
+      this.userDeleteButton.disabled = true;
       this.authMenu.style.visibility = 'visible';
       this.loginFormUsername.focus();
       setTimeout(function () {
@@ -793,7 +775,6 @@ var LoadingWindow = /*#__PURE__*/function () {
       if (this.reqCount === 1) {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
-          // loadingWindow.style.display = "block";
           loadingWindow.style.visibility = 'visible';
           _this12.startTime = Date.now();
           _this12.isAlive = true;
@@ -815,12 +796,10 @@ var LoadingWindow = /*#__PURE__*/function () {
 
         if (this.isAlive) {
           if (this.stopTime - this.startTime >= 200) {
-            // loadingWindow.style.display = "none";
             loadingWindow.style.visibility = 'hidden';
             this.isAlive = false;
           } else {
             this.timerHide = setTimeout(function () {
-              // loadingWindow.style.display = "none";
               loadingWindow.style.visibility = 'hidden';
               _this13.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
@@ -911,29 +890,21 @@ function knock_knock(path, func) {
 }
 
 function showConfirmWindow(func, message) {
-  var shadow = document.getElementById("shadow");
   var confirmWindow = document.getElementById("confirm_window");
   var confirmWindowMessage = document.getElementById("confirm_window_message");
   var okButton = document.getElementById("confirm_window_ok_button");
-  var cancelButton = document.getElementById("confirm_window_cancel_button"); // shadow.style.display = "block";
-
+  var cancelButton = document.getElementById("confirm_window_cancel_button");
   showShadow();
-  confirmWindowMessage.appendChild(document.createTextNode(message)); // confirmWindow.style.display = "block";
-
+  confirmWindowMessage.appendChild(document.createTextNode(message));
   confirmWindow.style.visibility = 'visible';
-  confirmWindow.style.opacity = '1'; // setTimeout(function() {
-  //     shadow.style.opacity = "0.5";
-  // })
-
+  confirmWindow.style.opacity = '1';
   okButton.onclick = click;
   cancelButton.onclick = click;
 
   function click() {
     if (this.value === "OK") {
       func();
-    } // shadow.style.display = "none";
-    // confirmWindow.style.display = "none";
-
+    }
 
     hideShadow();
     confirmWindow.style.opacity = '0';
@@ -948,11 +919,9 @@ function showInfoWindow(message) {
   var infoWindow = document.getElementById("info_window");
   var infoWindowMessage = document.getElementById("info_window_message");
   removeChilds(infoWindowMessage);
-  infoWindowMessage.appendChild(document.createTextNode(message)); // infoWindow.style.display = "block";
-
+  infoWindowMessage.appendChild(document.createTextNode(message));
   infoWindow.style.visibility = 'visible';
   setTimeout(function () {
-    // infoWindow.style.display = "none";
     infoWindow.style.visibility = 'hidden';
   }, 3000);
 }
