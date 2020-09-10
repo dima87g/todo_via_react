@@ -1018,4 +1018,4 @@ document.addEventListener('DOMContentLoaded', function () {
   events();
 });
 
-//# sourceMappingURL=script-compiled.js.map
+//# sourceMappingURL=script_compiled.js.map
