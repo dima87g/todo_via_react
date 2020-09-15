@@ -480,7 +480,7 @@ var Login = /*#__PURE__*/function () {
         removeChildren(infoField);
         deactivate.style.opacity = '0';
         deactivateButton.disabled = true;
-        activate.style.visibility = 'visible';
+        activate.style.visibility = 'inherit';
         setTimeout(function () {
           activate.style.opacity = '1';
         });
