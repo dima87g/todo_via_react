@@ -6,7 +6,8 @@
     "classes_js": "babel ./static/js/todo_classes.js --source-maps --out-file ./static/js/compiled/todo_classes_compiled.js",
     "functions_js": "babel ./static/js/todo_functions.js --source-maps --out-file ./static/js/compiled/todo_functions_compiled.js",
     "js": "npm run main_js && npm run classes_js && npm run functions_js",
-    "css": "postcss --watch ./static/css/style.css -o ./static/css/style_compiled.css"
+    "css": "postcss ./static/css/style.css -o ./static/css/style_compiled.css",
+    "build": "npm run js && npm run css"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
