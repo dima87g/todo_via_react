@@ -632,18 +632,20 @@ class TaskReact extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            status: false
+            status: false,
+            subtaskStyle: 'subtask_div_hidden',
+            subtaskTextFieldStyle: 'subtask_text_field_hidden'
         }
         this.finishTask = this.finishTask.bind(this);
+        this.showSubtaskField = this.showSubtaskField.bind(this);
     }
 
     finishTask() {
-        console.log(this.state.status);
         let taskStatus = this.state.status === false;
         let sendData = {
             'taskId': this.props.taskId,
             'status': taskStatus
-        }
+        };
         const finish = (answer) => {
             if (answer['ok'] === true) {
                 this.setState({
@@ -654,15 +656,22 @@ class TaskReact extends React.Component {
         knock_knock('finish_task', finish, sendData);
     }
 
+    showSubtaskField() {
+        this.setState({
+            subtaskStyle:  this.state.subtaskStyle === 'subtask_div_hidden' ? 'subtask_div_visible' : 'subtask_div_hidden',
+            subtaskTextFieldStyle: this.state.subtaskTextFieldStyle === 'subtask_text_field_hidden' ? 'subtask_text_field_visible' : 'subtask_text_field_hidden'
+        });
+    }
+
     render() {
         return (
             <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
                 <button className={'task_finish_button'} type={'button'} onClick={this.finishTask}>
                     <img src="/static/icons/check.svg" alt="V"/>
                 </button>
-                <button className={'show_subtask_input_button'}>+</button>
-                <div className={'subtask_div'}>
-                    <input className={'subtask_text_field'} type="text"/>
+                <button className={'show_subtask_input_button'} onClick={this.showSubtaskField}>+</button>
+                <div className={this.state.subtaskStyle}>
+                    <input className={this.state.subtaskTextFieldStyle} type="text"/>
                     <button className={'add_subtask_button'} type={'button'}>
                         <img src="/static/icons/add_sub.svg" alt="+"/>
                     </button>

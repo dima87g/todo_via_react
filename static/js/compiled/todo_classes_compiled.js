@@ -801,9 +801,12 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
 
     _this12 = _super.call(this, props);
     _this12.state = {
-      status: false
+      status: false,
+      subtaskStyle: 'subtask_div_hidden',
+      subtaskTextFieldStyle: 'subtask_text_field_hidden'
     };
     _this12.finishTask = _this12.finishTask.bind(_assertThisInitialized(_this12));
+    _this12.showSubtaskField = _this12.showSubtaskField.bind(_assertThisInitialized(_this12));
     return _this12;
   }
 
@@ -812,7 +815,6 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
     value: function finishTask() {
       var _this13 = this;
 
-      console.log(this.state.status);
       var taskStatus = this.state.status === false;
       var sendData = {
         'taskId': this.props.taskId,
@@ -830,6 +832,14 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       knock_knock('finish_task', finish, sendData);
     }
   }, {
+    key: "showSubtaskField",
+    value: function showSubtaskField() {
+      this.setState({
+        subtaskStyle: this.state.subtaskStyle === 'subtask_div_hidden' ? 'subtask_div_visible' : 'subtask_div_hidden',
+        subtaskTextFieldStyle: this.state.subtaskTextFieldStyle === 'subtask_text_field_hidden' ? 'subtask_text_field_visible' : 'subtask_text_field_hidden'
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       return /*#__PURE__*/React.createElement("div", {
@@ -842,11 +852,12 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         src: "/static/icons/check.svg",
         alt: "V"
       })), /*#__PURE__*/React.createElement("button", {
-        className: 'show_subtask_input_button'
+        className: 'show_subtask_input_button',
+        onClick: this.showSubtaskField
       }, "+"), /*#__PURE__*/React.createElement("div", {
-        className: 'subtask_div'
+        className: this.state.subtaskStyle
       }, /*#__PURE__*/React.createElement("input", {
-        className: 'subtask_text_field',
+        className: this.state.subtaskTextFieldStyle,
         type: "text"
       }), /*#__PURE__*/React.createElement("button", {
         className: 'add_subtask_button',

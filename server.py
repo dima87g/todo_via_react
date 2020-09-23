@@ -337,7 +337,7 @@ def save_task():
 @app.route("/delete_task", methods=["POST"])
 def delete_task():
     """
-    request: 'task_id' = 'int'
+    request: 'taskId' = 'int'
     response:
     if OK = True: json =  {'ok': True}
     if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,

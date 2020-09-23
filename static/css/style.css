@@ -252,7 +252,21 @@ html, body {
     outline: none;
 }
 
-.subtask_div {
+/*.subtask_div {*/
+/*    position: absolute;*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: space-between;*/
+/*    width: 75%;*/
+/*    height: 20px;*/
+/*    top: 50%;*/
+/*    left: 25%;*/
+/*    margin-top: -10px;*/
+/*    box-sizing: border-box;*/
+/*    visibility: hidden;*/
+/*}*/
+
+.subtask_div_hidden {
     position: absolute;
     display: flex;
     align-items: center;
@@ -263,21 +277,48 @@ html, body {
     left: 25%;
     margin-top: -10px;
     box-sizing: border-box;
-    /*display: none;*/
-    /*z-index: 1;*/
     visibility: hidden;
 }
 
-.subtask_text_field {
+.subtask_div_visible {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 75%;
+    height: 20px;
+    top: 50%;
+    left: 25%;
+    margin-top: -10px;
+    box-sizing: border-box;
+    visibility: visible;
+}
+
+/*.subtask_text_field {*/
+/*    width: 0;*/
+/*    font-size: 18px;*/
+/*    opacity: 0;*/
+/*    outline: none;*/
+/*    border-radius: 20px;*/
+/*    visibility: hidden;*/
+/*    transition: width 0.5s,*/
+/*                opacity 0.5s;*/
+/*}*/
+
+.subtask_text_field_hidden {
     width: 0;
     font-size: 18px;
     opacity: 0;
     outline: none;
     border-radius: 20px;
-    /*display: none;*/
     visibility: hidden;
     transition: width 0.5s,
                 opacity 0.5s;
+}
+
+.subtask_text_field_visible {
+    width: 65%;
+    opacity: 1;
 }
 
 .add_subtask_button {
