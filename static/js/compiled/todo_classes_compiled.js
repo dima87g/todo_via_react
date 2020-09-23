@@ -1,5 +1,21 @@
 'use strict';
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -311,76 +327,97 @@ var Task = /*#__PURE__*/function () {
     key: "createTaskNode",
     value: function createTaskNode() {
       var self = this;
-      var taskDiv = document.createElement("div");
-      taskDiv.setAttribute("class", "task");
-      var taskDivContent = document.createElement('div');
-      taskDivContent.setAttribute('class', 'task_div_content');
-      var finishButton = document.createElement('button');
-      finishButton.setAttribute('type', 'submit');
-      finishButton.setAttribute('class', 'task_finish_button');
-      var finishButtonIcon = document.createElement('img');
-      finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
-      finishButton.appendChild(finishButtonIcon);
+      var taskDiv = document.createElement("div"); // taskDiv.setAttribute("class", "task");
+      //
+      // let taskDivContent = document.createElement('div');
+      // taskDivContent.setAttribute('class', 'task_div_content');
+      //
+      // let finishButton = document.createElement('button');
+      // finishButton.setAttribute('type', 'submit');
+      // finishButton.setAttribute('class', 'task_finish_button');
+      //
+      // let finishButtonIcon = document.createElement('img');
+      // finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
+      // finishButton.appendChild(finishButtonIcon);
+      //
+      // if (this.status === true) {
+      //     taskDiv.setAttribute("class", "task finished_task");
+      // }
+      //
+      // finishButton.onclick = function () {
+      //     self.taskList.finishTask(self);
+      // };
+      //
+      // let showSubtaskDivButton = document.createElement('input');
+      // showSubtaskDivButton.setAttribute('type', 'button');
+      // showSubtaskDivButton.setAttribute('class', 'show_subtask_input_button');
+      // showSubtaskDivButton.setAttribute('value', '+');
+      //
+      // showSubtaskDivButton.onclick = this.showSubtaskInput();
+      //
+      // let subtaskDiv = document.createElement('div');
+      // subtaskDiv.setAttribute('class', 'subtask_div');
+      //
+      // let subtaskTextField = document.createElement('input');
+      // subtaskTextField.setAttribute('type', 'text');
+      // subtaskTextField.setAttribute('class', 'subtask_text_field');
+      //
+      // let addSubtaskButton = document.createElement('button');
+      //
+      // addSubtaskButton.setAttribute('type', 'submit');
+      // addSubtaskButton.setAttribute('class', 'add_subtask_button');
+      //
+      // let addSubtaskButtonIcon = document.createElement('img');
+      //
+      // addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
+      // addSubtaskButton.appendChild(addSubtaskButtonIcon);
+      //
+      // function noEnterRefreshAddSubtaskButton(event) {
+      //     if (event.keyCode === 13) {
+      //         event.preventDefault();
+      //         addSubtaskButton.click();
+      //     }
+      // }
+      //
+      // subtaskTextField.addEventListener('keydown', noEnterRefreshAddSubtaskButton, false);
+      //
+      // addSubtaskButton.onclick = function () {
+      //     self.taskList.addSubtask(self, this);
+      // }
+      //
+      // subtaskDiv.appendChild(subtaskTextField);
+      // subtaskDiv.appendChild(addSubtaskButton);
+      //
+      // let par = document.createElement("p");
+      //
+      // par.appendChild(document.createTextNode(this.text));
+      // par.setAttribute("class", "task_text");
+      //
+      // let removeButton = document.createElement('button');
+      //
+      // removeButton.setAttribute('type', 'submit');
+      // removeButton.setAttribute('class', 'task_remove_button');
+      //
+      // let removeButtonIcon = document.createElement('img');
+      //
+      // removeButtonIcon.setAttribute('src','static/icons/delete.svg');
+      //
+      // removeButton.appendChild(removeButtonIcon);
+      //
+      // removeButton.onclick = function () {
+      //     self.taskList.removeTask(self);
+      // };
+      //
+      // taskDiv.appendChild(finishButton);
+      // taskDiv.appendChild(showSubtaskDivButton);
+      // taskDiv.appendChild(subtaskDiv);
+      // taskDiv.appendChild(par);
+      // taskDiv.appendChild(removeButton);
 
-      if (this.status === true) {
-        taskDiv.setAttribute("class", "task finished_task");
-      }
-
-      finishButton.onclick = function () {
-        self.taskList.finishTask(self);
-      };
-
-      var showSubtaskDivButton = document.createElement('input');
-      showSubtaskDivButton.setAttribute('type', 'button');
-      showSubtaskDivButton.setAttribute('class', 'show_subtask_input_button');
-      showSubtaskDivButton.setAttribute('value', '+');
-      showSubtaskDivButton.onclick = this.showSubtaskInput();
-      var subtaskDiv = document.createElement('div');
-      subtaskDiv.setAttribute('class', 'subtask_div');
-      var subtaskTextField = document.createElement('input');
-      subtaskTextField.setAttribute('type', 'text');
-      subtaskTextField.setAttribute('class', 'subtask_text_field');
-      var addSubtaskButton = document.createElement('button');
-      addSubtaskButton.setAttribute('type', 'submit');
-      addSubtaskButton.setAttribute('class', 'add_subtask_button');
-      var addSubtaskButtonIcon = document.createElement('img');
-      addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
-      addSubtaskButton.appendChild(addSubtaskButtonIcon);
-
-      function noEnterRefreshAddSubtaskButton(event) {
-        if (event.keyCode === 13) {
-          event.preventDefault();
-          addSubtaskButton.click();
-        }
-      }
-
-      subtaskTextField.addEventListener('keydown', noEnterRefreshAddSubtaskButton, false);
-
-      addSubtaskButton.onclick = function () {
-        self.taskList.addSubtask(self, this);
-      };
-
-      subtaskDiv.appendChild(subtaskTextField);
-      subtaskDiv.appendChild(addSubtaskButton);
-      var par = document.createElement("p");
-      par.appendChild(document.createTextNode(this.text));
-      par.setAttribute("class", "task_text");
-      var removeButton = document.createElement('button');
-      removeButton.setAttribute('type', 'submit');
-      removeButton.setAttribute('class', 'task_remove_button');
-      var removeButtonIcon = document.createElement('img');
-      removeButtonIcon.setAttribute('src', 'static/icons/delete.svg');
-      removeButton.appendChild(removeButtonIcon);
-
-      removeButton.onclick = function () {
-        self.taskList.removeTask(self);
-      };
-
-      taskDiv.appendChild(finishButton);
-      taskDiv.appendChild(showSubtaskDivButton);
-      taskDiv.appendChild(subtaskDiv);
-      taskDiv.appendChild(par);
-      taskDiv.appendChild(removeButton);
+      ReactDOM.render( /*#__PURE__*/React.createElement(TaskReact, {
+        taskId: this.id,
+        taskText: this.text
+      }), taskDiv);
       return taskDiv;
     }
   }, {
@@ -750,7 +787,87 @@ var Login = /*#__PURE__*/function () {
   }]);
 
   return Login;
-}(); //TODO Maybe compile class LoadingWindow and knock_knock function together????
+}();
+
+var TaskReact = /*#__PURE__*/function (_React$Component) {
+  _inherits(TaskReact, _React$Component);
+
+  var _super = _createSuper(TaskReact);
+
+  function TaskReact(props) {
+    var _this12;
+
+    _classCallCheck(this, TaskReact);
+
+    _this12 = _super.call(this, props);
+    _this12.state = {
+      status: false
+    };
+    _this12.finishTask = _this12.finishTask.bind(_assertThisInitialized(_this12));
+    return _this12;
+  }
+
+  _createClass(TaskReact, [{
+    key: "finishTask",
+    value: function finishTask() {
+      var _this13 = this;
+
+      console.log(this.state.status);
+      var taskStatus = this.state.status === false;
+      var sendData = {
+        'taskId': this.props.taskId,
+        'status': taskStatus
+      };
+
+      var finish = function finish(answer) {
+        if (answer['ok'] === true) {
+          _this13.setState({
+            status: taskStatus
+          });
+        }
+      };
+
+      knock_knock('finish_task', finish, sendData);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return /*#__PURE__*/React.createElement("div", {
+        className: this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'
+      }, /*#__PURE__*/React.createElement("button", {
+        className: 'task_finish_button',
+        type: 'button',
+        onClick: this.finishTask
+      }, /*#__PURE__*/React.createElement("img", {
+        src: "/static/icons/check.svg",
+        alt: "V"
+      })), /*#__PURE__*/React.createElement("button", {
+        className: 'show_subtask_input_button'
+      }, "+"), /*#__PURE__*/React.createElement("div", {
+        className: 'subtask_div'
+      }, /*#__PURE__*/React.createElement("input", {
+        className: 'subtask_text_field',
+        type: "text"
+      }), /*#__PURE__*/React.createElement("button", {
+        className: 'add_subtask_button',
+        type: 'button'
+      }, /*#__PURE__*/React.createElement("img", {
+        src: "/static/icons/add_sub.svg",
+        alt: "+"
+      }))), /*#__PURE__*/React.createElement("p", {
+        className: 'task_text'
+      }, this.props.taskText), /*#__PURE__*/React.createElement("button", {
+        className: 'task_remove_button',
+        type: 'button'
+      }, /*#__PURE__*/React.createElement("img", {
+        src: "/static/icons/delete.svg",
+        alt: ""
+      })));
+    }
+  }]);
+
+  return TaskReact;
+}(React.Component); //TODO Maybe compile class LoadingWindow and knock_knock function together????
 
 
 var LoadingWindow = /*#__PURE__*/function () {
@@ -768,7 +885,7 @@ var LoadingWindow = /*#__PURE__*/function () {
   _createClass(LoadingWindow, [{
     key: "showWindow",
     value: function showWindow(loadingWindow) {
-      var _this12 = this;
+      var _this14 = this;
 
       this.reqCount++;
 
@@ -776,15 +893,15 @@ var LoadingWindow = /*#__PURE__*/function () {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
           loadingWindow.style.visibility = 'visible';
-          _this12.startTime = Date.now();
-          _this12.isAlive = true;
+          _this14.startTime = Date.now();
+          _this14.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow(loadingWindow) {
-      var _this13 = this;
+      var _this15 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -801,7 +918,7 @@ var LoadingWindow = /*#__PURE__*/function () {
           } else {
             this.timerHide = setTimeout(function () {
               loadingWindow.style.visibility = 'hidden';
-              _this13.isAlive = false;
+              _this15.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }

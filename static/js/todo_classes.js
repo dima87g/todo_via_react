@@ -234,92 +234,94 @@ class Task {
     createTaskNode() {
         const self = this;
         let taskDiv = document.createElement("div");
-        taskDiv.setAttribute("class", "task");
+        // taskDiv.setAttribute("class", "task");
+        //
+        // let taskDivContent = document.createElement('div');
+        // taskDivContent.setAttribute('class', 'task_div_content');
+        //
+        // let finishButton = document.createElement('button');
+        // finishButton.setAttribute('type', 'submit');
+        // finishButton.setAttribute('class', 'task_finish_button');
+        //
+        // let finishButtonIcon = document.createElement('img');
+        // finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
+        // finishButton.appendChild(finishButtonIcon);
+        //
+        // if (this.status === true) {
+        //     taskDiv.setAttribute("class", "task finished_task");
+        // }
+        //
+        // finishButton.onclick = function () {
+        //     self.taskList.finishTask(self);
+        // };
+        //
+        // let showSubtaskDivButton = document.createElement('input');
+        // showSubtaskDivButton.setAttribute('type', 'button');
+        // showSubtaskDivButton.setAttribute('class', 'show_subtask_input_button');
+        // showSubtaskDivButton.setAttribute('value', '+');
+        //
+        // showSubtaskDivButton.onclick = this.showSubtaskInput();
+        //
+        // let subtaskDiv = document.createElement('div');
+        // subtaskDiv.setAttribute('class', 'subtask_div');
+        //
+        // let subtaskTextField = document.createElement('input');
+        // subtaskTextField.setAttribute('type', 'text');
+        // subtaskTextField.setAttribute('class', 'subtask_text_field');
+        //
+        // let addSubtaskButton = document.createElement('button');
+        //
+        // addSubtaskButton.setAttribute('type', 'submit');
+        // addSubtaskButton.setAttribute('class', 'add_subtask_button');
+        //
+        // let addSubtaskButtonIcon = document.createElement('img');
+        //
+        // addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
+        // addSubtaskButton.appendChild(addSubtaskButtonIcon);
+        //
+        // function noEnterRefreshAddSubtaskButton(event) {
+        //     if (event.keyCode === 13) {
+        //         event.preventDefault();
+        //         addSubtaskButton.click();
+        //     }
+        // }
+        //
+        // subtaskTextField.addEventListener('keydown', noEnterRefreshAddSubtaskButton, false);
+        //
+        // addSubtaskButton.onclick = function () {
+        //     self.taskList.addSubtask(self, this);
+        // }
+        //
+        // subtaskDiv.appendChild(subtaskTextField);
+        // subtaskDiv.appendChild(addSubtaskButton);
+        //
+        // let par = document.createElement("p");
+        //
+        // par.appendChild(document.createTextNode(this.text));
+        // par.setAttribute("class", "task_text");
+        //
+        // let removeButton = document.createElement('button');
+        //
+        // removeButton.setAttribute('type', 'submit');
+        // removeButton.setAttribute('class', 'task_remove_button');
+        //
+        // let removeButtonIcon = document.createElement('img');
+        //
+        // removeButtonIcon.setAttribute('src','static/icons/delete.svg');
+        //
+        // removeButton.appendChild(removeButtonIcon);
+        //
+        // removeButton.onclick = function () {
+        //     self.taskList.removeTask(self);
+        // };
+        //
+        // taskDiv.appendChild(finishButton);
+        // taskDiv.appendChild(showSubtaskDivButton);
+        // taskDiv.appendChild(subtaskDiv);
+        // taskDiv.appendChild(par);
+        // taskDiv.appendChild(removeButton);
 
-        let taskDivContent = document.createElement('div');
-        taskDivContent.setAttribute('class', 'task_div_content');
-
-        let finishButton = document.createElement('button');
-        finishButton.setAttribute('type', 'submit');
-        finishButton.setAttribute('class', 'task_finish_button');
-
-        let finishButtonIcon = document.createElement('img');
-        finishButtonIcon.setAttribute('src', '../static/icons/check.svg');
-        finishButton.appendChild(finishButtonIcon);
-
-        if (this.status === true) {
-            taskDiv.setAttribute("class", "task finished_task");
-        }
-
-        finishButton.onclick = function () {
-            self.taskList.finishTask(self);
-        };
-
-        let showSubtaskDivButton = document.createElement('input');
-        showSubtaskDivButton.setAttribute('type', 'button');
-        showSubtaskDivButton.setAttribute('class', 'show_subtask_input_button');
-        showSubtaskDivButton.setAttribute('value', '+');
-
-        showSubtaskDivButton.onclick = this.showSubtaskInput();
-
-        let subtaskDiv = document.createElement('div');
-        subtaskDiv.setAttribute('class', 'subtask_div');
-
-        let subtaskTextField = document.createElement('input');
-        subtaskTextField.setAttribute('type', 'text');
-        subtaskTextField.setAttribute('class', 'subtask_text_field');
-
-        let addSubtaskButton = document.createElement('button');
-
-        addSubtaskButton.setAttribute('type', 'submit');
-        addSubtaskButton.setAttribute('class', 'add_subtask_button');
-
-        let addSubtaskButtonIcon = document.createElement('img');
-
-        addSubtaskButtonIcon.setAttribute('src', 'static/icons/add_sub.svg');
-        addSubtaskButton.appendChild(addSubtaskButtonIcon);
-
-        function noEnterRefreshAddSubtaskButton(event) {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                addSubtaskButton.click();
-            }
-        }
-
-        subtaskTextField.addEventListener('keydown', noEnterRefreshAddSubtaskButton, false);
-
-        addSubtaskButton.onclick = function () {
-            self.taskList.addSubtask(self, this);
-        }
-
-        subtaskDiv.appendChild(subtaskTextField);
-        subtaskDiv.appendChild(addSubtaskButton);
-
-        let par = document.createElement("p");
-
-        par.appendChild(document.createTextNode(this.text));
-        par.setAttribute("class", "task_text");
-
-        let removeButton = document.createElement('button');
-
-        removeButton.setAttribute('type', 'submit');
-        removeButton.setAttribute('class', 'task_remove_button');
-
-        let removeButtonIcon = document.createElement('img');
-
-        removeButtonIcon.setAttribute('src','static/icons/delete.svg');
-
-        removeButton.appendChild(removeButtonIcon);
-
-        removeButton.onclick = function () {
-            self.taskList.removeTask(self);
-        };
-
-        taskDiv.appendChild(finishButton);
-        taskDiv.appendChild(showSubtaskDivButton);
-        taskDiv.appendChild(subtaskDiv);
-        taskDiv.appendChild(par);
-        taskDiv.appendChild(removeButton);
+        ReactDOM.render(<TaskReact taskId={this.id} taskText={this.text}/>, taskDiv);
 
         return taskDiv;
     }
@@ -623,6 +625,54 @@ class Login {
         } else if (!this.registerFormPasswordConfirm.value) {
             this.registerWindowInfo.appendChild(document.createTextNode('Please, confirm Password!'));
         }
+    }
+}
+
+class TaskReact extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            status: false
+        }
+        this.finishTask = this.finishTask.bind(this);
+    }
+
+    finishTask() {
+        console.log(this.state.status);
+        let taskStatus = this.state.status === false;
+        let sendData = {
+            'taskId': this.props.taskId,
+            'status': taskStatus
+        }
+        const finish = (answer) => {
+            if (answer['ok'] === true) {
+                this.setState({
+                    status: taskStatus
+                });
+            }
+        }
+        knock_knock('finish_task', finish, sendData);
+    }
+
+    render() {
+        return (
+            <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
+                <button className={'task_finish_button'} type={'button'} onClick={this.finishTask}>
+                    <img src="/static/icons/check.svg" alt="V"/>
+                </button>
+                <button className={'show_subtask_input_button'}>+</button>
+                <div className={'subtask_div'}>
+                    <input className={'subtask_text_field'} type="text"/>
+                    <button className={'add_subtask_button'} type={'button'}>
+                        <img src="/static/icons/add_sub.svg" alt="+"/>
+                    </button>
+                </div>
+                <p className={'task_text'}>{this.props.taskText}</p>
+                <button className={'task_remove_button'} type={'button'}>
+                    <img src="/static/icons/delete.svg" alt=""/>
+                </button>
+            </div>
+        )
     }
 }
 
