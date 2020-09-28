@@ -745,7 +745,7 @@ var Login = /*#__PURE__*/function () {
       /**
        * POST: json =  {"newUserName": "string",  "password": "string"}
        * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
-       'error_message': 'string' or null}
+      'error_message': 'string' or null}
        */
       removeChildren(this.registerWindowInfo);
 
@@ -810,6 +810,10 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         scale: 'scale(1)',
         transitionDelay: '0'
       },
+      taskTextEditField: {
+        showed: false,
+        visibility: 'hidden'
+      },
       removeTaskButtonDisabled: false,
       removeTaskButtonScale: 'scale(1)',
       removeTaskButtonTransitionDelay: '0',
@@ -824,6 +828,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       addSubtaskButtonTransitionDelay: '0.2s'
     };
     _this12.finishTask = _this12.finishTask.bind(_assertThisInitialized(_this12));
+    _this12.showEditTaskField = _this12.showEditTaskField.bind(_assertThisInitialized(_this12));
+    _this12.editTask = _this12.editTask.bind(_assertThisInitialized(_this12));
     _this12.showSubtaskField = _this12.showSubtaskField.bind(_assertThisInitialized(_this12));
     return _this12;
   }
@@ -849,6 +855,34 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
 
       knock_knock('finish_task', finish, sendData);
     }
+  }, {
+    key: "showEditTaskField",
+    value: function showEditTaskField() {
+      if (this.state.taskTextEditField.showed === false) {
+        this.setState({
+          taskTextEditField: {
+            showed: true,
+            visibility: 'visible'
+          },
+          taskText: {
+            opacity: '0.2'
+          }
+        });
+      } else {
+        this.setState({
+          taskTextEditField: {
+            showed: false,
+            visibility: 'hidden'
+          },
+          taskText: {
+            opacity: '1'
+          }
+        });
+      }
+    }
+  }, {
+    key: "editTask",
+    value: function editTask(e) {}
   }, {
     key: "showSubtaskField",
     value: function showSubtaskField() {
@@ -928,12 +962,23 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       }, /*#__PURE__*/React.createElement("img", {
         src: "/static/icons/add_sub.svg",
         alt: "+"
-      }))), /*#__PURE__*/React.createElement("p", {
+      }))), /*#__PURE__*/React.createElement("div", {
+        className: 'task_text_div'
+      }, /*#__PURE__*/React.createElement("p", {
         className: 'task_text',
         style: {
           opacity: this.state.taskText.opacity
-        }
-      }, this.props.taskText), /*#__PURE__*/React.createElement("button", {
+        },
+        onClick: this.showEditTaskField
+      }, this.props.taskText), /*#__PURE__*/React.createElement("input", {
+        className: 'task_text_edit_field',
+        style: {
+          visibility: this.state.taskTextEditField.visibility
+        },
+        type: 'text',
+        onClick: this.showEditTaskField,
+        onChange: this.editTask
+      })), /*#__PURE__*/React.createElement("button", {
         className: 'task_remove_button',
         style: {
           transform: this.state.removeTaskButtonScale,

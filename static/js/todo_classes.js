@@ -125,6 +125,7 @@ class TaskList {
         }
         knock_knock('delete_task', remove, sendData);
     }
+
     updateDom() {
         let tasksParent = document.getElementById("main_tasks");
         let existTasks = document.getElementsByClassName("task");
@@ -340,7 +341,7 @@ class Task {
         finishButton.onclick = function () {
             self.taskList.finishTask(self);
         };
-        addSubtaskButton.onclick = function() {
+        addSubtaskButton.onclick = function () {
             self.taskList.addSubtask(self, this);
         };
         removeButton.onclick = function () {
@@ -375,22 +376,22 @@ class Login {
         this.userLogOutButton.disabled = true;
         this.userDeleteButton.disabled = true;
 
-        this.switchRegisterButton.onclick = function() {
+        this.switchRegisterButton.onclick = function () {
             self.switchLogin(this.value);
         }
-        this.switchLoginButton.onclick = function() {
+        this.switchLoginButton.onclick = function () {
             self.switchLogin(this.value);
         }
-        this.loginButton.onclick = function() {
+        this.loginButton.onclick = function () {
             self.logIn();
         }
-        this.userLogOutButton.onclick = function() {
+        this.userLogOutButton.onclick = function () {
             self.logOut();
         }
-        this.userDeleteButton.onclick = function() {
+        this.userDeleteButton.onclick = function () {
             self.userDelete();
         }
-        this.userRegisterButton.onclick = function() {
+        this.userRegisterButton.onclick = function () {
             self.userRegister();
         }
     }
@@ -570,7 +571,7 @@ class Login {
     }
 
     userDelete() {
-        const confirm = function() {
+        const confirm = function () {
             knock_knock("user_delete", del);
         }
 
@@ -588,11 +589,11 @@ class Login {
     }
 
     userRegister() {
-    /**
-     * POST: json =  {"newUserName": "string",  "password": "string"}
-     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
+        /**
+         * POST: json =  {"newUserName": "string",  "password": "string"}
+         * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
      'error_message': 'string' or null}
-     */
+         */
         removeChildren(this.registerWindowInfo);
 
         if (this.registerFormUsername.value && this.registerFormPassword.value && this.registerFormPasswordConfirm.value) {
@@ -629,7 +630,7 @@ class Login {
 }
 
 class TaskReact extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
             status: false,
@@ -640,6 +641,10 @@ class TaskReact extends React.Component {
                 disabled: false,
                 scale: 'scale(1)',
                 transitionDelay: '0',
+            },
+            taskTextEditField: {
+                showed: false,
+                visibility: 'hidden',
             },
             removeTaskButtonDisabled: false,
             removeTaskButtonScale: 'scale(1)',
@@ -655,6 +660,8 @@ class TaskReact extends React.Component {
             addSubtaskButtonTransitionDelay: '0.2s',
         }
         this.finishTask = this.finishTask.bind(this);
+        this.showEditTaskField = this.showEditTaskField.bind(this);
+        this.editTask = this.editTask.bind(this);
         this.showSubtaskField = this.showSubtaskField.bind(this);
     }
 
@@ -672,6 +679,34 @@ class TaskReact extends React.Component {
             }
         }
         knock_knock('finish_task', finish, sendData);
+    }
+
+    showEditTaskField() {
+        if (this.state.taskTextEditField.showed === false) {
+            this.setState({
+                taskTextEditField: {
+                    showed: true,
+                    visibility: 'visible',
+                },
+                taskText: {
+                    opacity: '0.2',
+                },
+            })
+        } else {
+            this.setState({
+                taskTextEditField: {
+                    showed: false,
+                    visibility: 'hidden',
+                },
+                taskText: {
+                    opacity: '1',
+                },
+            })
+        }
+    }
+
+    editTask(e) {
+
     }
 
     showSubtaskField() {
@@ -742,12 +777,25 @@ class TaskReact extends React.Component {
                         <img src="/static/icons/add_sub.svg" alt="+"/>
                     </button>
                 </div>
-                <p className={'task_text'}
-                   style={
-                       {
-                           opacity: this.state.taskText.opacity,
+                <div className={'task_text_div'}>
+                    <p className={'task_text'}
+                       style={
+                           {
+                               opacity: this.state.taskText.opacity,
+                           }
                        }
-                   }>{this.props.taskText}</p>
+                       onClick={this.showEditTaskField}>{this.props.taskText}</p>
+                    <input className={'task_text_edit_field'}
+                           style={
+                               {
+                                   visibility: this.state.taskTextEditField.visibility,
+                               }
+                           }
+                           type={'text'}
+                           onClick={this.showEditTaskField}
+                           onChange={this.editTask}
+                    />
+                </div>
                 <button className={'task_remove_button'}
                         style={
                             {
@@ -773,22 +821,25 @@ class LoadingWindow {
         this.startTime = undefined;
         this.stopTime = undefined;
     }
+
     showWindow(loadingWindow) {
         this.reqCount++;
-     if (this.reqCount === 1) {
-        this.timerHide = clearTimeout(this.timerHide);
-        this.timerShow = setTimeout(() => {
-            loadingWindow.style.visibility = 'visible';
-            this.startTime = Date.now();
-            this.isAlive = true;
-        }, 200);
-     }
+        if (this.reqCount === 1) {
+            this.timerHide = clearTimeout(this.timerHide);
+            this.timerShow = setTimeout(() => {
+                loadingWindow.style.visibility = 'visible';
+                this.startTime = Date.now();
+                this.isAlive = true;
+            }, 200);
+        }
     }
+
     hideWindow(loadingWindow) {
         if (this.reqCount > 0) {
             this.reqCount--;
             this.stopTime = Date.now();
-        }   if (this.reqCount === 0) {
+        }
+        if (this.reqCount === 0) {
             this.timerShow = clearTimeout(this.timerShow);
             if (this.isAlive) {
                 if (this.stopTime - this.startTime >= 200) {
