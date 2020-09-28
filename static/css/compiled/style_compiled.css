@@ -261,21 +261,7 @@ html, body {
     outline: none;
 }
 
-/*.subtask_div {*/
-/*    position: absolute;*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: space-between;*/
-/*    width: 75%;*/
-/*    height: 20px;*/
-/*    top: 50%;*/
-/*    left: 25%;*/
-/*    margin-top: -10px;*/
-/*    box-sizing: border-box;*/
-/*    visibility: hidden;*/
-/*}*/
-
-.subtask_div_hidden {
+.subtask_div {
     position: absolute;
     display: -ms-flexbox;
     display: flex;
@@ -292,48 +278,15 @@ html, body {
     visibility: hidden;
 }
 
-.subtask_div_visible {
-    position: absolute;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-align: center;
-        align-items: center;
-    -ms-flex-pack: justify;
-        justify-content: space-between;
-    width: 75%;
-    height: 20px;
-    top: 50%;
-    left: 25%;
-    margin-top: -10px;
-    box-sizing: border-box;
-    visibility: visible;
-}
-
-/*.subtask_text_field {*/
-/*    width: 0;*/
-/*    font-size: 18px;*/
-/*    opacity: 0;*/
-/*    outline: none;*/
-/*    border-radius: 20px;*/
-/*    visibility: hidden;*/
-/*    transition: width 0.5s,*/
-/*                opacity 0.5s;*/
-/*}*/
-
-.subtask_text_field_hidden {
+.subtask_text_field {
     width: 0;
     font-size: 18px;
     opacity: 0;
     outline: none;
     border-radius: 20px;
-    visibility: hidden;
+    visibility: inherit;
     transition: width 0.5s,
                 opacity 0.5s;
-}
-
-.subtask_text_field_visible {
-    width: 65%;
-    opacity: 1;
 }
 
 .add_subtask_button {
@@ -341,12 +294,11 @@ html, body {
     height: 48px;
     transform: scale(0);
     opacity: 0;
-    /*display: none;*/
     border-radius: 50%;
     border: none;
     outline: none;
     box-shadow: 1px 1px 3px;
-    visibility: hidden;
+    visibility: inherit;
     transition: width 0.5s,
                 height 0.5s,
                 opacity 0.5s,
@@ -359,7 +311,7 @@ html, body {
 
 .add_subtask_button > img {
     /*display: none;*/
-    visibility: hidden;
+    /*visibility: inherit;*/
     transition: transform 0.1s;
 }
 

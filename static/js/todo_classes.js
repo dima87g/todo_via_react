@@ -166,70 +166,70 @@ class Task {
         this.subtasks = [];
     }
 
-    showSubtaskInput() {
-        let showed = false;
-        let timerShow = null;
-        let timerHide = null;
-        let timerEnableButton = null;
-        return function() {
-            let taskText = this.parentNode.getElementsByClassName('task_text')[0];
-            let removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
-            let subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
-            let subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
-            let addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
-            let addSubtaskButtonIcon = addSubtaskButton.firstChild;
-            if (showed === false) {
-                showed = true;
-                removeButton.disabled = true;
-                timerHide = clearTimeout(timerHide);
-                removeButton.style.transitionDelay = '0s';
-                removeButton.style.opacity = '0';
-                removeButton.style.transform = 'scale(0)'
-                taskText.style.opacity = '0';
-                subtaskDiv.style.visibility = 'visible';
-                subtaskTextField.style.visibility = 'visible';
-                addSubtaskButton.style.visibility = 'visible';
-                addSubtaskButtonIcon.style.visibility = 'visible';
-
-                timerShow = setTimeout(function() {
-                    subtaskTextField.style.opacity = '1';
-                    subtaskTextField.style.width = '65%';
-                    addSubtaskButton.style.transitionDelay = '0.2s';
-                    addSubtaskButton.style.opacity = '1';
-                    addSubtaskButton.style.transform = 'scale(1)';
-                }, );
-
-                timerEnableButton = setTimeout(function() {
-                    addSubtaskButton.disabled = false;
-                    taskText.style.visibility = 'hidden';
-                }, 700);
-            } else {
-                showed = false;
-                addSubtaskButton.disabled = true;
-                timerShow = clearTimeout(timerShow);
-                timerEnableButton = clearTimeout(timerEnableButton);
-                removeButton.style.transitionDelay = '0.2s';
-                removeButton.style.opacity = '1';
-                removeButton.style.transform = 'scale(1)';
-                taskText.style.visibility = 'visible';
-                taskText.style.opacity = '1';
-                subtaskTextField.value = '';
-                subtaskTextField.style.opacity = '0';
-                subtaskTextField.style.width = '0';
-                addSubtaskButton.style.transitionDelay = '0s';
-                addSubtaskButton.style.opacity = '0';
-                addSubtaskButton.style.transform = 'scale(0)';
-
-                timerHide = setTimeout(function() {
-                    removeButton.disabled = false;
-                    subtaskTextField.style.visibility = 'hidden';
-                    addSubtaskButton.style.visibility = 'hidden';
-                    addSubtaskButtonIcon.style.visibility = 'hidden';
-                    subtaskDiv.style.visibility = 'hidden';
-                }, 700);
-            }
-        }
-    }
+    // showSubtaskInput() {
+    //     let showed = false;
+    //     let timerShow = null;
+    //     let timerHide = null;
+    //     let timerEnableButton = null;
+    //     return function() {
+    //         let taskText = this.parentNode.getElementsByClassName('task_text')[0];
+    //         let removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
+    //         let subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
+    //         let subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
+    //         let addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
+    //         let addSubtaskButtonIcon = addSubtaskButton.firstChild;
+    //         if (showed === false) {
+    //             showed = true;
+    //             removeButton.disabled = true;
+    //             timerHide = clearTimeout(timerHide);
+    //             removeButton.style.transitionDelay = '0s';
+    //             removeButton.style.opacity = '0';
+    //             removeButton.style.transform = 'scale(0)'
+    //             taskText.style.opacity = '0';
+    //             subtaskDiv.style.visibility = 'visible';
+    //             subtaskTextField.style.visibility = 'visible';
+    //             addSubtaskButton.style.visibility = 'visible';
+    //             addSubtaskButtonIcon.style.visibility = 'visible';
+    //
+    //             timerShow = setTimeout(function() {
+    //                 subtaskTextField.style.opacity = '1';
+    //                 subtaskTextField.style.width = '65%';
+    //                 addSubtaskButton.style.transitionDelay = '0.2s';
+    //                 addSubtaskButton.style.opacity = '1';
+    //                 addSubtaskButton.style.transform = 'scale(1)';
+    //             }, );
+    //
+    //             timerEnableButton = setTimeout(function() {
+    //                 addSubtaskButton.disabled = false;
+    //                 taskText.style.visibility = 'hidden';
+    //             }, 700);
+    //         } else {
+    //             showed = false;
+    //             addSubtaskButton.disabled = true;
+    //             timerShow = clearTimeout(timerShow);
+    //             timerEnableButton = clearTimeout(timerEnableButton);
+    //             removeButton.style.transitionDelay = '0.2s';
+    //             removeButton.style.opacity = '1';
+    //             removeButton.style.transform = 'scale(1)';
+    //             taskText.style.visibility = 'visible';
+    //             taskText.style.opacity = '1';
+    //             subtaskTextField.value = '';
+    //             subtaskTextField.style.opacity = '0';
+    //             subtaskTextField.style.width = '0';
+    //             addSubtaskButton.style.transitionDelay = '0s';
+    //             addSubtaskButton.style.opacity = '0';
+    //             addSubtaskButton.style.transform = 'scale(0)';
+    //
+    //             timerHide = setTimeout(function() {
+    //                 removeButton.disabled = false;
+    //                 subtaskTextField.style.visibility = 'hidden';
+    //                 addSubtaskButton.style.visibility = 'hidden';
+    //                 addSubtaskButtonIcon.style.visibility = 'hidden';
+    //                 subtaskDiv.style.visibility = 'hidden';
+    //             }, 700);
+    //         }
+    //     }
+    // }
 
     createTaskNode() {
         const self = this;
@@ -633,8 +633,26 @@ class TaskReact extends React.Component {
         super(props);
         this.state = {
             status: false,
-            subtaskStyle: 'subtask_div_hidden',
-            subtaskTextFieldStyle: 'subtask_text_field_hidden'
+            taskText: {
+                opacity: '1',
+            },
+            removeTaskButton: {
+                disabled: false,
+                scale: 'scale(1)',
+                transitionDelay: '0',
+            },
+            removeTaskButtonDisabled: false,
+            removeTaskButtonScale: 'scale(1)',
+            removeTaskButtonTransitionDelay: '0',
+            subtaskDivShowed: false,
+            subtaskDivVisibility: 'hidden',
+            subtaskTimerShow: null,
+            subtaskTimerHide: null,
+            subtaskTextFieldOpacity: '0',
+            subtaskTextFieldWidth: '0',
+            addSubtaskButtonOpacity: '0',
+            addSubtaskButtonScale: 'scale(0)',
+            addSubtaskButtonTransitionDelay: '0.2s',
         }
         this.finishTask = this.finishTask.bind(this);
         this.showSubtaskField = this.showSubtaskField.bind(this);
@@ -657,10 +675,43 @@ class TaskReact extends React.Component {
     }
 
     showSubtaskField() {
-        this.setState({
-            subtaskStyle:  this.state.subtaskStyle === 'subtask_div_hidden' ? 'subtask_div_visible' : 'subtask_div_hidden',
-            subtaskTextFieldStyle: this.state.subtaskTextFieldStyle === 'subtask_text_field_hidden' ? 'subtask_text_field_visible' : 'subtask_text_field_hidden'
-        });
+        if (this.state.subtaskDivShowed === false) {
+            this.setState({
+                subtaskDivShowed: true,
+                removeTaskButton: {
+                    disabled: false,
+                    scale: 'scale(1)',
+                    transitionDelay: '0',
+                },
+                removeTaskButtonDisabled: true,
+                removeTaskButtonScale: 'scale(0)',
+                removeTaskButtonTransitionDelay: '0s',
+                taskText: {
+                    opacity: '0',
+                },
+                subtaskDivVisibility: 'visible',
+                subtaskTextFieldOpacity: '1',
+                subtaskTextFieldWidth: '65%',
+                addSubtaskButtonOpacity: '1',
+                addSubtaskButtonScale: 'scale(1)',
+                addSubtaskButtonTransitionDelay: '0.2s',
+            })
+        } else {
+            this.setState({
+                subtaskDivShowed: false,
+                removeTaskButtonDisabled: false,
+                removeTaskButtonScale: 'scale(1)',
+                removeTaskButtonTransitionDelay: '0.2s',
+                taskText: {
+                    opacity: '1',
+                },
+                subtaskTextFieldOpacity: '0',
+                subtaskTextFieldWidth: '0',
+                addSubtaskButtonOpacity: '0',
+                addSubtaskButtonScale: 'scale(0)',
+                addSubtaskButtonTransitionDelay: '0s',
+            })
+        }
     }
 
     render() {
@@ -670,14 +721,41 @@ class TaskReact extends React.Component {
                     <img src="/static/icons/check.svg" alt="V"/>
                 </button>
                 <button className={'show_subtask_input_button'} onClick={this.showSubtaskField}>+</button>
-                <div className={this.state.subtaskStyle}>
-                    <input className={this.state.subtaskTextFieldStyle} type="text"/>
-                    <button className={'add_subtask_button'} type={'button'}>
+                <div className={'subtask_div'} style={{visibility: this.state.subtaskDivVisibility}}>
+                    <input className={'subtask_text_field'}
+                           type="text"
+                           style={
+                               {
+                                   width: this.state.subtaskTextFieldWidth,
+                                   opacity: this.state.subtaskTextFieldOpacity,
+                               }
+                           }/>
+                    <button className={'add_subtask_button'}
+                            type={'button'}
+                            style={
+                                {
+                                    opacity: this.state.addSubtaskButtonOpacity,
+                                    transform: this.state.addSubtaskButtonScale,
+                                    transitionDelay: this.state.addSubtaskButtonTransitionDelay,
+                                }
+                            }>
                         <img src="/static/icons/add_sub.svg" alt="+"/>
                     </button>
                 </div>
-                <p className={'task_text'}>{this.props.taskText}</p>
-                <button className={'task_remove_button'} type={'button'}>
+                <p className={'task_text'}
+                   style={
+                       {
+                           opacity: this.state.taskText.opacity,
+                       }
+                   }>{this.props.taskText}</p>
+                <button className={'task_remove_button'}
+                        style={
+                            {
+                                transform: this.state.removeTaskButtonScale,
+                                transitionDelay: this.state.removeTaskButtonTransitionDelay,
+                            }
+                        }
+                        disabled={this.state.removeTaskButtonDisabled} type={'button'}>
                     <img src="/static/icons/delete.svg" alt=""/>
                 </button>
             </div>
