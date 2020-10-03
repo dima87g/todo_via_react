@@ -164,6 +164,27 @@ function hideShadow() {
     }, 500);
 }
 
+function shadow() {
+    let showed = false;
+    let hideTimer = null;
+    let shadow = document.getElementById('shadow');
+    return function() {
+        if (showed === false) {
+            showed = true;
+            hideTimer = clearTimeout(hideTimer);
+            shadow.style.visibility = 'visible';
+            shadow.style.opacity = '0.5';
+        } else {
+            showed = false;
+            shadow.style.opacity = '0';
+
+            hideTimer = setTimeout(() => {
+                shadow.style.visibility = 'hidden';
+            }, 500);
+        }
+    }
+}
+
 function authCheck(mainLogin) {
     const check = (answer) => {
         if (answer["ok"] === true) {

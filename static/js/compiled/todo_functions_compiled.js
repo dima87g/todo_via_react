@@ -154,6 +154,26 @@ function hideShadow() {
   }, 500);
 }
 
+function shadow() {
+  var showed = false;
+  var hideTimer = null;
+  var shadow = document.getElementById('shadow');
+  return function () {
+    if (showed === false) {
+      showed = true;
+      hideTimer = clearTimeout(hideTimer);
+      shadow.style.visibility = 'visible';
+      shadow.style.opacity = '0.5';
+    } else {
+      showed = false;
+      shadow.style.opacity = '0';
+      hideTimer = setTimeout(function () {
+        shadow.style.visibility = 'hidden';
+      }, 500);
+    }
+  };
+}
+
 function authCheck(mainLogin) {
   var check = function check(answer) {
     if (answer["ok"] === true) {

@@ -327,8 +327,8 @@ var Task = /*#__PURE__*/function () {
     key: "createTaskNode",
     value: function createTaskNode() {
       var self = this;
-      var taskDiv = document.createElement("div"); // taskDiv.setAttribute("class", "task");
-      //
+      var taskDiv = document.createElement("div");
+      taskDiv.setAttribute("class", "task"); //
       // let taskDivContent = document.createElement('div');
       // taskDivContent.setAttribute('class', 'task_div_content');
       //
@@ -418,6 +418,12 @@ var Task = /*#__PURE__*/function () {
         taskId: this.id,
         taskText: this.text
       }), taskDiv);
+      var removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
+
+      removeTaskButton.onclick = function () {
+        self.taskList.removeTask(self);
+      };
+
       return taskDiv;
     }
   }, {
@@ -800,20 +806,13 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
     _classCallCheck(this, TaskReact);
 
     _this12 = _super.call(this, props);
+    _this12.shadow = shadow();
     _this12.state = {
       status: false,
-      taskText: {
-        opacity: '1'
-      },
-      removeTaskButton: {
-        disabled: false,
-        scale: 'scale(1)',
-        transitionDelay: '0'
-      },
-      taskTextEditField: {
-        showed: false,
-        visibility: 'hidden'
-      },
+      showSubtaskDivButtonZIndex: '0',
+      showSubtaskDivButtonDisabled: false,
+      taskTextValue: _this12.props.taskText,
+      taskTextOpacity: '1',
       removeTaskButtonDisabled: false,
       removeTaskButtonScale: 'scale(1)',
       removeTaskButtonTransitionDelay: '0',
@@ -825,12 +824,18 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       subtaskTextFieldWidth: '0',
       addSubtaskButtonOpacity: '0',
       addSubtaskButtonScale: 'scale(0)',
-      addSubtaskButtonTransitionDelay: '0.2s'
+      addSubtaskButtonTransitionDelay: '0.2s',
+      taskTextEditDivShowed: false,
+      taskTextEditDivVisibility: 'hidden',
+      taskTextEditFieldOpacity: '0',
+      saveEditButtonScale: 'scale(0)',
+      saveEditButtonTransitionDelay: '0'
     };
     _this12.finishTask = _this12.finishTask.bind(_assertThisInitialized(_this12));
     _this12.showEditTaskField = _this12.showEditTaskField.bind(_assertThisInitialized(_this12));
-    _this12.editTask = _this12.editTask.bind(_assertThisInitialized(_this12));
+    _this12.saveEdit = _this12.saveEdit.bind(_assertThisInitialized(_this12));
     _this12.showSubtaskField = _this12.showSubtaskField.bind(_assertThisInitialized(_this12));
+    _this12.editText = React.createRef();
     return _this12;
   }
 
@@ -857,49 +862,71 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
     }
   }, {
     key: "showEditTaskField",
-    value: function showEditTaskField() {
-      if (this.state.taskTextEditField.showed === false) {
+    value: function showEditTaskField(e) {
+      var _this14 = this;
+
+      if (this.state.taskTextEditDivShowed === false) {
+        this.shadow();
+        this.hideEditDivTimer = clearTimeout(this.hideEditDivTimer);
         this.setState({
-          taskTextEditField: {
-            showed: true,
-            visibility: 'visible'
-          },
-          taskText: {
-            opacity: '0.2'
-          }
+          taskTextEditDivShowed: true,
+          showSubtaskDivButtonDisabled: true,
+          taskTextEditDivVisibility: 'visible',
+          taskTextEditFieldOpacity: '1',
+          removeTaskButtonScale: 'scale(0)',
+          removeTaskButtonTransitionDelay: '0s',
+          saveEditButtonScale: 'scale(1)',
+          saveEditButtonTransitionDelay: '0.2s',
+          taskTextOpacity: '0.2'
+        });
+        this.editText.current.value = this.state.taskTextValue;
+        setTimeout(function () {
+          _this14.editText.current.focus();
         });
       } else {
+        this.shadow();
         this.setState({
-          taskTextEditField: {
-            showed: false,
-            visibility: 'hidden'
-          },
-          taskText: {
-            opacity: '1'
-          }
+          taskTextEditDivShowed: false,
+          showSubtaskDivButtonDisabled: false,
+          taskTextEditFieldOpacity: '0',
+          removeTaskButtonScale: 'scale(1)',
+          removeTaskButtonTransitionDelay: '0.2s',
+          saveEditButtonScale: 'scale(0)',
+          saveEditButtonTransitionDelay: '0s',
+          taskTextValue: this.editText.current.value,
+          taskTextOpacity: '1'
         });
+        this.hideEditDivTimer = setTimeout(function () {
+          _this14.setState({
+            taskTextEditDivVisibility: 'hidden'
+          });
+        }, 500);
       }
     }
   }, {
-    key: "editTask",
-    value: function editTask(e) {}
+    key: "saveEdit",
+    value: function saveEdit(e) {
+      if (e.keyCode === 13) {
+        this.showEditTaskField();
+      }
+
+      ;
+    }
   }, {
     key: "showSubtaskField",
     value: function showSubtaskField() {
+      var _this15 = this;
+
       if (this.state.subtaskDivShowed === false) {
+        this.shadow();
+        this.subtaskDivHideTimer = clearTimeout(this.subtaskDivHideTimer);
         this.setState({
           subtaskDivShowed: true,
-          removeTaskButton: {
-            disabled: false,
-            scale: 'scale(1)',
-            transitionDelay: '0'
-          },
+          showSubtaskDivButtonZIndex: '1',
           removeTaskButtonDisabled: true,
           removeTaskButtonScale: 'scale(0)',
           removeTaskButtonTransitionDelay: '0s',
-          taskText: {
-            opacity: '0'
-          },
+          taskTextOpacity: '0.2',
           subtaskDivVisibility: 'visible',
           subtaskTextFieldOpacity: '1',
           subtaskTextFieldWidth: '65%',
@@ -908,20 +935,25 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           addSubtaskButtonTransitionDelay: '0.2s'
         });
       } else {
+        this.shadow();
         this.setState({
           subtaskDivShowed: false,
           removeTaskButtonDisabled: false,
           removeTaskButtonScale: 'scale(1)',
           removeTaskButtonTransitionDelay: '0.2s',
-          taskText: {
-            opacity: '1'
-          },
+          taskTextOpacity: '1',
           subtaskTextFieldOpacity: '0',
           subtaskTextFieldWidth: '0',
           addSubtaskButtonOpacity: '0',
           addSubtaskButtonScale: 'scale(0)',
           addSubtaskButtonTransitionDelay: '0s'
         });
+        this.subtaskDivHideTimer = setTimeout(function () {
+          _this15.setState({
+            subtaskDivVisibility: 'hidden',
+            showSubtaskDivButtonZIndex: '0'
+          });
+        }, 500);
       }
     }
   }, {
@@ -938,8 +970,29 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         alt: "V"
       })), /*#__PURE__*/React.createElement("button", {
         className: 'show_subtask_input_button',
-        onClick: this.showSubtaskField
-      }, "+"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          zIndex: this.state.showSubtaskDivButtonZIndex
+        },
+        onClick: this.showSubtaskField,
+        disabled: this.state.showSubtaskDivButtonDisabled
+      }, "+"), /*#__PURE__*/React.createElement("p", {
+        className: 'task_text',
+        style: {
+          opacity: this.state.taskTextOpacity
+        },
+        onClick: this.showEditTaskField
+      }, this.state.taskTextValue), /*#__PURE__*/React.createElement("button", {
+        className: 'remove_task_button',
+        style: {
+          transform: this.state.removeTaskButtonScale,
+          transitionDelay: this.state.removeTaskButtonTransitionDelay
+        },
+        disabled: this.state.removeTaskButtonDisabled,
+        type: 'button'
+      }, /*#__PURE__*/React.createElement("img", {
+        src: "/static/icons/delete.svg",
+        alt: ""
+      })), /*#__PURE__*/React.createElement("div", {
         className: 'subtask_div',
         style: {
           visibility: this.state.subtaskDivVisibility
@@ -963,33 +1016,29 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         src: "/static/icons/add_sub.svg",
         alt: "+"
       }))), /*#__PURE__*/React.createElement("div", {
-        className: 'task_text_div'
-      }, /*#__PURE__*/React.createElement("p", {
-        className: 'task_text',
+        className: 'task_text_edit_div',
         style: {
-          opacity: this.state.taskText.opacity
-        },
-        onClick: this.showEditTaskField
-      }, this.props.taskText), /*#__PURE__*/React.createElement("input", {
+          visibility: this.state.taskTextEditDivVisibility
+        }
+      }, /*#__PURE__*/React.createElement("input", {
         className: 'task_text_edit_field',
         style: {
-          visibility: this.state.taskTextEditField.visibility
+          opacity: this.state.taskTextEditFieldOpacity
         },
         type: 'text',
-        onClick: this.showEditTaskField,
-        onChange: this.editTask
-      })), /*#__PURE__*/React.createElement("button", {
-        className: 'task_remove_button',
+        ref: this.editText,
+        onKeyDown: this.saveEdit
+      }), /*#__PURE__*/React.createElement("button", {
+        className: 'save_edit_button',
         style: {
-          transform: this.state.removeTaskButtonScale,
-          transitionDelay: this.state.removeTaskButtonTransitionDelay
+          transform: this.state.saveEditButtonScale,
+          transitionDelay: this.state.saveEditButtonTransitionDelay
         },
-        disabled: this.state.removeTaskButtonDisabled,
         type: 'button'
       }, /*#__PURE__*/React.createElement("img", {
-        src: "/static/icons/delete.svg",
-        alt: ""
-      })));
+        src: "/static/icons/edit.svg",
+        alt: "+"
+      }))));
     }
   }]);
 
@@ -1012,7 +1061,7 @@ var LoadingWindow = /*#__PURE__*/function () {
   _createClass(LoadingWindow, [{
     key: "showWindow",
     value: function showWindow(loadingWindow) {
-      var _this14 = this;
+      var _this16 = this;
 
       this.reqCount++;
 
@@ -1020,15 +1069,15 @@ var LoadingWindow = /*#__PURE__*/function () {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
           loadingWindow.style.visibility = 'visible';
-          _this14.startTime = Date.now();
-          _this14.isAlive = true;
+          _this16.startTime = Date.now();
+          _this16.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow(loadingWindow) {
-      var _this15 = this;
+      var _this17 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -1045,7 +1094,7 @@ var LoadingWindow = /*#__PURE__*/function () {
           } else {
             this.timerHide = setTimeout(function () {
               loadingWindow.style.visibility = 'hidden';
-              _this15.isAlive = false;
+              _this17.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }
