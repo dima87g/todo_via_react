@@ -432,7 +432,7 @@ var Task = /*#__PURE__*/function () {
       var self = this;
       var finishButton = existTask.getElementsByClassName("task_finish_button")[0];
       var addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
-      var removeButton = existTask.getElementsByClassName("task_remove_button")[0];
+      var removeButton = existTask.getElementsByClassName("remove_task_button")[0];
       existTask.getElementsByTagName("p")[0].textContent = this.text;
 
       if (this.status === false) {
@@ -546,8 +546,7 @@ var Login = /*#__PURE__*/function () {
       this.authMenu.style.opacity = '0';
       hideShadow();
       setTimeout(function () {
-        _this5.authMenu.style.visibility = 'hidden';
-        document.getElementById('task_input_field').focus();
+        _this5.authMenu.style.visibility = 'hidden'; // document.getElementById('task_input_field').focus();
       }, 500);
     }
   }, {
@@ -827,7 +826,9 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       addSubtaskButtonTransitionDelay: '0.2s',
       taskTextEditDivShowed: false,
       taskTextEditDivVisibility: 'hidden',
+      taskTextEditFieldWidth: '0',
       taskTextEditFieldOpacity: '0',
+      taskTextEditFieldScale: 'scale(0)',
       saveEditButtonScale: 'scale(0)',
       saveEditButtonTransitionDelay: '0'
     };
@@ -835,7 +836,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
     _this12.showEditTaskField = _this12.showEditTaskField.bind(_assertThisInitialized(_this12));
     _this12.saveEdit = _this12.saveEdit.bind(_assertThisInitialized(_this12));
     _this12.showSubtaskField = _this12.showSubtaskField.bind(_assertThisInitialized(_this12));
-    _this12.editText = React.createRef();
+    _this12.editTextField = React.createRef();
     return _this12;
   }
 
@@ -861,61 +862,9 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       knock_knock('finish_task', finish, sendData);
     }
   }, {
-    key: "showEditTaskField",
-    value: function showEditTaskField(e) {
-      var _this14 = this;
-
-      if (this.state.taskTextEditDivShowed === false) {
-        this.shadow();
-        this.hideEditDivTimer = clearTimeout(this.hideEditDivTimer);
-        this.setState({
-          taskTextEditDivShowed: true,
-          showSubtaskDivButtonDisabled: true,
-          taskTextEditDivVisibility: 'visible',
-          taskTextEditFieldOpacity: '1',
-          removeTaskButtonScale: 'scale(0)',
-          removeTaskButtonTransitionDelay: '0s',
-          saveEditButtonScale: 'scale(1)',
-          saveEditButtonTransitionDelay: '0.2s',
-          taskTextOpacity: '0.2'
-        });
-        this.editText.current.value = this.state.taskTextValue;
-        setTimeout(function () {
-          _this14.editText.current.focus();
-        });
-      } else {
-        this.shadow();
-        this.setState({
-          taskTextEditDivShowed: false,
-          showSubtaskDivButtonDisabled: false,
-          taskTextEditFieldOpacity: '0',
-          removeTaskButtonScale: 'scale(1)',
-          removeTaskButtonTransitionDelay: '0.2s',
-          saveEditButtonScale: 'scale(0)',
-          saveEditButtonTransitionDelay: '0s',
-          taskTextValue: this.editText.current.value,
-          taskTextOpacity: '1'
-        });
-        this.hideEditDivTimer = setTimeout(function () {
-          _this14.setState({
-            taskTextEditDivVisibility: 'hidden'
-          });
-        }, 500);
-      }
-    }
-  }, {
-    key: "saveEdit",
-    value: function saveEdit(e) {
-      if (e.keyCode === 13) {
-        this.showEditTaskField();
-      }
-
-      ;
-    }
-  }, {
     key: "showSubtaskField",
     value: function showSubtaskField() {
-      var _this15 = this;
+      var _this14 = this;
 
       if (this.state.subtaskDivShowed === false) {
         this.shadow();
@@ -949,11 +898,65 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           addSubtaskButtonTransitionDelay: '0s'
         });
         this.subtaskDivHideTimer = setTimeout(function () {
-          _this15.setState({
+          _this14.setState({
             subtaskDivVisibility: 'hidden',
             showSubtaskDivButtonZIndex: '0'
           });
+        }, 700);
+      }
+    }
+  }, {
+    key: "showEditTaskField",
+    value: function showEditTaskField(e) {
+      var _this15 = this;
+
+      if (this.state.taskTextEditDivShowed === false) {
+        this.shadow();
+        this.hideEditDivTimer = clearTimeout(this.hideEditDivTimer);
+        this.setState({
+          taskTextEditDivShowed: true,
+          showSubtaskDivButtonDisabled: true,
+          taskTextEditDivVisibility: 'visible',
+          taskTextEditFieldOpacity: '1',
+          taskTextEditFieldScale: 'scale(1)',
+          taskTextEditFieldWidth: '65%',
+          removeTaskButtonScale: 'scale(0)',
+          removeTaskButtonTransitionDelay: '0s',
+          saveEditButtonScale: 'scale(1)',
+          saveEditButtonTransitionDelay: '0.2s',
+          taskTextOpacity: '0.2'
+        });
+        this.editTextField.current.value = this.state.taskTextValue;
+        setTimeout(function () {
+          _this15.editTextField.current.focus();
+        });
+      } else {
+        this.shadow();
+        this.setState({
+          taskTextEditDivShowed: false,
+          showSubtaskDivButtonDisabled: false,
+          taskTextEditFieldOpacity: '0',
+          taskTextEditFieldScale: 'scale(0)',
+          taskTextEditFieldWidth: '0',
+          removeTaskButtonScale: 'scale(1)',
+          removeTaskButtonTransitionDelay: '0.2s',
+          saveEditButtonScale: 'scale(0)',
+          saveEditButtonTransitionDelay: '0s',
+          taskTextValue: this.editTextField.current.value,
+          taskTextOpacity: '1'
+        });
+        this.hideEditDivTimer = setTimeout(function () {
+          _this15.setState({
+            taskTextEditDivVisibility: 'hidden'
+          });
         }, 500);
+      }
+    }
+  }, {
+    key: "saveEdit",
+    value: function saveEdit(e) {
+      if (e.keyCode === 13) {
+        this.showEditTaskField();
       }
     }
   }, {
@@ -1023,18 +1026,22 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       }, /*#__PURE__*/React.createElement("input", {
         className: 'task_text_edit_field',
         style: {
-          opacity: this.state.taskTextEditFieldOpacity
+          opacity: this.state.taskTextEditFieldOpacity,
+          width: this.state.taskTextEditFieldWidth,
+          transform: this.state.taskTextEditFieldScale
         },
         type: 'text',
-        ref: this.editText,
-        onKeyDown: this.saveEdit
+        ref: this.editTextField,
+        onKeyDown: this.saveEdit,
+        onBlur: this.showEditTaskField
       }), /*#__PURE__*/React.createElement("button", {
         className: 'save_edit_button',
         style: {
           transform: this.state.saveEditButtonScale,
           transitionDelay: this.state.saveEditButtonTransitionDelay
         },
-        type: 'button'
+        type: 'button',
+        onClick: this.showEditTaskField
       }, /*#__PURE__*/React.createElement("img", {
         src: "/static/icons/edit.svg",
         alt: "+"

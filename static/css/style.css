@@ -149,6 +149,13 @@ html, body {
 /*    margin-bottom: 0;*/
 /*}*/
 
+.version {
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    right: 0;
+}
+
 .main_window {
     width: 95vw;
     margin: 0 auto;
@@ -291,7 +298,7 @@ html, body {
     transform: scale(0.9);
 }
 
-.finished_task > .task_text_div > p {
+.finished_task > .task_text {
     text-decoration: line-through;
 }
 
@@ -370,11 +377,14 @@ html, body {
     /*left: 25%;*/
     width: 65%;
     font-size: 18px;
+    border-radius: 20px;
     left: 0;
     opacity: 0;
     outline: none;
     visibility: inherit;
-    transition: opacity 0.5s;
+    transition: width 0.5s,
+                opacity 0.5s,
+                transform 0.5s;
 }
 
 .save_edit_button {
