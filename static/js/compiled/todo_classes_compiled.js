@@ -926,10 +926,9 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           saveEditButtonTransitionDelay: '0.2s',
           taskTextOpacity: '0.2'
         });
-        this.editTextField.current.value = this.state.taskTextValue;
-        setTimeout(function () {
-          _this15.editTextField.current.focus();
-        });
+        this.editTextField.current.value = this.state.taskTextValue; // setTimeout(() => {
+        //     this.editTextField.current.focus();
+        // });
       } else {
         this.shadow();
         this.setState({
@@ -1032,8 +1031,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         },
         type: 'text',
         ref: this.editTextField,
-        onKeyDown: this.saveEdit,
-        onBlur: this.showEditTaskField
+        onKeyDown: this.saveEdit // onBlur={this.showEditTaskField}
+
       }), /*#__PURE__*/React.createElement("button", {
         className: 'save_edit_button',
         style: {

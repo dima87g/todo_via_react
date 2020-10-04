@@ -746,9 +746,9 @@ class TaskReact extends React.Component {
                 taskTextOpacity: '0.2',
             })
             this.editTextField.current.value = this.state.taskTextValue;
-            setTimeout(() => {
-                this.editTextField.current.focus();
-            });
+            // setTimeout(() => {
+            //     this.editTextField.current.focus();
+            // });
         } else {
             this.shadow();
             this.setState({
@@ -849,7 +849,7 @@ class TaskReact extends React.Component {
                            type={'text'}
                            ref={this.editTextField}
                            onKeyDown={this.saveEdit}
-                           onBlur={this.showEditTaskField}
+                           // onBlur={this.showEditTaskField}
                     />
                     <button className={'save_edit_button'}
                             style={
@@ -859,7 +859,7 @@ class TaskReact extends React.Component {
                                 }
                             }
                             type={'button'}
-                    onClick={this.showEditTaskField}>
+                            onClick={this.showEditTaskField}>
                         <img src='/static/icons/edit.svg' alt='+'/>
                     </button>
                 </div>
