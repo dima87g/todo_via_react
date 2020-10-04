@@ -31,7 +31,7 @@ class TaskList {
                     this.updateDom();
                 }
                 if (answer["error_code"] === 401) {
-                    this.loginClass.logOut();
+                    this.loginClass.forceLogOut();
                     showInfoWindow("Authorisation problem!");
                 }
             }
@@ -65,7 +65,7 @@ class TaskList {
 
                     this.updateDom();
                 } else if (answer['error_code'] === 401) {
-                    this.loginClass.logOut();
+                    this.loginClass.forceLogOut();
                     showInfoWindow("Authorisation problem!");
                 }
             }
@@ -94,7 +94,7 @@ class TaskList {
                 this.tasksTree.delete(node.id);
                 this.updateDom();
             } else if (answer["error_code"] === 401) {
-                this.loginClass.logOut();
+                this.loginClass.forceLogOut();
                 showInfoWindow("Authorisation problem!");
             }
         }
@@ -142,71 +142,6 @@ class Task {
         this.status = status;
         this.subtasks = [];
     }
-
-    // showSubtaskInput() {
-    //     let showed = false;
-    //     let timerShow = null;
-    //     let timerHide = null;
-    //     let timerEnableButton = null;
-    //     return function() {
-    //         let taskText = this.parentNode.getElementsByClassName('task_text')[0];
-    //         let removeButton = this.parentNode.getElementsByClassName('task_remove_button')[0];
-    //         let subtaskDiv = this.parentNode.getElementsByClassName('subtask_div')[0];
-    //         let subtaskTextField = this.parentNode.getElementsByClassName('subtask_text_field')[0];
-    //         let addSubtaskButton = this.parentNode.getElementsByClassName('add_subtask_button')[0];
-    //         let addSubtaskButtonIcon = addSubtaskButton.firstChild;
-    //         if (showed === false) {
-    //             showed = true;
-    //             removeButton.disabled = true;
-    //             timerHide = clearTimeout(timerHide);
-    //             removeButton.style.transitionDelay = '0s';
-    //             removeButton.style.opacity = '0';
-    //             removeButton.style.transform = 'scale(0)'
-    //             taskText.style.opacity = '0';
-    //             subtaskDiv.style.visibility = 'visible';
-    //             subtaskTextField.style.visibility = 'visible';
-    //             addSubtaskButton.style.visibility = 'visible';
-    //             addSubtaskButtonIcon.style.visibility = 'visible';
-    //
-    //             timerShow = setTimeout(function() {
-    //                 subtaskTextField.style.opacity = '1';
-    //                 subtaskTextField.style.width = '65%';
-    //                 addSubtaskButton.style.transitionDelay = '0.2s';
-    //                 addSubtaskButton.style.opacity = '1';
-    //                 addSubtaskButton.style.transform = 'scale(1)';
-    //             }, );
-    //
-    //             timerEnableButton = setTimeout(function() {
-    //                 addSubtaskButton.disabled = false;
-    //                 taskText.style.visibility = 'hidden';
-    //             }, 700);
-    //         } else {
-    //             showed = false;
-    //             addSubtaskButton.disabled = true;
-    //             timerShow = clearTimeout(timerShow);
-    //             timerEnableButton = clearTimeout(timerEnableButton);
-    //             removeButton.style.transitionDelay = '0.2s';
-    //             removeButton.style.opacity = '1';
-    //             removeButton.style.transform = 'scale(1)';
-    //             taskText.style.visibility = 'visible';
-    //             taskText.style.opacity = '1';
-    //             subtaskTextField.value = '';
-    //             subtaskTextField.style.opacity = '0';
-    //             subtaskTextField.style.width = '0';
-    //             addSubtaskButton.style.transitionDelay = '0s';
-    //             addSubtaskButton.style.opacity = '0';
-    //             addSubtaskButton.style.transform = 'scale(0)';
-    //
-    //             timerHide = setTimeout(function() {
-    //                 removeButton.disabled = false;
-    //                 subtaskTextField.style.visibility = 'hidden';
-    //                 addSubtaskButton.style.visibility = 'hidden';
-    //                 addSubtaskButtonIcon.style.visibility = 'hidden';
-    //                 subtaskDiv.style.visibility = 'hidden';
-    //             }, 700);
-    //         }
-    //     }
-    // }
 
     createTaskNode() {
         const self = this;
@@ -484,7 +419,7 @@ class Login {
 
             }
             if (answer["error_code"] === 401) {
-                this.logOut();
+                this.forceLogOut();
                 showInfoWindow("Authorisation problem!");
             }
         }
@@ -550,7 +485,7 @@ class Login {
 
     }
 
-    errorLogOut() {
+    forceLogOut() {
         this.taskList = null;
         document.cookie = 'id=; expires=-1';
         document.cookie = 'sign=; expires=-1';
@@ -568,10 +503,10 @@ class Login {
 
         const del = (answer) => {
             if (answer["ok"] === true) {
-                this.logOut();
+                this.forceLogOut();
             }
             if (answer["error_code"] === 401) {
-                this.logOut();
+                this.forceLogOut();
                 showInfoWindow("Authorisation problem!");
             }
         }
@@ -678,7 +613,7 @@ class TaskReact extends React.Component {
                     status: taskStatus
                 });
             } else if (answer['error_code'] === 401) {
-                this.loginInst.errorLogOut();
+                this.loginInst.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
@@ -727,7 +662,7 @@ class TaskReact extends React.Component {
         }
     }
 
-    showEditTaskField(e) {
+    showEditTaskField() {
         if (this.state.taskTextEditDivShowed === false) {
             this.shadow();
             this.hideEditDivTimer = clearTimeout(this.hideEditDivTimer);
@@ -745,9 +680,6 @@ class TaskReact extends React.Component {
                 taskTextOpacity: '0.2',
             })
             this.editTextField.current.value = this.state.taskTextValue;
-            // setTimeout(() => {
-            //     this.editTextField.current.focus();
-            // });
         } else {
             this.shadow();
             this.setState({
@@ -909,11 +841,5 @@ class LoadingWindow {
                 }
             }
         }
-    }
-}
-
-class Network {
-    constructor() {
-
     }
 }
