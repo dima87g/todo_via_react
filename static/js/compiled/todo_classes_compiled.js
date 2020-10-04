@@ -60,7 +60,7 @@ var TaskList = /*#__PURE__*/function () {
         var add = function add(answer) {
           if (answer['ok'] === true) {
             var taskId = answer['task_id'];
-            var newTask = new Task(_this, taskId, taskText);
+            var newTask = new Task(_this.loginClass, _this, taskId, taskText);
 
             _this.tasksTree.set(newTask.id, newTask);
 
@@ -236,7 +236,8 @@ var Task = /*#__PURE__*/function () {
         loginInst: this.loginInst,
         taskList: this.taskList,
         taskId: this.id,
-        taskText: this.text
+        taskText: this.text,
+        status: this.status
       }), taskDiv);
       var removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
 
@@ -639,7 +640,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
     _this11.taskList = _this11.props.taskList;
     _this11.shadow = shadow();
     _this11.state = {
-      status: false,
+      status: _this11.props.status,
       showSubtaskDivButtonZIndex: '0',
       showSubtaskDivButtonDisabled: false,
       taskTextValue: _this11.props.taskText,
@@ -772,6 +773,27 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         });
         this.editTextField.current.value = this.state.taskTextValue;
       } else {
+        if (this.editTextField.current.value !== this.state.taskTextValue) {
+          var sendData = {
+            'taskId': this.props.taskId,
+            'taskText': this.editTextField.current.value
+          };
+
+          var saveEdit = function saveEdit(answer) {
+            if (answer['ok'] === true) {
+              _this14.setState({
+                taskTextValue: _this14.editTextField.current.value
+              });
+            } else if (answer['error_code'] === 401) {
+              _this14.loginInst.forceLogOut();
+
+              showInfoWindow('Authorisation problem!');
+            }
+          };
+
+          knock_knock('save_edit_task', saveEdit, sendData);
+        }
+
         this.shadow();
         this.setState({
           taskTextEditDivShowed: false,
@@ -783,14 +805,13 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           removeTaskButtonTransitionDelay: '0.2s',
           saveEditButtonScale: 'scale(0)',
           saveEditButtonTransitionDelay: '0s',
-          taskTextValue: this.editTextField.current.value,
           taskTextOpacity: '1'
         });
         this.hideEditDivTimer = setTimeout(function () {
           _this14.setState({
             taskTextEditDivVisibility: 'hidden'
           });
-        }, 500);
+        }, 700);
       }
     }
   }, {

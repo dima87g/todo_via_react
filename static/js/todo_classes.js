@@ -23,7 +23,7 @@ class TaskList {
             const add = (answer) => {
                 if (answer['ok'] === true) {
                     let taskId = answer['task_id'];
-                    let newTask = new Task(this, taskId, taskText);
+                    let newTask = new Task(this.loginClass, this, taskId, taskText);
 
                     this.tasksTree.set(newTask.id, newTask);
                     this.tasks.push(newTask);
@@ -148,7 +148,13 @@ class Task {
         let taskDiv = document.createElement("div");
         taskDiv.setAttribute("class", "task");
 
-        ReactDOM.render(<TaskReact loginInst={this.loginInst} taskList={this.taskList} taskId={this.id} taskText={this.text}/>, taskDiv);
+        ReactDOM.render(
+            <TaskReact loginInst={this.loginInst}
+                       taskList={this.taskList}
+                       taskId={this.id}
+                       taskText={this.text}
+                       status={this.status}/>,
+                taskDiv);
         let removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
 
         removeTaskButton.onclick = function () {
@@ -477,7 +483,7 @@ class TaskReact extends React.Component {
         this.taskList = this.props.taskList;
         this.shadow = shadow();
         this.state = {
-            status: false,
+            status: this.props.status,
             showSubtaskDivButtonZIndex: '0',
             showSubtaskDivButtonDisabled: false,
             taskTextValue: this.props.taskText,
@@ -596,6 +602,24 @@ class TaskReact extends React.Component {
             })
             this.editTextField.current.value = this.state.taskTextValue;
         } else {
+            if (this.editTextField.current.value !== this.state.taskTextValue) {
+                let sendData = {
+                    'taskId': this.props.taskId,
+                    'taskText': this.editTextField.current.value
+                };
+
+                const saveEdit = (answer) => {
+                    if (answer['ok'] === true) {
+                        this.setState({
+                            taskTextValue: this.editTextField.current.value,
+                        })
+                    } else if (answer['error_code'] === 401) {
+                        this.loginInst.forceLogOut();
+                        showInfoWindow('Authorisation problem!');
+                    }
+                }
+                knock_knock('save_edit_task', saveEdit, sendData);
+            }
             this.shadow();
             this.setState({
                 taskTextEditDivShowed: false,
@@ -607,14 +631,13 @@ class TaskReact extends React.Component {
                 removeTaskButtonTransitionDelay: '0.2s',
                 saveEditButtonScale: 'scale(0)',
                 saveEditButtonTransitionDelay: '0s',
-                taskTextValue: this.editTextField.current.value,
                 taskTextOpacity: '1',
             })
             this.hideEditDivTimer = setTimeout(() => {
                 this.setState({
                     taskTextEditDivVisibility: 'hidden',
                 })
-            }, 500);
+            }, 700);
         }
     }
 
