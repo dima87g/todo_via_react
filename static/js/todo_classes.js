@@ -73,31 +73,6 @@ class TaskList {
         }
     }
 
-    finishTask(node) {
-        /**
-         * POST: json = {'task_id': 'number', 'status': 'boolean'}
-         * GET:
-         * if OK = true: json = {'ok': true}
-         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-         * 'error_message': 'string' or null}
-         */
-        let taskStatus = node.status === false;
-        let sendData = {"taskId": node.id, "status": taskStatus};
-
-        const finish = (answer) => {
-            if (answer['ok'] === true) {
-                node.status = taskStatus;
-
-                this.updateDom();
-            }
-            if (answer["error_code"] === 401) {
-                this.loginClass.logOut();
-                showInfoWindow("Authorisation problem!");
-            }
-        }
-        knock_knock('finish_task', finish, sendData);
-    }
-
     removeTask(node) {
         /**
          * @param {object} - Task instance object
@@ -158,7 +133,8 @@ class TaskList {
 }
 
 class Task {
-    constructor(taskList, id, text, parentId = null, status = false) {
+    constructor(loginInst, taskList, id, text, parentId = null, status = false) {
+        this.loginInst = loginInst;
         this.taskList = taskList;
         this.id = id;
         this.text = text;
@@ -322,7 +298,7 @@ class Task {
         // taskDiv.appendChild(par);
         // taskDiv.appendChild(removeButton);
 
-        ReactDOM.render(<TaskReact taskId={this.id} taskText={this.text}/>, taskDiv);
+        ReactDOM.render(<TaskReact loginInst={this.loginInst} taskList={this.taskList} taskId={this.id} taskText={this.text}/>, taskDiv);
         let removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
 
         removeTaskButton.onclick = function () {
@@ -493,7 +469,7 @@ class Login {
                     let taskStatus = task["task_status"];
                     let parentId = task["parent_id"];
 
-                    tasksTree.set(taskId, new Task(this.taskList, taskId, taskText, parentId, taskStatus));
+                    tasksTree.set(taskId, new Task(this, this.taskList, taskId, taskText, parentId, taskStatus));
                 }
 
                 for (let task of tasksTree.values()) {
@@ -574,6 +550,17 @@ class Login {
 
     }
 
+    errorLogOut() {
+        this.taskList = null;
+        document.cookie = 'id=; expires=-1';
+        document.cookie = 'sign=; expires=-1';
+
+        let taskParent = document.getElementById('main_tasks');
+        removeChildren(taskParent);
+
+        this.showLoginWindow();
+    }
+
     userDelete() {
         const confirm = function () {
             knock_knock("user_delete", del);
@@ -636,6 +623,8 @@ class Login {
 class TaskReact extends React.Component {
     constructor(props) {
         super(props);
+        this.loginInst = this.props.loginInst;
+        this.taskList = this.props.taskList;
         this.shadow = shadow();
         this.state = {
             status: false,
@@ -670,6 +659,13 @@ class TaskReact extends React.Component {
         this.editTextField = React.createRef();
     }
 
+    /**
+     * POST: json = {'task_id': 'number', 'status': 'boolean'}
+     * GET:
+     * if OK = true: json = {'ok': true}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     */
     finishTask() {
         let taskStatus = this.state.status === false;
         let sendData = {
@@ -681,6 +677,9 @@ class TaskReact extends React.Component {
                 this.setState({
                     status: taskStatus
                 });
+            } else if (answer['error_code'] === 401) {
+                this.loginInst.errorLogOut();
+                showInfoWindow('Authorisation problem!');
             }
         }
         knock_knock('finish_task', finish, sendData);
