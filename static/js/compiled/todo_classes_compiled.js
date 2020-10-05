@@ -126,7 +126,7 @@ var TaskList = /*#__PURE__*/function () {
     }
   }, {
     key: "removeTask",
-    value: function removeTask(node) {
+    value: function removeTask(task, domButton) {
       var _this3 = this;
 
       /**
@@ -138,22 +138,24 @@ var TaskList = /*#__PURE__*/function () {
        * 'error_message': 'string' or null}
        */
       var sendData = {
-        'taskId': node.id
+        'taskId': task.id
       };
 
       var remove = function remove(answer) {
         if (answer['ok'] === true) {
-          if (_this3.tasksTree.has(node.parentId)) {
-            var parentList = _this3.tasksTree.get(node.parentId).subtasks;
+          var domTaskElement = domButton.parentNode.parentNode;
 
-            parentList.splice(parentList.indexOf(node), 1);
+          if (_this3.tasksTree.has(task.parentId)) {
+            var parentList = _this3.tasksTree.get(task.parentId).subtasks;
+
+            parentList.splice(parentList.indexOf(task), 1);
           } else {
-            _this3.tasks.splice(_this3.tasks.indexOf(node), 1);
+            _this3.tasks.splice(_this3.tasks.indexOf(task), 1);
           }
 
-          _this3.tasksTree.delete(node.id);
+          _this3.tasksTree.delete(task.id);
 
-          _this3.updateDom();
+          domTaskElement.remove();
         } else if (answer["error_code"] === 401) {
           _this3.loginClass.forceLogOut();
 
@@ -242,7 +244,7 @@ var Task = /*#__PURE__*/function () {
       var removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
 
       removeTaskButton.onclick = function () {
-        self.taskList.removeTask(self);
+        self.taskList.removeTask(self, this);
       };
 
       return taskDiv;

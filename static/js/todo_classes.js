@@ -73,7 +73,7 @@ class TaskList {
         }
     }
 
-    removeTask(node) {
+    removeTask(task, domButton) {
         /**
          * @param {object} - Task instance object
          * POST: {taskId: 'number'}
@@ -82,17 +82,19 @@ class TaskList {
          * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
          * 'error_message': 'string' or null}
          */
-        let sendData = {'taskId': node.id}
+        let sendData = {'taskId': task.id}
         const remove = (answer) => {
             if (answer['ok'] === true) {
-                if (this.tasksTree.has(node.parentId)) {
-                    let parentList = this.tasksTree.get(node.parentId).subtasks;
-                    parentList.splice(parentList.indexOf(node), 1);
+                let domTaskElement = domButton.parentNode.parentNode;
+
+                if (this.tasksTree.has(task.parentId)) {
+                    let parentList = this.tasksTree.get(task.parentId).subtasks;
+                    parentList.splice(parentList.indexOf(task), 1);
                 } else {
-                    this.tasks.splice(this.tasks.indexOf(node), 1);
+                    this.tasks.splice(this.tasks.indexOf(task), 1);
                 }
-                this.tasksTree.delete(node.id);
-                this.updateDom();
+                this.tasksTree.delete(task.id);
+                domTaskElement.remove();
             } else if (answer["error_code"] === 401) {
                 this.loginClass.forceLogOut();
                 showInfoWindow("Authorisation problem!");
@@ -158,7 +160,7 @@ class Task {
         let removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
 
         removeTaskButton.onclick = function () {
-            self.taskList.removeTask(self);
+            self.taskList.removeTask(self, this);
         };
         return taskDiv;
     }
