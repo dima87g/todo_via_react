@@ -183,7 +183,7 @@ class Task {
             self.taskList.addSubtask(self, this);
         };
         removeButton.onclick = function () {
-            self.taskList.removeTask(self);
+            self.taskList.removeTask(self, this);
         };
     }
 }

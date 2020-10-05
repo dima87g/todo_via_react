@@ -273,7 +273,7 @@ var Task = /*#__PURE__*/function () {
       };
 
       removeButton.onclick = function () {
-        self.taskList.removeTask(self);
+        self.taskList.removeTask(self, this);
       };
     }
   }]);
