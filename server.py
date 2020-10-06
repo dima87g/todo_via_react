@@ -15,6 +15,7 @@ config = configparser.ConfigParser()
 config.read('server_config.ini')
 db_config = config['data_base']
 security_config = config['security']
+cookies_config = config['cookies']
 
 static_salt = security_config['static_salt']
 
@@ -125,8 +126,12 @@ def user_login():
         sign = sign.hexdigest()
 
         response = make_response(jsonify({"ok": True, "user_name": user_name}))
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
 
         return response
     except mysql.connector.Error as error:
@@ -192,8 +197,12 @@ def load_tasks():
                                         'tasks': tasks
                                         }))
 
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
 
         return response
     except mysql.connector.Error as error:
@@ -317,8 +326,12 @@ def save_task():
                                         'ok': True,
                                         'task_id': task_id
                                         }))
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
 
         return response
     except mysql.connector.Error as error:
@@ -375,8 +388,12 @@ def save_edit_task():
         response = make_response(jsonify({
                                         "ok": True
                                         }))
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
 
         return jsonify({"ok": True})
     except mysql.connector.Error as error:
@@ -440,8 +457,12 @@ def delete_task():
         response = make_response(jsonify({
                                         "ok": True
                                         }))
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
 
         return response
     except mysql.connector.Error as error:
@@ -507,8 +528,12 @@ def finish_task():
         response = make_response(jsonify({
                                         "ok": True
                                         }))
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
 
         return jsonify({"ok": True})
     except mysql.connector.Error as error:
@@ -534,8 +559,12 @@ def auth_check():
             response = make_response(jsonify({"ok": False}))
             return response
         response = make_response(jsonify({"ok": True}))
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
         return response
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
