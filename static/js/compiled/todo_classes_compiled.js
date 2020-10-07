@@ -298,6 +298,7 @@ var Login = /*#__PURE__*/function () {
     this.registerFormUsername = document.getElementById("register_form_username");
     this.registerFormPassword = document.getElementById("register_form_password");
     this.registerFormPasswordConfirm = document.getElementById("register_form_password_confirm");
+    this.agreementCheckbox = document.getElementById('agreement_checkbox');
     this.userRegisterButton = document.getElementById("register_form_button");
     this.switchRegisterButton = document.getElementById("register_button");
     this.switchLoginButton = document.getElementById("login_button");
@@ -587,7 +588,7 @@ var Login = /*#__PURE__*/function () {
        */
       removeChildren(this.registerWindowInfo);
 
-      if (this.registerFormUsername.value && this.registerFormPassword.value && this.registerFormPasswordConfirm.value) {
+      if (this.registerFormUsername.value && this.registerFormPassword.value && this.registerFormPasswordConfirm.value && this.agreementCheckbox.checked === true) {
         if (this.registerFormPassword.value === this.registerFormPasswordConfirm.value) {
           var newUserName = this.registerFormUsername.value;
           var password = this.registerFormPassword.value;
@@ -620,6 +621,8 @@ var Login = /*#__PURE__*/function () {
         this.registerWindowInfo.appendChild(document.createTextNode('Please, enter Password!'));
       } else if (!this.registerFormPasswordConfirm.value) {
         this.registerWindowInfo.appendChild(document.createTextNode('Please, confirm Password!'));
+      } else if (!this.agreementCheckbox.checked) {
+        this.registerWindowInfo.appendChild(document.createTextNode('Please, accept agreements!'));
       }
     }
   }]);
