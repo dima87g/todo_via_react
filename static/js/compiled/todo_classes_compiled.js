@@ -301,9 +301,14 @@ var Login = /*#__PURE__*/function () {
     this.userNameField = document.getElementById("user_name_field");
     this.userLogOutButton = document.getElementById('user_logout_button');
     this.userDeleteButton = document.getElementById("user_delete_button");
+    this.userChangePasswordButton = document.getElementById('change_password_button');
+    this.changePasswordWindow = document.getElementById('change_password_window');
+    this.changePasswordWindowCancelButton = document.getElementById('change_password_window_cancel_button');
+    this.changePasswordButton = document.getElementById('change_password_form_button');
     this.loginFormUsername.focus();
     this.userLogOutButton.disabled = true;
     this.userDeleteButton.disabled = true;
+    this.userChangePasswordButton.disabled = true;
 
     this.switchRegisterButton.onclick = function () {
       self.switchLogin(this.value);
@@ -323,6 +328,14 @@ var Login = /*#__PURE__*/function () {
 
     this.userDeleteButton.onclick = function () {
       self.userDelete();
+    };
+
+    this.userChangePasswordButton.onclick = function () {
+      self.showChangePasswordWindow();
+    };
+
+    this.changePasswordWindowCancelButton.onclick = function () {
+      self.hideChangePasswordWindow();
     };
 
     this.userRegisterButton.onclick = function () {
@@ -385,6 +398,26 @@ var Login = /*#__PURE__*/function () {
       });
     }
   }, {
+    key: "showChangePasswordWindow",
+    value: function showChangePasswordWindow() {
+      this.userLogOutButton.disabled = true;
+      this.userDeleteButton.disabled = true;
+      this.userChangePasswordButton.disabled = true;
+      this.changePasswordWindow.style.visibility = 'visible';
+      this.changePasswordWindowCancelButton.disabled = false;
+      this.changePasswordButton.disabled = false;
+    }
+  }, {
+    key: "hideChangePasswordWindow",
+    value: function hideChangePasswordWindow() {
+      this.userLogOutButton.disabled = false;
+      this.userDeleteButton.disabled = false;
+      this.userChangePasswordButton.disabled = false;
+      this.changePasswordWindow.style.visibility = 'hidden';
+      this.changePasswordWindowCancelButton.disabled = true;
+      this.changePasswordButton.disabled = true;
+    }
+  }, {
     key: "onLoad",
     value: function onLoad() {
       var _this6 = this;
@@ -410,6 +443,7 @@ var Login = /*#__PURE__*/function () {
 
             _this6.userLogOutButton.disabled = false;
             _this6.userDeleteButton.disabled = false;
+            _this6.userChangePasswordButton.disabled = false;
           }
 
           _this6.taskList = new TaskList();
@@ -571,6 +605,11 @@ var Login = /*#__PURE__*/function () {
       };
 
       showConfirmWindow(confirm, "Are you sure, you want to delete user?");
+    }
+  }, {
+    key: "changePassword",
+    value: function changePassword() {
+      this.changePasswordConfirmButton.disabled = false;
     }
   }, {
     key: "userRegister",

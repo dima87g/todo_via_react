@@ -54,6 +54,10 @@ html, body {
     transition: opacity 0.5s;
 }
 
+.change_password_window {
+    visibility: hidden;
+}
+
 .login_form_username, .login_form_password {
     /*width: 176px;*/
     width: 90%;

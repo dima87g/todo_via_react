@@ -17,11 +17,11 @@
     <div class="header">
         <p class="user_name_field" id='user_name_field'></p>
         <input type="button" class='user_logout_button'
-               id='user_logout_button' value="Log Out">
+               id='user_logout_button' value="Log Out" disabled>
         <input type="button" class="user_delete_button"
-               id="user_delete_button" value="Delete user">
+               id="user_delete_button" value="Delete user" disabled>
         <input type="button" class="change_password_button"
-               id="change_password_button" value="Change password">
+               id="change_password_button" value="Change password" disabled>
         <p class="version">Ver. 1.55</p>
     </div>
     <div id="auth_menu" class="auth_menu">
@@ -71,6 +71,25 @@
     <div class="loading_window" id="loading_window">
         <p class="loading_window_message" id="loading_window_message">ГРУЖУСЬ</p>
     </div>
+</div>
+<div id="change_password_window" class="change_password_window">
+    <p class="auth_menu_forms_labels">Change Password</p>
+    <button type="button" disabled id="change_password_window_cancel_button"
+            class="change_password_window_cancel_button">X</button>
+    <form name="change_password_form">
+        <label for="change_password_form_old_password" class="auth_menu_labels">Enter old password</label><input
+            type="text" name="change_password_form_old_password" id="change_password_form_old_password"
+            class="change_password_form_old_password" placeholder="Old password">
+        <label for="change_password_form_new_password" class="auth_menu_labels">Enter new password</label><input
+            type="text" name="change_password_form_new_password" id="change_password_form_new_password"
+            class="change_password_form_new_password" placeholder="New Password">
+        <label for="change_password_form_new_password_confirm" class="auth_menu_labels">Confirm new password</label><input
+            type="text" name="change_password_form_new_password_confirm" id="change_password_form_new_password_confirm"
+            class="change_password_form_new_password_confirm" placeholder="Confirm new password">
+        <button type="button" value="Change password" disabled id="change_password_form_button"
+            class="change_password_form_button">Change password</button>
+    </form>
+    <p id="change_password_window_info" class="change_password_window_info"></p>
 </div>
 <div class="shadow" id="shadow"></div>
 <div class="cookies_alert_window" id="cookies_alert_window">
