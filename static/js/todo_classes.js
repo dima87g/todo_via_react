@@ -204,7 +204,11 @@ class Login {
         this.userChangePasswordButton = document.getElementById('change_password_button');
         this.changePasswordWindow = document.getElementById('change_password_window');
         this.changePasswordWindowCancelButton = document.getElementById('change_password_window_cancel_button');
+        this.changePasswordFormOldPassword = document.getElementById('change_password_form_old_password');
+        this.changePasswordFormNewPassword = document.getElementById('change_password_form_new_password');
+        this.changePasswordFormNewPasswordConfirm = document.getElementById('change_password_form_new_password_confirm');
         this.changePasswordButton = document.getElementById('change_password_form_button');
+        this.changePasswordWindowInfo = document.getElementById('change_password_window_info');
 
         this.loginFormUsername.focus();
         this.userLogOutButton.disabled = true;
@@ -234,6 +238,9 @@ class Login {
         }
         this.userRegisterButton.onclick = function () {
             self.userRegister();
+        }
+        this.changePasswordButton.onclick = function() {
+            self.changePassword();
         }
     }
 
@@ -282,6 +289,7 @@ class Login {
         removeChildren(this.userNameField);
         this.userLogOutButton.disabled = true;
         this.userDeleteButton.disabled = true;
+        this.userChangePasswordButton.disabled = true;
         this.authMenu.style.visibility = 'visible';
         this.loginFormUsername.focus();
         setTimeout(() => {
@@ -299,6 +307,9 @@ class Login {
     }
 
     hideChangePasswordWindow() {
+        this.changePasswordFormOldPassword.value = '';
+        this.changePasswordFormNewPassword.value = '';
+        this.changePasswordFormNewPasswordConfirm.value = '';
         this.userLogOutButton.disabled = false;
         this.userDeleteButton.disabled = false;
         this.userChangePasswordButton.disabled = false;
@@ -398,6 +409,7 @@ class Login {
                     this.userNameField.appendChild(document.createTextNode(userName));
                     this.userLogOutButton.disabled = false;
                     this.userDeleteButton.disabled = false;
+                    this.userChangePasswordButton.disabled = false;
 
                     this.hideLoginWindow();
 
@@ -460,7 +472,38 @@ class Login {
     }
 
     changePassword() {
-        this.changePasswordConfirmButton.disabled = false;
+        removeChildren(this.changePasswordWindowInfo);
+
+        if (this.changePasswordFormOldPassword.value && this.changePasswordFormNewPassword.value && this.changePasswordFormNewPasswordConfirm.value) {
+            if (this.changePasswordFormNewPassword.value === this.changePasswordFormNewPasswordConfirm.value) {
+                let oldPassword = this.changePasswordFormOldPassword.value;
+                let newPassword = this.changePasswordFormNewPassword.value;
+
+                const sendData = {'oldPassword': oldPassword, 'newPassword': newPassword};
+
+                const change = (answer) => {
+                    if (answer['ok'] === true) {
+                        this.hideChangePasswordWindow();
+                        showInfoWindow('Password is successfully changed!');
+                    } else if (answer['error_code'] === 401) {
+                        this.hideChangePasswordWindow();
+                        this.forceLogOut();
+                        showInfoWindow('Authorisation problem!');
+                    } else {
+                        this.changePasswordWindowInfo.appendChild(document.createTextNode(answer['error_message']));
+                    }
+                }
+                knock_knock('/change_password', change, sendData);
+            } else {
+                this.changePasswordWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
+            }
+        } else if (!this.changePasswordFormOldPassword.value) {
+            this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, enter your old password!'));
+        } else if (!this.changePasswordFormNewPassword.value) {
+            this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, enter new password!'));
+        } else if (!this.changePasswordFormNewPasswordConfirm.value) {
+            this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, confirm new password!'));
+        }
     }
 
     userRegister() {

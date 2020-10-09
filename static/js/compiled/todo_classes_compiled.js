@@ -304,7 +304,11 @@ var Login = /*#__PURE__*/function () {
     this.userChangePasswordButton = document.getElementById('change_password_button');
     this.changePasswordWindow = document.getElementById('change_password_window');
     this.changePasswordWindowCancelButton = document.getElementById('change_password_window_cancel_button');
+    this.changePasswordFormOldPassword = document.getElementById('change_password_form_old_password');
+    this.changePasswordFormNewPassword = document.getElementById('change_password_form_new_password');
+    this.changePasswordFormNewPasswordConfirm = document.getElementById('change_password_form_new_password_confirm');
     this.changePasswordButton = document.getElementById('change_password_form_button');
+    this.changePasswordWindowInfo = document.getElementById('change_password_window_info');
     this.loginFormUsername.focus();
     this.userLogOutButton.disabled = true;
     this.userDeleteButton.disabled = true;
@@ -340,6 +344,10 @@ var Login = /*#__PURE__*/function () {
 
     this.userRegisterButton.onclick = function () {
       self.userRegister();
+    };
+
+    this.changePasswordButton.onclick = function () {
+      self.changePassword();
     };
   }
 
@@ -391,6 +399,7 @@ var Login = /*#__PURE__*/function () {
       removeChildren(this.userNameField);
       this.userLogOutButton.disabled = true;
       this.userDeleteButton.disabled = true;
+      this.userChangePasswordButton.disabled = true;
       this.authMenu.style.visibility = 'visible';
       this.loginFormUsername.focus();
       setTimeout(function () {
@@ -410,6 +419,9 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "hideChangePasswordWindow",
     value: function hideChangePasswordWindow() {
+      this.changePasswordFormOldPassword.value = '';
+      this.changePasswordFormNewPassword.value = '';
+      this.changePasswordFormNewPasswordConfirm.value = '';
       this.userLogOutButton.disabled = false;
       this.userDeleteButton.disabled = false;
       this.userChangePasswordButton.disabled = false;
@@ -540,6 +552,7 @@ var Login = /*#__PURE__*/function () {
 
             _this7.userLogOutButton.disabled = false;
             _this7.userDeleteButton.disabled = false;
+            _this7.userChangePasswordButton.disabled = false;
 
             _this7.hideLoginWindow();
 
@@ -609,12 +622,51 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "changePassword",
     value: function changePassword() {
-      this.changePasswordConfirmButton.disabled = false;
+      var _this10 = this;
+
+      removeChildren(this.changePasswordWindowInfo);
+
+      if (this.changePasswordFormOldPassword.value && this.changePasswordFormNewPassword.value && this.changePasswordFormNewPasswordConfirm.value) {
+        if (this.changePasswordFormNewPassword.value === this.changePasswordFormNewPasswordConfirm.value) {
+          var oldPassword = this.changePasswordFormOldPassword.value;
+          var newPassword = this.changePasswordFormNewPassword.value;
+          var sendData = {
+            'oldPassword': oldPassword,
+            'newPassword': newPassword
+          };
+
+          var change = function change(answer) {
+            if (answer['ok'] === true) {
+              _this10.hideChangePasswordWindow();
+
+              showInfoWindow('Password is successfully changed!');
+            } else if (answer['error_code'] === 401) {
+              _this10.hideChangePasswordWindow();
+
+              _this10.forceLogOut();
+
+              showInfoWindow('Authorisation problem!');
+            } else {
+              _this10.changePasswordWindowInfo.appendChild(document.createTextNode(answer['error_message']));
+            }
+          };
+
+          knock_knock('/change_password', change, sendData);
+        } else {
+          this.changePasswordWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
+        }
+      } else if (!this.changePasswordFormOldPassword.value) {
+        this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, enter your old password!'));
+      } else if (!this.changePasswordFormNewPassword.value) {
+        this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, enter new password!'));
+      } else if (!this.changePasswordFormNewPasswordConfirm.value) {
+        this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, confirm new password!'));
+      }
     }
   }, {
     key: "userRegister",
     value: function userRegister() {
-      var _this10 = this;
+      var _this11 = this;
 
       /**
        * POST: json =  {"newUserName": "string",  "password": "string"}
@@ -634,15 +686,15 @@ var Login = /*#__PURE__*/function () {
 
           var register = function register(answer) {
             if (answer['ok'] === true) {
-              _this10.registerFormUsername.value = "";
-              _this10.registerFormPassword.value = "";
-              _this10.registerFormPasswordConfirm.value = "";
+              _this11.registerFormUsername.value = "";
+              _this11.registerFormPassword.value = "";
+              _this11.registerFormPasswordConfirm.value = "";
 
-              _this10.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+              _this11.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
             } else if (answer['error_code'] === 1062) {
-              _this10.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+              _this11.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
             } else {
-              _this10.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+              _this11.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
             }
           };
 
@@ -669,19 +721,19 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
   var _super = _createSuper(TaskReact);
 
   function TaskReact(props) {
-    var _this11;
+    var _this12;
 
     _classCallCheck(this, TaskReact);
 
-    _this11 = _super.call(this, props);
-    _this11.loginInst = _this11.props.loginInst;
-    _this11.taskList = _this11.props.taskList;
-    _this11.shadow = shadow();
-    _this11.state = {
+    _this12 = _super.call(this, props);
+    _this12.loginInst = _this12.props.loginInst;
+    _this12.taskList = _this12.props.taskList;
+    _this12.shadow = shadow();
+    _this12.state = {
       status: false,
       showSubtaskDivButtonZIndex: '0',
       showSubtaskDivButtonDisabled: false,
-      taskTextValue: _this11.props.taskText,
+      taskTextValue: _this12.props.taskText,
       taskTextOpacity: '1',
       removeTaskButtonDisabled: false,
       removeTaskButtonScale: 'scale(1)',
@@ -703,12 +755,12 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       saveEditButtonScale: 'scale(0)',
       saveEditButtonTransitionDelay: '0'
     };
-    _this11.finishTask = _this11.finishTask.bind(_assertThisInitialized(_this11));
-    _this11.showEditTaskField = _this11.showEditTaskField.bind(_assertThisInitialized(_this11));
-    _this11.saveEdit = _this11.saveEdit.bind(_assertThisInitialized(_this11));
-    _this11.showSubtaskField = _this11.showSubtaskField.bind(_assertThisInitialized(_this11));
-    _this11.editTextField = React.createRef();
-    return _this11;
+    _this12.finishTask = _this12.finishTask.bind(_assertThisInitialized(_this12));
+    _this12.showEditTaskField = _this12.showEditTaskField.bind(_assertThisInitialized(_this12));
+    _this12.saveEdit = _this12.saveEdit.bind(_assertThisInitialized(_this12));
+    _this12.showSubtaskField = _this12.showSubtaskField.bind(_assertThisInitialized(_this12));
+    _this12.editTextField = React.createRef();
+    return _this12;
   }
   /**
    * POST: json = {'task_id': 'number', 'status': 'boolean'}
@@ -722,7 +774,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
   _createClass(TaskReact, [{
     key: "finishTask",
     value: function finishTask() {
-      var _this12 = this;
+      var _this13 = this;
 
       var taskStatus = this.state.status === false;
       var sendData = {
@@ -732,11 +784,11 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
 
       var finish = function finish(answer) {
         if (answer['ok'] === true) {
-          _this12.setState({
+          _this13.setState({
             status: taskStatus
           });
         } else if (answer['error_code'] === 401) {
-          _this12.loginInst.forceLogOut();
+          _this13.loginInst.forceLogOut();
 
           showInfoWindow('Authorisation problem!');
         }
@@ -747,7 +799,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "showSubtaskField",
     value: function showSubtaskField() {
-      var _this13 = this;
+      var _this14 = this;
 
       if (this.state.subtaskDivShowed === false) {
         this.shadow();
@@ -781,7 +833,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           addSubtaskButtonTransitionDelay: '0s'
         });
         this.subtaskDivHideTimer = setTimeout(function () {
-          _this13.setState({
+          _this14.setState({
             subtaskDivVisibility: 'hidden',
             showSubtaskDivButtonZIndex: '0'
           });
@@ -791,7 +843,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "showEditTaskField",
     value: function showEditTaskField() {
-      var _this14 = this;
+      var _this15 = this;
 
       if (this.state.taskTextEditDivShowed === false) {
         this.shadow();
@@ -826,7 +878,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           taskTextOpacity: '1'
         });
         this.hideEditDivTimer = setTimeout(function () {
-          _this14.setState({
+          _this15.setState({
             taskTextEditDivVisibility: 'hidden'
           });
         }, 500);
@@ -948,7 +1000,7 @@ var LoadingWindow = /*#__PURE__*/function () {
   _createClass(LoadingWindow, [{
     key: "showWindow",
     value: function showWindow(loadingWindow) {
-      var _this15 = this;
+      var _this16 = this;
 
       this.reqCount++;
 
@@ -956,15 +1008,15 @@ var LoadingWindow = /*#__PURE__*/function () {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
           loadingWindow.style.visibility = 'visible';
-          _this15.startTime = Date.now();
-          _this15.isAlive = true;
+          _this16.startTime = Date.now();
+          _this16.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow(loadingWindow) {
-      var _this16 = this;
+      var _this17 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -981,7 +1033,7 @@ var LoadingWindow = /*#__PURE__*/function () {
           } else {
             this.timerHide = setTimeout(function () {
               loadingWindow.style.visibility = 'hidden';
-              _this16.isAlive = false;
+              _this17.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }
