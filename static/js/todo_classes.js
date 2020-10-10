@@ -298,6 +298,7 @@ class Login {
     }
 
     showChangePasswordWindow() {
+        showShadow();
         this.userLogOutButton.disabled = true;
         this.userDeleteButton.disabled = true;
         this.userChangePasswordButton.disabled = true;
@@ -307,6 +308,7 @@ class Login {
     }
 
     hideChangePasswordWindow() {
+        hideShadow();
         this.changePasswordFormOldPassword.value = '';
         this.changePasswordFormNewPassword.value = '';
         this.changePasswordFormNewPasswordConfirm.value = '';

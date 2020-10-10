@@ -409,6 +409,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "showChangePasswordWindow",
     value: function showChangePasswordWindow() {
+      showShadow();
       this.userLogOutButton.disabled = true;
       this.userDeleteButton.disabled = true;
       this.userChangePasswordButton.disabled = true;
@@ -419,6 +420,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "hideChangePasswordWindow",
     value: function hideChangePasswordWindow() {
+      hideShadow();
       this.changePasswordFormOldPassword.value = '';
       this.changePasswordFormNewPassword.value = '';
       this.changePasswordFormNewPasswordConfirm.value = '';
