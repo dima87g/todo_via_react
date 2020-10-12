@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify, make_response, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 import random
@@ -37,7 +37,29 @@ print("Connection Pool Size - ", connection_pool.pool_size)
 
 @app.route("/")
 def main():
-    return render_template("index.html")
+    local = configparser.ConfigParser()
+    user_language = request.accept_languages[0][0]
+
+    if user_language == 'ru':
+        local.read('localisation/localisation_ru.ini')
+
+        return render_template("index.html", **dict(local))
+    else:
+        local.read('localisation/localisation_en.ini')
+
+        return render_template('index.html', **dict(local))
+
+
+@app.route('/<lang>', methods=['GET', 'POST'])
+def change_language(lang):
+    local = configparser.ConfigParser()
+
+    if lang == 'rus':
+        local.read('localisation/localisation_ru.ini')
+        return render_template('index.html', **dict(local))
+    elif lang == 'eng':
+        local.read('localisation/localisation_en.ini')
+        return render_template('index.html', **dict(local))
 
 
 @app.route('/user_register', methods=['GET', 'POST'])

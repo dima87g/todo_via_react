@@ -76,7 +76,7 @@ var TaskList = /*#__PURE__*/function () {
           }
         };
 
-        knock_knock('save_task', add, sendData);
+        knock_knock('/save_task', add, sendData);
       }
     }
   }, {
@@ -121,7 +121,7 @@ var TaskList = /*#__PURE__*/function () {
           }
         };
 
-        knock_knock('save_task', add, sendData);
+        knock_knock('/save_task', add, sendData);
       }
     }
   }, {
@@ -163,7 +163,7 @@ var TaskList = /*#__PURE__*/function () {
         }
       };
 
-      knock_knock('delete_task', remove, sendData);
+      knock_knock('/delete_task', remove, sendData);
     }
   }, {
     key: "updateDom",
@@ -523,7 +523,7 @@ var Login = /*#__PURE__*/function () {
         }
       };
 
-      knock_knock('load_tasks', loadTasks);
+      knock_knock('/load_tasks', loadTasks);
     }
   }, {
     key: "logIn",
@@ -568,7 +568,7 @@ var Login = /*#__PURE__*/function () {
           }
         };
 
-        knock_knock('user_login', login, sendData);
+        knock_knock('/user_login', login, sendData);
       } else if (!this.loginFormUsername.value) {
         this.loginWindowInfo.appendChild(document.createTextNode('Please, enter user name!'));
       } else if (!this.loginFormPassword.value) {
@@ -590,7 +590,16 @@ var Login = /*#__PURE__*/function () {
         _this8.showLoginWindow();
       };
 
-      showConfirmWindow(out, 'Are you sure, you want to log out?');
+      var userLanguage = window.navigator.language;
+      var message = null;
+
+      if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+        message = 'Вы уверены, что хотите выйти?';
+      } else {
+        message = 'Are you sure, you want to log out?';
+      }
+
+      showConfirmWindow(out, message);
     }
   }, {
     key: "forceLogOut",
@@ -608,7 +617,7 @@ var Login = /*#__PURE__*/function () {
       var _this9 = this;
 
       var confirm = function confirm() {
-        knock_knock("user_delete", del);
+        knock_knock("/user_delete", del);
       };
 
       var del = function del(answer) {
@@ -623,7 +632,16 @@ var Login = /*#__PURE__*/function () {
         }
       };
 
-      showConfirmWindow(confirm, "Are you sure, you want to delete user?");
+      var userLanguage = window.navigator.language;
+      var message = null;
+
+      if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+        message = 'Вы уверены, что хотите удалить пользователя?';
+      } else {
+        message = 'Are you sure, you want to delete user?';
+      }
+
+      showConfirmWindow(confirm, message);
     }
   }, {
     key: "changePassword",
@@ -704,7 +722,7 @@ var Login = /*#__PURE__*/function () {
             }
           };
 
-          knock_knock('user_register', register, sendData);
+          knock_knock('/user_register', register, sendData);
         } else {
           this.registerWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
         }
@@ -802,7 +820,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         }
       };
 
-      knock_knock('finish_task', finish, sendData);
+      knock_knock('/finish_task', finish, sendData);
     }
   }, {
     key: "showSubtaskField",
@@ -889,7 +907,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
             }
           };
 
-          knock_knock('save_edit_task', saveEdit, sendData);
+          knock_knock('/save_edit_task', saveEdit, sendData);
         }
 
         this.shadow();

@@ -4,48 +4,62 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=No">
     <title>Page Title</title>
-    <link rel="shortcut icon" href="static/favicon.ico">
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/compiled/style_compiled.css">
     <script defer src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
     <script defer src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-    <script defer src="static/js/compiled/todo_classes_compiled.js"></script>
-    <script defer src="static/js/compiled/todo_functions_compiled.js"></script>
-    <script defer src="static/js/compiled/main_compiled.js"></script>
+    <script defer src="/static/js/compiled/todo_classes_compiled.js"></script>
+    <script defer src="/static/js/compiled/todo_functions_compiled.js"></script>
+    <script defer src="/static/js/compiled/main_compiled.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="header">
+        <a href="/rus">Русский</a>
+        <a href="/eng">English</a>
         <p class="user_name_field" id='user_name_field'></p>
         <input type="button" class='user_logout_button'
-               id='user_logout_button' value="Log Out" disabled>
+               id='user_logout_button' value="{{ buttons.logout}}" disabled>
         <input type="button" class="user_delete_button"
-               id="user_delete_button" value="Delete user" disabled>
+               id="user_delete_button" value="{{ buttons.delete_user}}" disabled>
         <input type="button" class="change_password_button"
-               id="change_password_button" value="Change password" disabled>
+               id="change_password_button" value="{{ buttons.change_password}}" disabled>
         <p class="version">Ver. 1.6</p>
     </div>
     <div id="auth_menu" class="auth_menu">
         <div id="login_window" class="login_window">
-            <p class="auth_menu_forms_labels">Login window</p>
+            <p class="auth_menu_forms_labels">{{ login_window.label }}</p>
             <form name="login_form">
-                <label for="login_form_username" class="auth_menu_labels">Enter username</label><input type="text" name="login_form_username" id="login_form_username" class="login_form_username" placeholder="User Name">
-                <label for="login_form_password" class="auth_menu_labels">Enter password</label><input type="password" name="login_form_password" id="login_form_password" class="login_form_password" placeholder="Password">
-                <input type="button" id="login_form_button" class="login_form_button" value="Отправить">
+                <label for="login_form_username" class="auth_menu_labels">{{ login_window.user_name}}</label>
+                <input type="text" name="login_form_username" id="login_form_username"
+                       class="login_form_username" placeholder='{{ login_window.user_name_placeholder}}'>
+                <label for="login_form_password" class="auth_menu_labels">{{ login_window.password}}</label>
+                <input type="password" name="login_form_password" id="login_form_password"
+                       class="login_form_password" placeholder="{{ login_window.password_placeholder }}">
+                <input type="button" id="login_form_button" class="login_form_button" value="{{ login_window.submit_button }}">
             </form>
             <p id="login_window_info" class="login_window_info"></p>
-            <button type="button" value='register' id="register_button" class="register_button">Register</button>
+            <button type="button" value='register' id="register_button"
+                    class="register_button">{{ login_window.switch_to_register_button }}</button>
         </div>
         <div id="register_window" class="register_window">
-            <p class="auth_menu_forms_labels">Register window</p>
+            <p class="auth_menu_forms_labels">{{ register_window.label }}</p>
             <form name="register_form">
-                <label for="register_form_username" class="auth_menu_labels">Enter username</label><input type="text" name="register_form_username" id="register_form_username" class="register_form_username" placeholder="User Name">
-                <label for="register_form_password" class="auth_menu_labels">Enter password</label><input type="password" name="register_form_password" id="register_form_password" class="register_form_password" placeholder="Password">
-                <label for="register_form_password_confirm" class="auth_menu_labels">Confirm password</label><input type="password" name="register_form_password_confirm" id="register_form_password_confirm" class="register_form_password_confirm" placeholder="Confirm password">
-                <p class="agreement" id="agreement"><input type="checkbox" id="agreement_checkbox"><label for="agreement_checkbox">Нажимая вы соглашаетесь с <a href="../static/agreements/agreement_ru.html" target="_blank">соглашением</a>, воть.</label></p>
-                <input type="button" value="Создать" id="register_form_button" class="register_form_button">
+                <label for="register_form_username" class="auth_menu_labels">{{ register_window.user_name }}</label>
+                <input type="text" name="register_form_username" id="register_form_username"
+                       class="register_form_username" placeholder="{{ register_window.user_name_placeholder }}">
+                <label for="register_form_password" class="auth_menu_labels">{{ register_window.password }}</label>
+                <input type="password" name="register_form_password" id="register_form_password"
+                       class="register_form_password" placeholder="{{ register_window.password_placeholder }}">
+                <label for="register_form_password_confirm" class="auth_menu_labels">{{ register_window.password_confirm }}</label>
+                <input type="password" name="register_form_password_confirm" id="register_form_password_confirm"
+                       class="register_form_password_confirm" placeholder="{{ register_window.password_confirm_placeholder }}">
+                <p class="agreement" id="agreement"><input type="checkbox" id="agreement_checkbox">
+                    <label for="agreement_checkbox">Нажимая вы соглашаетесь с <a href="../static/agreements/agreement_ru.html" target="_blank">соглашением</a>, воть.</label></p>
+                <input type="button" value="{{ register_window.create_button }}" id="register_form_button" class="register_form_button">
             </form>
             <p id="register_window_info" class="register_window_info"></p>
-            <button type="button" value='login' disabled="disabled" id="login_button" class="login_button">Log In</button>
+            <button type="button" value='login' disabled="disabled" id="login_button" class="login_button">{{ register_window.switch_to_login_button }}</button>
         </div>
     </div>
     <div class="main_window">
@@ -54,7 +68,7 @@
                 <label for="task_input_field"></label><input type="text" id="task_input_field" class="task_input_field">
                 <button type="submit" id="task_input_button"
                        class="task_input_button">
-                    <img src="static/icons/add_sub.svg" alt="+">
+                    <img src="/static/icons/add_sub.svg" alt="+">
                 </button>
             </form>
         </div>
@@ -74,19 +88,19 @@
     <div id="change_password_window" class="change_password_window">
         <button type="button" disabled id="change_password_window_cancel_button"
                 class="change_password_window_cancel_button">X</button>
-        <p class="auth_menu_forms_labels">Change Password</p>
+        <p class="auth_menu_forms_labels">{{ change_password_window.label }}</p>
         <form name="change_password_form">
-            <label for="change_password_form_old_password" class="auth_menu_labels">Enter old password</label><input
+            <label for="change_password_form_old_password" class="auth_menu_labels">{{ change_password_window.old_password }}</label><input
                 type="text" name="change_password_form_old_password" id="change_password_form_old_password"
-                class="change_password_form_old_password" placeholder="Old password">
-            <label for="change_password_form_new_password" class="auth_menu_labels">Enter new password</label><input
+                class="change_password_form_old_password" placeholder="{{ change_password_window.old_password_placeholder}}">
+            <label for="change_password_form_new_password" class="auth_menu_labels">{{ change_password_window.new_password}}</label><input
                 type="text" name="change_password_form_new_password" id="change_password_form_new_password"
-                class="change_password_form_new_password" placeholder="New Password">
-            <label for="change_password_form_new_password_confirm" class="auth_menu_labels">Confirm new password</label><input
+                class="change_password_form_new_password" placeholder="{{ change_password_window.new_password_placeholder }}">
+            <label for="change_password_form_new_password_confirm" class="auth_menu_labels">{{ change_password_window.new_password_confirm}}</label><input
                 type="text" name="change_password_form_new_password_confirm" id="change_password_form_new_password_confirm"
-                class="change_password_form_new_password_confirm" placeholder="Confirm new password">
+                class="change_password_form_new_password_confirm" placeholder="{{ change_password_window.new_password_confirm_placeholder}}">
             <button type="button" value="Change password" disabled id="change_password_form_button"
-                class="change_password_form_button">Change password</button>
+                class="change_password_form_button">{{ change_password_window.change_password_button }}</button>
         </form>
         <p id="change_password_window_info" class="change_password_window_info"></p>
     </div>

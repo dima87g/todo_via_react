@@ -35,7 +35,7 @@ class TaskList {
                     showInfoWindow("Authorisation problem!");
                 }
             }
-            knock_knock('save_task', add, sendData);
+            knock_knock('/save_task', add, sendData);
         }
     }
 
@@ -69,7 +69,7 @@ class TaskList {
                     showInfoWindow("Authorisation problem!");
                 }
             }
-            knock_knock('save_task', add, sendData);
+            knock_knock('/save_task', add, sendData);
         }
     }
 
@@ -100,7 +100,7 @@ class TaskList {
                 showInfoWindow("Authorisation problem!");
             }
         }
-        knock_knock('delete_task', remove, sendData);
+        knock_knock('/delete_task', remove, sendData);
     }
 
     updateDom() {
@@ -390,7 +390,7 @@ class Login {
                 showInfoWindow("Authorisation problem!");
             }
         }
-        knock_knock('load_tasks', loadTasks);
+        knock_knock('/load_tasks', loadTasks);
     }
 
     logIn() {
@@ -429,7 +429,7 @@ class Login {
                     this.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
                 }
             }
-            knock_knock('user_login', login, sendData);
+            knock_knock('/user_login', login, sendData);
         } else if (!this.loginFormUsername.value) {
             this.loginWindowInfo.appendChild(document.createTextNode('Please, enter user name!'));
         } else if (!this.loginFormPassword.value) {
@@ -448,8 +448,15 @@ class Login {
 
             this.showLoginWindow();
         }
+        let userLanguage = window.navigator.language;
+        let message = null;
 
-        showConfirmWindow(out, 'Are you sure, you want to log out?');
+        if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+            message = 'Вы уверены, что хотите выйти?';
+        } else {
+            message = 'Are you sure, you want to log out?';
+        }
+        showConfirmWindow(out, message);
 
     }
 
@@ -466,7 +473,7 @@ class Login {
 
     userDelete() {
         const confirm = function () {
-            knock_knock("user_delete", del);
+            knock_knock("/user_delete", del);
         }
 
         const del = (answer) => {
@@ -478,8 +485,15 @@ class Login {
                 showInfoWindow("Authorisation problem!");
             }
         }
+        let userLanguage = window.navigator.language;
+        let message = null;
 
-        showConfirmWindow(confirm, "Are you sure, you want to delete user?");
+        if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+            message = 'Вы уверены, что хотите удалить пользователя?';
+        } else {
+            message = 'Are you sure, you want to delete user?';
+        }
+        showConfirmWindow(confirm, message);
     }
 
     changePassword() {
@@ -545,7 +559,7 @@ class Login {
                         this.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
                     }
                 }
-                knock_knock('user_register', register, sendData);
+                knock_knock('/user_register', register, sendData);
             } else {
                 this.registerWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
             }
@@ -623,7 +637,7 @@ class TaskReact extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        knock_knock('finish_task', finish, sendData);
+        knock_knock('/finish_task', finish, sendData);
     }
 
     showSubtaskField() {
@@ -703,7 +717,7 @@ class TaskReact extends React.Component {
                         showInfoWindow('Authorisation problem!');
                     }
                 }
-                knock_knock('save_edit_task', saveEdit, sendData);
+                knock_knock('/save_edit_task', saveEdit, sendData);
             }
             this.shadow();
             this.setState({
