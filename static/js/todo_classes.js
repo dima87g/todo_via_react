@@ -448,12 +448,12 @@ class Login {
 
             this.showLoginWindow();
         }
-        let userLanguage = window.navigator.language;
+        let userLanguage = getCookie('lang');
         let message = null;
 
-        if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+        if (userLanguage === 'ru') {
             message = 'Вы уверены, что хотите выйти?';
-        } else {
+        } else if (userLanguage === 'en') {
             message = 'Are you sure, you want to log out?';
         }
         showConfirmWindow(out, message);
@@ -485,12 +485,12 @@ class Login {
                 showInfoWindow("Authorisation problem!");
             }
         }
-        let userLanguage = window.navigator.language;
+        let userLanguage = getCookie('lang');
         let message = null;
 
-        if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+        if (userLanguage === 'ru') {
             message = 'Вы уверены, что хотите удалить пользователя?';
-        } else {
+        } else if (userLanguage === 'en') {
             message = 'Are you sure, you want to delete user?';
         }
         showConfirmWindow(confirm, message);

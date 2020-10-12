@@ -10,3 +10,4 @@ let mainLogin = new Login();
 let showLoading = new LoadingWindow();
 authCheck(mainLogin);
 events();
+console.log(document.cookie)

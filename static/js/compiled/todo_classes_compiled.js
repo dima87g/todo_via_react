@@ -590,12 +590,12 @@ var Login = /*#__PURE__*/function () {
         _this8.showLoginWindow();
       };
 
-      var userLanguage = window.navigator.language;
+      var userLanguage = getCookie('lang');
       var message = null;
 
-      if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+      if (userLanguage === 'ru') {
         message = 'Вы уверены, что хотите выйти?';
-      } else {
+      } else if (userLanguage === 'en') {
         message = 'Are you sure, you want to log out?';
       }
 
@@ -632,12 +632,12 @@ var Login = /*#__PURE__*/function () {
         }
       };
 
-      var userLanguage = window.navigator.language;
+      var userLanguage = getCookie('lang');
       var message = null;
 
-      if (userLanguage === 'ru-RU' || userLanguage === 'ru') {
+      if (userLanguage === 'ru') {
         message = 'Вы уверены, что хотите удалить пользователя?';
-      } else {
+      } else if (userLanguage === 'en') {
         message = 'Are you sure, you want to delete user?';
       }
 

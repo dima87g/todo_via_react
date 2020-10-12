@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response, url_for
+from flask import Flask, render_template, request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 import random
@@ -42,24 +42,34 @@ def main():
 
     if user_language == 'ru':
         local.read('localisation/localisation_ru.ini')
+        response = make_response(render_template("index.html", **dict(local)))
+        response.set_cookie('lang', 'ru')
 
-        return render_template("index.html", **dict(local))
+        return response
     else:
         local.read('localisation/localisation_en.ini')
+        response = make_response(render_template('index.html', **dict(local)))
+        response.set_cookie('lang', 'en')
 
-        return render_template('index.html', **dict(local))
+        return response
 
 
 @app.route('/<lang>', methods=['GET', 'POST'])
 def change_language(lang):
     local = configparser.ConfigParser()
 
-    if lang == 'rus':
+    if lang == 'ru':
         local.read('localisation/localisation_ru.ini')
-        return render_template('index.html', **dict(local))
-    elif lang == 'eng':
+        response = make_response(render_template('index.html', **dict(local)))
+        response.set_cookie('lang', 'ru')
+
+        return response
+    elif lang == 'en':
         local.read('localisation/localisation_en.ini')
-        return render_template('index.html', **dict(local))
+        response = make_response(render_template('index.html', **dict(local)))
+        response.set_cookie('lang', 'en')
+
+        return response
 
 
 @app.route('/user_register', methods=['GET', 'POST'])

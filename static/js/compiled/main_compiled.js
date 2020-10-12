@@ -8,5 +8,6 @@ var mainLogin = new Login();
 var showLoading = new LoadingWindow();
 authCheck(mainLogin);
 events();
+console.log(document.cookie);
 
 //# sourceMappingURL=main_compiled.js.map
