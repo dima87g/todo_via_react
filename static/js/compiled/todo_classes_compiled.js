@@ -741,25 +741,67 @@ var Login = /*#__PURE__*/function () {
   return Login;
 }();
 
-var TaskReact = /*#__PURE__*/function (_React$Component) {
-  _inherits(TaskReact, _React$Component);
+var TaskListReact = /*#__PURE__*/function (_React$Component) {
+  _inherits(TaskListReact, _React$Component);
 
-  var _super = _createSuper(TaskReact);
+  var _super = _createSuper(TaskListReact);
+
+  function TaskListReact(props) {
+    var _this12;
+
+    _classCallCheck(this, TaskListReact);
+
+    _this12 = _super.call(this, props);
+    _this12.arr = [1, 2, 3];
+    return _this12;
+  }
+
+  _createClass(TaskListReact, [{
+    key: "render",
+    value: function render() {
+      return /*#__PURE__*/React.createElement("div", {
+        className: 'main_window'
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "task_input"
+      }, /*#__PURE__*/React.createElement("input", {
+        type: 'text',
+        className: 'task_input_field'
+      }), /*#__PURE__*/React.createElement("button", {
+        type: 'button',
+        className: 'task_input_button'
+      }, /*#__PURE__*/React.createElement("img", {
+        src: "/static/icons/add_sub.svg",
+        alt: "+"
+      }))), /*#__PURE__*/React.createElement("div", {
+        className: "main_tasks"
+      }, /*#__PURE__*/React.createElement("ul", null, this.arr.map(function (number) {
+        return /*#__PURE__*/React.createElement("li", null, number);
+      }))));
+    }
+  }]);
+
+  return TaskListReact;
+}(React.Component);
+
+var TaskReact = /*#__PURE__*/function (_React$Component2) {
+  _inherits(TaskReact, _React$Component2);
+
+  var _super2 = _createSuper(TaskReact);
 
   function TaskReact(props) {
-    var _this12;
+    var _this13;
 
     _classCallCheck(this, TaskReact);
 
-    _this12 = _super.call(this, props);
-    _this12.loginInst = _this12.props.loginInst;
-    _this12.taskList = _this12.props.taskList;
-    _this12.shadow = shadow();
-    _this12.state = {
-      status: _this12.props.status,
+    _this13 = _super2.call(this, props);
+    _this13.loginInst = _this13.props.loginInst;
+    _this13.taskList = _this13.props.taskList;
+    _this13.shadow = shadow();
+    _this13.state = {
+      status: _this13.props.status,
       showSubtaskDivButtonZIndex: '0',
       showSubtaskDivButtonDisabled: false,
-      taskTextValue: _this12.props.taskText,
+      taskTextValue: _this13.props.taskText,
       taskTextOpacity: '1',
       removeTaskButtonDisabled: false,
       removeTaskButtonScale: 'scale(1)',
@@ -781,12 +823,12 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
       saveEditButtonScale: 'scale(0)',
       saveEditButtonTransitionDelay: '0'
     };
-    _this12.finishTask = _this12.finishTask.bind(_assertThisInitialized(_this12));
-    _this12.showEditTaskField = _this12.showEditTaskField.bind(_assertThisInitialized(_this12));
-    _this12.saveEdit = _this12.saveEdit.bind(_assertThisInitialized(_this12));
-    _this12.showSubtaskField = _this12.showSubtaskField.bind(_assertThisInitialized(_this12));
-    _this12.editTextField = React.createRef();
-    return _this12;
+    _this13.finishTask = _this13.finishTask.bind(_assertThisInitialized(_this13));
+    _this13.showEditTaskField = _this13.showEditTaskField.bind(_assertThisInitialized(_this13));
+    _this13.saveEdit = _this13.saveEdit.bind(_assertThisInitialized(_this13));
+    _this13.showSubtaskField = _this13.showSubtaskField.bind(_assertThisInitialized(_this13));
+    _this13.editTextField = React.createRef();
+    return _this13;
   }
   /**
    * POST: json = {'task_id': 'number', 'status': 'boolean'}
@@ -800,7 +842,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
   _createClass(TaskReact, [{
     key: "finishTask",
     value: function finishTask() {
-      var _this13 = this;
+      var _this14 = this;
 
       var taskStatus = this.state.status === false;
       var sendData = {
@@ -810,11 +852,11 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
 
       var finish = function finish(answer) {
         if (answer['ok'] === true) {
-          _this13.setState({
+          _this14.setState({
             status: taskStatus
           });
         } else if (answer['error_code'] === 401) {
-          _this13.loginInst.forceLogOut();
+          _this14.loginInst.forceLogOut();
 
           showInfoWindow('Authorisation problem!');
         }
@@ -825,7 +867,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "showSubtaskField",
     value: function showSubtaskField() {
-      var _this14 = this;
+      var _this15 = this;
 
       if (this.state.subtaskDivShowed === false) {
         this.shadow();
@@ -859,7 +901,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           addSubtaskButtonTransitionDelay: '0s'
         });
         this.subtaskDivHideTimer = setTimeout(function () {
-          _this14.setState({
+          _this15.setState({
             subtaskDivVisibility: 'hidden',
             showSubtaskDivButtonZIndex: '0'
           });
@@ -869,7 +911,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "showEditTaskField",
     value: function showEditTaskField() {
-      var _this15 = this;
+      var _this16 = this;
 
       if (this.state.taskTextEditDivShowed === false) {
         this.shadow();
@@ -897,11 +939,11 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
 
           var saveEdit = function saveEdit(answer) {
             if (answer['ok'] === true) {
-              _this15.setState({
-                taskTextValue: _this15.editTextField.current.value
+              _this16.setState({
+                taskTextValue: _this16.editTextField.current.value
               });
             } else if (answer['error_code'] === 401) {
-              _this15.loginInst.forceLogOut();
+              _this16.loginInst.forceLogOut();
 
               showInfoWindow('Authorisation problem!');
             }
@@ -924,7 +966,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
           taskTextOpacity: '1'
         });
         this.hideEditDivTimer = setTimeout(function () {
-          _this15.setState({
+          _this16.setState({
             taskTextEditDivVisibility: 'hidden'
           });
         }, 700);
@@ -1010,8 +1052,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component) {
         },
         type: 'text',
         ref: this.editTextField,
-        onKeyDown: this.saveEdit // onBlur={this.showEditTaskField}
-
+        onKeyDown: this.saveEdit
       }), /*#__PURE__*/React.createElement("button", {
         className: 'save_edit_button',
         style: {
@@ -1046,7 +1087,7 @@ var LoadingWindow = /*#__PURE__*/function () {
   _createClass(LoadingWindow, [{
     key: "showWindow",
     value: function showWindow(loadingWindow) {
-      var _this16 = this;
+      var _this17 = this;
 
       this.reqCount++;
 
@@ -1054,15 +1095,15 @@ var LoadingWindow = /*#__PURE__*/function () {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
           loadingWindow.style.visibility = 'visible';
-          _this16.startTime = Date.now();
-          _this16.isAlive = true;
+          _this17.startTime = Date.now();
+          _this17.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow(loadingWindow) {
-      var _this17 = this;
+      var _this18 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -1079,7 +1120,7 @@ var LoadingWindow = /*#__PURE__*/function () {
           } else {
             this.timerHide = setTimeout(function () {
               loadingWindow.style.visibility = 'hidden';
-              _this17.isAlive = false;
+              _this18.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }

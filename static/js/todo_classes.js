@@ -575,6 +575,30 @@ class Login {
     }
 }
 
+class TaskListReact extends React.Component {
+    constructor(props) {
+        super(props)
+        this.arr = [1, 2, 3];
+    }
+    render() {
+        return (
+            <div className={'main_window'}>
+                <div className="task_input">
+                    <input type={'text'} className={'task_input_field'}/>
+                    <button type={'button'} className={'task_input_button'}>
+                        <img src="/static/icons/add_sub.svg" alt="+"/>
+                    </button>
+                </div>
+                <div className="main_tasks">
+                    <ul>
+                        {this.arr.map((number) => <li>{number}</li>)}
+                    </ul>
+                </div>
+            </div>
+        )
+    }
+}
+
 class TaskReact extends React.Component {
     constructor(props) {
         super(props);
@@ -817,7 +841,6 @@ class TaskReact extends React.Component {
                            type={'text'}
                            ref={this.editTextField}
                            onKeyDown={this.saveEdit}
-                           // onBlur={this.showEditTaskField}
                     />
                     <button className={'save_edit_button'}
                             style={
