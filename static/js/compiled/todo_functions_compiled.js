@@ -1,13 +1,12 @@
 'use strict';
 
 function events() {
-  function noEnterRefreshTaskInput(event) {
-    if (event.keyCode === 13) {
-      event.preventDefault();
-      document.getElementById("task_input_button").click();
-    }
-  }
-
+  // function noEnterRefreshTaskInput(event) {
+  //     if (event.keyCode === 13) {
+  //         event.preventDefault();
+  //         document.getElementById("task_input_button").click();
+  //     }
+  // }
   function noEnterRefreshLogin(event) {
     if (event.keyCode === 13) {
       event.preventDefault();
@@ -25,9 +24,8 @@ function events() {
   var loginForm = document.forms['login_form'];
   loginForm.addEventListener("keydown", noEnterRefreshLogin, false);
   var registerForm = document.forms['register_form'];
-  registerForm.addEventListener("keydown", noEnterRefreshRegister, false);
-  var taskInputField = document.getElementById("task_input_field");
-  taskInputField.addEventListener("keydown", noEnterRefreshTaskInput, false);
+  registerForm.addEventListener("keydown", noEnterRefreshRegister, false); // let taskInputField = document.getElementById("task_input_field");
+  // taskInputField.addEventListener("keydown", noEnterRefreshTaskInput, false);
 }
 
 function knock_knock(path, func) {

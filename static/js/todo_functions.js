@@ -2,12 +2,12 @@
 
 function events() {
 
-    function noEnterRefreshTaskInput(event) {
-        if (event.keyCode === 13) {
-            event.preventDefault();
-            document.getElementById("task_input_button").click();
-        }
-    }
+    // function noEnterRefreshTaskInput(event) {
+    //     if (event.keyCode === 13) {
+    //         event.preventDefault();
+    //         document.getElementById("task_input_button").click();
+    //     }
+    // }
 
     function noEnterRefreshLogin(event) {
         if (event.keyCode === 13) {
@@ -29,8 +29,8 @@ function events() {
     let registerForm = document.forms['register_form'];
     registerForm.addEventListener("keydown", noEnterRefreshRegister, false);
 
-    let taskInputField = document.getElementById("task_input_field");
-    taskInputField.addEventListener("keydown", noEnterRefreshTaskInput, false);
+    // let taskInputField = document.getElementById("task_input_field");
+    // taskInputField.addEventListener("keydown", noEnterRefreshTaskInput, false);
 }
 
 function knock_knock(path, func, sendData = undefined) {

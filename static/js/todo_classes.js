@@ -1,190 +1,43 @@
 'use strict';
 
 class TaskList {
-    constructor() {
-        this.tasks = [];
+    constructor(loginInst, rawTasks) {
+        this.loginInst = null;
+        this.rawTasks = rawTasks;
         this.tasksTree = new Map();
-        this.loginClass = null;
-    }
+        this.tasks = [];
 
-    addTask() {
-        /**
-         * POST: json = {'taskText': 'string', 'parentId' = 'number'}
-         * GET:
-         * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
-         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-         * 'error_message': 'string' or null}
-         */
-        if (document.getElementById("task_input_field").value) {
-            let taskText = document.getElementById("task_input_field").value;
-            document.getElementById("task_input_field").value = "";
-            let sendData = {"taskText": taskText, "parentId": null};
+        for (let task of this.rawTasks) {
+            let taskId = task['task_id'];
+            let taskText = task['task_text'];
+            let taskStatus = task['task_status'];
+            let taskParentId = task['parent_id'];
 
-            const add = (answer) => {
-                if (answer['ok'] === true) {
-                    let taskId = answer['task_id'];
-                    let newTask = new Task(this.loginClass, this, taskId, taskText);
-
-                    this.tasksTree.set(newTask.id, newTask);
-                    this.tasks.push(newTask);
-
-                    this.updateDom();
-                }
-                if (answer["error_code"] === 401) {
-                    this.loginClass.forceLogOut();
-                    showInfoWindow("Authorisation problem!");
-                }
-            }
-            knock_knock('/save_task', add, sendData);
-        }
-    }
-
-    addSubtask(taskObject, DOMElement) {
-        /**
-         * POST: json = {'taskText': 'string', 'parentId': 'number'}
-         * GET:
-         * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
-         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-         * 'error_message': 'string' or null}
-         */
-        let subtaskDiv = DOMElement.parentNode;
-        let taskDiv = subtaskDiv.parentNode;
-        if (subtaskDiv.getElementsByClassName('subtask_text_field')[0].value) {
-            let taskText = subtaskDiv.getElementsByClassName('subtask_text_field')[0].value;
-            subtaskDiv.getElementsByClassName('subtask_text_field')[0].value = '';
-            taskDiv.getElementsByClassName('show_subtask_input_button')[0].click();
-            let parentId = taskObject.id;
-            let sendData = {'taskText': taskText, 'parentId': parentId}
-            const add = (answer) => {
-                if (answer['ok'] === true) {
-                    let taskId = answer['task_id'];
-                    let newTask = new Task(this, taskId, taskText, parentId);
-
-                    this.tasksTree.set(taskId, newTask);
-                    taskObject.subtasks.push(newTask);
-
-                    this.updateDom();
-                } else if (answer['error_code'] === 401) {
-                    this.loginClass.forceLogOut();
-                    showInfoWindow("Authorisation problem!");
-                }
-            }
-            knock_knock('/save_task', add, sendData);
-        }
-    }
-
-    removeTask(task, domButton) {
-        /**
-         * @param {object} - Task instance object
-         * POST: {taskId: 'number'}
-         * GET:
-         * if OK = true: json = {'ok': true}
-         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-         * 'error_message': 'string' or null}
-         */
-        let sendData = {'taskId': task.id}
-        const remove = (answer) => {
-            if (answer['ok'] === true) {
-                let domTaskElement = domButton.parentNode.parentNode;
-
-                if (this.tasksTree.has(task.parentId)) {
-                    let parentList = this.tasksTree.get(task.parentId).subtasks;
-                    parentList.splice(parentList.indexOf(task), 1);
-                } else {
-                    this.tasks.splice(this.tasks.indexOf(task), 1);
-                }
-                this.tasksTree.delete(task.id);
-                domTaskElement.remove();
-            } else if (answer["error_code"] === 401) {
-                this.loginClass.forceLogOut();
-                showInfoWindow("Authorisation problem!");
-            }
-        }
-        knock_knock('/delete_task', remove, sendData);
-    }
-
-    updateDom() {
-        let tasksParent = document.getElementById("main_tasks");
-        let existTasks = document.getElementsByClassName("task");
-        let linearTasksList = [];
-
-        function linearTaskListFiller(tasks) {
-            for (let task of tasks) {
-                linearTasksList.push(task);
-                if (task.subtasks.length > 0) {
-                    linearTaskListFiller(task.subtasks);
-                }
-            }
+            this.tasksTree.set(taskId, new Task(taskId, taskText, taskParentId, taskStatus));
         }
 
-        linearTaskListFiller(this.tasks);
-
-        let i = 0;
-
-        for (i; i < linearTasksList.length; i++) {
-            if (existTasks[i]) {
-                linearTasksList[i].replaceTaskNode(existTasks[i]);
+        for (let task of this.tasksTree.values()) {
+            if (this.tasksTree.has(task.parentId)) {
+                this.tasksTree.get(task.parentId).subtasks.push(task);
             } else {
-                tasksParent.appendChild(linearTasksList[i].createTaskNode());
+                this.tasks.push(task);
             }
         }
-        while (existTasks[i]) {
-            tasksParent.removeChild(tasksParent.lastChild);
-        }
+
+        ReactDOM.render(<TaskListReact loginInst={this.loginInst}
+                                       taskListInst={this}
+                                       tasksTree={this.tasksTree}
+                                       tasks={this.tasks}/>, document.getElementById('root'));
     }
 }
 
 class Task {
-    constructor(loginInst, taskList, id, text, parentId = null, status = false) {
-        this.loginInst = loginInst;
-        this.taskList = taskList;
+    constructor(id, text, parentId = null, status = false) {
         this.id = id;
         this.text = text;
         this.parentId = parentId;
         this.status = status;
         this.subtasks = [];
-    }
-
-    createTaskNode() {
-        const self = this;
-        let taskDiv = document.createElement("div");
-        taskDiv.setAttribute("class", "task");
-
-        ReactDOM.render(
-            <TaskReact loginInst={this.loginInst}
-                       taskList={this.taskList}
-                       taskId={this.id}
-                       taskText={this.text}
-                       status={this.status}/>,
-                taskDiv);
-        let removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
-
-        removeTaskButton.onclick = function () {
-            self.taskList.removeTask(self, this);
-        };
-        return taskDiv;
-    }
-
-    replaceTaskNode(existTask) {
-        const self = this;
-        let finishButton = existTask.getElementsByClassName("task_finish_button")[0];
-        let addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
-        let removeButton = existTask.getElementsByClassName("remove_task_button")[0];
-        existTask.getElementsByTagName("p")[0].textContent = this.text;
-        if (this.status === false) {
-            existTask.setAttribute("class", "task");
-        } else {
-            existTask.setAttribute("class", "task finished_task");
-        }
-        finishButton.onclick = function () {
-            self.taskList.finishTask(self);
-        };
-        addSubtaskButton.onclick = function () {
-            self.taskList.addSubtask(self, this);
-        };
-        removeButton.onclick = function () {
-            self.taskList.removeTask(self, this);
-        };
     }
 }
 
@@ -354,35 +207,34 @@ class Login {
                     this.userChangePasswordButton.disabled = false;
                 }
 
-                this.taskList = new TaskList();
-                this.taskList.loginClass = this;
-                let taskInputButton = document.getElementById("task_input_button");
+                this.taskList = new TaskList(this, tasksFromServer);
+                // let taskInputButton = document.getElementById("task_input_button");
+                //
+                // taskInputButton.onclick = () => {
+                //     this.taskList.addTask();
+                //     return false;
+                // }
 
-                taskInputButton.onclick = () => {
-                    this.taskList.addTask();
-                    return false;
-                }
-
-                let tasksTree = this.taskList.tasksTree;
-
-                for (let task of tasksFromServer) {
-                    let taskId = task["task_id"];
-                    let taskText = task["task_text"];
-                    let taskStatus = task["task_status"];
-                    let parentId = task["parent_id"];
-
-                    tasksTree.set(taskId, new Task(this, this.taskList, taskId, taskText, parentId, taskStatus));
-                }
-
-                for (let task of tasksTree.values()) {
-                    if (tasksTree.has(task.parentId)) {
-                        tasksTree.get(task.parentId).subtasks.push(task);
-                    } else {
-                        this.taskList.tasks.push(task);
-                    }
-                }
-
-                this.taskList.updateDom();
+                // let tasksTree = this.taskList.tasksTree;
+                //
+                // for (let task of tasksFromServer) {
+                //     let taskId = task["task_id"];
+                //     let taskText = task["task_text"];
+                //     let taskStatus = task["task_status"];
+                //     let parentId = task["parent_id"];
+                //
+                //     tasksTree.set(taskId, new Task(this, this.taskList, taskId, taskText, parentId, taskStatus));
+                // }
+                //
+                // for (let task of tasksTree.values()) {
+                //     if (tasksTree.has(task.parentId)) {
+                //         tasksTree.get(task.parentId).subtasks.push(task);
+                //     } else {
+                //         this.taskList.tasks.push(task);
+                //     }
+                // }
+                //
+                // this.taskList.updateDom();
 
             }
             if (answer["error_code"] === 401) {
@@ -578,21 +430,155 @@ class Login {
 class TaskListReact extends React.Component {
     constructor(props) {
         super(props)
-        this.arr = [1, 2, 3];
+        this.loginInst = this.props.loginInst;
+        this.taskListInst = this.props.taskListInst;
+        this.tasksTree = this.props.tasksTree;
+        this.tasks = this.props.tasks;
+        this.state = {
+            linearTasksList: this.makeLinearList(this.tasks),
+        }
+        this.linearTasksList = this.makeLinearList(this.tasks);
+        this.addTask = this.addTask.bind(this);
+        this.addSubtask = this.addSubtask.bind(this);
+        this.removeTask = this.removeTask.bind(this);
+        this.textInputField = React.createRef();
     }
+
+    makeLinearList(tasksList) {
+        let linearTasksList = [];
+
+        function recursionWalk(tasksList) {
+            for (let task of tasksList) {
+                linearTasksList.push(task);
+                if (task.subtasks.length > 0) {
+                    recursionWalk(task.subtasks);
+                }
+            }
+        }
+        recursionWalk(tasksList);
+
+        return linearTasksList;
+    }
+
+    /**
+     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
+     * GET:
+     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     */
+    addTask(e) {
+        e.preventDefault();
+        if (this.textInputField.current.value) {
+            let taskText = this.textInputField.current.value;
+            this.textInputField.current.value = '';
+            let sendData = {'taskText': taskText, 'parentId': null}
+
+            const add = (answer) => {
+                if (answer['ok'] === true) {
+                    let taskId = answer['task_id'];
+                    let newTask = new Task(taskId, taskText);
+
+                    this.tasksTree.set(newTask.id, newTask);
+                    this.tasks.push(newTask);
+
+                    this.setState({
+                        linearTasksList: this.makeLinearList(this.tasks),
+                    })
+                } else if (answer['error_code'] === 401) {
+                    this.loginInst.forceLogOut();
+                    showInfoWindow('Authorisation problem!');
+                }
+            }
+            knock_knock('/save_task', add, sendData);
+        }
+    }
+
+    /**
+     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
+     * GET:
+     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     */
+    addSubtask(subtaskParentId, subtaskText) {
+        let sendData = {'taskText': subtaskText, 'parentId': subtaskParentId}
+
+        const add = (answer) => {
+            if (answer['ok'] === true) {
+                let taskId = answer['task_id'];
+                let newTask = new Task(taskId, subtaskText, subtaskParentId);
+
+                this.tasksTree.set(taskId, newTask);
+                this.tasksTree.get(subtaskParentId).subtasks.push(newTask);
+
+                this.setState({
+                    linearTasksList : this.makeLinearList(this.tasks),
+                })
+            } else if (answer['error_code'] === 401) {
+                this.loginInst.forceLogOut();
+                showInfoWindow('Authorisation problem!');
+            }
+        }
+        knock_knock('/save_task', add, sendData);
+    }
+
+    /**
+     * POST: {taskId: 'number'}
+     * GET:
+     * if OK = true: json = {'ok': true}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     * @param task
+     */
+    removeTask(task) {
+        let sendData = {'taskId': task.id}
+        const remove = (answer) => {
+            if (answer['ok'] === true) {
+                if (this.tasksTree.has(task.parentId)) {
+                    let childrenList = this.tasksTree.get(task.parentId).subtasks;
+                    childrenList.splice(childrenList.indexOf(task), 1);
+                } else {
+                    this.tasks.splice(this.tasks.indexOf(task), 1);
+                }
+                this.setState({
+                    linearTasksList: this.makeLinearList(this.tasks),
+                })
+            } else if (answer['error_code'] === 401) {
+                this.loginInst.forceLogOut();
+                showInfoWindow('Authorisation problem!');
+            }
+        }
+        knock_knock('/delete_task', remove, sendData);
+    }
+
     render() {
         return (
             <div className={'main_window'}>
                 <div className="task_input">
-                    <input type={'text'} className={'task_input_field'}/>
-                    <button type={'button'} className={'task_input_button'}>
+                    <form onSubmit={this.addTask}>
+                        <label htmlFor={'task_input_field'}/>
+                            <input type={'text'}
+                                   className={'task_input_field'}
+                                   onSubmit={this.addTask}
+                                   ref={this.textInputField}/>
+                            <button type={'button'}
+                                    className={'task_input_button'}
+                                    onClick={this.addTask}>
                         <img src="/static/icons/add_sub.svg" alt="+"/>
                     </button>
+                    </form>
                 </div>
                 <div className="main_tasks">
-                    <ul>
-                        {this.arr.map((number) => <li>{number}</li>)}
-                    </ul>
+                    {this.state.linearTasksList.map((task) => <TaskReact key={task.id.toString()}
+                                                                         loginInst={this.loginInst}
+                                                                         taskInst={task}
+                                                                         taskId={task.id}
+                                                                         status={task.status}
+                                                                         taskText={task.text}
+                                                                         parentId={task.parentId}
+                                                                         removeTaskFunc={this.removeTask}
+                                                                         addSubtaskFunc={this.addSubtask}/>)}
                 </div>
             </div>
         )
@@ -602,8 +588,9 @@ class TaskListReact extends React.Component {
 class TaskReact extends React.Component {
     constructor(props) {
         super(props);
+        this.taskInst = this.props.taskInst;
         this.loginInst = this.props.loginInst;
-        this.taskList = this.props.taskList;
+        this.taskId = this.props.taskId;
         this.shadow = shadow();
         this.state = {
             status: this.props.status,
@@ -620,6 +607,7 @@ class TaskReact extends React.Component {
             subtaskTimerHide: null,
             subtaskTextFieldOpacity: '0',
             subtaskTextFieldWidth: '0',
+            addSubtaskButtonDisabled: true,
             addSubtaskButtonOpacity: '0',
             addSubtaskButtonScale: 'scale(0)',
             addSubtaskButtonTransitionDelay: '0.2s',
@@ -632,10 +620,13 @@ class TaskReact extends React.Component {
             saveEditButtonTransitionDelay: '0',
         }
         this.finishTask = this.finishTask.bind(this);
+        this.removeTask = this.removeTask.bind(this);
         this.showEditTaskField = this.showEditTaskField.bind(this);
         this.saveEdit = this.saveEdit.bind(this);
         this.showSubtaskField = this.showSubtaskField.bind(this);
-        this.editTextField = React.createRef();
+        this.addSubtask = this.addSubtask.bind(this);
+        this.addSubtaskField = React.createRef();
+        this.editTaskField = React.createRef();
     }
 
     /**
@@ -648,7 +639,7 @@ class TaskReact extends React.Component {
     finishTask() {
         let taskStatus = this.state.status === false;
         let sendData = {
-            'taskId': this.props.taskId,
+            'taskId': this.taskId,
             'status': taskStatus
         };
         const finish = (answer) => {
@@ -662,6 +653,10 @@ class TaskReact extends React.Component {
             }
         }
         knock_knock('/finish_task', finish, sendData);
+    }
+
+    removeTask() {
+        this.props.removeTaskFunc(this.taskInst);
     }
 
     showSubtaskField() {
@@ -678,6 +673,7 @@ class TaskReact extends React.Component {
                 subtaskDivVisibility: 'visible',
                 subtaskTextFieldOpacity: '1',
                 subtaskTextFieldWidth: '65%',
+                addSubtaskButtonDisabled: false,
                 addSubtaskButtonOpacity: '1',
                 addSubtaskButtonScale: 'scale(1)',
                 addSubtaskButtonTransitionDelay: '0.2s',
@@ -693,6 +689,7 @@ class TaskReact extends React.Component {
                 taskTextOpacity: '1',
                 subtaskTextFieldOpacity: '0',
                 subtaskTextFieldWidth: '0',
+                addSubtaskButtonDisabled: true,
                 addSubtaskButtonOpacity: '0',
                 addSubtaskButtonScale: 'scale(0)',
                 addSubtaskButtonTransitionDelay: '0s',
@@ -703,6 +700,18 @@ class TaskReact extends React.Component {
                     showSubtaskDivButtonZIndex: '0',
                 });
             }, 700);
+        }
+    }
+
+    addSubtask() {
+        if (this.addSubtaskField.current.value) {
+            let subtaskText = this.addSubtaskField.current.value;
+            this.addSubtaskField.current.value = '';
+
+            this.showSubtaskField();
+
+            this.props.addSubtaskFunc(this.taskId, subtaskText);
+
         }
     }
 
@@ -723,18 +732,18 @@ class TaskReact extends React.Component {
                 saveEditButtonTransitionDelay: '0.2s',
                 taskTextOpacity: '0.2',
             })
-            this.editTextField.current.value = this.state.taskTextValue;
+            this.editTaskField.current.value = this.state.taskTextValue;
         } else {
-            if (this.editTextField.current.value !== this.state.taskTextValue) {
+            if (this.editTaskField.current.value !== this.state.taskTextValue) {
                 let sendData = {
                     'taskId': this.props.taskId,
-                    'taskText': this.editTextField.current.value
+                    'taskText': this.editTaskField.current.value
                 };
 
                 const saveEdit = (answer) => {
                     if (answer['ok'] === true) {
                         this.setState({
-                            taskTextValue: this.editTextField.current.value,
+                            taskTextValue: this.editTaskField.current.value,
                         })
                     } else if (answer['error_code'] === 401) {
                         this.loginInst.forceLogOut();
@@ -800,7 +809,9 @@ class TaskReact extends React.Component {
                                 transitionDelay: this.state.removeTaskButtonTransitionDelay,
                             }
                         }
-                        disabled={this.state.removeTaskButtonDisabled} type={'button'}>
+                        disabled={this.state.removeTaskButtonDisabled}
+                        type={'button'}
+                        onClick={this.removeTask}>
                     <img src="/static/icons/delete.svg" alt=""/>
                 </button>
                 <div className={'subtask_div'} style={{visibility: this.state.subtaskDivVisibility}}>
@@ -811,7 +822,8 @@ class TaskReact extends React.Component {
                                    width: this.state.subtaskTextFieldWidth,
                                    opacity: this.state.subtaskTextFieldOpacity,
                                }
-                           }/>
+                           }
+                           ref={this.addSubtaskField}/>
                     <button className={'add_subtask_button'}
                             type={'button'}
                             style={
@@ -820,7 +832,9 @@ class TaskReact extends React.Component {
                                     transform: this.state.addSubtaskButtonScale,
                                     transitionDelay: this.state.addSubtaskButtonTransitionDelay,
                                 }
-                            }>
+                            }
+                            disabled={this.state.addSubtaskButtonDisabled}
+                            onClick={this.addSubtask}>
                         <img src="/static/icons/add_sub.svg" alt="+"/>
                     </button>
                 </div>
@@ -839,7 +853,7 @@ class TaskReact extends React.Component {
                                }
                            }
                            type={'text'}
-                           ref={this.editTextField}
+                           ref={this.editTaskField}
                            onKeyDown={this.saveEdit}
                     />
                     <button className={'save_edit_button'}

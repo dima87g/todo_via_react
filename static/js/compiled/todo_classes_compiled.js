@@ -16,6 +16,10 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -24,262 +28,71 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+var TaskList = function TaskList(loginInst, rawTasks) {
+  _classCallCheck(this, TaskList);
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+  this.loginInst = null;
+  this.rawTasks = rawTasks;
+  this.tasksTree = new Map();
+  this.tasks = [];
 
-var TaskList = /*#__PURE__*/function () {
-  function TaskList() {
-    _classCallCheck(this, TaskList);
+  var _iterator = _createForOfIteratorHelper(this.rawTasks),
+      _step;
 
-    this.tasks = [];
-    this.tasksTree = new Map();
-    this.loginClass = null;
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var task = _step.value;
+      var taskId = task['task_id'];
+      var taskText = task['task_text'];
+      var taskStatus = task['task_status'];
+      var taskParentId = task['parent_id'];
+      this.tasksTree.set(taskId, new Task(taskId, taskText, taskParentId, taskStatus));
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
   }
 
-  _createClass(TaskList, [{
-    key: "addTask",
-    value: function addTask() {
-      var _this = this;
+  var _iterator2 = _createForOfIteratorHelper(this.tasksTree.values()),
+      _step2;
 
-      /**
-       * POST: json = {'taskText': 'string', 'parentId' = 'number'}
-       * GET:
-       * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
-       * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-       * 'error_message': 'string' or null}
-       */
-      if (document.getElementById("task_input_field").value) {
-        var taskText = document.getElementById("task_input_field").value;
-        document.getElementById("task_input_field").value = "";
-        var sendData = {
-          "taskText": taskText,
-          "parentId": null
-        };
+  try {
+    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+      var _task = _step2.value;
 
-        var add = function add(answer) {
-          if (answer['ok'] === true) {
-            var taskId = answer['task_id'];
-            var newTask = new Task(_this.loginClass, _this, taskId, taskText);
-
-            _this.tasksTree.set(newTask.id, newTask);
-
-            _this.tasks.push(newTask);
-
-            _this.updateDom();
-          }
-
-          if (answer["error_code"] === 401) {
-            _this.loginClass.forceLogOut();
-
-            showInfoWindow("Authorisation problem!");
-          }
-        };
-
-        knock_knock('/save_task', add, sendData);
-      }
-    }
-  }, {
-    key: "addSubtask",
-    value: function addSubtask(taskObject, DOMElement) {
-      var _this2 = this;
-
-      /**
-       * POST: json = {'taskText': 'string', 'parentId': 'number'}
-       * GET:
-       * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
-       * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-       * 'error_message': 'string' or null}
-       */
-      var subtaskDiv = DOMElement.parentNode;
-      var taskDiv = subtaskDiv.parentNode;
-
-      if (subtaskDiv.getElementsByClassName('subtask_text_field')[0].value) {
-        var taskText = subtaskDiv.getElementsByClassName('subtask_text_field')[0].value;
-        subtaskDiv.getElementsByClassName('subtask_text_field')[0].value = '';
-        taskDiv.getElementsByClassName('show_subtask_input_button')[0].click();
-        var parentId = taskObject.id;
-        var sendData = {
-          'taskText': taskText,
-          'parentId': parentId
-        };
-
-        var add = function add(answer) {
-          if (answer['ok'] === true) {
-            var taskId = answer['task_id'];
-            var newTask = new Task(_this2, taskId, taskText, parentId);
-
-            _this2.tasksTree.set(taskId, newTask);
-
-            taskObject.subtasks.push(newTask);
-
-            _this2.updateDom();
-          } else if (answer['error_code'] === 401) {
-            _this2.loginClass.forceLogOut();
-
-            showInfoWindow("Authorisation problem!");
-          }
-        };
-
-        knock_knock('/save_task', add, sendData);
-      }
-    }
-  }, {
-    key: "removeTask",
-    value: function removeTask(task, domButton) {
-      var _this3 = this;
-
-      /**
-       * @param {object} - Task instance object
-       * POST: {taskId: 'number'}
-       * GET:
-       * if OK = true: json = {'ok': true}
-       * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-       * 'error_message': 'string' or null}
-       */
-      var sendData = {
-        'taskId': task.id
-      };
-
-      var remove = function remove(answer) {
-        if (answer['ok'] === true) {
-          var domTaskElement = domButton.parentNode.parentNode;
-
-          if (_this3.tasksTree.has(task.parentId)) {
-            var parentList = _this3.tasksTree.get(task.parentId).subtasks;
-
-            parentList.splice(parentList.indexOf(task), 1);
-          } else {
-            _this3.tasks.splice(_this3.tasks.indexOf(task), 1);
-          }
-
-          _this3.tasksTree.delete(task.id);
-
-          domTaskElement.remove();
-        } else if (answer["error_code"] === 401) {
-          _this3.loginClass.forceLogOut();
-
-          showInfoWindow("Authorisation problem!");
-        }
-      };
-
-      knock_knock('/delete_task', remove, sendData);
-    }
-  }, {
-    key: "updateDom",
-    value: function updateDom() {
-      var tasksParent = document.getElementById("main_tasks");
-      var existTasks = document.getElementsByClassName("task");
-      var linearTasksList = [];
-
-      function linearTaskListFiller(tasks) {
-        var _iterator = _createForOfIteratorHelper(tasks),
-            _step;
-
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var task = _step.value;
-            linearTasksList.push(task);
-
-            if (task.subtasks.length > 0) {
-              linearTaskListFiller(task.subtasks);
-            }
-          }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
-        }
-      }
-
-      linearTaskListFiller(this.tasks);
-      var i = 0;
-
-      for (i; i < linearTasksList.length; i++) {
-        if (existTasks[i]) {
-          linearTasksList[i].replaceTaskNode(existTasks[i]);
-        } else {
-          tasksParent.appendChild(linearTasksList[i].createTaskNode());
-        }
-      }
-
-      while (existTasks[i]) {
-        tasksParent.removeChild(tasksParent.lastChild);
-      }
-    }
-  }]);
-
-  return TaskList;
-}();
-
-var Task = /*#__PURE__*/function () {
-  function Task(loginInst, taskList, id, text) {
-    var parentId = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-    var status = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
-
-    _classCallCheck(this, Task);
-
-    this.loginInst = loginInst;
-    this.taskList = taskList;
-    this.id = id;
-    this.text = text;
-    this.parentId = parentId;
-    this.status = status;
-    this.subtasks = [];
-  }
-
-  _createClass(Task, [{
-    key: "createTaskNode",
-    value: function createTaskNode() {
-      var self = this;
-      var taskDiv = document.createElement("div");
-      taskDiv.setAttribute("class", "task");
-      ReactDOM.render( /*#__PURE__*/React.createElement(TaskReact, {
-        loginInst: this.loginInst,
-        taskList: this.taskList,
-        taskId: this.id,
-        taskText: this.text,
-        status: this.status
-      }), taskDiv);
-      var removeTaskButton = taskDiv.getElementsByClassName('remove_task_button')[0];
-
-      removeTaskButton.onclick = function () {
-        self.taskList.removeTask(self, this);
-      };
-
-      return taskDiv;
-    }
-  }, {
-    key: "replaceTaskNode",
-    value: function replaceTaskNode(existTask) {
-      var self = this;
-      var finishButton = existTask.getElementsByClassName("task_finish_button")[0];
-      var addSubtaskButton = existTask.getElementsByClassName('add_subtask_button')[0];
-      var removeButton = existTask.getElementsByClassName("remove_task_button")[0];
-      existTask.getElementsByTagName("p")[0].textContent = this.text;
-
-      if (this.status === false) {
-        existTask.setAttribute("class", "task");
+      if (this.tasksTree.has(_task.parentId)) {
+        this.tasksTree.get(_task.parentId).subtasks.push(_task);
       } else {
-        existTask.setAttribute("class", "task finished_task");
+        this.tasks.push(_task);
       }
-
-      finishButton.onclick = function () {
-        self.taskList.finishTask(self);
-      };
-
-      addSubtaskButton.onclick = function () {
-        self.taskList.addSubtask(self, this);
-      };
-
-      removeButton.onclick = function () {
-        self.taskList.removeTask(self, this);
-      };
     }
-  }]);
+  } catch (err) {
+    _iterator2.e(err);
+  } finally {
+    _iterator2.f();
+  }
 
-  return Task;
-}();
+  ReactDOM.render( /*#__PURE__*/React.createElement(TaskListReact, {
+    loginInst: this.loginInst,
+    taskListInst: this,
+    tasksTree: this.tasksTree,
+    tasks: this.tasks
+  }), document.getElementById('root'));
+};
+
+var Task = function Task(id, text) {
+  var parentId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+  var status = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
+  _classCallCheck(this, Task);
+
+  this.id = id;
+  this.text = text;
+  this.parentId = parentId;
+  this.status = status;
+  this.subtasks = [];
+};
 
 var Login = /*#__PURE__*/function () {
   function Login() {
@@ -381,7 +194,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "hideLoginWindow",
     value: function hideLoginWindow() {
-      var _this4 = this;
+      var _this = this;
 
       this.loginFormUsername.value = "";
       this.registerFormUsername.value = '';
@@ -391,13 +204,13 @@ var Login = /*#__PURE__*/function () {
       this.authMenu.style.opacity = '0';
       hideShadow();
       setTimeout(function () {
-        _this4.authMenu.style.visibility = 'hidden'; // document.getElementById('task_input_field').focus();
+        _this.authMenu.style.visibility = 'hidden'; // document.getElementById('task_input_field').focus();
       }, 500);
     }
   }, {
     key: "showLoginWindow",
     value: function showLoginWindow() {
-      var _this5 = this;
+      var _this2 = this;
 
       showShadow();
       removeChildren(this.userNameField);
@@ -407,7 +220,7 @@ var Login = /*#__PURE__*/function () {
       this.authMenu.style.visibility = 'visible';
       this.loginFormUsername.focus();
       setTimeout(function () {
-        _this5.authMenu.style.opacity = '1';
+        _this2.authMenu.style.opacity = '1';
       });
     }
   }, {
@@ -438,7 +251,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "onLoad",
     value: function onLoad() {
-      var _this6 = this;
+      var _this3 = this;
 
       /**
        * POST:
@@ -456,68 +269,44 @@ var Login = /*#__PURE__*/function () {
           var userName = answer["user_name"];
           var tasksFromServer = answer['tasks'];
 
-          if (!_this6.userNameField.firstChild) {
-            _this6.userNameField.appendChild(document.createTextNode(userName));
+          if (!_this3.userNameField.firstChild) {
+            _this3.userNameField.appendChild(document.createTextNode(userName));
 
-            _this6.userLogOutButton.disabled = false;
-            _this6.userDeleteButton.disabled = false;
-            _this6.userChangePasswordButton.disabled = false;
+            _this3.userLogOutButton.disabled = false;
+            _this3.userDeleteButton.disabled = false;
+            _this3.userChangePasswordButton.disabled = false;
           }
 
-          _this6.taskList = new TaskList();
-          _this6.taskList.loginClass = _this6;
-          var taskInputButton = document.getElementById("task_input_button");
-
-          taskInputButton.onclick = function () {
-            _this6.taskList.addTask();
-
-            return false;
-          };
-
-          var tasksTree = _this6.taskList.tasksTree;
-
-          var _iterator2 = _createForOfIteratorHelper(tasksFromServer),
-              _step2;
-
-          try {
-            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-              var task = _step2.value;
-              var taskId = task["task_id"];
-              var taskText = task["task_text"];
-              var taskStatus = task["task_status"];
-              var parentId = task["parent_id"];
-              tasksTree.set(taskId, new Task(_this6, _this6.taskList, taskId, taskText, parentId, taskStatus));
-            }
-          } catch (err) {
-            _iterator2.e(err);
-          } finally {
-            _iterator2.f();
-          }
-
-          var _iterator3 = _createForOfIteratorHelper(tasksTree.values()),
-              _step3;
-
-          try {
-            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-              var _task = _step3.value;
-
-              if (tasksTree.has(_task.parentId)) {
-                tasksTree.get(_task.parentId).subtasks.push(_task);
-              } else {
-                _this6.taskList.tasks.push(_task);
-              }
-            }
-          } catch (err) {
-            _iterator3.e(err);
-          } finally {
-            _iterator3.f();
-          }
-
-          _this6.taskList.updateDom();
+          _this3.taskList = new TaskList(_this3, tasksFromServer); // let taskInputButton = document.getElementById("task_input_button");
+          //
+          // taskInputButton.onclick = () => {
+          //     this.taskList.addTask();
+          //     return false;
+          // }
+          // let tasksTree = this.taskList.tasksTree;
+          //
+          // for (let task of tasksFromServer) {
+          //     let taskId = task["task_id"];
+          //     let taskText = task["task_text"];
+          //     let taskStatus = task["task_status"];
+          //     let parentId = task["parent_id"];
+          //
+          //     tasksTree.set(taskId, new Task(this, this.taskList, taskId, taskText, parentId, taskStatus));
+          // }
+          //
+          // for (let task of tasksTree.values()) {
+          //     if (tasksTree.has(task.parentId)) {
+          //         tasksTree.get(task.parentId).subtasks.push(task);
+          //     } else {
+          //         this.taskList.tasks.push(task);
+          //     }
+          // }
+          //
+          // this.taskList.updateDom();
         }
 
         if (answer["error_code"] === 401) {
-          _this6.forceLogOut();
+          _this3.forceLogOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -528,7 +317,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logIn",
     value: function logIn() {
-      var _this7 = this;
+      var _this4 = this;
 
       /**
        * POST: json = {"userName": "string", "password": "string"}
@@ -554,17 +343,17 @@ var Login = /*#__PURE__*/function () {
           if (answer["ok"] === true) {
             var _userName = answer["user_name"];
 
-            _this7.userNameField.appendChild(document.createTextNode(_userName));
+            _this4.userNameField.appendChild(document.createTextNode(_userName));
 
-            _this7.userLogOutButton.disabled = false;
-            _this7.userDeleteButton.disabled = false;
-            _this7.userChangePasswordButton.disabled = false;
+            _this4.userLogOutButton.disabled = false;
+            _this4.userDeleteButton.disabled = false;
+            _this4.userChangePasswordButton.disabled = false;
 
-            _this7.hideLoginWindow();
+            _this4.hideLoginWindow();
 
-            _this7.onLoad();
+            _this4.onLoad();
           } else {
-            _this7.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
+            _this4.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
           }
         };
 
@@ -578,16 +367,16 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "logOut",
     value: function logOut() {
-      var _this8 = this;
+      var _this5 = this;
 
       var out = function out() {
-        _this8.taskList = null;
+        _this5.taskList = null;
         document.cookie = "id=; expires=-1";
         document.cookie = "sign=; expires=-1";
         var tasksParent = document.getElementById("main_tasks");
         removeChildren(tasksParent);
 
-        _this8.showLoginWindow();
+        _this5.showLoginWindow();
       };
 
       var userLanguage = getCookie('lang');
@@ -614,7 +403,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userDelete",
     value: function userDelete() {
-      var _this9 = this;
+      var _this6 = this;
 
       var confirm = function confirm() {
         knock_knock("/user_delete", del);
@@ -622,11 +411,11 @@ var Login = /*#__PURE__*/function () {
 
       var del = function del(answer) {
         if (answer["ok"] === true) {
-          _this9.forceLogOut();
+          _this6.forceLogOut();
         }
 
         if (answer["error_code"] === 401) {
-          _this9.forceLogOut();
+          _this6.forceLogOut();
 
           showInfoWindow("Authorisation problem!");
         }
@@ -646,7 +435,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "changePassword",
     value: function changePassword() {
-      var _this10 = this;
+      var _this7 = this;
 
       removeChildren(this.changePasswordWindowInfo);
 
@@ -661,17 +450,17 @@ var Login = /*#__PURE__*/function () {
 
           var change = function change(answer) {
             if (answer['ok'] === true) {
-              _this10.hideChangePasswordWindow();
+              _this7.hideChangePasswordWindow();
 
               showInfoWindow('Password is successfully changed!');
             } else if (answer['error_code'] === 401) {
-              _this10.hideChangePasswordWindow();
+              _this7.hideChangePasswordWindow();
 
-              _this10.forceLogOut();
+              _this7.forceLogOut();
 
               showInfoWindow('Authorisation problem!');
             } else {
-              _this10.changePasswordWindowInfo.appendChild(document.createTextNode(answer['error_message']));
+              _this7.changePasswordWindowInfo.appendChild(document.createTextNode(answer['error_message']));
             }
           };
 
@@ -690,7 +479,7 @@ var Login = /*#__PURE__*/function () {
   }, {
     key: "userRegister",
     value: function userRegister() {
-      var _this11 = this;
+      var _this8 = this;
 
       /**
        * POST: json =  {"newUserName": "string",  "password": "string"}
@@ -710,15 +499,15 @@ var Login = /*#__PURE__*/function () {
 
           var register = function register(answer) {
             if (answer['ok'] === true) {
-              _this11.registerFormUsername.value = "";
-              _this11.registerFormPassword.value = "";
-              _this11.registerFormPasswordConfirm.value = "";
+              _this8.registerFormUsername.value = "";
+              _this8.registerFormPassword.value = "";
+              _this8.registerFormPasswordConfirm.value = "";
 
-              _this11.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
+              _this8.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
             } else if (answer['error_code'] === 1062) {
-              _this11.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
+              _this8.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
             } else {
-              _this11.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
+              _this8.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
             }
           };
 
@@ -747,36 +536,218 @@ var TaskListReact = /*#__PURE__*/function (_React$Component) {
   var _super = _createSuper(TaskListReact);
 
   function TaskListReact(props) {
-    var _this12;
+    var _this9;
 
     _classCallCheck(this, TaskListReact);
 
-    _this12 = _super.call(this, props);
-    _this12.arr = [1, 2, 3];
-    return _this12;
+    _this9 = _super.call(this, props);
+    _this9.loginInst = _this9.props.loginInst;
+    _this9.taskListInst = _this9.props.taskListInst;
+    _this9.tasksTree = _this9.props.tasksTree;
+    _this9.tasks = _this9.props.tasks;
+    _this9.state = {
+      linearTasksList: _this9.makeLinearList(_this9.tasks)
+    };
+    _this9.linearTasksList = _this9.makeLinearList(_this9.tasks);
+    _this9.addTask = _this9.addTask.bind(_assertThisInitialized(_this9));
+    _this9.addSubtask = _this9.addSubtask.bind(_assertThisInitialized(_this9));
+    _this9.removeTask = _this9.removeTask.bind(_assertThisInitialized(_this9));
+    _this9.textInputField = React.createRef();
+    return _this9;
   }
 
   _createClass(TaskListReact, [{
+    key: "makeLinearList",
+    value: function makeLinearList(tasksList) {
+      var linearTasksList = [];
+
+      function recursionWalk(tasksList) {
+        var _iterator3 = _createForOfIteratorHelper(tasksList),
+            _step3;
+
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var task = _step3.value;
+            linearTasksList.push(task);
+
+            if (task.subtasks.length > 0) {
+              recursionWalk(task.subtasks);
+            }
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+      }
+
+      recursionWalk(tasksList);
+      return linearTasksList;
+    }
+    /**
+     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
+     * GET:
+     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     */
+
+  }, {
+    key: "addTask",
+    value: function addTask(e) {
+      var _this10 = this;
+
+      e.preventDefault();
+
+      if (this.textInputField.current.value) {
+        var taskText = this.textInputField.current.value;
+        this.textInputField.current.value = '';
+        var sendData = {
+          'taskText': taskText,
+          'parentId': null
+        };
+
+        var add = function add(answer) {
+          if (answer['ok'] === true) {
+            var taskId = answer['task_id'];
+            var newTask = new Task(taskId, taskText);
+
+            _this10.tasksTree.set(newTask.id, newTask);
+
+            _this10.tasks.push(newTask);
+
+            _this10.setState({
+              linearTasksList: _this10.makeLinearList(_this10.tasks)
+            });
+          } else if (answer['error_code'] === 401) {
+            _this10.loginInst.forceLogOut();
+
+            showInfoWindow('Authorisation problem!');
+          }
+        };
+
+        knock_knock('/save_task', add, sendData);
+      }
+    }
+    /**
+     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
+     * GET:
+     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     */
+
+  }, {
+    key: "addSubtask",
+    value: function addSubtask(subtaskParentId, subtaskText) {
+      var _this11 = this;
+
+      var sendData = {
+        'taskText': subtaskText,
+        'parentId': subtaskParentId
+      };
+
+      var add = function add(answer) {
+        if (answer['ok'] === true) {
+          var taskId = answer['task_id'];
+          var newTask = new Task(taskId, subtaskText, subtaskParentId);
+
+          _this11.tasksTree.set(taskId, newTask);
+
+          _this11.tasksTree.get(subtaskParentId).subtasks.push(newTask);
+
+          _this11.setState({
+            linearTasksList: _this11.makeLinearList(_this11.tasks)
+          });
+        } else if (answer['error_code'] === 401) {
+          _this11.loginInst.forceLogOut();
+
+          showInfoWindow('Authorisation problem!');
+        }
+      };
+
+      knock_knock('/save_task', add, sendData);
+    }
+    /**
+     * POST: {taskId: 'number'}
+     * GET:
+     * if OK = true: json = {'ok': true}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     * @param task
+     */
+
+  }, {
+    key: "removeTask",
+    value: function removeTask(task) {
+      var _this12 = this;
+
+      var sendData = {
+        'taskId': task.id
+      };
+
+      var remove = function remove(answer) {
+        if (answer['ok'] === true) {
+          if (_this12.tasksTree.has(task.parentId)) {
+            var childrenList = _this12.tasksTree.get(task.parentId).subtasks;
+
+            childrenList.splice(childrenList.indexOf(task), 1);
+          } else {
+            _this12.tasks.splice(_this12.tasks.indexOf(task), 1);
+          }
+
+          _this12.setState({
+            linearTasksList: _this12.makeLinearList(_this12.tasks)
+          });
+        } else if (answer['error_code'] === 401) {
+          _this12.loginInst.forceLogOut();
+
+          showInfoWindow('Authorisation problem!');
+        }
+      };
+
+      knock_knock('/delete_task', remove, sendData);
+    }
+  }, {
     key: "render",
     value: function render() {
+      var _this13 = this;
+
       return /*#__PURE__*/React.createElement("div", {
         className: 'main_window'
       }, /*#__PURE__*/React.createElement("div", {
         className: "task_input"
-      }, /*#__PURE__*/React.createElement("input", {
+      }, /*#__PURE__*/React.createElement("form", {
+        onSubmit: this.addTask
+      }, /*#__PURE__*/React.createElement("label", {
+        htmlFor: 'task_input_field'
+      }), /*#__PURE__*/React.createElement("input", {
         type: 'text',
-        className: 'task_input_field'
+        className: 'task_input_field',
+        onSubmit: this.addTask,
+        ref: this.textInputField
       }), /*#__PURE__*/React.createElement("button", {
         type: 'button',
-        className: 'task_input_button'
+        className: 'task_input_button',
+        onClick: this.addTask
       }, /*#__PURE__*/React.createElement("img", {
         src: "/static/icons/add_sub.svg",
         alt: "+"
-      }))), /*#__PURE__*/React.createElement("div", {
+      })))), /*#__PURE__*/React.createElement("div", {
         className: "main_tasks"
-      }, /*#__PURE__*/React.createElement("ul", null, this.arr.map(function (number) {
-        return /*#__PURE__*/React.createElement("li", null, number);
-      }))));
+      }, this.state.linearTasksList.map(function (task) {
+        return /*#__PURE__*/React.createElement(TaskReact, {
+          key: task.id.toString(),
+          loginInst: _this13.loginInst,
+          taskInst: task,
+          taskId: task.id,
+          status: task.status,
+          taskText: task.text,
+          parentId: task.parentId,
+          removeTaskFunc: _this13.removeTask,
+          addSubtaskFunc: _this13.addSubtask
+        });
+      })));
     }
   }]);
 
@@ -789,19 +760,20 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
   var _super2 = _createSuper(TaskReact);
 
   function TaskReact(props) {
-    var _this13;
+    var _this14;
 
     _classCallCheck(this, TaskReact);
 
-    _this13 = _super2.call(this, props);
-    _this13.loginInst = _this13.props.loginInst;
-    _this13.taskList = _this13.props.taskList;
-    _this13.shadow = shadow();
-    _this13.state = {
-      status: _this13.props.status,
+    _this14 = _super2.call(this, props);
+    _this14.taskInst = _this14.props.taskInst;
+    _this14.loginInst = _this14.props.loginInst;
+    _this14.taskId = _this14.props.taskId;
+    _this14.shadow = shadow();
+    _this14.state = {
+      status: _this14.props.status,
       showSubtaskDivButtonZIndex: '0',
       showSubtaskDivButtonDisabled: false,
-      taskTextValue: _this13.props.taskText,
+      taskTextValue: _this14.props.taskText,
       taskTextOpacity: '1',
       removeTaskButtonDisabled: false,
       removeTaskButtonScale: 'scale(1)',
@@ -812,6 +784,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
       subtaskTimerHide: null,
       subtaskTextFieldOpacity: '0',
       subtaskTextFieldWidth: '0',
+      addSubtaskButtonDisabled: true,
       addSubtaskButtonOpacity: '0',
       addSubtaskButtonScale: 'scale(0)',
       addSubtaskButtonTransitionDelay: '0.2s',
@@ -823,12 +796,15 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
       saveEditButtonScale: 'scale(0)',
       saveEditButtonTransitionDelay: '0'
     };
-    _this13.finishTask = _this13.finishTask.bind(_assertThisInitialized(_this13));
-    _this13.showEditTaskField = _this13.showEditTaskField.bind(_assertThisInitialized(_this13));
-    _this13.saveEdit = _this13.saveEdit.bind(_assertThisInitialized(_this13));
-    _this13.showSubtaskField = _this13.showSubtaskField.bind(_assertThisInitialized(_this13));
-    _this13.editTextField = React.createRef();
-    return _this13;
+    _this14.finishTask = _this14.finishTask.bind(_assertThisInitialized(_this14));
+    _this14.removeTask = _this14.removeTask.bind(_assertThisInitialized(_this14));
+    _this14.showEditTaskField = _this14.showEditTaskField.bind(_assertThisInitialized(_this14));
+    _this14.saveEdit = _this14.saveEdit.bind(_assertThisInitialized(_this14));
+    _this14.showSubtaskField = _this14.showSubtaskField.bind(_assertThisInitialized(_this14));
+    _this14.addSubtask = _this14.addSubtask.bind(_assertThisInitialized(_this14));
+    _this14.addSubtaskField = React.createRef();
+    _this14.editTaskField = React.createRef();
+    return _this14;
   }
   /**
    * POST: json = {'task_id': 'number', 'status': 'boolean'}
@@ -842,21 +818,21 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
   _createClass(TaskReact, [{
     key: "finishTask",
     value: function finishTask() {
-      var _this14 = this;
+      var _this15 = this;
 
       var taskStatus = this.state.status === false;
       var sendData = {
-        'taskId': this.props.taskId,
+        'taskId': this.taskId,
         'status': taskStatus
       };
 
       var finish = function finish(answer) {
         if (answer['ok'] === true) {
-          _this14.setState({
+          _this15.setState({
             status: taskStatus
           });
         } else if (answer['error_code'] === 401) {
-          _this14.loginInst.forceLogOut();
+          _this15.loginInst.forceLogOut();
 
           showInfoWindow('Authorisation problem!');
         }
@@ -865,9 +841,14 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
       knock_knock('/finish_task', finish, sendData);
     }
   }, {
+    key: "removeTask",
+    value: function removeTask() {
+      this.props.removeTaskFunc(this.taskInst);
+    }
+  }, {
     key: "showSubtaskField",
     value: function showSubtaskField() {
-      var _this15 = this;
+      var _this16 = this;
 
       if (this.state.subtaskDivShowed === false) {
         this.shadow();
@@ -882,6 +863,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           subtaskDivVisibility: 'visible',
           subtaskTextFieldOpacity: '1',
           subtaskTextFieldWidth: '65%',
+          addSubtaskButtonDisabled: false,
           addSubtaskButtonOpacity: '1',
           addSubtaskButtonScale: 'scale(1)',
           addSubtaskButtonTransitionDelay: '0.2s'
@@ -896,12 +878,13 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           taskTextOpacity: '1',
           subtaskTextFieldOpacity: '0',
           subtaskTextFieldWidth: '0',
+          addSubtaskButtonDisabled: true,
           addSubtaskButtonOpacity: '0',
           addSubtaskButtonScale: 'scale(0)',
           addSubtaskButtonTransitionDelay: '0s'
         });
         this.subtaskDivHideTimer = setTimeout(function () {
-          _this15.setState({
+          _this16.setState({
             subtaskDivVisibility: 'hidden',
             showSubtaskDivButtonZIndex: '0'
           });
@@ -909,9 +892,19 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
       }
     }
   }, {
+    key: "addSubtask",
+    value: function addSubtask() {
+      if (this.addSubtaskField.current.value) {
+        var subtaskText = this.addSubtaskField.current.value;
+        this.addSubtaskField.current.value = '';
+        this.showSubtaskField();
+        this.props.addSubtaskFunc(this.taskId, subtaskText);
+      }
+    }
+  }, {
     key: "showEditTaskField",
     value: function showEditTaskField() {
-      var _this16 = this;
+      var _this17 = this;
 
       if (this.state.taskTextEditDivShowed === false) {
         this.shadow();
@@ -929,21 +922,21 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           saveEditButtonTransitionDelay: '0.2s',
           taskTextOpacity: '0.2'
         });
-        this.editTextField.current.value = this.state.taskTextValue;
+        this.editTaskField.current.value = this.state.taskTextValue;
       } else {
-        if (this.editTextField.current.value !== this.state.taskTextValue) {
+        if (this.editTaskField.current.value !== this.state.taskTextValue) {
           var sendData = {
             'taskId': this.props.taskId,
-            'taskText': this.editTextField.current.value
+            'taskText': this.editTaskField.current.value
           };
 
           var saveEdit = function saveEdit(answer) {
             if (answer['ok'] === true) {
-              _this16.setState({
-                taskTextValue: _this16.editTextField.current.value
+              _this17.setState({
+                taskTextValue: _this17.editTaskField.current.value
               });
             } else if (answer['error_code'] === 401) {
-              _this16.loginInst.forceLogOut();
+              _this17.loginInst.forceLogOut();
 
               showInfoWindow('Authorisation problem!');
             }
@@ -966,7 +959,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           taskTextOpacity: '1'
         });
         this.hideEditDivTimer = setTimeout(function () {
-          _this16.setState({
+          _this17.setState({
             taskTextEditDivVisibility: 'hidden'
           });
         }, 700);
@@ -1011,7 +1004,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           transitionDelay: this.state.removeTaskButtonTransitionDelay
         },
         disabled: this.state.removeTaskButtonDisabled,
-        type: 'button'
+        type: 'button',
+        onClick: this.removeTask
       }, /*#__PURE__*/React.createElement("img", {
         src: "/static/icons/delete.svg",
         alt: ""
@@ -1026,7 +1020,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
         style: {
           width: this.state.subtaskTextFieldWidth,
           opacity: this.state.subtaskTextFieldOpacity
-        }
+        },
+        ref: this.addSubtaskField
       }), /*#__PURE__*/React.createElement("button", {
         className: 'add_subtask_button',
         type: 'button',
@@ -1034,7 +1029,9 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           opacity: this.state.addSubtaskButtonOpacity,
           transform: this.state.addSubtaskButtonScale,
           transitionDelay: this.state.addSubtaskButtonTransitionDelay
-        }
+        },
+        disabled: this.state.addSubtaskButtonDisabled,
+        onClick: this.addSubtask
       }, /*#__PURE__*/React.createElement("img", {
         src: "/static/icons/add_sub.svg",
         alt: "+"
@@ -1051,7 +1048,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           transform: this.state.taskTextEditFieldScale
         },
         type: 'text',
-        ref: this.editTextField,
+        ref: this.editTaskField,
         onKeyDown: this.saveEdit
       }), /*#__PURE__*/React.createElement("button", {
         className: 'save_edit_button',
@@ -1087,7 +1084,7 @@ var LoadingWindow = /*#__PURE__*/function () {
   _createClass(LoadingWindow, [{
     key: "showWindow",
     value: function showWindow(loadingWindow) {
-      var _this17 = this;
+      var _this18 = this;
 
       this.reqCount++;
 
@@ -1095,15 +1092,15 @@ var LoadingWindow = /*#__PURE__*/function () {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
           loadingWindow.style.visibility = 'visible';
-          _this17.startTime = Date.now();
-          _this17.isAlive = true;
+          _this18.startTime = Date.now();
+          _this18.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow(loadingWindow) {
-      var _this18 = this;
+      var _this19 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -1120,7 +1117,7 @@ var LoadingWindow = /*#__PURE__*/function () {
           } else {
             this.timerHide = setTimeout(function () {
               loadingWindow.style.visibility = 'hidden';
-              _this18.isAlive = false;
+              _this19.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }

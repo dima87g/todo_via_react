@@ -3,6 +3,11 @@
     padding: 0;
 }
 
+.root {
+    position: relative;
+    margin: 0 auto;
+}
+
 html, body {
     height: 100%;
     font-size: 18px;
@@ -287,7 +292,7 @@ html, body {
     height: 20px;
     border-radius: 20px 20px;
     outline: none;
-    z-index: 1;
+    z-index: 0;
 }
 
 .task_text_div {
@@ -316,15 +321,15 @@ html, body {
                 transform 0.5s;
 }
 
-.task_remove_button:active {
+.remove_task_button:active {
     box-shadow: inset 1px 1px 1px;
 }
 
-.task_remove_button > img {
+.remove_task_button > img {
     transition: transform 0.1s;
 }
 
-.task_remove_button:active > img {
+.remove_task_button:active > img {
     transform: scale(0.9);
 }
 

@@ -8,7 +8,5 @@ var mainLogin = new Login();
 var showLoading = new LoadingWindow();
 authCheck(mainLogin);
 events();
-console.log(document.cookie);
-ReactDOM.render( /*#__PURE__*/React.createElement(TaskListReact, null), document.getElementById('root'));
 
 //# sourceMappingURL=main_compiled.js.map
