@@ -634,6 +634,7 @@ class TaskReact extends React.Component {
         this.saveEdit = this.saveEdit.bind(this);
         this.showSubtaskField = this.showSubtaskField.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
+        this.addSubtaskByEnterKey = this.addSubtaskByEnterKey.bind(this);
         this.addSubtaskField = React.createRef();
         this.editTaskField = React.createRef();
     }
@@ -721,6 +722,12 @@ class TaskReact extends React.Component {
 
             this.props.addSubtaskFunc(this.taskId, subtaskText);
 
+        }
+    }
+
+    addSubtaskByEnterKey(e) {
+        if (e.keyCode === 13) {
+            this.addSubtask();
         }
     }
 
@@ -832,6 +839,7 @@ class TaskReact extends React.Component {
                                    opacity: this.state.subtaskTextFieldOpacity,
                                }
                            }
+                           onKeyDown={this.addSubtaskByEnterKey}
                            ref={this.addSubtaskField}/>
                     <button className={'add_subtask_button'}
                             type={'button'}

@@ -815,6 +815,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
     _this14.saveEdit = _this14.saveEdit.bind(_assertThisInitialized(_this14));
     _this14.showSubtaskField = _this14.showSubtaskField.bind(_assertThisInitialized(_this14));
     _this14.addSubtask = _this14.addSubtask.bind(_assertThisInitialized(_this14));
+    _this14.addSubtaskByEnterKey = _this14.addSubtaskByEnterKey.bind(_assertThisInitialized(_this14));
     _this14.addSubtaskField = React.createRef();
     _this14.editTaskField = React.createRef();
     return _this14;
@@ -912,6 +913,13 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
         this.addSubtaskField.current.value = '';
         this.showSubtaskField();
         this.props.addSubtaskFunc(this.taskId, subtaskText);
+      }
+    }
+  }, {
+    key: "addSubtaskByEnterKey",
+    value: function addSubtaskByEnterKey(e) {
+      if (e.keyCode === 13) {
+        this.addSubtask();
       }
     }
   }, {
@@ -1034,6 +1042,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component2) {
           width: this.state.subtaskTextFieldWidth,
           opacity: this.state.subtaskTextFieldOpacity
         },
+        onKeyDown: this.addSubtaskByEnterKey,
         ref: this.addSubtaskField
       }), /*#__PURE__*/React.createElement("button", {
         className: 'add_subtask_button',
