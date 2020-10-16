@@ -5,7 +5,7 @@
 
 .root {
     position: relative;
-    margin: 0 auto;
+    /*margin-top: 15vh;*/
 }
 
 html, body {
@@ -155,7 +155,12 @@ html, body {
 }
 
 .header {
+    /*position: fixed;*/
+    /*top: 0;*/
+    width: 100vw;
+    min-height: 15vh;
     outline: blue solid 1px;
+    background-color: aliceblue;
 }
 
 .header > *{

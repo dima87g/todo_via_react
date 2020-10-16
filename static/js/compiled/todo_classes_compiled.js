@@ -372,9 +372,10 @@ var Login = /*#__PURE__*/function () {
       var out = function out() {
         _this5.taskList = null;
         document.cookie = "id=; expires=-1";
-        document.cookie = "sign=; expires=-1";
-        var tasksParent = document.getElementById("main_tasks");
-        removeChildren(tasksParent);
+        document.cookie = "sign=; expires=-1"; // let tasksParent = document.getElementById("main_tasks");
+        // removeChildren(tasksParent);
+
+        ReactDOM.unmountComponentAtNode(document.getElementById('root'));
 
         _this5.showLoginWindow();
       };
@@ -395,9 +396,10 @@ var Login = /*#__PURE__*/function () {
     value: function forceLogOut() {
       this.taskList = null;
       document.cookie = 'id=; expires=-1';
-      document.cookie = 'sign=; expires=-1';
-      var taskParent = document.getElementById('main_tasks');
-      removeChildren(taskParent);
+      document.cookie = 'sign=; expires=-1'; // let taskParent = document.getElementById('main_tasks');
+      // removeChildren(taskParent);
+
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       this.showLoginWindow();
     }
   }, {
@@ -557,6 +559,16 @@ var TaskListReact = /*#__PURE__*/function (_React$Component) {
   }
 
   _createClass(TaskListReact, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      console.log('mount');
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      console.log('unmount');
+    }
+  }, {
     key: "makeLinearList",
     value: function makeLinearList(tasksList) {
       var linearTasksList = [];
@@ -734,7 +746,8 @@ var TaskListReact = /*#__PURE__*/function (_React$Component) {
         src: "/static/icons/add_sub.svg",
         alt: "+"
       })))), /*#__PURE__*/React.createElement("div", {
-        className: "main_tasks"
+        className: "main_tasks",
+        id: 'main_tasks'
       }, this.state.linearTasksList.map(function (task) {
         return /*#__PURE__*/React.createElement(TaskReact, {
           key: task.id.toString(),

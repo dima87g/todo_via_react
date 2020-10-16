@@ -295,9 +295,9 @@ class Login {
             document.cookie = "id=; expires=-1";
             document.cookie = "sign=; expires=-1";
 
-            let tasksParent = document.getElementById("main_tasks");
-            removeChildren(tasksParent);
-
+            // let tasksParent = document.getElementById("main_tasks");
+            // removeChildren(tasksParent);
+            ReactDOM.unmountComponentAtNode(document.getElementById('root'));
             this.showLoginWindow();
         }
         let userLanguage = getCookie('lang');
@@ -317,9 +317,9 @@ class Login {
         document.cookie = 'id=; expires=-1';
         document.cookie = 'sign=; expires=-1';
 
-        let taskParent = document.getElementById('main_tasks');
-        removeChildren(taskParent);
-
+        // let taskParent = document.getElementById('main_tasks');
+        // removeChildren(taskParent);
+        ReactDOM.unmountComponentAtNode(document.getElementById('root'));
         this.showLoginWindow();
     }
 
@@ -442,6 +442,14 @@ class TaskListReact extends React.Component {
         this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
         this.textInputField = React.createRef();
+    }
+
+    componentDidMount() {
+        console.log('mount');
+    }
+
+    componentWillUnmount() {
+        console.log('unmount');
     }
 
     makeLinearList(tasksList) {
@@ -569,7 +577,8 @@ class TaskListReact extends React.Component {
                     </button>
                     </form>
                 </div>
-                <div className="main_tasks">
+                <div className="main_tasks"
+                     id={'main_tasks'}>
                     {this.state.linearTasksList.map((task) => <TaskReact key={task.id.toString()}
                                                                          loginInst={this.loginInst}
                                                                          taskInst={task}
