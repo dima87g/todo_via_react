@@ -1,13 +1,789 @@
 'use strict';
 
-class TaskList {
-    constructor(loginInst, rawTasks) {
-        this.loginInst = null;
-        this.rawTasks = rawTasks;
+class Task {
+    constructor(id, text, parentId = null, status = false) {
+        this.id = id;
+        this.text = text;
+        this.parentId = parentId;
+        this.status = status;
+        this.subtasks = [];
+    }
+}
+
+class App extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            shadow: {
+                showed: true,
+                opacity: '0.5',
+                visibility: 'visible',
+            },
+            loadingWindow: {
+                showed: false,
+                reqCount: 0,
+                startTime: null,
+                stopTime: null,
+            },
+            confirmWindow: {
+                visibility: 'hidden',
+                opacity: '0',
+                message: '',
+            },
+            confirmWindowOnClick: null,
+            userLogOutButtonDisabled: true,
+            userDeleteButtonDisabled: true,
+            changePasswordButtonDisabled: true,
+        }
+        this.authCheck = this.authCheck.bind(this);
+        this.createTaskList = this.createTaskList.bind(this);
+        this.logOut = this.logOut.bind(this);
+        this.changePassword = this.changePassword.bind(this);
+        this.userDelete = this.userDelete.bind(this);
+        this.showConfirmWindow = this.showConfirmWindow.bind(this);
+        this.knockKnock = this.knockKnock.bind(this);
+        this.login = React.createRef();
+        this.userNameField = React.createRef();
+        this.loadingWindow = React.createRef();
+    }
+
+    componentDidMount() {
+        this.authCheck();
+    }
+
+    authCheck() {
+        const responseHandler = (response) => {
+            if (response.status === 200) {
+                this.createTaskList();
+                this.login.current.hideLoginWindow();
+            } else {
+                showCookiesAlertWindow();
+            }
+        }
+        this.knockKnock('/auth_check', responseHandler);
+    }
+
+    createTaskList() {
+        const responseHandler = (response) => {
+            if (response.status === 200) {
+                let userName = response.data['user_name'];
+                let tasksFromServer = response.data['tasks'];
+
+                this.userNameField.current.appendChild(document.createTextNode(userName));
+
+                ReactDOM.render(
+                    <TaskListReact app={this}
+                                   login={this.login.current}
+                                   tasksFromServer={tasksFromServer}/>, document.getElementById('task_list'));
+            } else if (response.status === 401) {
+                this.login.current.forceLogOut();
+                showInfoWindow('Authorisation problem!');
+            }
+        }
+        this.knockKnock('/load_tasks', responseHandler);
+    }
+
+    removeChildren(element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild)
+        }
+    }
+
+    logOut() {
+        this.login.current.logOut();
+    }
+
+    changePassword() {
+        this.login.current.changePasswordWindow();
+    }
+
+    userDelete() {
+        this.login.current.userDelete();
+    }
+
+    showConfirmWindow(message, func) {
+        confirmWindowOnClick = confirmWindowOnClick.bind(this);
+        this.showShadowModal();
+
+        function confirmWindowOnClick(e) {
+            if (e.target.value === 'ok') {
+                func();
+            }
+            this.setState({
+                confirmWindow: {
+                    ...this.state.confirmWindow,
+                    opacity: '0',
+                    message: '',
+                },
+            });
+            setTimeout(() => {
+                this.setState({
+                    confirmWindow: {
+                        ...this.state.confirmWindow,
+                        visibility: 'hidden',
+                    },
+                });
+            }, 500);
+            this.hideShadowModal();
+        }
+        this.setState({
+            confirmWindow: {
+                ...this.state.confirmWindow,
+                visibility: 'visible',
+                opacity: '1',
+                message: message,
+            },
+            confirmWindowOnClick: confirmWindowOnClick,
+        });
+    }
+
+    showShadowModal() {
+        this.hideShadowModalTimeout = clearTimeout(this.hideShadowModalTimeout);
+        this.setState({
+            shadow: {
+                ...this.state.shadow,
+                visibility: 'visible',
+                opacity: '0.5',
+            }
+        });
+    }
+
+    hideShadowModal() {
+        this.setState({
+            shadow: {
+                ...this.state.shadow,
+                opacity: '0',
+            },
+        });
+        this.hideShadowModalTimeout = setTimeout(() => {
+            this.setState({
+                shadow: {
+                    ...this.state.shadow,
+                    visibility: 'hidden',
+                },
+            });
+        }, 500);
+    }
+
+    knockKnock(path, func, sendData) {
+        const req = axios.default;
+        this.loadingWindow.current.showWindow();
+        req.post(path, sendData)
+            .then((response) => {
+                this.loadingWindow.current.hideWindow();
+                if (response.headers['content-type'] === 'application/json') {
+                    func(response);
+                }
+            })
+            .catch((error) => {
+                this.loadingWindow.current.hideWindow();
+                console.log(error);
+                func(error.response);
+            })
+    }
+
+    render() {
+        return (
+            <div className={'app'} id={'app'}>
+                <div className="header">
+                    <a href="/ru" className={'language_switch_button'}>Русский</a>
+                    <a href="/en" className={'language_switch_button'}>English</a>
+                    <p className={"user_name_field"}
+                       id={'user_name_field'}
+                       ref={this.userNameField}/>
+                    <input type="button"
+                           className='user_logout_button'
+                           id='user_logout_button'
+                           value={localisation['buttons']['logout']}
+                           disabled={this.state.userLogOutButtonDisabled}
+                           onClick={this.logOut}/>
+                    <input type="button"
+                           className="user_delete_button"
+                           id="user_delete_button"
+                           value={localisation['buttons']['delete_user']}
+                           disabled={this.state.userDeleteButtonDisabled}
+                           onClick={this.userDelete}/>
+                    <input type="button"
+                           className="change_password_button"
+                           id="change_password_button"
+                           value={localisation['buttons']['change_password']}
+                           disabled={this.state.changePasswordButtonDisabled}
+                           onClick={this.changePassword}/>
+                   <p className="version">Ver. 1.8</p>
+                </div>
+                <div className={'task_list'} id={'task_list'}/>
+                <LoginReact app={this}
+                            ref={this.login}/>
+                <div className={"confirm_window"}
+                     id={"confirm_window"}
+                     style={
+                         {
+                             visibility: this.state.confirmWindow.visibility,
+                             opacity: this.state.confirmWindow.opacity,
+                         }
+                     }>
+                    <p className="confirm_window_message" id="confirm_window_message">
+                        {this.state.confirmWindow.message}
+                    </p>
+                    <button type="button"
+                            className="confirm_window_ok_button"
+                            id="confirm_window_ok_button"
+                            value="ok"
+                            onClick={this.state.confirmWindowOnClick}>
+                        OK
+                    </button>
+                    <button type="button"
+                            className="confirm_window_cancel_button"
+                            id="confirm_window_cancel_button"
+                            value='cancel'
+                            onClick={this.state.confirmWindowOnClick}>
+                        {localisation['confirm_window']['cancel_button']}
+                    </button>
+                </div>
+                <div className="info_window" id="info_window">
+                    <p className="info_window_message" id="info_window_message"/>
+                </div>
+                <LoadingWindowReact ref={this.loadingWindow}/>
+                <div className={'shadow'}
+                     id={'shadow'}
+                     style={
+                         {
+                             visibility: this.state.shadow.visibility,
+                             opacity: this.state.shadow.opacity,
+                         }
+                     }/>
+                <div className={"cookies_alert_window"} id={"cookies_alert_window"}>
+                    <p className={"cookies_alert_window_text"} id={"cookies_alert_window_text"}/>
+                    <button type={"button"}
+                            className={"cookies_alert_confirm_button"}
+                            id={"cookies_alert_confirm_button"}>
+                        OK
+                    </button>
+                </div>
+            </div>
+        )
+    }
+}
+
+class LoginReact extends React.Component {
+    constructor(props) {
+        super(props);
+        this.app = this.props.app;
+        this.state = {
+            authMenu: {
+                opacity: '1',
+                visibility: 'visible',
+            },
+            loginWindow: {
+                opacity: 1,
+                visibility: 'inherit',
+            },
+            loginWindowSwitchButton: {
+                disabled: false,
+            },
+            registerWindow: {
+                opacity: 0,
+                visibility: 'hidden',
+            },
+            registerWindowSwitchButton: {
+                disabled: true,
+            },
+            changePasswordWindow: {
+                showed: false,
+                cancelButtonDisabled: true,
+                submitButtonDisabled: true,
+            },
+            changePasswordWindowShowed: false,
+            changePasswordBWindowCancelButtonDisabled: true,
+        }
+        this.switchLogin = this.switchLogin.bind(this);
+        this.hideLoginWindow = this.hideLoginWindow.bind(this);
+        this.login = this.login.bind(this);
+        this.logOut = this.logOut.bind(this);
+        this.userDelete = this.userDelete.bind(this);
+        this.changePasswordWindow = this.changePasswordWindow.bind(this);
+        this.changePassword = this.changePassword.bind(this);
+        this.userRegister = this.userRegister.bind(this);
+        this.loginFormUsernameField = React.createRef();
+        this.loginFormPasswordField = React.createRef();
+        this.registerFormUsernameField = React.createRef();
+        this.registerFormPasswordField = React.createRef();
+        this.registerFormPasswordConfirmField = React.createRef();
+        this.loginFormInfo = React.createRef();
+        this.registerFormInfo = React.createRef();
+        this.changePasswordFormInfo = React.createRef();
+    }
+
+    switchLogin(e) {
+        if (e.target.value === 'register') {
+            this.setState({
+                loginWindow: {
+                    ...this.state.loginWindow,
+                    opacity: 0,
+                    visibility: 'hidden',
+                },
+                loginWindowSwitchButton: {
+                    ...this.state.loginWindowSwitchButton,
+                    disabled: true,
+                },
+                registerWindow: {
+                    ...this.state.registerWindow,
+                    opacity: 1,
+                    visibility: 'inherit',
+                },
+                registerWindowSwitchButton: {
+                    ...this.state.registerWindowSwitchButton,
+                    disabled: false,
+                },
+            })
+            this.loginFormUsernameField.current.value = '';
+            this.loginFormPasswordField.current.value = '';
+            this.app.removeChildren(this.loginFormInfo.current);
+        } else {
+            this.setState({
+                loginWindow: {
+                    ...this.state.loginWindow,
+                    opacity: 1,
+                    visibility: 'inherit',
+                },
+                loginWindowSwitchButton: {
+                    ...this.state.loginWindowSwitchButton,
+                    disabled: false,
+                },
+                registerWindow: {
+                    ...this.state.registerWindow,
+                    opacity: 0,
+                    visibility: 'hidden',
+                },
+                registerWindowSwitchButton: {
+                    ...this.state.registerWindowSwitchButton,
+                    disabled: false,
+                },
+            });
+            this.registerFormUsernameField.current.value = '';
+            this.registerFormPasswordField.current.value = '';
+            this.registerFormPasswordConfirmField.current.value = '';
+            this.app.removeChildren(this.registerFormInfo.current);
+        }
+    }
+
+    hideLoginWindow() {
+        this.loginFormUsernameField.current.value = '';
+        this.loginFormPasswordField.current.value = '';
+        this.registerFormUsernameField.current.value = '';
+        this.registerFormPasswordField.current.value = '';
+        this.registerFormPasswordConfirmField.current.value = '';
+        this.app.removeChildren(this.loginFormInfo.current);
+        this.app.hideShadowModal();
+        this.setState({
+            authMenu: {
+                ...this.state.authMenu,
+                opacity: '0',
+            }
+        });
+        this.hideLoginWindowTimeout = setTimeout(() => {
+            this.setState({
+                authMenu: {
+                    ...this.state.authMenu,
+                    visibility: 'hidden',
+                }
+            });
+        }, 500);
+        this.app.setState({
+            userLogOutButtonDisabled: false,
+            userDeleteButtonDisabled: false,
+            changePasswordButtonDisabled: false,
+        })
+    }
+
+    showLoginWindow() {
+        this.hideLoginWindowTimeout = clearTimeout(this.hideLoginWindowTimeout);
+        this.app.removeChildren(this.app.userNameField.current);
+
+        this.app.showShadowModal();
+
+        this.setState({
+            authMenu: {
+                ...this.state.authMenu,
+                visibility: 'visible',
+                opacity: '1',
+            }
+        });
+        this.app.setState({
+            userLogOutButtonDisabled: true,
+            userDeleteButtonDisabled: true,
+            changePasswordButtonDisabled: true,
+        })
+    }
+
+    login(e) {
+        e.preventDefault();
+
+        this.app.removeChildren(this.loginFormInfo.current);
+
+        const userName = this.loginFormUsernameField.current.value;
+        const password = this.loginFormPasswordField.current.value;
+
+        if (userName && password) {
+            const data = {'userName': userName, 'password': password}
+            const loginResponseHandler = (response) => {
+                if (response.status === 200) {
+                    this.app.createTaskList();
+                    this.hideLoginWindow();
+                } else if (response.status === 401) {
+                    this.loginFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
+                }
+            }
+            this.app.knockKnock('/user_login', loginResponseHandler, data);
+        } else if (!userName) {
+            this.loginFormInfo.current.appendChild(document.createTextNode('Please, enter user name!'));
+        } else if (!password) {
+            this.loginFormInfo.current.appendChild(document.createTextNode('Please, enter password!'));
+        }
+    }
+
+    logOut() {
+        const confirmFunction = () => {
+        document.cookie = 'id=; expires=-1';
+        document.cookie = 'id=; expires=-1';
+
+        ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+
+        this.showLoginWindow();
+        }
+        let userLanguage = getCookie('lang');
+        let message = null;
+
+        if (userLanguage === 'ru') {
+            message = 'Вы уверены, что хотите выйти?';
+        } else {
+            message = 'Are you sure, you want to logOut?';
+        }
+
+        this.app.showConfirmWindow(message, confirmFunction);
+
+    }
+
+    userDelete() {
+        let userLanguage = getCookie('lang');
+        let message = null;
+
+        if (userLanguage === 'ru') {
+            message = 'Выуверены, что хотите удалить пользователя?';
+        } else {
+            message = 'Are you sure, you want to delete user?';
+        }
+        const responseHandler = (response) => {
+            if (response.status === 200) {
+                this.forceLogOut();
+            } else if (response.status === 401) {
+                this.forceLogOut();
+                showInfoWindow('Authorisation problem!');
+            }
+        }
+
+        const confirmFunction = () => {
+            this.app.knockKnock('/user_delete', responseHandler);
+        }
+
+        this.app.showConfirmWindow(message, confirmFunction);
+    }
+
+    changePasswordWindow() {
+        if (this.state.changePasswordWindow.showed === false) {
+            this.showLoginWindow();
+            this.setState({
+                loginWindow: {
+                    ...this.state.loginWindow,
+                    visibility: 'hidden',
+                },
+                registerWindow: {
+                    ...this.state.registerWindow,
+                    visibility: 'hidden',
+                },
+                changePasswordWindow: {
+                    ...this.state.changePasswordWindow,
+                    showed: true,
+                    cancelButtonDisabled: false,
+                    submitButtonDisabled: false,
+                }
+            });
+        } else {
+            this.hideLoginWindow();
+            this.setState({
+                loginWindow: {
+                    ...this.state.loginWindow,
+                    visibility: 'inherit',
+                },
+                registerWindow: {
+                    ...this.state.registerWindow,
+                    visibility: 'hidden',
+                },
+                changePasswordWindow: {
+                    ...this.state.changePasswordWindow,
+                    showed: false,
+                    cancelButtonDisabled: true,
+                    submitButtonDisabled: true,
+                }
+            });
+        }
+    }
+
+    changePassword(e) {
+        e.preventDefault();
+
+        this.app.removeChildren(this.changePasswordFormInfo.current);
+
+        let oldPassword = e.target['change_password_form_old_password'].value;
+        let newPassword = e.target['change_password_form_new_password'].value;
+        let newPasswordConfirm = e.target['change_password_form_new_password_confirm'].value;
+
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                this.changePasswordWindow();
+                showInfoWindow('Password is changed!');
+            } else if (response.status === 401) {
+                this.forceLogOut();
+                showInfoWindow('Authorisation problem!');
+            } else {
+                this.changePasswordFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
+            }
+        }
+
+        if (oldPassword && newPassword && newPasswordConfirm) {
+            if (newPassword === newPasswordConfirm) {
+                const sendData = {'oldPassword': oldPassword, 'newPassword': newPassword};
+
+                this.app.knockKnock('change_password', responseHandler, sendData);
+            } else {
+                this.changePasswordFormInfo.current.appendChild(document.createTextNode('Passwords are not match!'));
+            }
+        } else if (!oldPassword) {
+            this.changePasswordFormInfo.current.appendChild(document.createTextNode('Please, enter old password!'));
+        }else if (!newPassword) {
+            this.changePasswordFormInfo.current.appendChild(document.createTextNode('Please, enter new password!'));
+        }else if (!newPasswordConfirm) {
+            this.changePasswordFormInfo.current.appendChild(document.createTextNode('Please, confirm new password!'));
+        }
+    }
+
+    /**
+     * POST: json =  {"newUserName": "string",  "password": "string"}
+     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null, 'error_message': 'string' or null}
+     */
+    userRegister(e) {
+        e.preventDefault();
+
+        this.app.removeChildren(this.registerFormInfo.current);
+
+        let userName = document.forms['register_form']['register_form_username'].value;
+        let password = document.forms['register_form']['register_form_password'].value;
+        let confirmPassword = document.forms['register_form']['register_form_password_confirm'].value;
+        let agreementCheckbox = e.target['agreement_checkbox'];
+
+        const handleResponse = (response) => {
+            if (response.status === 200) {
+                if (response.data['ok'] === true) {
+                    this.registerFormInfo.current.appendChild(document.createTextNode('New user ' + userName + ' register!'));
+                }
+            }
+        }
+
+        if (userName && password && confirmPassword && agreementCheckbox.checked) {
+            if (password === confirmPassword) {
+                const sendData = {'newUserName': userName, 'password': password};
+
+                this.app.knockKnock('/user_register', handleResponse, sendData);
+            } else {
+                this.registerFormInfo.current.appendChild(document.createTextNode('Passwords are not match!'));
+            }
+        } else if (!userName) {
+            this.registerFormInfo.current.appendChild(document.createTextNode('Please, enter user name!'));
+        } else if (!password) {
+            this.registerFormInfo.current.appendChild(document.createTextNode('Please, enter password!'));
+        } else if (!confirmPassword) {
+            this.registerFormInfo.current.appendChild(document.createTextNode('Please, confirm password!'));
+        } else if (!agreementCheckbox.checked) {
+            this.registerFormInfo.current.appendChild(document.createTextNode('Please, accept the agreements!'));
+        }
+    }
+
+    forceLogOut() {
+        document.cookie = 'id=; expires=-1';
+        document.cookie = 'id=; expires=-1';
+
+        ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+
+        this.showLoginWindow();
+        console.log('Force logOut!!!!!');
+    }
+
+    render() {
+        let changePasswordWindowStyle = 'change_password_window';
+        if (this.state.changePasswordWindow.showed) {
+            changePasswordWindowStyle += ' change_password_window_showed';
+        }
+        return (
+            <div className={'auth_menu'} id={'auth_menu'} style={
+                {
+                    visibility: this.state.authMenu.visibility,
+                    opacity: this.state.authMenu.opacity,
+                }
+            }>
+                <div className={'login_window'} id={'login_window'}
+                     style={
+                         {
+                             visibility: this.state.loginWindow.visibility,
+                             opacity: this.state.loginWindow.opacity
+                         }
+                     }>
+                    <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
+                    <form name="login_form" onSubmit={this.login}>
+                        <label htmlFor="login_form_username"
+                               className={"auth_menu_labels"}>{localisation['login_window']['user_name']}</label>
+                        <input type="text" name="login_form_username"
+                               className={"login_form_username"}
+                               id={"login_form_username"}
+                               ref={this.loginFormUsernameField}
+                               placeholder={localisation['login_window']['user_name_placeholder']}
+                               autoComplete={'off'}/>
+                        <label htmlFor="login_form_password"
+                               className={"auth_menu_labels"}>{localisation['login_window']['password']}</label>
+                        <input type="password" name="login_form_password"
+                               className={"login_form_password"}
+                               id={"login_form_password"}
+                               ref={this.loginFormPasswordField}
+                               placeholder={localisation['login_window']['password_placeholder']}
+                        />
+                        <button type={"submit"}
+                                className={"login_form_button"}
+                                id={"login_form_button"}>
+                            {localisation['login_window']['submit_button']}
+                        </button>
+                    </form>
+                    <p className="login_window_info"
+                       id="login_window_info"
+                       ref={this.loginFormInfo}
+                    />
+                    <button type="button"
+                            className={"switch_to_register_button"}
+                            id={"switch_to_register_button"}
+                            value={'register'}
+                            disabled={this.state.loginWindowSwitchButton.disabled}
+                            onClick={this.switchLogin}>
+                        {localisation['login_window']['switch_to_register_button']}
+                    </button>
+                </div>
+                <div className={'register_window'} id={'register_window'}
+                     style={
+                         {
+                             visibility: this.state.registerWindow.visibility,
+                             opacity: this.state.registerWindow.opacity,
+                         }
+                     }>
+                    <p className={"auth_menu_forms_labels"}>{localisation['register_window']['label']}</p>
+                    <form name="register_form" onSubmit={this.userRegister}>
+                        <label htmlFor="register_form_username"
+                               className={"auth_menu_labels"}>{localisation['register_window']['user_name']}</label>
+                        <input type="text"
+                               name={"register_form_username"}
+                               id={"register_form_username"}
+                               className={"register_form_username"}
+                               ref={this.registerFormUsernameField}
+                               placeholder={ localisation['register_window']['user_name_placeholder']}
+                               autoComplete={'off'}/>
+                        <label htmlFor={"register_form_password"}
+                               className={"auth_menu_labels"}>{localisation['register_window']['password']}</label>
+                        <input type={"password"}
+                               name={"register_form_password"}
+                               id={"register_form_password"}
+                               className={"register_form_password"}
+                               ref={this.registerFormPasswordField}
+                               placeholder={localisation['register_window']['password_placeholder']}/>
+                        <label htmlFor={"register_form_password_confirm"}
+                               className={"auth_menu_labels"}>{localisation['register_window']['password_confirm']}</label>
+                        <input type={"password"}
+                               name={"register_form_password_confirm"}
+                               id={"register_form_password_confirm"}
+                               className={"register_form_password_confirm"}
+                               ref={this.registerFormPasswordConfirmField}
+                               placeholder={localisation['register_window']['password_confirm_placeholder']}/>
+                        <p className={"agreement"} id={"agreement"}>
+                            <input type={"checkbox"} id={"agreement_checkbox"} name={'agreement_checkbox'}/>
+                            <label htmlFor="agreement_checkbox">Нажимая вы соглашаетесь с
+                            <a href="../static/agreements/agreement_ru.html"
+                               target="_blank">соглашением</a>, воть.</label></p>
+                        <button type={"submit"}
+                               id={"register_form_button"}
+                                className={"register_form_button"}>
+                            {localisation['register_window']['create_button']}
+                        </button>
+                    </form>
+                    <p className={"register_window_info"}
+                       id={"register_window_info"}
+                       ref={this.registerFormInfo}/>
+                    <button type={"button"}
+                            className={"login_button"}
+                            id={"login_button"}
+                            value={'login'}
+                            disabled={this.state.registerWindowSwitchButton.disabled}
+                            onClick={this.switchLogin}>
+                        {localisation['register_window']['switch_to_login_button']}
+                    </button>
+                </div>
+                <div className={changePasswordWindowStyle} id={"change_password_window"}>
+                    <button type={"button"} id={"change_password_window_cancel_button"}
+                            className={"change_password_window_cancel_button"}
+                            disabled={this.state.changePasswordWindow.cancelButtonDisabled}
+                            onClick={this.changePasswordWindow}>X</button>
+                    <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
+                    <form name={"change_password_form"} onSubmit={this.changePassword}>
+                        <label htmlFor={"change_password_form_old_password"}
+                               className={"auth_menu_labels"}>{localisation['change_password_window']['old_password']}</label>
+                        <input type={"password"}
+                               name={"change_password_form_old_password"}
+                               id={"change_password_form_old_password"}
+                               className={"change_password_form_old_password"}
+                               placeholder={localisation['change_password_window']['old_password_placeholder']}/>
+                        <label htmlFor={"change_password_form_new_password"}
+                               className={"auth_menu_labels"}>{localisation['change_password_window']['new_password']}</label>
+                        <input type={"password"}
+                               name={"change_password_form_new_password"}
+                               id={"change_password_form_new_password"}
+                               className={"change_password_form_new_password"}
+                               placeholder={localisation['change_password_window']['new_password_placeholder']}/>
+                        <label htmlFor={"change_password_form_new_password_confirm"}
+                               className={"auth_menu_labels"}>{localisation['change_password_window']['new_password_confirm']}</label>
+                        <input type={"password"}
+                               name={"change_password_form_new_password_confirm"}
+                               id={"change_password_form_new_password_confirm"}
+                               className={"change_password_form_new_password_confirm"}
+                               placeholder={localisation['change_password_window']['new_password_confirm_placeholder']}/>
+                        <button type={"submit"} value={"Change password"} id={"change_password_form_button"}
+                                className={"change_password_form_button"}
+                                disabled={this.state.changePasswordWindow.submitButtonDisabled}>
+                            {localisation['change_password_window']['change_password_button']}
+                        </button>
+                    </form>
+                    <p className={"change_password_window_info"}
+                       id={"change_password_window_info"}
+                       ref={this.changePasswordFormInfo}/>
+                </div>
+            </div>
+        )
+    }
+}
+
+class TaskListReact extends React.Component {
+    constructor(props) {
+        super(props)
+        this.app = this.props.app;
+        this.login = this.props.login;
+        this.tasksFromServer = this.props.tasksFromServer;
         this.tasksTree = new Map();
         this.tasks = [];
 
-        for (let task of this.rawTasks) {
+        for (let task of this.tasksFromServer) {
             let taskId = task['task_id'];
             let taskText = task['task_text'];
             let taskStatus = task['task_status'];
@@ -24,416 +800,6 @@ class TaskList {
             }
         }
 
-        ReactDOM.render(<TaskListReact loginInst={this.loginInst}
-                                       taskListInst={this}
-                                       tasksTree={this.tasksTree}
-                                       tasks={this.tasks}/>, document.getElementById('root'));
-    }
-}
-
-class Task {
-    constructor(id, text, parentId = null, status = false) {
-        this.id = id;
-        this.text = text;
-        this.parentId = parentId;
-        this.status = status;
-        this.subtasks = [];
-    }
-}
-
-class Login {
-    constructor() {
-        const self = this;
-        this.taskList = undefined;
-        this.authMenu = document.getElementById("auth_menu");
-        this.loginWindow = document.getElementById("login_window");
-        this.loginWindowInfo = document.getElementById("login_window_info");
-        this.loginFormUsername = document.getElementById("login_form_username");
-        this.loginFormPassword = document.getElementById("login_form_password");
-        this.loginButton = document.getElementById("login_form_button");
-        this.registerWindow = document.getElementById("register_window");
-        this.registerWindowInfo = document.getElementById("register_window_info");
-        this.registerFormUsername = document.getElementById("register_form_username");
-        this.registerFormPassword = document.getElementById("register_form_password");
-        this.registerFormPasswordConfirm = document.getElementById("register_form_password_confirm");
-        this.agreementCheckbox = document.getElementById('agreement_checkbox');
-        this.userRegisterButton = document.getElementById("register_form_button");
-        this.switchRegisterButton = document.getElementById("register_button");
-        this.switchLoginButton = document.getElementById("login_button");
-        this.userNameField = document.getElementById("user_name_field");
-        this.userLogOutButton = document.getElementById('user_logout_button');
-        this.userDeleteButton = document.getElementById("user_delete_button");
-        this.userChangePasswordButton = document.getElementById('change_password_button');
-        this.changePasswordWindow = document.getElementById('change_password_window');
-        this.changePasswordWindowCancelButton = document.getElementById('change_password_window_cancel_button');
-        this.changePasswordFormOldPassword = document.getElementById('change_password_form_old_password');
-        this.changePasswordFormNewPassword = document.getElementById('change_password_form_new_password');
-        this.changePasswordFormNewPasswordConfirm = document.getElementById('change_password_form_new_password_confirm');
-        this.changePasswordButton = document.getElementById('change_password_form_button');
-        this.changePasswordWindowInfo = document.getElementById('change_password_window_info');
-
-        this.loginFormUsername.focus();
-        this.userLogOutButton.disabled = true;
-        this.userDeleteButton.disabled = true;
-        this.userChangePasswordButton.disabled = true;
-
-        this.switchRegisterButton.onclick = function () {
-            self.switchLogin(this.value);
-        }
-        this.switchLoginButton.onclick = function () {
-            self.switchLogin(this.value);
-        }
-        this.loginButton.onclick = function () {
-            self.logIn();
-        }
-        this.userLogOutButton.onclick = function () {
-            self.logOut();
-        }
-        this.userDeleteButton.onclick = function () {
-            self.userDelete();
-        }
-        this.userChangePasswordButton.onclick = function() {
-            self.showChangePasswordWindow();
-        }
-        this.changePasswordWindowCancelButton.onclick = function () {
-            self.hideChangePasswordWindow();
-        }
-        this.userRegisterButton.onclick = function () {
-            self.userRegister();
-        }
-        this.changePasswordButton.onclick = function() {
-            self.changePassword();
-        }
-    }
-
-
-    switchLogin(val) {
-        if (val === 'register') {
-            windowChange(this.registerWindow, this.switchLoginButton, this.loginWindow, this.switchRegisterButton, this.loginWindowInfo);
-        } else if (val === 'login') {
-            windowChange(this.loginWindow, this.switchRegisterButton, this.registerWindow, this.switchLoginButton, this.registerWindowInfo);
-        }
-
-        function windowChange(activate, activateButton, deactivate, deactivateButton, infoField) {
-            removeChildren(infoField);
-            deactivate.style.opacity = '0';
-            deactivateButton.disabled = true;
-            activate.style.visibility = 'inherit';
-            setTimeout(function () {
-                activate.style.opacity = '1';
-            });
-            setTimeout(function () {
-                deactivate.style.visibility = 'hidden';
-                activateButton.disabled = false;
-            }, 500);
-        }
-    }
-
-
-    hideLoginWindow() {
-        this.loginFormUsername.value = "";
-        this.registerFormUsername.value = '';
-        this.registerFormPassword.value = '';
-        this.registerFormPasswordConfirm.value = '';
-        removeChildren(this.loginWindowInfo);
-        this.authMenu.style.opacity = '0';
-        hideShadow();
-
-        setTimeout(() => {
-            this.authMenu.style.visibility = 'hidden';
-            // document.getElementById('task_input_field').focus();
-        }, 500);
-    }
-
-
-    showLoginWindow() {
-        showShadow();
-        removeChildren(this.userNameField);
-        this.userLogOutButton.disabled = true;
-        this.userDeleteButton.disabled = true;
-        this.userChangePasswordButton.disabled = true;
-        this.authMenu.style.visibility = 'visible';
-        this.loginFormUsername.focus();
-        setTimeout(() => {
-            this.authMenu.style.opacity = '1';
-        });
-    }
-
-    showChangePasswordWindow() {
-        showShadow();
-        this.userLogOutButton.disabled = true;
-        this.userDeleteButton.disabled = true;
-        this.userChangePasswordButton.disabled = true;
-        this.changePasswordWindow.style.visibility = 'visible';
-        this.changePasswordWindowCancelButton.disabled = false;
-        this.changePasswordButton.disabled = false;
-    }
-
-    hideChangePasswordWindow() {
-        hideShadow();
-        this.changePasswordFormOldPassword.value = '';
-        this.changePasswordFormNewPassword.value = '';
-        this.changePasswordFormNewPasswordConfirm.value = '';
-        this.userLogOutButton.disabled = false;
-        this.userDeleteButton.disabled = false;
-        this.userChangePasswordButton.disabled = false;
-        this.changePasswordWindow.style.visibility = 'hidden';
-        this.changePasswordWindowCancelButton.disabled = true;
-        this.changePasswordButton.disabled = true;
-    }
-
-
-    onLoad() {
-        /**
-         * POST:
-         * GET:
-         * if OK = true: json = {'ok': 'boolean', 'user_id': 'number', 'tasks': [
-         *                                          {"task_id": "number", 'task_text': 'string', 'status': 'string'},
-         *                                          ...
-         *                                          ]
-         *             }
-         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-         * 'error_message': 'string' or null}
-         */
-        const loadTasks = (answer) => {
-            if (answer['ok'] === true) {
-                let userName = answer["user_name"];
-                let tasksFromServer = answer['tasks'];
-
-                if (!this.userNameField.firstChild) {
-                    this.userNameField.appendChild(document.createTextNode(userName));
-                    this.userLogOutButton.disabled = false;
-                    this.userDeleteButton.disabled = false;
-                    this.userChangePasswordButton.disabled = false;
-                }
-
-                this.taskList = new TaskList(this, tasksFromServer);
-                // let taskInputButton = document.getElementById("task_input_button");
-                //
-                // taskInputButton.onclick = () => {
-                //     this.taskList.addTask();
-                //     return false;
-                // }
-
-                // let tasksTree = this.taskList.tasksTree;
-                //
-                // for (let task of tasksFromServer) {
-                //     let taskId = task["task_id"];
-                //     let taskText = task["task_text"];
-                //     let taskStatus = task["task_status"];
-                //     let parentId = task["parent_id"];
-                //
-                //     tasksTree.set(taskId, new Task(this, this.taskList, taskId, taskText, parentId, taskStatus));
-                // }
-                //
-                // for (let task of tasksTree.values()) {
-                //     if (tasksTree.has(task.parentId)) {
-                //         tasksTree.get(task.parentId).subtasks.push(task);
-                //     } else {
-                //         this.taskList.tasks.push(task);
-                //     }
-                // }
-                //
-                // this.taskList.updateDom();
-
-            }
-            if (answer["error_code"] === 401) {
-                this.forceLogOut();
-                showInfoWindow("Authorisation problem!");
-            }
-        }
-        knock_knock('/load_tasks', loadTasks);
-    }
-
-    logIn() {
-        /**
-         * POST: json = {"userName": "string", "password": "string"}
-         * GET:
-         * if OK = true: json = {"ok": "boolean", "user_id": "number",
-         *                         "tasks": [{"task_id": "number", "task_text": "string", "status": "boolean"},
-         *                                  ..........] }
-         * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-         *                        'error_message': 'string' or null}
-         */
-
-        removeChildren(this.loginWindowInfo);
-
-        if (this.loginFormUsername.value && this.loginFormPassword.value) {
-            let userName = this.loginFormUsername.value;
-            let password = this.loginFormPassword.value;
-            const sendData = {"userName": userName, "password": password};
-
-            this.loginFormPassword.value = "";
-
-            const login = (answer) => {
-                if (answer["ok"] === true) {
-                    let userName = answer["user_name"];
-
-                    this.userNameField.appendChild(document.createTextNode(userName));
-                    this.userLogOutButton.disabled = false;
-                    this.userDeleteButton.disabled = false;
-                    this.userChangePasswordButton.disabled = false;
-
-                    this.hideLoginWindow();
-
-                    this.onLoad()
-                } else {
-                    this.loginWindowInfo.appendChild(document.createTextNode(answer["error_message"]));
-                }
-            }
-            knock_knock('/user_login', login, sendData);
-        } else if (!this.loginFormUsername.value) {
-            this.loginWindowInfo.appendChild(document.createTextNode('Please, enter user name!'));
-        } else if (!this.loginFormPassword.value) {
-            this.loginWindowInfo.appendChild(document.createTextNode('Please, enter password!'))
-        }
-    }
-
-    logOut() {
-        const out = () => {
-            this.taskList = null;
-            document.cookie = "id=; expires=-1";
-            document.cookie = "sign=; expires=-1";
-
-            // let tasksParent = document.getElementById("main_tasks");
-            // removeChildren(tasksParent);
-            ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-            this.showLoginWindow();
-        }
-        let userLanguage = getCookie('lang');
-        let message = null;
-
-        if (userLanguage === 'ru') {
-            message = 'Вы уверены, что хотите выйти?';
-        } else if (userLanguage === 'en') {
-            message = 'Are you sure, you want to log out?';
-        }
-        showConfirmWindow(out, message);
-
-    }
-
-    forceLogOut() {
-        this.taskList = null;
-        document.cookie = 'id=; expires=-1';
-        document.cookie = 'sign=; expires=-1';
-
-        // let taskParent = document.getElementById('main_tasks');
-        // removeChildren(taskParent);
-        ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-        this.showLoginWindow();
-    }
-
-    userDelete() {
-        const confirm = function () {
-            knock_knock("/user_delete", del);
-        }
-
-        const del = (answer) => {
-            if (answer["ok"] === true) {
-                this.forceLogOut();
-            }
-            if (answer["error_code"] === 401) {
-                this.forceLogOut();
-                showInfoWindow("Authorisation problem!");
-            }
-        }
-        let userLanguage = getCookie('lang');
-        let message = null;
-
-        if (userLanguage === 'ru') {
-            message = 'Вы уверены, что хотите удалить пользователя?';
-        } else if (userLanguage === 'en') {
-            message = 'Are you sure, you want to delete user?';
-        }
-        showConfirmWindow(confirm, message);
-    }
-
-    changePassword() {
-        removeChildren(this.changePasswordWindowInfo);
-
-        if (this.changePasswordFormOldPassword.value && this.changePasswordFormNewPassword.value && this.changePasswordFormNewPasswordConfirm.value) {
-            if (this.changePasswordFormNewPassword.value === this.changePasswordFormNewPasswordConfirm.value) {
-                let oldPassword = this.changePasswordFormOldPassword.value;
-                let newPassword = this.changePasswordFormNewPassword.value;
-
-                const sendData = {'oldPassword': oldPassword, 'newPassword': newPassword};
-
-                const change = (answer) => {
-                    if (answer['ok'] === true) {
-                        this.hideChangePasswordWindow();
-                        showInfoWindow('Password is successfully changed!');
-                    } else if (answer['error_code'] === 401) {
-                        this.hideChangePasswordWindow();
-                        this.forceLogOut();
-                        showInfoWindow('Authorisation problem!');
-                    } else {
-                        this.changePasswordWindowInfo.appendChild(document.createTextNode(answer['error_message']));
-                    }
-                }
-                knock_knock('/change_password', change, sendData);
-            } else {
-                this.changePasswordWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
-            }
-        } else if (!this.changePasswordFormOldPassword.value) {
-            this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, enter your old password!'));
-        } else if (!this.changePasswordFormNewPassword.value) {
-            this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, enter new password!'));
-        } else if (!this.changePasswordFormNewPasswordConfirm.value) {
-            this.changePasswordWindowInfo.appendChild(document.createTextNode('Please, confirm new password!'));
-        }
-    }
-
-    userRegister() {
-        /**
-         * POST: json =  {"newUserName": "string",  "password": "string"}
-         * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null,
-     'error_message': 'string' or null}
-         */
-        removeChildren(this.registerWindowInfo);
-
-        if (this.registerFormUsername.value && this.registerFormPassword.value
-            && this.registerFormPasswordConfirm.value && this.agreementCheckbox.checked === true) {
-            if (this.registerFormPassword.value === this.registerFormPasswordConfirm.value) {
-                let newUserName = this.registerFormUsername.value;
-                let password = this.registerFormPassword.value;
-
-                const sendData = {"newUserName": newUserName, "password": password};
-
-                const register = (answer) => {
-                    if (answer['ok'] === true) {
-                        this.registerFormUsername.value = "";
-                        this.registerFormPassword.value = "";
-                        this.registerFormPasswordConfirm.value = "";
-                        this.registerWindowInfo.appendChild(document.createTextNode("New user " + newUserName + " successfully created!"));
-                    } else if (answer['error_code'] === 1062) {
-                        this.registerWindowInfo.appendChild(document.createTextNode("Name " + newUserName + " is already used!"));
-                    } else {
-                        this.registerWindowInfo.appendChild(document.createTextNode(answer['error_message'] + ' Код ошибки: ' + answer['error_code']));
-                    }
-                }
-                knock_knock('/user_register', register, sendData);
-            } else {
-                this.registerWindowInfo.appendChild(document.createTextNode('Passwords are not match!'));
-            }
-        } else if (!this.registerFormUsername.value) {
-            this.registerWindowInfo.appendChild(document.createTextNode('Please, enter new user name!'));
-        } else if (!this.registerFormPassword.value) {
-            this.registerWindowInfo.appendChild(document.createTextNode('Please, enter Password!'));
-        } else if (!this.registerFormPasswordConfirm.value) {
-            this.registerWindowInfo.appendChild(document.createTextNode('Please, confirm Password!'));
-        } else if (!this.agreementCheckbox.checked) {
-            this.registerWindowInfo.appendChild(document.createTextNode('Please, accept agreements!'));
-        }
-    }
-}
-
-class TaskListReact extends React.Component {
-    constructor(props) {
-        super(props)
-        this.loginInst = this.props.loginInst;
-        this.taskListInst = this.props.taskListInst;
-        this.tasksTree = this.props.tasksTree;
-        this.tasks = this.props.tasks;
         this.state = {
             linearTasksList: this.makeLinearList(this.tasks),
         }
@@ -444,13 +810,13 @@ class TaskListReact extends React.Component {
         this.textInputField = React.createRef();
     }
 
-    componentDidMount() {
-        console.log('mount');
-    }
-
-    componentWillUnmount() {
-        console.log('unmount');
-    }
+    // componentDidMount() {
+    //     console.log('mount');
+    // }
+    //
+    // componentWillUnmount() {
+    //     console.log('unmount');
+    // }
 
     makeLinearList(tasksList) {
         let linearTasksList = [];
@@ -483,8 +849,8 @@ class TaskListReact extends React.Component {
             let sendData = {'taskText': taskText, 'parentId': null}
 
             const add = (answer) => {
-                if (answer['ok'] === true) {
-                    let taskId = answer['task_id'];
+                if (answer.status === 200) {
+                    let taskId = answer.data['task_id'];
                     let newTask = new Task(taskId, taskText);
 
                     this.tasksTree.set(newTask.id, newTask);
@@ -493,12 +859,12 @@ class TaskListReact extends React.Component {
                     this.setState({
                         linearTasksList: this.makeLinearList(this.tasks),
                     })
-                } else if (answer['error_code'] === 401) {
-                    this.loginInst.forceLogOut();
+                } else if (answer.status === 401) {
+                    this.login.forceLogOut();
                     showInfoWindow('Authorisation problem!');
                 }
             }
-            knock_knock('/save_task', add, sendData);
+            this.app.knockKnock('/save_task', add, sendData);
         }
     }
 
@@ -513,8 +879,8 @@ class TaskListReact extends React.Component {
         let sendData = {'taskText': subtaskText, 'parentId': subtaskParentId}
 
         const add = (answer) => {
-            if (answer['ok'] === true) {
-                let taskId = answer['task_id'];
+            if (answer.status === 200) {
+                let taskId = answer.data['task_id'];
                 let newTask = new Task(taskId, subtaskText, subtaskParentId);
 
                 this.tasksTree.set(taskId, newTask);
@@ -523,12 +889,12 @@ class TaskListReact extends React.Component {
                 this.setState({
                     linearTasksList : this.makeLinearList(this.tasks),
                 })
-            } else if (answer['error_code'] === 401) {
-                this.loginInst.forceLogOut();
+            } else if (answer.status === 401) {
+                this.login.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
-        knock_knock('/save_task', add, sendData);
+        this.app.knockKnock('/save_task', add, sendData);
     }
 
     /**
@@ -542,7 +908,7 @@ class TaskListReact extends React.Component {
     removeTask(task) {
         let sendData = {'taskId': task.id}
         const remove = (answer) => {
-            if (answer['ok'] === true) {
+            if (answer.status === 200) {
                 if (this.tasksTree.has(task.parentId)) {
                     let childrenList = this.tasksTree.get(task.parentId).subtasks;
                     childrenList.splice(childrenList.indexOf(task), 1);
@@ -552,12 +918,12 @@ class TaskListReact extends React.Component {
                 this.setState({
                     linearTasksList: this.makeLinearList(this.tasks),
                 })
-            } else if (answer['error_code'] === 401) {
-                this.loginInst.forceLogOut();
+            } else if (answer.status === 401) {
+                this.login.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
-        knock_knock('/delete_task', remove, sendData);
+        this.app.knockKnock('/delete_task', remove, sendData);
     }
 
     render() {
@@ -580,7 +946,8 @@ class TaskListReact extends React.Component {
                 <div className="main_tasks"
                      id={'main_tasks'}>
                     {this.state.linearTasksList.map((task) => <TaskReact key={task.id.toString()}
-                                                                         loginInst={this.loginInst}
+                                                                         app={this.app}
+                                                                         login={this.login}
                                                                          taskInst={task}
                                                                          taskId={task.id}
                                                                          status={task.status}
@@ -597,10 +964,10 @@ class TaskListReact extends React.Component {
 class TaskReact extends React.Component {
     constructor(props) {
         super(props);
+        this.app = this.props.app;
+        this.login = this.props.login;
         this.taskInst = this.props.taskInst;
-        this.loginInst = this.props.loginInst;
         this.taskId = this.props.taskId;
-        this.shadow = shadow();
         this.state = {
             status: this.props.status,
             showSubtaskDivButtonZIndex: '0',
@@ -612,8 +979,6 @@ class TaskReact extends React.Component {
             removeTaskButtonTransitionDelay: '0',
             subtaskDivShowed: false,
             subtaskDivVisibility: 'hidden',
-            subtaskTimerShow: null,
-            subtaskTimerHide: null,
             subtaskTextFieldOpacity: '0',
             subtaskTextFieldWidth: '0',
             addSubtaskButtonDisabled: true,
@@ -653,16 +1018,16 @@ class TaskReact extends React.Component {
             'status': taskStatus
         };
         const finish = (answer) => {
-            if (answer['ok'] === true) {
+            if (answer.status === 200) {
                 this.setState({
                     status: taskStatus
                 });
-            } else if (answer['error_code'] === 401) {
-                this.loginInst.forceLogOut();
+            } else if (answer.status === 401) {
+                this.login.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
-        knock_knock('/finish_task', finish, sendData);
+        this.app.knockKnock('/finish_task', finish, sendData);
     }
 
     removeTask() {
@@ -671,7 +1036,7 @@ class TaskReact extends React.Component {
 
     showSubtaskField() {
         if (this.state.subtaskDivShowed === false) {
-            this.shadow();
+            this.app.showShadowModal();
             this.subtaskDivHideTimer = clearTimeout(this.subtaskDivHideTimer);
             this.setState({
                 subtaskDivShowed: true,
@@ -689,7 +1054,7 @@ class TaskReact extends React.Component {
                 addSubtaskButtonTransitionDelay: '0.2s',
             })
         } else {
-            this.shadow();
+            this.app.hideShadowModal();
             this.setState({
                 subtaskDivShowed: false,
 
@@ -733,7 +1098,7 @@ class TaskReact extends React.Component {
 
     showEditTaskField() {
         if (this.state.taskTextEditDivShowed === false) {
-            this.shadow();
+            this.app.showShadowModal();
             this.hideEditDivTimer = clearTimeout(this.hideEditDivTimer);
             this.setState({
                 taskTextEditDivShowed: true,
@@ -757,18 +1122,18 @@ class TaskReact extends React.Component {
                 };
 
                 const saveEdit = (answer) => {
-                    if (answer['ok'] === true) {
+                    if (answer.status === 200) {
                         this.setState({
                             taskTextValue: this.editTaskField.current.value,
                         })
-                    } else if (answer['error_code'] === 401) {
-                        this.loginInst.forceLogOut();
+                    } else if (answer.status === 401) {
+                        this.login.forceLogOut();
                         showInfoWindow('Authorisation problem!');
                     }
                 }
-                knock_knock('/save_edit_task', saveEdit, sendData);
+                this.app.knockKnock('/save_edit_task', saveEdit, sendData);
             }
-            this.shadow();
+            this.app.hideShadowModal();
             this.setState({
                 taskTextEditDivShowed: false,
                 showSubtaskDivButtonDisabled: false,
@@ -890,30 +1255,37 @@ class TaskReact extends React.Component {
     }
 }
 
-//TODO Maybe compile class LoadingWindow and knock_knock function together????
-class LoadingWindow {
+class LoadingWindowReact extends React.Component {
     constructor() {
+        super();
         this.isAlive = false;
         this.reqCount = 0;
-        this.timerShow = undefined;
-        this.timerHide = undefined;
-        this.startTime = undefined;
-        this.stopTime = undefined;
+        this.timerShow = null;
+        this.timerHide = null;
+        this.startTime = null;
+        this.stopTime = null;
+        this.state = {
+            visibility: 'hidden',
+        }
+        this.showWindow = this.showWindow.bind(this);
+        this.hideWindow = this.hideWindow.bind(this);
     }
 
-    showWindow(loadingWindow) {
+    showWindow() {
         this.reqCount++;
         if (this.reqCount === 1) {
             this.timerHide = clearTimeout(this.timerHide);
             this.timerShow = setTimeout(() => {
-                loadingWindow.style.visibility = 'visible';
+                this.setState({
+                    visibility: 'visible',
+                })
                 this.startTime = Date.now();
                 this.isAlive = true;
             }, 200);
         }
     }
 
-    hideWindow(loadingWindow) {
+    hideWindow() {
         if (this.reqCount > 0) {
             this.reqCount--;
             this.stopTime = Date.now();
@@ -922,15 +1294,78 @@ class LoadingWindow {
             this.timerShow = clearTimeout(this.timerShow);
             if (this.isAlive) {
                 if (this.stopTime - this.startTime >= 200) {
-                    loadingWindow.style.visibility = 'hidden';
+                    this.setState({
+                        visibility: 'hidden',
+                    })
                     this.isAlive = false;
                 } else {
                     this.timerHide = setTimeout(() => {
-                        loadingWindow.style.visibility = 'hidden';
+                        this.setState({
+                            visibility: 'hidden',
+                        })
                         this.isAlive = false;
                     }, 200 - (this.stopTime - this.startTime));
                 }
             }
         }
     }
+    render() {
+        return(
+            <div className={'loading_window'}
+                 id={'loading_window'} style={
+                     {
+                         visibility: this.state.visibility,
+                     }}>
+                <p className={'loading_window_message'}
+                   id={'loading_window_message'}>
+                    ГРУЖУСЬ
+                </p>
+            </div>
+        )
+    }
 }
+
+// //TODO Maybe compile class LoadingWindow and knock_knock function together????
+// class LoadingWindow {
+//     constructor() {
+//         this.isAlive = false;
+//         this.reqCount = 0;
+//         this.timerShow = undefined;
+//         this.timerHide = undefined;
+//         this.startTime = undefined;
+//         this.stopTime = undefined;
+//     }
+//
+//     showWindow(loadingWindow) {
+//         this.reqCount++;
+//         if (this.reqCount === 1) {
+//             this.timerHide = clearTimeout(this.timerHide);
+//             this.timerShow = setTimeout(() => {
+//                 loadingWindow.style.visibility = 'visible';
+//                 this.startTime = Date.now();
+//                 this.isAlive = true;
+//             }, 200);
+//         }
+//     }
+//
+//     hideWindow(loadingWindow) {
+//         if (this.reqCount > 0) {
+//             this.reqCount--;
+//             this.stopTime = Date.now();
+//         }
+//         if (this.reqCount === 0) {
+//             this.timerShow = clearTimeout(this.timerShow);
+//             if (this.isAlive) {
+//                 if (this.stopTime - this.startTime >= 200) {
+//                     loadingWindow.style.visibility = 'hidden';
+//                     this.isAlive = false;
+//                 } else {
+//                     this.timerHide = setTimeout(() => {
+//                         loadingWindow.style.visibility = 'hidden';
+//                         this.isAlive = false;
+//                     }, 200 - (this.stopTime - this.startTime));
+//                 }
+//             }
+//         }
+//     }
+// }

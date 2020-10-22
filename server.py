@@ -42,13 +42,15 @@ def main():
 
     if user_language == 'ru':
         local.read('localisation/localisation_ru.ini')
-        response = make_response(render_template("index.html", **dict(local)))
+        response = make_response(render_template("index.html",
+                                                 data=config_to_dict(local)))
         response.set_cookie('lang', 'ru')
 
         return response
     else:
         local.read('localisation/localisation_en.ini')
-        response = make_response(render_template('index.html', **dict(local)))
+        response = make_response(render_template('index.html',
+                                                 data=config_to_dict(local)))
         response.set_cookie('lang', 'en')
 
         return response
@@ -60,13 +62,15 @@ def change_language(lang):
 
     if lang == 'ru':
         local.read('localisation/localisation_ru.ini')
-        response = make_response(render_template('index.html', **dict(local)))
+        response = make_response(render_template('index.html',
+                                                 data=config_to_dict(local)))
         response.set_cookie('lang', 'ru')
 
         return response
     elif lang == 'en':
         local.read('localisation/localisation_en.ini')
-        response = make_response(render_template('index.html', **dict(local)))
+        response = make_response(render_template('index.html',
+                                                 data=config_to_dict(local)))
         response.set_cookie('lang', 'en')
 
         return response
@@ -153,8 +157,13 @@ def change_password():
         hashed_password = rows[0][0]
 
         if not check_password_hash(hashed_password, old_password):
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "Your password are incorrect!"})
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Your password are incorrect!"
+                }))
+
+            return response
 
         new_hashed_password = generate_password_hash(new_password)
 
@@ -209,25 +218,37 @@ def user_login():
         rows = cur.fetchall()
 
         if not rows:
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "Username or Password are "
-                                             "incorrect!"})
+            response = make_response(
+                jsonify(
+                    {
+                        'ok': False,
+                        'error_message': 'Username or Password are incorrect!'
+                     }
+                ), 401)
+            return response
 
         user_text_id = rows[0][0]
         user_name = rows[0][1]
         hashed_password = rows[0][2]
 
         if not check_password_hash(hashed_password, user_password):
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "Username or Password are "
-                                             "incorrect!"})
+            response = make_response(
+                jsonify(
+                    {
+                        'ok': False,
+                        'error_message': 'Username or password are incorrect!'
+                    }
+                ), 401)
+
+            return response
 
         sign = hashlib.sha256()
         sign.update(static_salt.encode())
         sign.update(user_text_id.encode())
         sign = sign.hexdigest()
 
-        response = make_response(jsonify({"ok": True, "user_name": user_name}))
+        response = make_response(jsonify({"ok": True,
+                                          "user_name": user_name}))
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -424,9 +445,9 @@ def save_task():
         task_id = cur.lastrowid
 
         response = make_response(jsonify({
-                                        'ok': True,
-                                        'task_id': task_id
-                                        }))
+            'ok': True,
+            'task_id': task_id
+        }))
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -486,8 +507,8 @@ def save_edit_task():
         connection.commit()
 
         response = make_response(jsonify({
-                                        "ok": True
-                                        }))
+            "ok": True
+        }))
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -555,8 +576,8 @@ def delete_task():
         connection.commit()
 
         response = make_response(jsonify({
-                                        "ok": True
-                                        }))
+            "ok": True
+        }))
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -625,8 +646,8 @@ def finish_task():
         connection.commit()
 
         response = make_response(jsonify({
-                                        "ok": True
-                                        }))
+            "ok": True
+        }))
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -654,9 +675,9 @@ def auth_check():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False}))
+            response = make_response(jsonify({"ok": False}), 401)
             return response
-        response = make_response(jsonify({"ok": True}))
+        response = make_response(jsonify({"ok": True}), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -690,6 +711,17 @@ def check_cookies(user_text_id: str, sign):
     if sign != control_sign:
         return False
     return True
+
+
+def config_to_dict(config_file):
+    out_dict = {}
+
+    for section in config_file.sections():
+        out_dict[section] = {}
+        for key, value in config_file.items(section):
+            out_dict[section][key] = value
+
+    return out_dict
 
 
 if __name__ == "__main__":

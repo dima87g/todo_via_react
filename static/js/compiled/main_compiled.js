@@ -1,12 +1,5 @@
-'use strict'; // document.addEventListener('DOMContentLoaded', function() {
-//     let mainLogin = new Login();
-//     authCheck(mainLogin);
-//     events();
-// });
+'use strict';
 
-var mainLogin = new Login();
-var showLoading = new LoadingWindow();
-authCheck(mainLogin);
-events();
+ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('root'));
 
 //# sourceMappingURL=main_compiled.js.map

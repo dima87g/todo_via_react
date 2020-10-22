@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "main_js": "babel ./static/js/main.js --source-maps --out-file ./static/js/compiled/main_compiled.js",
-    "classes_js": "babel ./static/js/todo_classes.js --source-maps --out-file ./static/js/compiled/todo_classes_compiled.js",
+    "classes_js": "babel static/js/todo_classes.js --source-maps --out-file ./static/js/compiled/todo_classes_compiled.js",
     "functions_js": "babel ./static/js/todo_functions.js --source-maps --out-file ./static/js/compiled/todo_functions_compiled.js",
     "js": "npm run main_js && npm run classes_js && npm run functions_js",
     "css": "postcss ./static/css/style.css -o ./static/css/compiled/style_compiled.css",
@@ -39,5 +39,6 @@
         "@babel/preset-react"
       ]
     ]
-  }
+  },
+  "dependencies": {}
 }
