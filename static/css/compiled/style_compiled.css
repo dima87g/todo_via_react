@@ -100,7 +100,8 @@ html, body {
 
 .auth_menu_hidden {
     visibility: hidden;
-    transition: visibility 0s 0.5s;
+    transition: opacity 0.5s,
+                visibility 0s 0.5s;
 }
 /*Styles for show/hide auth menu animation*/
 
@@ -131,7 +132,8 @@ html, body {
 
 .login_window_hidden, .register_window_hidden, .change_password_window_hidden {
     visibility: hidden;
-    /*transition: visibility 0s 0.5s;*/
+    transition: opacity 0.5s,
+                visibility 0s 0.5s;
 }
 /*Styles for show/hide login & register windows animation*/
 
@@ -525,7 +527,8 @@ html, body {
 
 .confirm_window_hidden {
     visibility: hidden;
-    transition: visibility 0s 0.5s;
+    transition: opacity 0.5s,
+                visibility 0s 0.5s;
 }
 /*Styles for show/hide confirm window animation*/
 .confirm_window_message {
@@ -577,7 +580,8 @@ html, body {
 
 .shadow_hidden {
     visibility: hidden;
-    transition: visibility 0s 0.5s;
+    transition: opacity 0.5s,
+                visibility 0s 0.5s;
 }
 /*Styles for show/hide shadow animation*/
 

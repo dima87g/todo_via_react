@@ -222,17 +222,25 @@ class LoginReact extends React.Component {
                 loginWindowShowed: false,
                 loginWindowSwitchButtonDisabled: true,
                 registerWindowShowed: true,
-                registerWindowSwitchButtonDisabled: false,
             });
+            setTimeout(() => {
+                this.setState({
+                    registerWindowSwitchButtonDisabled: false,
+                });
+            }, 500);
             document.forms['login_form'].reset();
             this.app.removeChildren(this.loginFormInfo.current);
         } else {
             this.setState({
                 loginWindowShowed: true,
-                loginWindowSwitchButtonDisabled: false,
                 registerWindowShowed: false,
                 registerWindowSwitchButtonDisabled: true,
             });
+            setTimeout(() => {
+                this.setState({
+                    loginWindowSwitchButtonDisabled: false,
+                });
+            }, 500);
             document.forms['register_form'].reset();
             this.app.removeChildren(this.registerFormInfo.current);
         }
