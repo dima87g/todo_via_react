@@ -37,6 +37,9 @@ class App extends React.Component {
                 this.login.current.hideLoginWindow();
             } else {
                 showCookiesAlertWindow();
+                this.setState({
+                    shadowModalIsVisible: true,
+                });
             }
         }
         this.knockKnock('/auth_check', responseHandler);
@@ -196,7 +199,8 @@ class LoginReact extends React.Component {
             registerWindowShowed: false,
             registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
-            changePasswordBWindowCancelButtonDisabled: true,
+            changePasswordWindowCancelButtonDisabled: true,
+            changePasswordWindowSubmitButtonDisabled: true,
         }
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
@@ -214,26 +218,6 @@ class LoginReact extends React.Component {
 
     switchLogin(e) {
         if (e.target.value === 'register') {
-            // this.setState({
-            //     loginWindow: {
-            //         ...this.state.loginWindow,
-            //         opacity: 0,
-            //         visibility: 'hidden',
-            //     },
-            //     loginWindowSwitchButton: {
-            //         ...this.state.loginWindowSwitchButton,
-            //         disabled: true,
-            //     },
-            //     registerWindow: {
-            //         ...this.state.registerWindow,
-            //         opacity: 1,
-            //         visibility: 'inherit',
-            //     },
-            //     registerWindowSwitchButton: {
-            //         ...this.state.registerWindowSwitchButton,
-            //         disabled: false,
-            //     },
-            // })
             this.setState({
                 loginWindowShowed: false,
                 loginWindowSwitchButtonDisabled: true,
@@ -243,26 +227,6 @@ class LoginReact extends React.Component {
             document.forms['login_form'].reset();
             this.app.removeChildren(this.loginFormInfo.current);
         } else {
-            // this.setState({
-            //     loginWindow: {
-            //         ...this.state.loginWindow,
-            //         opacity: 1,
-            //         visibility: 'inherit',
-            //     },
-            //     loginWindowSwitchButton: {
-            //         ...this.state.loginWindowSwitchButton,
-            //         disabled: false,
-            //     },
-            //     registerWindow: {
-            //         ...this.state.registerWindow,
-            //         opacity: 0,
-            //         visibility: 'hidden',
-            //     },
-            //     registerWindowSwitchButton: {
-            //         ...this.state.registerWindowSwitchButton,
-            //         disabled: false,
-            //     },
-            // });
             this.setState({
                 loginWindowShowed: true,
                 loginWindowSwitchButtonDisabled: false,
@@ -279,21 +243,11 @@ class LoginReact extends React.Component {
         document.forms['register_form'].reset();
         this.app.removeChildren(this.loginFormInfo.current);
         this.app.hideShadowModal();
+
         this.setState({
-            authMenu: {
-                ...this.state.authMenu,
-                opacity: '0',
-            }
-        });
-        this.hideLoginWindowTimeout = setTimeout(() => {
-            this.setState({
-                authMenu: {
-                    ...this.state.authMenu,
-                    visibility: 'hidden',
-                }
-            });
-        }, 500);
-        this.setState({
+            authMenuShowed: false,
+            loginWindowShowed: false,
+            registerWindowShowed: false,
             userLogOutButtonDisabled: false,
             userDeleteButtonDisabled: false,
             changePasswordButtonDisabled: false,
@@ -301,19 +255,14 @@ class LoginReact extends React.Component {
     }
 
     showLoginWindow() {
-        this.hideLoginWindowTimeout = clearTimeout(this.hideLoginWindowTimeout);
+        // this.hideLoginWindowTimeout = clearTimeout(this.hideLoginWindowTimeout);
         this.app.removeChildren(this.userNameField.current);
 
         this.app.showShadowModal();
 
         this.setState({
-            authMenu: {
-                ...this.state.authMenu,
-                visibility: 'visible',
-                opacity: '1',
-            }
-        });
-        this.setState({
+            authMenuShowed: true,
+            loginWindowShowed: true,
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
             changePasswordButtonDisabled: true,
@@ -414,42 +363,23 @@ class LoginReact extends React.Component {
     }
 
     changePasswordWindow() {
-        if (this.state.changePasswordWindow.showed === false) {
+        if (this.state.changePasswordWindowShowed === false) {
             this.showLoginWindow();
+
             this.setState({
-                loginWindow: {
-                    ...this.state.loginWindow,
-                    visibility: 'hidden',
-                },
-                registerWindow: {
-                    ...this.state.registerWindow,
-                    visibility: 'hidden',
-                },
-                changePasswordWindow: {
-                    ...this.state.changePasswordWindow,
-                    showed: true,
-                    cancelButtonDisabled: false,
-                    submitButtonDisabled: false,
-                }
-            });
+                changePasswordWindowShowed: true,
+                loginWindowShowed: false,
+                registerWindowShowed: false,
+                changePasswordWindowCancelButtonDisabled: false,
+                changePasswordWindowSubmitButtonDisabled: false,
+            })
         } else {
             this.hideLoginWindow();
             this.setState({
-                loginWindow: {
-                    ...this.state.loginWindow,
-                    visibility: 'inherit',
-                },
-                registerWindow: {
-                    ...this.state.registerWindow,
-                    visibility: 'hidden',
-                },
-                changePasswordWindow: {
-                    ...this.state.changePasswordWindow,
-                    showed: false,
-                    cancelButtonDisabled: true,
-                    submitButtonDisabled: true,
-                }
-            });
+                changePasswordWindowShowed: false,
+                changePasswordWindowCancelButtonDisabled: true,
+                changePasswordWindowSubmitButtonDisabled: true,
+            })
         }
     }
     /**
@@ -550,7 +480,7 @@ class LoginReact extends React.Component {
         let authMenuStyle;
         let loginWindowStyle;
         let registerWindowStyle;
-        let changePasswordWindowStyle = 'change_password_window';
+        let changePasswordWindowStyle;
 
         if (this.state.authMenuShowed) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -570,8 +500,10 @@ class LoginReact extends React.Component {
             registerWindowStyle = 'register_window register_window_hidden';
         }
 
-        if (this.state.changePasswordWindow.showed) {
-            changePasswordWindowStyle += ' change_password_window_showed';
+        if (this.state.changePasswordWindowShowed) {
+            changePasswordWindowStyle = 'change_password_window change_password_window_visible';
+        } else {
+            changePasswordWindowStyle = 'change_password_window change_password_window_hidden'
         }
         return (
             <div className={'main'} id={'main'}>
@@ -645,9 +577,9 @@ class LoginReact extends React.Component {
                                    placeholder={localisation['register_window']['password_confirm_placeholder']}/>
                             <p className={"agreement"} id={"agreement"}>
                                 <input type={"checkbox"} id={"agreement_checkbox"} name={'agreement_checkbox'}/>
-                                <label htmlFor="agreement_checkbox">Нажимая вы соглашаетесь с
+                                <label htmlFor="agreement_checkbox">&nbsp;{localisation['register_window']['agreement_label']}&nbsp;
                                     <a href="../static/agreements/agreement_ru.html"
-                                       target="_blank">соглашением</a>, воть.</label></p>
+                                       target="_blank">{localisation['register_window']['agreement_link']}</a></label></p>
                             <button type={"submit"}
                                     id={"register_form_button"}
                                     className={"register_form_button"}>
@@ -666,10 +598,13 @@ class LoginReact extends React.Component {
                             {localisation['register_window']['switch_to_login_button']}
                         </button>
                     </div>
-                    <div className={changePasswordWindowStyle} id={"change_password_window"}>
+                    <div
+                        id={"change_password_window"}
+                        className={changePasswordWindowStyle}
+                    >
                         <button type={"button"} id={"change_password_window_cancel_button"}
                                 className={"change_password_window_cancel_button"}
-                                disabled={this.state.changePasswordWindow.cancelButtonDisabled}
+                                disabled={this.state.changePasswordWindowCancelButtonDisabled}
                                 onClick={this.changePasswordWindow}>X
                         </button>
                         <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
@@ -697,7 +632,7 @@ class LoginReact extends React.Component {
                                    placeholder={localisation['change_password_window']['new_password_confirm_placeholder']}/>
                             <button type={"submit"} value={"Change password"} id={"change_password_form_button"}
                                     className={"change_password_form_button"}
-                                    disabled={this.state.changePasswordWindow.submitButtonDisabled}>
+                                    disabled={this.state.changePasswordWindowSubmitButtonDisabled}>
                                 {localisation['change_password_window']['change_password_button']}
                             </button>
                         </form>
