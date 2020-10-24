@@ -14,36 +14,15 @@ class App extends React.Component {
     constructor() {
         super();
         this.state = {
-            shadow: {
-                showed: true,
-                opacity: '0.5',
-                visibility: 'visible',
-            },
-            loadingWindow: {
-                showed: false,
-                reqCount: 0,
-                startTime: null,
-                stopTime: null,
-            },
-            confirmWindow: {
-                visibility: 'hidden',
-                opacity: '0',
-                message: '',
-            },
+            shadowModalIsVisible: false,
+            confirmWindowIsVisible: false,
+            confirmWindowMessage: '',
             confirmWindowOnClick: null,
-            userLogOutButtonDisabled: true,
-            userDeleteButtonDisabled: true,
-            changePasswordButtonDisabled: true,
         }
         this.authCheck = this.authCheck.bind(this);
-        this.createTaskList = this.createTaskList.bind(this);
-        this.logOut = this.logOut.bind(this);
-        this.changePassword = this.changePassword.bind(this);
-        this.userDelete = this.userDelete.bind(this);
         this.showConfirmWindow = this.showConfirmWindow.bind(this);
         this.knockKnock = this.knockKnock.bind(this);
         this.login = React.createRef();
-        this.userNameField = React.createRef();
         this.loadingWindow = React.createRef();
     }
 
@@ -53,8 +32,8 @@ class App extends React.Component {
 
     authCheck() {
         const responseHandler = (response) => {
-            if (response.status === 200) {
-                this.createTaskList();
+            if (response.status === 200 && response.data['ok'] === true) {
+                this.login.current.createTaskList();
                 this.login.current.hideLoginWindow();
             } else {
                 showCookiesAlertWindow();
@@ -63,106 +42,43 @@ class App extends React.Component {
         this.knockKnock('/auth_check', responseHandler);
     }
 
-    createTaskList() {
-        const responseHandler = (response) => {
-            if (response.status === 200) {
-                let userName = response.data['user_name'];
-                let tasksFromServer = response.data['tasks'];
-
-                this.userNameField.current.appendChild(document.createTextNode(userName));
-
-                ReactDOM.render(
-                    <TaskListReact app={this}
-                                   login={this.login.current}
-                                   tasksFromServer={tasksFromServer}/>, document.getElementById('task_list'));
-            } else if (response.status === 401) {
-                this.login.current.forceLogOut();
-                showInfoWindow('Authorisation problem!');
-            }
-        }
-        this.knockKnock('/load_tasks', responseHandler);
-    }
-
     removeChildren(element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild)
         }
     }
 
-    logOut() {
-        this.login.current.logOut();
-    }
-
-    changePassword() {
-        this.login.current.changePasswordWindow();
-    }
-
-    userDelete() {
-        this.login.current.userDelete();
-    }
-
     showConfirmWindow(message, func) {
-        confirmWindowOnClick = confirmWindowOnClick.bind(this);
         this.showShadowModal();
 
-        function confirmWindowOnClick(e) {
+        const confirmWindowOnClick = (e) => {
             if (e.target.value === 'ok') {
+                this.hideShadowModal();
                 func();
+            } else {
+                this.hideShadowModal();
             }
             this.setState({
-                confirmWindow: {
-                    ...this.state.confirmWindow,
-                    opacity: '0',
-                    message: '',
-                },
-            });
-            setTimeout(() => {
-                this.setState({
-                    confirmWindow: {
-                        ...this.state.confirmWindow,
-                        visibility: 'hidden',
-                    },
-                });
-            }, 500);
-            this.hideShadowModal();
+                confirmWindowIsVisible: false,
+            })
         }
         this.setState({
-            confirmWindow: {
-                ...this.state.confirmWindow,
-                visibility: 'visible',
-                opacity: '1',
-                message: message,
-            },
+            confirmWindowIsVisible: true,
+            confirmWindowMessage: message,
             confirmWindowOnClick: confirmWindowOnClick,
         });
     }
 
     showShadowModal() {
-        this.hideShadowModalTimeout = clearTimeout(this.hideShadowModalTimeout);
         this.setState({
-            shadow: {
-                ...this.state.shadow,
-                visibility: 'visible',
-                opacity: '0.5',
-            }
+            shadowModalIsVisible: true,
         });
     }
 
     hideShadowModal() {
         this.setState({
-            shadow: {
-                ...this.state.shadow,
-                opacity: '0',
-            },
-        });
-        this.hideShadowModalTimeout = setTimeout(() => {
-            this.setState({
-                shadow: {
-                    ...this.state.shadow,
-                    visibility: 'hidden',
-                },
-            });
-        }, 500);
+            shadowModalIsVisible: false,
+        })
     }
 
     knockKnock(path, func, sendData) {
@@ -183,47 +99,30 @@ class App extends React.Component {
     }
 
     render() {
+        let shadowStyle;
+        let confirmWindowStyle;
+
+        if (this.state.shadowModalIsVisible) {
+            shadowStyle = 'shadow_main shadow_visible';
+        } else {
+            shadowStyle = 'shadow_main shadow_hidden';
+        }
+
+        if (this.state.confirmWindowIsVisible) {
+            confirmWindowStyle = 'confirm_window confirm_window_visible';
+        } else {
+            confirmWindowStyle = 'confirm_window confirm_window_hidden';
+        }
         return (
             <div className={'app'} id={'app'}>
-                <div className="header">
-                    <a href="/ru" className={'language_switch_button'}>Русский</a>
-                    <a href="/en" className={'language_switch_button'}>English</a>
-                    <p className={"user_name_field"}
-                       id={'user_name_field'}
-                       ref={this.userNameField}/>
-                    <input type="button"
-                           className='user_logout_button'
-                           id='user_logout_button'
-                           value={localisation['buttons']['logout']}
-                           disabled={this.state.userLogOutButtonDisabled}
-                           onClick={this.logOut}/>
-                    <input type="button"
-                           className="user_delete_button"
-                           id="user_delete_button"
-                           value={localisation['buttons']['delete_user']}
-                           disabled={this.state.userDeleteButtonDisabled}
-                           onClick={this.userDelete}/>
-                    <input type="button"
-                           className="change_password_button"
-                           id="change_password_button"
-                           value={localisation['buttons']['change_password']}
-                           disabled={this.state.changePasswordButtonDisabled}
-                           onClick={this.changePassword}/>
-                   <p className="version">Ver. 1.8</p>
-                </div>
-                <div className={'task_list'} id={'task_list'}/>
                 <LoginReact app={this}
                             ref={this.login}/>
-                <div className={"confirm_window"}
-                     id={"confirm_window"}
-                     style={
-                         {
-                             visibility: this.state.confirmWindow.visibility,
-                             opacity: this.state.confirmWindow.opacity,
-                         }
-                     }>
-                    <p className="confirm_window_message" id="confirm_window_message">
-                        {this.state.confirmWindow.message}
+                <div id={"confirm_window"}
+                     className={confirmWindowStyle}
+                >
+                    <p id={"confirm_window_message"}
+                       className={'confirm_window_message'}>
+                        {this.state.confirmWindowMessage}
                     </p>
                     <button type="button"
                             className="confirm_window_ok_button"
@@ -244,14 +143,9 @@ class App extends React.Component {
                     <p className="info_window_message" id="info_window_message"/>
                 </div>
                 <LoadingWindowReact ref={this.loadingWindow}/>
-                <div className={'shadow'}
-                     id={'shadow'}
-                     style={
-                         {
-                             visibility: this.state.shadow.visibility,
-                             opacity: this.state.shadow.opacity,
-                         }
-                     }/>
+                <div id={'shadow'}
+                     className={shadowStyle}
+                />
                 <div className={"cookies_alert_window"} id={"cookies_alert_window"}>
                     <p className={"cookies_alert_window_text"} id={"cookies_alert_window_text"}/>
                     <button type={"button"}
@@ -293,6 +187,14 @@ class LoginReact extends React.Component {
                 cancelButtonDisabled: true,
                 submitButtonDisabled: true,
             },
+            userLogOutButtonDisabled: true,
+            userDeleteButtonDisabled: true,
+            changePasswordButtonDisabled: true,
+            authMenuShowed: true,
+            loginWindowShowed: true,
+            loginWindowSwitchButtonDisabled: false,
+            registerWindowShowed: false,
+            registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
             changePasswordBWindowCancelButtonDisabled: true,
         }
@@ -304,75 +206,77 @@ class LoginReact extends React.Component {
         this.changePasswordWindow = this.changePasswordWindow.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
-        this.loginFormUsernameField = React.createRef();
-        this.loginFormPasswordField = React.createRef();
-        this.registerFormUsernameField = React.createRef();
-        this.registerFormPasswordField = React.createRef();
-        this.registerFormPasswordConfirmField = React.createRef();
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
+        this.userNameField = React.createRef();
     }
 
     switchLogin(e) {
         if (e.target.value === 'register') {
+            // this.setState({
+            //     loginWindow: {
+            //         ...this.state.loginWindow,
+            //         opacity: 0,
+            //         visibility: 'hidden',
+            //     },
+            //     loginWindowSwitchButton: {
+            //         ...this.state.loginWindowSwitchButton,
+            //         disabled: true,
+            //     },
+            //     registerWindow: {
+            //         ...this.state.registerWindow,
+            //         opacity: 1,
+            //         visibility: 'inherit',
+            //     },
+            //     registerWindowSwitchButton: {
+            //         ...this.state.registerWindowSwitchButton,
+            //         disabled: false,
+            //     },
+            // })
             this.setState({
-                loginWindow: {
-                    ...this.state.loginWindow,
-                    opacity: 0,
-                    visibility: 'hidden',
-                },
-                loginWindowSwitchButton: {
-                    ...this.state.loginWindowSwitchButton,
-                    disabled: true,
-                },
-                registerWindow: {
-                    ...this.state.registerWindow,
-                    opacity: 1,
-                    visibility: 'inherit',
-                },
-                registerWindowSwitchButton: {
-                    ...this.state.registerWindowSwitchButton,
-                    disabled: false,
-                },
-            })
-            this.loginFormUsernameField.current.value = '';
-            this.loginFormPasswordField.current.value = '';
+                loginWindowShowed: false,
+                loginWindowSwitchButtonDisabled: true,
+                registerWindowShowed: true,
+                registerWindowSwitchButtonDisabled: false,
+            });
+            document.forms['login_form'].reset();
             this.app.removeChildren(this.loginFormInfo.current);
         } else {
+            // this.setState({
+            //     loginWindow: {
+            //         ...this.state.loginWindow,
+            //         opacity: 1,
+            //         visibility: 'inherit',
+            //     },
+            //     loginWindowSwitchButton: {
+            //         ...this.state.loginWindowSwitchButton,
+            //         disabled: false,
+            //     },
+            //     registerWindow: {
+            //         ...this.state.registerWindow,
+            //         opacity: 0,
+            //         visibility: 'hidden',
+            //     },
+            //     registerWindowSwitchButton: {
+            //         ...this.state.registerWindowSwitchButton,
+            //         disabled: false,
+            //     },
+            // });
             this.setState({
-                loginWindow: {
-                    ...this.state.loginWindow,
-                    opacity: 1,
-                    visibility: 'inherit',
-                },
-                loginWindowSwitchButton: {
-                    ...this.state.loginWindowSwitchButton,
-                    disabled: false,
-                },
-                registerWindow: {
-                    ...this.state.registerWindow,
-                    opacity: 0,
-                    visibility: 'hidden',
-                },
-                registerWindowSwitchButton: {
-                    ...this.state.registerWindowSwitchButton,
-                    disabled: false,
-                },
+                loginWindowShowed: true,
+                loginWindowSwitchButtonDisabled: false,
+                registerWindowShowed: false,
+                registerWindowSwitchButtonDisabled: true,
             });
-            this.registerFormUsernameField.current.value = '';
-            this.registerFormPasswordField.current.value = '';
-            this.registerFormPasswordConfirmField.current.value = '';
+            document.forms['register_form'].reset();
             this.app.removeChildren(this.registerFormInfo.current);
         }
     }
 
     hideLoginWindow() {
-        this.loginFormUsernameField.current.value = '';
-        this.loginFormPasswordField.current.value = '';
-        this.registerFormUsernameField.current.value = '';
-        this.registerFormPasswordField.current.value = '';
-        this.registerFormPasswordConfirmField.current.value = '';
+        document.forms['login_form'].reset();
+        document.forms['register_form'].reset();
         this.app.removeChildren(this.loginFormInfo.current);
         this.app.hideShadowModal();
         this.setState({
@@ -389,7 +293,7 @@ class LoginReact extends React.Component {
                 }
             });
         }, 500);
-        this.app.setState({
+        this.setState({
             userLogOutButtonDisabled: false,
             userDeleteButtonDisabled: false,
             changePasswordButtonDisabled: false,
@@ -398,7 +302,7 @@ class LoginReact extends React.Component {
 
     showLoginWindow() {
         this.hideLoginWindowTimeout = clearTimeout(this.hideLoginWindowTimeout);
-        this.app.removeChildren(this.app.userNameField.current);
+        this.app.removeChildren(this.userNameField.current);
 
         this.app.showShadowModal();
 
@@ -409,7 +313,7 @@ class LoginReact extends React.Component {
                 opacity: '1',
             }
         });
-        this.app.setState({
+        this.setState({
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
             changePasswordButtonDisabled: true,
@@ -421,14 +325,14 @@ class LoginReact extends React.Component {
 
         this.app.removeChildren(this.loginFormInfo.current);
 
-        const userName = this.loginFormUsernameField.current.value;
-        const password = this.loginFormPasswordField.current.value;
+        const userName = e.target['login_form_username'].value;
+        const password = e.target['login_form_password'].value;
 
         if (userName && password) {
             const data = {'userName': userName, 'password': password}
             const loginResponseHandler = (response) => {
                 if (response.status === 200) {
-                    this.app.createTaskList();
+                    this.createTaskList();
                     this.hideLoginWindow();
                 } else if (response.status === 401) {
                     this.loginFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
@@ -440,6 +344,26 @@ class LoginReact extends React.Component {
         } else if (!password) {
             this.loginFormInfo.current.appendChild(document.createTextNode('Please, enter password!'));
         }
+    }
+
+    createTaskList() {
+        const responseHandler = (response) => {
+            if (response.status === 200) {
+                let userName = response.data['user_name'];
+                let tasksFromServer = response.data['tasks'];
+
+                this.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
+
+                ReactDOM.render(
+                    <TaskListReact app={this.app}
+                                   login={this}
+                                   tasksFromServer={tasksFromServer}/>, document.getElementById('task_list'));
+            } else if (response.status === 401) {
+                this.login.current.forceLogOut();
+                showInfoWindow('Authorisation problem!');
+            }
+        }
+        this.app.knockKnock('/load_tasks', responseHandler);
     }
 
     logOut() {
@@ -528,7 +452,10 @@ class LoginReact extends React.Component {
             });
         }
     }
-
+    /**
+     * POST: json =  {"oldPassword": "string",  "newPassword": "string"}
+     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null, 'error_message': 'string' or null}
+     */
     changePassword(e) {
         e.preventDefault();
 
@@ -548,6 +475,7 @@ class LoginReact extends React.Component {
             } else {
                 this.changePasswordFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
             }
+            e.target.reset();
         }
 
         if (oldPassword && newPassword && newPasswordConfirm) {
@@ -576,9 +504,9 @@ class LoginReact extends React.Component {
 
         this.app.removeChildren(this.registerFormInfo.current);
 
-        let userName = document.forms['register_form']['register_form_username'].value;
-        let password = document.forms['register_form']['register_form_password'].value;
-        let confirmPassword = document.forms['register_form']['register_form_password_confirm'].value;
+        let userName = e.target['register_form_username'].value;
+        let password = e.target['register_form_password'].value;
+        let confirmPassword = e.target['register_form_password_confirm'].value;
         let agreementCheckbox = e.target['agreement_checkbox'];
 
         const handleResponse = (response) => {
@@ -619,156 +547,192 @@ class LoginReact extends React.Component {
     }
 
     render() {
+        let authMenuStyle;
+        let loginWindowStyle;
+        let registerWindowStyle;
         let changePasswordWindowStyle = 'change_password_window';
+
+        if (this.state.authMenuShowed) {
+            authMenuStyle = 'auth_menu auth_menu_visible';
+        } else {
+            authMenuStyle = 'auth_menu auth_menu_hidden';
+        }
+
+        if (this.state.loginWindowShowed) {
+            loginWindowStyle = 'login_window login_window_visible';
+        } else {
+            loginWindowStyle = 'login_window login_window_hidden';
+        }
+
+        if (this.state.registerWindowShowed) {
+            registerWindowStyle = 'register_window register_window_visible';
+        } else {
+            registerWindowStyle = 'register_window register_window_hidden';
+        }
+
         if (this.state.changePasswordWindow.showed) {
             changePasswordWindowStyle += ' change_password_window_showed';
         }
         return (
-            <div className={'auth_menu'} id={'auth_menu'} style={
-                {
-                    visibility: this.state.authMenu.visibility,
-                    opacity: this.state.authMenu.opacity,
-                }
-            }>
-                <div className={'login_window'} id={'login_window'}
-                     style={
-                         {
-                             visibility: this.state.loginWindow.visibility,
-                             opacity: this.state.loginWindow.opacity
-                         }
-                     }>
-                    <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
-                    <form name="login_form" onSubmit={this.login}>
-                        <label htmlFor="login_form_username"
-                               className={"auth_menu_labels"}>{localisation['login_window']['user_name']}</label>
-                        <input type="text" name="login_form_username"
-                               className={"login_form_username"}
-                               id={"login_form_username"}
-                               ref={this.loginFormUsernameField}
-                               placeholder={localisation['login_window']['user_name_placeholder']}
-                               autoComplete={'off'}/>
-                        <label htmlFor="login_form_password"
-                               className={"auth_menu_labels"}>{localisation['login_window']['password']}</label>
-                        <input type="password" name="login_form_password"
-                               className={"login_form_password"}
-                               id={"login_form_password"}
-                               ref={this.loginFormPasswordField}
-                               placeholder={localisation['login_window']['password_placeholder']}
+            <div className={'main'} id={'main'}>
+                <div id={'auth_menu'}
+                     className={authMenuStyle}
+                >
+                    <div id={'login_window'}
+                         className={loginWindowStyle}
+                    >
+                        <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
+                        <form name="login_form" onSubmit={this.login}>
+                            <label htmlFor="login_form_username"
+                                   className={"auth_menu_labels"}>{localisation['login_window']['user_name']}</label>
+                            <input type="text" name="login_form_username"
+                                   className={"login_form_username"}
+                                   id={"login_form_username"}
+                                   placeholder={localisation['login_window']['user_name_placeholder']}
+                                   autoComplete={'off'}/>
+                            <label htmlFor="login_form_password"
+                                   className={"auth_menu_labels"}>{localisation['login_window']['password']}</label>
+                            <input type="password" name="login_form_password"
+                                   className={"login_form_password"}
+                                   id={"login_form_password"}
+                                   placeholder={localisation['login_window']['password_placeholder']}
+                            />
+                            <button type={"submit"}
+                                    className={"login_form_button"}
+                                    id={"login_form_button"}>
+                                {localisation['login_window']['submit_button']}
+                            </button>
+                        </form>
+                        <p className="login_window_info"
+                           id="login_window_info"
+                           ref={this.loginFormInfo}
                         />
-                        <button type={"submit"}
-                                className={"login_form_button"}
-                                id={"login_form_button"}>
-                            {localisation['login_window']['submit_button']}
+                        <button type="button"
+                                className={"switch_to_register_button"}
+                                id={"switch_to_register_button"}
+                                value={'register'}
+                                disabled={this.state.loginWindowSwitchButtonDisabled}
+                                onClick={this.switchLogin}>
+                            {localisation['login_window']['switch_to_register_button']}
                         </button>
-                    </form>
-                    <p className="login_window_info"
-                       id="login_window_info"
-                       ref={this.loginFormInfo}
-                    />
-                    <button type="button"
-                            className={"switch_to_register_button"}
-                            id={"switch_to_register_button"}
-                            value={'register'}
-                            disabled={this.state.loginWindowSwitchButton.disabled}
-                            onClick={this.switchLogin}>
-                        {localisation['login_window']['switch_to_register_button']}
-                    </button>
-                </div>
-                <div className={'register_window'} id={'register_window'}
-                     style={
-                         {
-                             visibility: this.state.registerWindow.visibility,
-                             opacity: this.state.registerWindow.opacity,
-                         }
-                     }>
-                    <p className={"auth_menu_forms_labels"}>{localisation['register_window']['label']}</p>
-                    <form name="register_form" onSubmit={this.userRegister}>
-                        <label htmlFor="register_form_username"
-                               className={"auth_menu_labels"}>{localisation['register_window']['user_name']}</label>
-                        <input type="text"
-                               name={"register_form_username"}
-                               id={"register_form_username"}
-                               className={"register_form_username"}
-                               ref={this.registerFormUsernameField}
-                               placeholder={ localisation['register_window']['user_name_placeholder']}
-                               autoComplete={'off'}/>
-                        <label htmlFor={"register_form_password"}
-                               className={"auth_menu_labels"}>{localisation['register_window']['password']}</label>
-                        <input type={"password"}
-                               name={"register_form_password"}
-                               id={"register_form_password"}
-                               className={"register_form_password"}
-                               ref={this.registerFormPasswordField}
-                               placeholder={localisation['register_window']['password_placeholder']}/>
-                        <label htmlFor={"register_form_password_confirm"}
-                               className={"auth_menu_labels"}>{localisation['register_window']['password_confirm']}</label>
-                        <input type={"password"}
-                               name={"register_form_password_confirm"}
-                               id={"register_form_password_confirm"}
-                               className={"register_form_password_confirm"}
-                               ref={this.registerFormPasswordConfirmField}
-                               placeholder={localisation['register_window']['password_confirm_placeholder']}/>
-                        <p className={"agreement"} id={"agreement"}>
-                            <input type={"checkbox"} id={"agreement_checkbox"} name={'agreement_checkbox'}/>
-                            <label htmlFor="agreement_checkbox">Нажимая вы соглашаетесь с
-                            <a href="../static/agreements/agreement_ru.html"
-                               target="_blank">соглашением</a>, воть.</label></p>
-                        <button type={"submit"}
-                               id={"register_form_button"}
-                                className={"register_form_button"}>
-                            {localisation['register_window']['create_button']}
+                    </div>
+                    <div id={'register_window'}
+                         className={registerWindowStyle}
+                    >
+                        <p className={"auth_menu_forms_labels"}>{localisation['register_window']['label']}</p>
+                        <form name="register_form" onSubmit={this.userRegister}>
+                            <label htmlFor="register_form_username"
+                                   className={"auth_menu_labels"}>{localisation['register_window']['user_name']}</label>
+                            <input type="text"
+                                   name={"register_form_username"}
+                                   id={"register_form_username"}
+                                   className={"register_form_username"}
+                                   placeholder={localisation['register_window']['user_name_placeholder']}
+                                   autoComplete={'off'}/>
+                            <label htmlFor={"register_form_password"}
+                                   className={"auth_menu_labels"}>{localisation['register_window']['password']}</label>
+                            <input type={"password"}
+                                   name={"register_form_password"}
+                                   id={"register_form_password"}
+                                   className={"register_form_password"}
+                                   placeholder={localisation['register_window']['password_placeholder']}/>
+                            <label htmlFor={"register_form_password_confirm"}
+                                   className={"auth_menu_labels"}>{localisation['register_window']['password_confirm']}</label>
+                            <input type={"password"}
+                                   name={"register_form_password_confirm"}
+                                   id={"register_form_password_confirm"}
+                                   className={"register_form_password_confirm"}
+                                   placeholder={localisation['register_window']['password_confirm_placeholder']}/>
+                            <p className={"agreement"} id={"agreement"}>
+                                <input type={"checkbox"} id={"agreement_checkbox"} name={'agreement_checkbox'}/>
+                                <label htmlFor="agreement_checkbox">Нажимая вы соглашаетесь с
+                                    <a href="../static/agreements/agreement_ru.html"
+                                       target="_blank">соглашением</a>, воть.</label></p>
+                            <button type={"submit"}
+                                    id={"register_form_button"}
+                                    className={"register_form_button"}>
+                                {localisation['register_window']['create_button']}
+                            </button>
+                        </form>
+                        <p className={"register_window_info"}
+                           id={"register_window_info"}
+                           ref={this.registerFormInfo}/>
+                        <button type={"button"}
+                                className={"login_button"}
+                                id={"login_button"}
+                                value={'login'}
+                                disabled={this.state.registerWindowSwitchButtonDisabled}
+                                onClick={this.switchLogin}>
+                            {localisation['register_window']['switch_to_login_button']}
                         </button>
-                    </form>
-                    <p className={"register_window_info"}
-                       id={"register_window_info"}
-                       ref={this.registerFormInfo}/>
-                    <button type={"button"}
-                            className={"login_button"}
-                            id={"login_button"}
-                            value={'login'}
-                            disabled={this.state.registerWindowSwitchButton.disabled}
-                            onClick={this.switchLogin}>
-                        {localisation['register_window']['switch_to_login_button']}
-                    </button>
-                </div>
-                <div className={changePasswordWindowStyle} id={"change_password_window"}>
-                    <button type={"button"} id={"change_password_window_cancel_button"}
-                            className={"change_password_window_cancel_button"}
-                            disabled={this.state.changePasswordWindow.cancelButtonDisabled}
-                            onClick={this.changePasswordWindow}>X</button>
-                    <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
-                    <form name={"change_password_form"} onSubmit={this.changePassword}>
-                        <label htmlFor={"change_password_form_old_password"}
-                               className={"auth_menu_labels"}>{localisation['change_password_window']['old_password']}</label>
-                        <input type={"password"}
-                               name={"change_password_form_old_password"}
-                               id={"change_password_form_old_password"}
-                               className={"change_password_form_old_password"}
-                               placeholder={localisation['change_password_window']['old_password_placeholder']}/>
-                        <label htmlFor={"change_password_form_new_password"}
-                               className={"auth_menu_labels"}>{localisation['change_password_window']['new_password']}</label>
-                        <input type={"password"}
-                               name={"change_password_form_new_password"}
-                               id={"change_password_form_new_password"}
-                               className={"change_password_form_new_password"}
-                               placeholder={localisation['change_password_window']['new_password_placeholder']}/>
-                        <label htmlFor={"change_password_form_new_password_confirm"}
-                               className={"auth_menu_labels"}>{localisation['change_password_window']['new_password_confirm']}</label>
-                        <input type={"password"}
-                               name={"change_password_form_new_password_confirm"}
-                               id={"change_password_form_new_password_confirm"}
-                               className={"change_password_form_new_password_confirm"}
-                               placeholder={localisation['change_password_window']['new_password_confirm_placeholder']}/>
-                        <button type={"submit"} value={"Change password"} id={"change_password_form_button"}
-                                className={"change_password_form_button"}
-                                disabled={this.state.changePasswordWindow.submitButtonDisabled}>
-                            {localisation['change_password_window']['change_password_button']}
+                    </div>
+                    <div className={changePasswordWindowStyle} id={"change_password_window"}>
+                        <button type={"button"} id={"change_password_window_cancel_button"}
+                                className={"change_password_window_cancel_button"}
+                                disabled={this.state.changePasswordWindow.cancelButtonDisabled}
+                                onClick={this.changePasswordWindow}>X
                         </button>
-                    </form>
-                    <p className={"change_password_window_info"}
-                       id={"change_password_window_info"}
-                       ref={this.changePasswordFormInfo}/>
+                        <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
+                        <form name={"change_password_form"} onSubmit={this.changePassword}>
+                            <label htmlFor={"change_password_form_old_password"}
+                                   className={"auth_menu_labels"}>{localisation['change_password_window']['old_password']}</label>
+                            <input type={"password"}
+                                   name={"change_password_form_old_password"}
+                                   id={"change_password_form_old_password"}
+                                   className={"change_password_form_old_password"}
+                                   placeholder={localisation['change_password_window']['old_password_placeholder']}/>
+                            <label htmlFor={"change_password_form_new_password"}
+                                   className={"auth_menu_labels"}>{localisation['change_password_window']['new_password']}</label>
+                            <input type={"password"}
+                                   name={"change_password_form_new_password"}
+                                   id={"change_password_form_new_password"}
+                                   className={"change_password_form_new_password"}
+                                   placeholder={localisation['change_password_window']['new_password_placeholder']}/>
+                            <label htmlFor={"change_password_form_new_password_confirm"}
+                                   className={"auth_menu_labels"}>{localisation['change_password_window']['new_password_confirm']}</label>
+                            <input type={"password"}
+                                   name={"change_password_form_new_password_confirm"}
+                                   id={"change_password_form_new_password_confirm"}
+                                   className={"change_password_form_new_password_confirm"}
+                                   placeholder={localisation['change_password_window']['new_password_confirm_placeholder']}/>
+                            <button type={"submit"} value={"Change password"} id={"change_password_form_button"}
+                                    className={"change_password_form_button"}
+                                    disabled={this.state.changePasswordWindow.submitButtonDisabled}>
+                                {localisation['change_password_window']['change_password_button']}
+                            </button>
+                        </form>
+                        <p className={"change_password_window_info"}
+                           id={"change_password_window_info"}
+                           ref={this.changePasswordFormInfo}/>
+                    </div>
                 </div>
+                <div className={"header"} id={'header'}>
+                    <a href="/ru" className={'language_switch_button'}>Русский</a>
+                    <a href="/en" className={'language_switch_button'}>English</a>
+                    <p className={"user_name_field"}
+                       id={'user_name_field'}
+                       ref={this.userNameField}/>
+                    <input type="button"
+                           className='user_logout_button'
+                           id='user_logout_button'
+                           value={localisation['buttons']['logout']}
+                           disabled={this.state.userLogOutButtonDisabled}
+                           onClick={this.logOut}/>
+                    <input type="button"
+                           className="user_delete_button"
+                           id="user_delete_button"
+                           value={localisation['buttons']['delete_user']}
+                           disabled={this.state.userDeleteButtonDisabled}
+                           onClick={this.userDelete}/>
+                    <input type="button"
+                           className="change_password_button"
+                           id="change_password_button"
+                           value={localisation['buttons']['change_password']}
+                           disabled={this.state.changePasswordButtonDisabled}
+                           onClick={this.changePasswordWindow}/>
+                    <p className="version">Ver. 1.8</p>
+                </div>
+                <div className={'task_list'} id={'task_list'}/>
             </div>
         )
     }
@@ -809,14 +773,6 @@ class TaskListReact extends React.Component {
         this.removeTask = this.removeTask.bind(this);
         this.textInputField = React.createRef();
     }
-
-    // componentDidMount() {
-    //     console.log('mount');
-    // }
-    //
-    // componentWillUnmount() {
-    //     console.log('unmount');
-    // }
 
     makeLinearList(tasksList) {
         let linearTasksList = [];
@@ -1324,48 +1280,3 @@ class LoadingWindowReact extends React.Component {
         )
     }
 }
-
-// //TODO Maybe compile class LoadingWindow and knock_knock function together????
-// class LoadingWindow {
-//     constructor() {
-//         this.isAlive = false;
-//         this.reqCount = 0;
-//         this.timerShow = undefined;
-//         this.timerHide = undefined;
-//         this.startTime = undefined;
-//         this.stopTime = undefined;
-//     }
-//
-//     showWindow(loadingWindow) {
-//         this.reqCount++;
-//         if (this.reqCount === 1) {
-//             this.timerHide = clearTimeout(this.timerHide);
-//             this.timerShow = setTimeout(() => {
-//                 loadingWindow.style.visibility = 'visible';
-//                 this.startTime = Date.now();
-//                 this.isAlive = true;
-//             }, 200);
-//         }
-//     }
-//
-//     hideWindow(loadingWindow) {
-//         if (this.reqCount > 0) {
-//             this.reqCount--;
-//             this.stopTime = Date.now();
-//         }
-//         if (this.reqCount === 0) {
-//             this.timerShow = clearTimeout(this.timerShow);
-//             if (this.isAlive) {
-//                 if (this.stopTime - this.startTime >= 200) {
-//                     loadingWindow.style.visibility = 'hidden';
-//                     this.isAlive = false;
-//                 } else {
-//                     this.timerHide = setTimeout(() => {
-//                         loadingWindow.style.visibility = 'hidden';
-//                         this.isAlive = false;
-//                     }, 200 - (this.stopTime - this.startTime));
-//                 }
-//             }
-//         }
-//     }
-// }

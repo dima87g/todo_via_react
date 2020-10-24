@@ -675,7 +675,7 @@ def auth_check():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False}), 401)
+            response = make_response(jsonify({"ok": False}), 200)
             return response
         response = make_response(jsonify({"ok": True}), 200)
         response.set_cookie("id", user_text_id,
