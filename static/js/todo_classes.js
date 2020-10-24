@@ -167,29 +167,6 @@ class LoginReact extends React.Component {
         super(props);
         this.app = this.props.app;
         this.state = {
-            authMenu: {
-                opacity: '1',
-                visibility: 'visible',
-            },
-            loginWindow: {
-                opacity: 1,
-                visibility: 'inherit',
-            },
-            loginWindowSwitchButton: {
-                disabled: false,
-            },
-            registerWindow: {
-                opacity: 0,
-                visibility: 'hidden',
-            },
-            registerWindowSwitchButton: {
-                disabled: true,
-            },
-            changePasswordWindow: {
-                showed: false,
-                cancelButtonDisabled: true,
-                submitButtonDisabled: true,
-            },
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
             changePasswordButtonDisabled: true,
@@ -263,7 +240,6 @@ class LoginReact extends React.Component {
     }
 
     showLoginWindow() {
-        // this.hideLoginWindowTimeout = clearTimeout(this.hideLoginWindowTimeout);
         this.app.removeChildren(this.userNameField.current);
 
         this.app.showShadowModal();
@@ -518,9 +494,7 @@ class LoginReact extends React.Component {
                 <div id={'auth_menu'}
                      className={authMenuStyle}
                 >
-                    <div id={'login_window'}
-                         className={loginWindowStyle}
-                    >
+                    <div id={'login_window'} className={loginWindowStyle}>
                         <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
                         <form name="login_form" onSubmit={this.login}>
                             <label htmlFor="login_form_username"
@@ -869,28 +843,16 @@ class TaskReact extends React.Component {
         this.taskId = this.props.taskId;
         this.state = {
             status: this.props.status,
-            showSubtaskDivButtonZIndex: '0',
-            showSubtaskDivButtonDisabled: false,
             taskTextValue: this.props.taskText,
-            taskTextOpacity: '1',
-            removeTaskButtonDisabled: false,
-            removeTaskButtonScale: 'scale(1)',
-            removeTaskButtonTransitionDelay: '0',
+            taskTextShowed: true,
             subtaskDivShowed: false,
-            subtaskDivVisibility: 'hidden',
-            subtaskTextFieldOpacity: '0',
-            subtaskTextFieldWidth: '0',
+            addSubtaskDivShowed: false,
+            removeTaskButtonShowed: true,
+            removeTaskButtonDisabled: false,
+            addSubtaskButtonShowed: false,
             addSubtaskButtonDisabled: true,
-            addSubtaskButtonOpacity: '0',
-            addSubtaskButtonScale: 'scale(0)',
-            addSubtaskButtonTransitionDelay: '0.2s',
-            taskTextEditDivShowed: false,
-            taskTextEditDivVisibility: 'hidden',
-            taskTextEditFieldWidth: '0',
-            taskTextEditFieldOpacity: '0',
-            taskTextEditFieldScale: 'scale(0)',
-            saveEditButtonScale: 'scale(0)',
-            saveEditButtonTransitionDelay: '0',
+            editTaskDivShowed: false,
+            saveEditButtonDisabled: true,
         }
         this.finishTask = this.finishTask.bind(this);
         this.removeTask = this.removeTask.bind(this);
@@ -934,46 +896,24 @@ class TaskReact extends React.Component {
     }
 
     showSubtaskField() {
-        if (this.state.subtaskDivShowed === false) {
+        if (this.state.addSubtaskDivShowed === false) {
             this.app.showShadowModal();
-            this.subtaskDivHideTimer = clearTimeout(this.subtaskDivHideTimer);
             this.setState({
-                subtaskDivShowed: true,
-                showSubtaskDivButtonZIndex: '1',
-                removeTaskButtonDisabled: true,
-                removeTaskButtonScale: 'scale(0)',
-                removeTaskButtonTransitionDelay: '0s',
-                taskTextOpacity: '0.2',
-                subtaskDivVisibility: 'visible',
-                subtaskTextFieldOpacity: '1',
-                subtaskTextFieldWidth: '65%',
+                taskTextShowed: false,
+                addSubtaskDivShowed: true,
                 addSubtaskButtonDisabled: false,
-                addSubtaskButtonOpacity: '1',
-                addSubtaskButtonScale: 'scale(1)',
-                addSubtaskButtonTransitionDelay: '0.2s',
-            })
+                removeTaskButtonShowed: false,
+                removeTaskButtonDisabled: true,
+            });
         } else {
             this.app.hideShadowModal();
             this.setState({
-                subtaskDivShowed: false,
-
-                removeTaskButtonDisabled: false,
-                removeTaskButtonScale: 'scale(1)',
-                removeTaskButtonTransitionDelay: '0.2s',
-                taskTextOpacity: '1',
-                subtaskTextFieldOpacity: '0',
-                subtaskTextFieldWidth: '0',
+                taskTextShowed: true,
+                addSubtaskDivShowed: false,
                 addSubtaskButtonDisabled: true,
-                addSubtaskButtonOpacity: '0',
-                addSubtaskButtonScale: 'scale(0)',
-                addSubtaskButtonTransitionDelay: '0s',
-            })
-            this.subtaskDivHideTimer = setTimeout(() => {
-                this.setState({
-                    subtaskDivVisibility: 'hidden',
-                    showSubtaskDivButtonZIndex: '0',
-                });
-            }, 700);
+                removeTaskButtonShowed: true,
+                removeTaskButtonDisabled: false,
+            });
         }
     }
 
@@ -996,22 +936,15 @@ class TaskReact extends React.Component {
     }
 
     showEditTaskField() {
-        if (this.state.taskTextEditDivShowed === false) {
+        if (this.state.editTaskDivShowed === false) {
             this.app.showShadowModal();
-            this.hideEditDivTimer = clearTimeout(this.hideEditDivTimer);
             this.setState({
-                taskTextEditDivShowed: true,
-                showSubtaskDivButtonDisabled: true,
-                taskTextEditDivVisibility: 'visible',
-                taskTextEditFieldOpacity: '1',
-                taskTextEditFieldScale: 'scale(1)',
-                taskTextEditFieldWidth: '65%',
-                removeTaskButtonScale: 'scale(0)',
-                removeTaskButtonTransitionDelay: '0s',
-                saveEditButtonScale: 'scale(1)',
-                saveEditButtonTransitionDelay: '0.2s',
-                taskTextOpacity: '0.2',
-            })
+                taskTextShowed: false,
+                editTaskDivShowed: true,
+                saveEditButtonDisabled: false,
+                removeTaskButtonShowed: false,
+                removeTaskButtonDisabled: true,
+            });
             this.editTaskField.current.value = this.state.taskTextValue;
         } else {
             if (this.editTaskField.current.value !== this.state.taskTextValue) {
@@ -1034,22 +967,12 @@ class TaskReact extends React.Component {
             }
             this.app.hideShadowModal();
             this.setState({
-                taskTextEditDivShowed: false,
-                showSubtaskDivButtonDisabled: false,
-                taskTextEditFieldOpacity: '0',
-                taskTextEditFieldScale: 'scale(0)',
-                taskTextEditFieldWidth: '0',
-                removeTaskButtonScale: 'scale(1)',
-                removeTaskButtonTransitionDelay: '0.2s',
-                saveEditButtonScale: 'scale(0)',
-                saveEditButtonTransitionDelay: '0s',
-                taskTextOpacity: '1',
-            })
-            this.hideEditDivTimer = setTimeout(() => {
-                this.setState({
-                    taskTextEditDivVisibility: 'hidden',
-                })
-            }, 700);
+                taskTextShowed: true,
+                editTaskDivShowed: false,
+                saveEditButtonDisabled: true,
+                removeTaskButtonShowed: true,
+                removeTaskButtonDisabled: false,
+            });
         }
     }
 
@@ -1060,6 +983,50 @@ class TaskReact extends React.Component {
     }
 
     render() {
+        let addSubtaskDivStyle;
+        let showSubtaskDivButtonStyle;
+        let addSubtaskTextFieldStyle;
+        let addSubtaskButtonStyle;
+        let taskTextStyle;
+        let removeTaskButtonStyle;
+        let editTaskDivStyle;
+        let editTaskTextFieldStyle;
+        let saveEditButtonStyle;
+
+        if (this.state.addSubtaskDivShowed) {
+            addSubtaskDivStyle = 'subtask_div';
+            showSubtaskDivButtonStyle = 'show_subtask_div_button';
+            addSubtaskTextFieldStyle = 'add_subtask_text_field';
+            addSubtaskButtonStyle = 'add_subtask_button';
+        } else {
+            addSubtaskDivStyle = 'subtask_div subtask_div_hidden';
+            showSubtaskDivButtonStyle = 'show_subtask_div_button show_subtask_div_button_hidden'
+            addSubtaskTextFieldStyle = 'add_subtask_text_field add_subtask_text_field_hidden';
+            addSubtaskButtonStyle = 'add_subtask_button add_subtask_button_hidden';
+        }
+
+        if (this.state.editTaskDivShowed) {
+            editTaskDivStyle = 'edit_task_div';
+            editTaskTextFieldStyle = 'edit_task_text_field';
+            saveEditButtonStyle = 'save_edit_button';
+        } else {
+            editTaskDivStyle = 'edit_task_div edit_task_div_hidden';
+            editTaskTextFieldStyle = 'edit_task_text_field edit_task_text_field_hidden';
+            saveEditButtonStyle = 'save_edit_button save_edit_button_hidden';
+        }
+
+        if (this.state.taskTextShowed) {
+            taskTextStyle = 'task_text';
+        } else {
+            taskTextStyle = 'task_text task_text_hidden';
+        }
+
+        if (this.state.removeTaskButtonShowed) {
+            removeTaskButtonStyle = 'remove_task_button';
+        } else  {
+            removeTaskButtonStyle = 'remove_task_button remove_task_button_hidden';
+        }
+
         return (
             <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
                 <button className={'task_finish_button'}
@@ -1067,85 +1034,37 @@ class TaskReact extends React.Component {
                         onClick={this.finishTask}>
                     <img src="/static/icons/check.svg" alt="V"/>
                 </button>
-                <button className={'show_subtask_input_button'}
-                        style={
-                            {
-                                zIndex: this.state.showSubtaskDivButtonZIndex,
-                            }
-                        }
-                        onClick={this.showSubtaskField}
-                        disabled={this.state.showSubtaskDivButtonDisabled}>+</button>
-                <p className={'task_text'}
-                   style={
-                       {
-                           opacity: this.state.taskTextOpacity,
-                       }
-                   }
+                <button className={showSubtaskDivButtonStyle} onClick={this.showSubtaskField}>+</button>
+                <p className={taskTextStyle}
                    onClick={this.showEditTaskField}>{this.state.taskTextValue}</p>
-                <button className={'remove_task_button'}
-                        style={
-                            {
-                                transform: this.state.removeTaskButtonScale,
-                                transitionDelay: this.state.removeTaskButtonTransitionDelay,
-                            }
-                        }
-                        disabled={this.state.removeTaskButtonDisabled}
+                <button className={removeTaskButtonStyle}
                         type={'button'}
-                        onClick={this.removeTask}>
+                        onClick={this.removeTask}
+                        disabled={this.state.removeTaskButtonDisabled}>
                     <img src="/static/icons/delete.svg" alt=""/>
                 </button>
-                <div className={'subtask_div'} style={{visibility: this.state.subtaskDivVisibility}}>
-                    <input className={'subtask_text_field'}
+                <div className={addSubtaskDivStyle}>
+                    <input className={addSubtaskTextFieldStyle}
                            type="text"
-                           style={
-                               {
-                                   width: this.state.subtaskTextFieldWidth,
-                                   opacity: this.state.subtaskTextFieldOpacity,
-                               }
-                           }
                            onKeyDown={this.addSubtaskByEnterKey}
                            ref={this.addSubtaskField}/>
-                    <button className={'add_subtask_button'}
+                    <button className={addSubtaskButtonStyle}
                             type={'button'}
-                            style={
-                                {
-                                    opacity: this.state.addSubtaskButtonOpacity,
-                                    transform: this.state.addSubtaskButtonScale,
-                                    transitionDelay: this.state.addSubtaskButtonTransitionDelay,
-                                }
-                            }
                             disabled={this.state.addSubtaskButtonDisabled}
                             onClick={this.addSubtask}>
                         <img src="/static/icons/add_sub.svg" alt="+"/>
                     </button>
                 </div>
-                <div className={'task_text_edit_div'}
-                     style={
-                         {
-                             visibility: this.state.taskTextEditDivVisibility,
-                         }
-                     }>
-                    <input className={'task_text_edit_field'}
-                           style={
-                               {
-                                   opacity: this.state.taskTextEditFieldOpacity,
-                                   width: this.state.taskTextEditFieldWidth,
-                                   transform: this.state.taskTextEditFieldScale,
-                               }
-                           }
+                <div className={editTaskDivStyle}>
+                    <input className={editTaskTextFieldStyle}
                            type={'text'}
                            ref={this.editTaskField}
                            onKeyDown={this.saveEdit}
                     />
-                    <button className={'save_edit_button'}
-                            style={
-                                {
-                                    transform: this.state.saveEditButtonScale,
-                                    transitionDelay: this.state.saveEditButtonTransitionDelay,
-                                }
-                            }
+                    <button className={saveEditButtonStyle}
                             type={'button'}
-                            onClick={this.showEditTaskField}>
+                            onClick={this.showEditTaskField}
+                            disabled={this.state.saveEditButtonDisabled}>
                         <img src='/static/icons/edit.svg' alt='+'/>
                     </button>
                 </div>

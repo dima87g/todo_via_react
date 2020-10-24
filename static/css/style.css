@@ -143,13 +143,6 @@ html, body {
     outline: none;
 }
 
-/*.login_form_password {*/
-/*    width: 176px;*/
-/*    display: block;*/
-/*    margin: 0 auto;*/
-/*    border-radius: 20px 20px;*/
-/*}*/
-
 .login_form_button {
     border-radius: 20px 20px;
     margin-left: 10px;
@@ -164,45 +157,12 @@ html, body {
 }
 
 .register_form_username, .register_form_password, .register_form_password_confirm{
-    /*width: 176px;*/
     width: 90%;
     display: block;
     margin: 0 10px;
     border-radius: 20px 20px;
     outline: none;
 }
-
-/*.register_form_password {*/
-/*    width: 176px;*/
-/*    display: block;*/
-/*    margin: 0 auto;*/
-/*    border-radius: 20px 20px;*/
-/*}*/
-
-/*.register_form_password_confirm {*/
-/*    width: 176px;*/
-/*    display: block;*/
-/*    margin: 0 auto;*/
-/*    border-radius: 20px 20px;*/
-/*}*/
-
-/*.change_password_window {*/
-/*    position: absolute;*/
-/*    top: 20vw;*/
-/*    left: 50%;*/
-/*    margin-left: -125px;*/
-/*    width: 250px;*/
-/*    height: 250px;*/
-/*    border: 1px solid;*/
-/*    border-radius: 20px 20px;*/
-/*    background-color: cornflowerblue;*/
-/*    visibility: hidden;*/
-/*    z-index: 1;*/
-/*}*/
-
-/*.change_password_window_showed {*/
-/*    visibility: visible;*/
-/*}*/
 
 .change_password_form_old_password, .change_password_form_new_password, .change_password_form_new_password_confirm {
     width: 90%;
@@ -278,33 +238,15 @@ html, body {
     transform: scale(0.9);
 }
 
-/*.task {*/
-/*    position: relative;*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: space-between;*/
-/*    !*color: red;*!*/
-/*    !*background-color: cyan;*!*/
-/*    border-radius: 25px;*/
-/*    width: 100%;*/
-/*    min-height: 40px;*/
-/*    margin: 10px auto ;*/
-/*    !*border: solid 1px;*!*/
-/*    box-shadow: 0 0 3px;*/
-/*}*/
-
 .task_div_content {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /*color: red;*/
-    /*background-color: cyan;*/
     border-radius: 25px;
     width: 100%;
     min-height: 40px;
     margin: 10px auto ;
-    /*border: solid 1px;*/
     box-shadow: 0 0 3px;
 }
 
@@ -330,12 +272,16 @@ html, body {
     transform: scale(0.9);
 }
 
-.show_subtask_input_button {
+.show_subtask_div_button {
     width: 20px;
     height: 20px;
     border-radius: 20px 20px;
     outline: none;
-    z-index: 0;
+    z-index: 1;
+}
+
+.show_subtask_div_button_hidden {
+    z-index: 0 !important;
 }
 
 .task_text_div {
@@ -346,11 +292,15 @@ html, body {
 .task_text {
     display: inline-block;
     width: 60%;
-    /*width: 100%;*/
+    opacity: 1;
     vertical-align: middle;
     word-break: break-word;
     margin-left: 5px;
     transition: opacity 0.5s;
+}
+
+.task_text_hidden {
+    opacity: 0.2;
 }
 
 .remove_task_button {
@@ -359,9 +309,14 @@ html, body {
     border-radius: 50%;
     outline: none;
     border: none;
+    transform: scale(1);
     box-shadow: 1px 1px 3px;
-    transition: opacity 0.5s,
-                transform 0.5s;
+    transition: transform 0.5s 0.2s;
+}
+
+.remove_task_button_hidden {
+    transform: scale(0);
+    transition-delay: 0s !important;
 }
 
 .remove_task_button:active {
@@ -380,7 +335,8 @@ html, body {
     text-decoration: line-through;
 }
 
-.subtask_div, .task_text_edit_div{
+/*Styles for show/hide subtask and task edit fields animation*/
+.subtask_div, .edit_task_div {
     position: absolute;
     display: flex;
     align-items: center;
@@ -391,14 +347,19 @@ html, body {
     left: 25%;
     margin-top: -10px;
     box-sizing: border-box;
-    visibility: hidden;
+    visibility: visible;
     z-index: 1;
 }
 
-.subtask_text_field {
-    width: 0;
+.subtask_div_hidden, .edit_task_div_hidden {
+    visibility: hidden;
+    transition: visibility 0s 0.7s !important;
+}
+
+.add_subtask_text_field {
+    width: 65%;
     font-size: 18px;
-    opacity: 0;
+    opacity: 1;
     outline: none;
     border-radius: 20px;
     visibility: inherit;
@@ -406,20 +367,28 @@ html, body {
                 opacity 0.5s;
 }
 
-.add_subtask_button {
+.add_subtask_text_field_hidden {
+    width: 0;
+    opacity: 0;
+}
+
+.add_subtask_button, .save_edit_button {
     width: 48px;
     height: 48px;
-    transform: scale(0);
-    opacity: 0;
+    transform: scale(1);
+    opacity: 1;
     border-radius: 50%;
     border: none;
     outline: none;
     box-shadow: 1px 1px 3px;
     visibility: inherit;
-    transition: width 0.5s,
-                height 0.5s,
-                opacity 0.5s,
-                transform 0.5s;
+    transition: opacity 0.5s,
+                transform 0.5s 0.2s;
+}
+
+.add_subtask_button_hidden, .save_edit_button_hidden {
+    transform: scale(0);
+    transition-delay: 0s !important;
 }
 
 .add_subtask_button:active {
@@ -427,8 +396,6 @@ html, body {
 }
 
 .add_subtask_button > img {
-    /*display: none;*/
-    /*visibility: inherit;*/
     transition: transform 0.1s;
 }
 
@@ -436,28 +403,13 @@ html, body {
     transform: scale(0.9);
 }
 
-/*.task_text_edit_div {*/
-/*    position: absolute;*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: space-between;*/
-/*    width: 75%;*/
-/*    height: 20px;*/
-/*    top: 50%;*/
-/*    left: 25%;*/
-/*    margin-top: -10px;*/
-/*    box-sizing: border-box;*/
-/*    visibility: hidden;*/
-/*    z-index: 1;*/
-/*}*/
-
-.task_text_edit_field {
-    /*left: 25%;*/
+.edit_task_text_field {
     width: 65%;
+    transform: scale(1);
     font-size: 18px;
     border-radius: 20px;
     left: 0;
-    opacity: 0;
+    opacity: 1;
     outline: none;
     visibility: inherit;
     transition: width 0.5s,
@@ -465,19 +417,23 @@ html, body {
                 transform 0.5s;
 }
 
-.save_edit_button {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: none;
-    outline: none;
-    box-shadow: 1px 1px 3px;
-    visibility: inherit;
-    transition: width 0.5s,
-                height 0.5s,
-                opacity 0.5s,
-                transform 0.5s;
+.edit_task_text_field_hidden {
+    transform: scale(0);
+    width: 0;
 }
+
+/*.save_edit_button {*/
+/*    width: 48px;*/
+/*    height: 48px;*/
+/*    transform: scale(1);*/
+/*    border-radius: 50%;*/
+/*    border: none;*/
+/*    outline: none;*/
+/*    box-shadow: 1px 1px 3px;*/
+/*    visibility: inherit;*/
+/*    transition: opacity 0.5s,*/
+/*                transform 0.5s 0.2s;*/
+/*}*/
 
 .save_edit_button:active {
     box-shadow: inset 1px 1px 1px;
@@ -490,6 +446,7 @@ html, body {
 .save_edit_button:active > img {
     transform: scale(0.9);
 }
+/*Styles for show/hide subtask and task edit fields animation*/
 
 /*Styles for show/hide confirm window animation*/
 .confirm_window {
