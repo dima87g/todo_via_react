@@ -168,6 +168,7 @@ class LoginReact extends React.Component {
         super(props);
         this.app = this.props.app;
         this.state = {
+            menuShowed: false,
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
             changePasswordButtonDisabled: true,
@@ -182,6 +183,7 @@ class LoginReact extends React.Component {
         }
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
+        this.showMenu = this.showMenu.bind(this);
         this.login = this.login.bind(this);
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
@@ -300,6 +302,24 @@ class LoginReact extends React.Component {
         this.app.knockKnock('/load_tasks', responseHandler);
     }
 
+    showMenu() {
+        if (this.state.menuShowed) {
+            this.setState({
+                menuShowed: false,
+                userLogOutButtonDisabled: true,
+                userDeleteButtonDisabled: true,
+                changePasswordButtonDisabled: true,
+            });
+        } else {
+            this.setState({
+                menuShowed: true,
+                userLogOutButtonDisabled: false,
+                userDeleteButtonDisabled: false,
+                changePasswordButtonDisabled: false,
+            });
+        }
+    }
+
     logOut() {
         const confirmFunction = () => {
         document.cookie = 'id=; expires=-1';
@@ -310,7 +330,7 @@ class LoginReact extends React.Component {
         this.showLoginWindow();
         }
         let userLanguage = getCookie('lang');
-        let message = null;
+        let message;
 
         if (userLanguage === 'ru') {
             message = 'Вы уверены, что хотите выйти?';
@@ -324,7 +344,7 @@ class LoginReact extends React.Component {
 
     userDelete() {
         let userLanguage = getCookie('lang');
-        let message = null;
+        let message;
 
         if (userLanguage === 'ru') {
             message = 'Выуверены, что хотите удалить пользователя?';
@@ -466,6 +486,8 @@ class LoginReact extends React.Component {
         let loginWindowStyle;
         let registerWindowStyle;
         let changePasswordWindowStyle;
+        let menuStyle;
+        let menuButtonsStyle;
 
         if (this.state.authMenuShowed) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -490,11 +512,18 @@ class LoginReact extends React.Component {
         } else {
             changePasswordWindowStyle = 'change_password_window change_password_window_hidden'
         }
+
+        if (this.state.menuShowed) {
+            menuStyle = 'menu';
+            menuButtonsStyle = 'menu_buttons';
+        } else {
+            menuStyle = 'menu menu_hidden';
+            menuButtonsStyle = 'menu_buttons menu_buttons_hidden';
+        }
+
         return (
             <div className={'main'} id={'main'}>
-                <div id={'auth_menu'}
-                     className={authMenuStyle}
-                >
+                <div id={'auth_menu'} className={authMenuStyle}>
                     <div id={'login_window'} className={loginWindowStyle}>
                         <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
                         <form name="login_form" onSubmit={this.login}>
@@ -531,9 +560,7 @@ class LoginReact extends React.Component {
                             {localisation['login_window']['switch_to_register_button']}
                         </button>
                     </div>
-                    <div id={'register_window'}
-                         className={registerWindowStyle}
-                    >
+                    <div id={'register_window'} className={registerWindowStyle}>
                         <p className={"auth_menu_forms_labels"}>{localisation['register_window']['label']}</p>
                         <form name="register_form" onSubmit={this.userRegister}>
                             <label htmlFor="register_form_username"
@@ -561,7 +588,7 @@ class LoginReact extends React.Component {
                             <p className={"agreement"} id={"agreement"}>
                                 <input type={"checkbox"} id={"agreement_checkbox"} name={'agreement_checkbox'}/>
                                 <label htmlFor="agreement_checkbox">&nbsp;{localisation['register_window']['agreement_label']}&nbsp;
-                                    <a href="../static/agreements/agreement_ru.html"
+                                    <a href="/static/agreements/agreement_ru.html"
                                        target="_blank">{localisation['register_window']['agreement_link']}</a></label></p>
                             <button type={"submit"}
                                     id={"register_form_button"}
@@ -581,10 +608,7 @@ class LoginReact extends React.Component {
                             {localisation['register_window']['switch_to_login_button']}
                         </button>
                     </div>
-                    <div
-                        id={"change_password_window"}
-                        className={changePasswordWindowStyle}
-                    >
+                    <div id={"change_password_window"} className={changePasswordWindowStyle}>
                         <button type={"button"} id={"change_password_window_cancel_button"}
                                 className={"change_password_window_cancel_button"}
                                 disabled={this.state.changePasswordWindowCancelButtonDisabled}
@@ -625,30 +649,37 @@ class LoginReact extends React.Component {
                     </div>
                 </div>
                 <div className={"header"} id={'header'}>
-                    <a href="/ru" className={'language_switch_button'}>Русский</a>
-                    <a href="/en" className={'language_switch_button'}>English</a>
+                    <a href={"/ru"} className={'language_switch_button'}>Русский</a>
+                    <a href={"/en"} className={'language_switch_button'}>English</a>
                     <p className={"user_name_field"}
                        id={'user_name_field'}
                        ref={this.userNameField}/>
-                    <input type="button"
-                           className='user_logout_button'
-                           id='user_logout_button'
-                           value={localisation['buttons']['logout']}
-                           disabled={this.state.userLogOutButtonDisabled}
-                           onClick={this.logOut}/>
-                    <input type="button"
-                           className="user_delete_button"
-                           id="user_delete_button"
-                           value={localisation['buttons']['delete_user']}
-                           disabled={this.state.userDeleteButtonDisabled}
-                           onClick={this.userDelete}/>
-                    <input type="button"
-                           className="change_password_button"
-                           id="change_password_button"
-                           value={localisation['buttons']['change_password']}
-                           disabled={this.state.changePasswordButtonDisabled}
-                           onClick={this.changePasswordWindow}/>
-                    <p className="version">Ver. 1.8</p>
+                    <div id={'menu'} className={menuStyle} onClick={this.showMenu}>
+                        <input type={'button'}
+                               id={'close_menu_button'}
+                               className={menuButtonsStyle}
+                               value={'X'}
+                               onClick={this.showMenu}/>
+                        <input type="button"
+                              className={menuButtonsStyle}
+                              id='user_logout_button'
+                              value={localisation['buttons']['logout']}
+                              disabled={this.state.userLogOutButtonDisabled}
+                              onClick={this.logOut}/>
+                        <input type="button"
+                               className={menuButtonsStyle}
+                               id="user_delete_button"
+                               value={localisation['buttons']['delete_user']}
+                               disabled={this.state.userDeleteButtonDisabled}
+                               onClick={this.userDelete}/>
+                        <input type="button"
+                               className={menuButtonsStyle}
+                               id="change_password_button"
+                               value={localisation['buttons']['change_password']}
+                               disabled={this.state.changePasswordButtonDisabled}
+                               onClick={this.changePasswordWindow}/>
+                    </div>
+                    <p className="version">Ver. 2.0</p>
                 </div>
                 <div className={'task_list'} id={'task_list'}/>
             </div>

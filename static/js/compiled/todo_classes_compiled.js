@@ -242,6 +242,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
     _this4 = _super2.call(this, props);
     _this4.app = _this4.props.app;
     _this4.state = {
+      menuShowed: false,
       userLogOutButtonDisabled: true,
       userDeleteButtonDisabled: true,
       changePasswordButtonDisabled: true,
@@ -256,6 +257,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
     };
     _this4.switchLogin = _this4.switchLogin.bind(_assertThisInitialized(_this4));
     _this4.hideLoginWindow = _this4.hideLoginWindow.bind(_assertThisInitialized(_this4));
+    _this4.showMenu = _this4.showMenu.bind(_assertThisInitialized(_this4));
     _this4.login = _this4.login.bind(_assertThisInitialized(_this4));
     _this4.logOut = _this4.logOut.bind(_assertThisInitialized(_this4));
     _this4.userDelete = _this4.userDelete.bind(_assertThisInitialized(_this4));
@@ -391,6 +393,25 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       this.app.knockKnock('/load_tasks', responseHandler);
     }
   }, {
+    key: "showMenu",
+    value: function showMenu() {
+      if (this.state.menuShowed) {
+        this.setState({
+          menuShowed: false,
+          userLogOutButtonDisabled: true,
+          userDeleteButtonDisabled: true,
+          changePasswordButtonDisabled: true
+        });
+      } else {
+        this.setState({
+          menuShowed: true,
+          userLogOutButtonDisabled: false,
+          userDeleteButtonDisabled: false,
+          changePasswordButtonDisabled: false
+        });
+      }
+    }
+  }, {
     key: "logOut",
     value: function logOut() {
       var _this8 = this;
@@ -404,7 +425,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       };
 
       var userLanguage = getCookie('lang');
-      var message = null;
+      var message;
 
       if (userLanguage === 'ru') {
         message = 'Вы уверены, что хотите выйти?';
@@ -420,7 +441,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       var _this9 = this;
 
       var userLanguage = getCookie('lang');
-      var message = null;
+      var message;
 
       if (userLanguage === 'ru') {
         message = 'Выуверены, что хотите удалить пользователя?';
@@ -576,6 +597,8 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       var loginWindowStyle;
       var registerWindowStyle;
       var changePasswordWindowStyle;
+      var menuStyle;
+      var menuButtonsStyle;
 
       if (this.state.authMenuShowed) {
         authMenuStyle = 'auth_menu auth_menu_visible';
@@ -599,6 +622,14 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         changePasswordWindowStyle = 'change_password_window change_password_window_visible';
       } else {
         changePasswordWindowStyle = 'change_password_window change_password_window_hidden';
+      }
+
+      if (this.state.menuShowed) {
+        menuStyle = 'menu';
+        menuButtonsStyle = 'menu_buttons';
+      } else {
+        menuStyle = 'menu menu_hidden';
+        menuButtonsStyle = 'menu_buttons menu_buttons_hidden';
       }
 
       return /*#__PURE__*/React.createElement("div", {
@@ -695,7 +726,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       }), /*#__PURE__*/React.createElement("label", {
         htmlFor: "agreement_checkbox"
       }, "\xA0", localisation['register_window']['agreement_label'], "\xA0", /*#__PURE__*/React.createElement("a", {
-        href: "../static/agreements/agreement_ru.html",
+        href: "/static/agreements/agreement_ru.html",
         target: "_blank"
       }, localisation['register_window']['agreement_link']))), /*#__PURE__*/React.createElement("button", {
         type: "submit",
@@ -776,30 +807,40 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         className: "user_name_field",
         id: 'user_name_field',
         ref: this.userNameField
+      }), /*#__PURE__*/React.createElement("div", {
+        id: 'menu',
+        className: menuStyle,
+        onClick: this.showMenu
+      }, /*#__PURE__*/React.createElement("input", {
+        type: 'button',
+        id: 'close_menu_button',
+        className: menuButtonsStyle,
+        value: 'X',
+        onClick: this.showMenu
       }), /*#__PURE__*/React.createElement("input", {
         type: "button",
-        className: "user_logout_button",
+        className: menuButtonsStyle,
         id: "user_logout_button",
         value: localisation['buttons']['logout'],
         disabled: this.state.userLogOutButtonDisabled,
         onClick: this.logOut
       }), /*#__PURE__*/React.createElement("input", {
         type: "button",
-        className: "user_delete_button",
+        className: menuButtonsStyle,
         id: "user_delete_button",
         value: localisation['buttons']['delete_user'],
         disabled: this.state.userDeleteButtonDisabled,
         onClick: this.userDelete
       }), /*#__PURE__*/React.createElement("input", {
         type: "button",
-        className: "change_password_button",
+        className: menuButtonsStyle,
         id: "change_password_button",
         value: localisation['buttons']['change_password'],
         disabled: this.state.changePasswordButtonDisabled,
         onClick: this.changePasswordWindow
-      }), /*#__PURE__*/React.createElement("p", {
+      })), /*#__PURE__*/React.createElement("p", {
         className: "version"
-      }, "Ver. 1.8")), /*#__PURE__*/React.createElement("div", {
+      }, "Ver. 2.0")), /*#__PURE__*/React.createElement("div", {
         className: 'task_list',
         id: 'task_list'
       }));
