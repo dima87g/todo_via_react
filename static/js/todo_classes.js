@@ -13,14 +13,15 @@ class Task {
 class App extends React.Component {
     constructor() {
         super();
+        this.confirmWindowFunction = null;
         this.state = {
             shadowModalIsVisible: false,
             confirmWindowIsVisible: false,
             confirmWindowMessage: '',
-            confirmWindowOnClick: null,
         }
         this.authCheck = this.authCheck.bind(this);
         this.showConfirmWindow = this.showConfirmWindow.bind(this);
+        this.confirmWindowClick = this.confirmWindowClick.bind(this);
         this.knockKnock = this.knockKnock.bind(this);
         this.login = React.createRef();
         this.loadingWindow = React.createRef();
@@ -53,23 +54,25 @@ class App extends React.Component {
 
     showConfirmWindow(message, func) {
         this.showShadowModal();
+        this.confirmWindowFunction = func;
 
-        const confirmWindowOnClick = (e) => {
-            if (e.target.value === 'ok') {
-                this.hideShadowModal();
-                func();
-            } else {
-                this.hideShadowModal();
-            }
-            this.setState({
-                confirmWindowIsVisible: false,
-            })
-        }
         this.setState({
             confirmWindowIsVisible: true,
             confirmWindowMessage: message,
-            confirmWindowOnClick: confirmWindowOnClick,
         });
+    }
+
+    confirmWindowClick(e) {
+        if (e.target.value === 'ok') {
+            this.hideShadowModal();
+            this.confirmWindowFunction()
+        } else {
+            this.hideShadowModal();
+        }
+        this.confirmWindowFunction = null;
+        this.setState({
+            confirmWindowIsVisible: false,
+        })
     }
 
     showShadowModal() {
@@ -120,9 +123,7 @@ class App extends React.Component {
             <div className={'app'} id={'app'}>
                 <LoginReact app={this}
                             ref={this.login}/>
-                <div id={"confirm_window"}
-                     className={confirmWindowStyle}
-                >
+                <div id={"confirm_window"} className={confirmWindowStyle}>
                     <p id={"confirm_window_message"}
                        className={'confirm_window_message'}>
                         {this.state.confirmWindowMessage}
@@ -131,14 +132,14 @@ class App extends React.Component {
                             className="confirm_window_ok_button"
                             id="confirm_window_ok_button"
                             value="ok"
-                            onClick={this.state.confirmWindowOnClick}>
+                            onClick={this.confirmWindowClick}>
                         OK
                     </button>
                     <button type="button"
                             className="confirm_window_cancel_button"
                             id="confirm_window_cancel_button"
                             value='cancel'
-                            onClick={this.state.confirmWindowOnClick}>
+                            onClick={this.confirmWindowClick}>
                         {localisation['confirm_window']['cancel_button']}
                     </button>
                 </div>
