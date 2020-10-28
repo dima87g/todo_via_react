@@ -372,7 +372,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       var _this7 = this;
 
       var responseHandler = function responseHandler(response) {
-        if (response.status === 200) {
+        if (response.status === 200 && response.data['ok'] === true) {
           var userName = response.data['user_name'];
           var tasksFromServer = response.data['tasks'];
 
@@ -622,15 +622,14 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         changePasswordWindowStyle = 'change_password_window change_password_window_visible';
       } else {
         changePasswordWindowStyle = 'change_password_window change_password_window_hidden';
-      }
+      } // if (this.state.menuShowed) {
+      //     menuStyle = 'menu';
+      //     menuButtonsStyle = 'menu_buttons';
+      // } else {
+      //     menuStyle = 'menu menu_hidden';
+      //     menuButtonsStyle = 'menu_buttons menu_buttons_hidden';
+      // }
 
-      if (this.state.menuShowed) {
-        menuStyle = 'menu';
-        menuButtonsStyle = 'menu_buttons';
-      } else {
-        menuStyle = 'menu menu_hidden';
-        menuButtonsStyle = 'menu_buttons menu_buttons_hidden';
-      }
 
       return /*#__PURE__*/React.createElement("div", {
         className: 'main',
@@ -797,7 +796,9 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       }))), /*#__PURE__*/React.createElement("div", {
         className: "header",
         id: 'header'
-      }, /*#__PURE__*/React.createElement("a", {
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "version"
+      }, "Ver. 2.0"), /*#__PURE__*/React.createElement("a", {
         href: "/ru",
         className: 'language_switch_button'
       }, "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"), /*#__PURE__*/React.createElement("a", {
@@ -807,40 +808,9 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         className: "user_name_field",
         id: 'user_name_field',
         ref: this.userNameField
-      }), /*#__PURE__*/React.createElement("div", {
-        id: 'menu',
-        className: menuStyle,
-        onClick: this.showMenu
-      }, /*#__PURE__*/React.createElement("input", {
-        type: 'button',
-        id: 'close_menu_button',
-        className: menuButtonsStyle,
-        value: 'X',
-        onClick: this.showMenu
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "button",
-        className: menuButtonsStyle,
-        id: "user_logout_button",
-        value: localisation['buttons']['logout'],
-        disabled: this.state.userLogOutButtonDisabled,
-        onClick: this.logOut
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "button",
-        className: menuButtonsStyle,
-        id: "user_delete_button",
-        value: localisation['buttons']['delete_user'],
-        disabled: this.state.userDeleteButtonDisabled,
-        onClick: this.userDelete
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "button",
-        className: menuButtonsStyle,
-        id: "change_password_button",
-        value: localisation['buttons']['change_password'],
-        disabled: this.state.changePasswordButtonDisabled,
-        onClick: this.changePasswordWindow
-      })), /*#__PURE__*/React.createElement("p", {
-        className: "version"
-      }, "Ver. 2.0")), /*#__PURE__*/React.createElement("div", {
+      }), /*#__PURE__*/React.createElement(HeaderMenu, {
+        login: this
+      })), /*#__PURE__*/React.createElement("div", {
         className: 'task_list',
         id: 'task_list'
       }));
@@ -1395,54 +1365,161 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
   return TaskReact;
 }(React.Component);
 
-var LoadingWindowReact = /*#__PURE__*/function (_React$Component5) {
-  _inherits(LoadingWindowReact, _React$Component5);
+var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
+  _inherits(HeaderMenu, _React$Component5);
 
-  var _super5 = _createSuper(LoadingWindowReact);
+  var _super5 = _createSuper(HeaderMenu);
+
+  function HeaderMenu(props) {
+    var _this20;
+
+    _classCallCheck(this, HeaderMenu);
+
+    _this20 = _super5.call(this, props);
+    _this20.login = _this20.props.login;
+    _this20.state = {
+      menuShowed: false,
+      userLogOutButtonDisabled: true,
+      userDeleteButtonDisabled: true,
+      changePasswordButtonDisabled: true
+    };
+    _this20.showHeaderMenu = _this20.showHeaderMenu.bind(_assertThisInitialized(_this20));
+    return _this20;
+  }
+
+  _createClass(HeaderMenu, [{
+    key: "showHeaderMenu",
+    value: function showHeaderMenu() {
+      if (this.state.menuShowed) {
+        this.setState({
+          menuShowed: false,
+          userLogOutButtonDisabled: true,
+          userDeleteButtonDisabled: true,
+          changePasswordButtonDisabled: true
+        });
+      } else {
+        this.setState({
+          menuShowed: true,
+          userLogOutButtonDisabled: false,
+          userDeleteButtonDisabled: false,
+          changePasswordButtonDisabled: false
+        });
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var headerMenuListStyle;
+      var headerMenuListButtonsStyle;
+      var burgerButtonStyle;
+
+      if (this.state.menuShowed === false) {
+        headerMenuListStyle = 'header_menu_list';
+        headerMenuListButtonsStyle = 'header_menu_list_buttons';
+        burgerButtonStyle = 'burger_button';
+      } else {
+        headerMenuListStyle = 'header_menu_list header_menu_list_visible';
+        headerMenuListButtonsStyle = 'header_menu_list_buttons' + ' header_menu_list_buttons_visible';
+        burgerButtonStyle = 'burger_button burger_button_clicked';
+      } // burgerButtonStyle = this.state.menuShowed === true ? 'burger_button' +
+      //     ' burger_button_visible' : 'burger_button';
+
+
+      return /*#__PURE__*/React.createElement("div", {
+        id: 'header_menu',
+        className: 'header_menu'
+      }, /*#__PURE__*/React.createElement("div", {
+        id: 'header_menu_list',
+        className: headerMenuListStyle
+      }, /*#__PURE__*/React.createElement("input", {
+        type: "button",
+        className: headerMenuListButtonsStyle,
+        id: "user_logout_button",
+        value: localisation['buttons']['logout'],
+        disabled: this.state.userLogOutButtonDisabled,
+        onClick: this.login.logOut
+      }), /*#__PURE__*/React.createElement("input", {
+        type: "button",
+        className: headerMenuListButtonsStyle,
+        id: "user_delete_button",
+        value: localisation['buttons']['delete_user'],
+        disabled: this.state.userDeleteButtonDisabled,
+        onClick: this.login.userDelete
+      }), /*#__PURE__*/React.createElement("input", {
+        type: "button",
+        className: headerMenuListButtonsStyle,
+        id: "change_passsword_button",
+        value: localisation['buttons']['change_password'],
+        disabled: this.state.changePasswordButtonDisabled,
+        onClick: this.login.changePasswordWindow
+      })), /*#__PURE__*/React.createElement("div", {
+        id: 'burger_button',
+        className: burgerButtonStyle,
+        onClick: this.showHeaderMenu
+      }, /*#__PURE__*/React.createElement("div", {
+        id: 'burger_button_stick',
+        className: 'burger_button_stick'
+      }), /*#__PURE__*/React.createElement("div", {
+        id: 'burger_button_stick',
+        className: 'burger_button_stick'
+      }), /*#__PURE__*/React.createElement("div", {
+        id: 'burger_button_stick',
+        className: 'burger_button_stick'
+      })));
+    }
+  }]);
+
+  return HeaderMenu;
+}(React.Component);
+
+var LoadingWindowReact = /*#__PURE__*/function (_React$Component6) {
+  _inherits(LoadingWindowReact, _React$Component6);
+
+  var _super6 = _createSuper(LoadingWindowReact);
 
   function LoadingWindowReact() {
-    var _this20;
+    var _this21;
 
     _classCallCheck(this, LoadingWindowReact);
 
-    _this20 = _super5.call(this);
-    _this20.isAlive = false;
-    _this20.reqCount = 0;
-    _this20.timerShow = null;
-    _this20.timerHide = null;
-    _this20.startTime = null;
-    _this20.stopTime = null;
-    _this20.state = {
+    _this21 = _super6.call(this);
+    _this21.isAlive = false;
+    _this21.reqCount = 0;
+    _this21.timerShow = null;
+    _this21.timerHide = null;
+    _this21.startTime = null;
+    _this21.stopTime = null;
+    _this21.state = {
       visibility: 'hidden'
     };
-    _this20.showWindow = _this20.showWindow.bind(_assertThisInitialized(_this20));
-    _this20.hideWindow = _this20.hideWindow.bind(_assertThisInitialized(_this20));
-    return _this20;
+    _this21.showWindow = _this21.showWindow.bind(_assertThisInitialized(_this21));
+    _this21.hideWindow = _this21.hideWindow.bind(_assertThisInitialized(_this21));
+    return _this21;
   }
 
   _createClass(LoadingWindowReact, [{
     key: "showWindow",
     value: function showWindow() {
-      var _this21 = this;
+      var _this22 = this;
 
       this.reqCount++;
 
       if (this.reqCount === 1) {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
-          _this21.setState({
+          _this22.setState({
             visibility: 'visible'
           });
 
-          _this21.startTime = Date.now();
-          _this21.isAlive = true;
+          _this22.startTime = Date.now();
+          _this22.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow() {
-      var _this22 = this;
+      var _this23 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -1460,11 +1537,11 @@ var LoadingWindowReact = /*#__PURE__*/function (_React$Component5) {
             this.isAlive = false;
           } else {
             this.timerHide = setTimeout(function () {
-              _this22.setState({
+              _this23.setState({
                 visibility: 'hidden'
               });
 
-              _this22.isAlive = false;
+              _this23.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }

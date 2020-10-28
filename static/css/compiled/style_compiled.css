@@ -26,15 +26,12 @@ html, body {
 
 .header {
     /*position: fixed;*/
+    position: relative;
     /*top: 0;*/
     width: 100vw;
     min-height: 15vh;
     outline: blue solid 1px;
     background-color: aliceblue;
-}
-
-.header > *{
-    margin-bottom: 5px;
 }
 
 .language_switch_button {
@@ -51,59 +48,107 @@ html, body {
     text-decoration: none;
 }
 
+.version {
+    /*position: absolute;*/
+    /*display: inline-block;*/
+    /*top: 0;*/
+    /*right: 0;*/
+}
+
 .user_name_field {
     height: 20px;
 }
 
-.menu {
+/*Styles for show/hide header_menu animation*/
+.header_menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    /*opacity: 0;*/
+}
+
+.header_menu_list {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 100%;
+    opacity: 0;
     display: -ms-flexbox;
     display: flex;
-    position: absolute;
-    top: 30px;
-    right: 0;
     -ms-flex-direction: column;
         flex-direction: column;
-    -ms-flex-align: end;
-        align-items: flex-end;
-    border: solid 1px;
+    -ms-flex-align: center;
+        align-items: center;
+    -ms-flex-pack: center;
+        justify-content: center;
+    border: none;
+    transition: 0.5s;
     background-color: aquamarine;
 }
 
-.menu_hidden {
-
+.header_menu_list_visible {
+    width: 100%;
+    opacity: 1;
 }
 
-/*.user_logout_button, .user_delete_button, .change_password_button {*/
-/*    display: block;*/
-/*}*/
-
-.menu_buttons {
-    width: 55px;
-    height: 20px;
-    border-radius: 50px;
-    background-color: darkgrey;
-    margin-bottom: 5px;
-    transition: height 0.5s,
-                background-color 0.5s;
+.header_menu_list_buttons {
+    width: 60px;
+    transform: translateX(20px);
+    transition: transform 0.5s;
 }
 
-.menu_buttons_hidden {
-    margin-bottom: 1px;
-    height: 2px;
-    pointer-events: none;
-    background-color: dimgrey;
+.header_menu_list_buttons_visible {
+    transform: translateX(0px);
 }
 
-.menu_buttons:last-child {
-    margin-bottom: 0;
-}
-
-.version {
+.burger_button {
     position: absolute;
-    display: inline-block;
-    top: 0;
-    right: 0;
+    width: 25px;
+    height: 25px;
+    top: 5px;
+    right: 5px;
+    /*background-color: darkorange;*/
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+        flex-direction: column;
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
 }
+
+.burger_button_stick {
+    width: 100%;
+    height: 10%;
+    background-color: firebrick;
+    transition: transform 0.5s,
+                opacity 0.5s;
+    transform-origin: 1px;
+}
+
+.burger_button_clicked {
+
+}
+
+.burger_button_clicked > :nth-child(1) {
+    transform: rotate(45deg)
+                translateX(5px)
+                translateY(-5px);
+}
+
+.burger_button_clicked > :nth-child(2) {
+    transform: translateX(-20px);
+    opacity: 0;
+}
+
+.burger_button_clicked > :nth-child(3) {
+    transform: rotate(-45deg)
+                translateX(5px)
+                translateY(5px);
+}
+/*Styles for show/hide header_menu animation*/
 
 /*Styles for show/hide auth menu animation*/
 .auth_menu {
