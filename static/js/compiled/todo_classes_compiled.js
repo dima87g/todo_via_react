@@ -349,21 +349,21 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
           'password': password
         };
 
-        var loginResponseHandler = function loginResponseHandler(response) {
-          if (response.status === 200) {
+        var responseHandler = function responseHandler(response) {
+          if (response.status === 200 && response.data['ok'] === true) {
             _this6.createTaskList();
 
             _this6.hideLoginWindow();
           } else if (response.status === 401) {
-            _this6.loginFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
+            _this6.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['login_error_warning']));
           }
         };
 
-        this.app.knockKnock('/user_login', loginResponseHandler, data);
+        this.app.knockKnock('/user_login', responseHandler, data);
       } else if (!userName) {
-        this.loginFormInfo.current.appendChild(document.createTextNode('Please, enter user name!'));
+        this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_user_name_warning']));
       } else if (!password) {
-        this.loginFormInfo.current.appendChild(document.createTextNode('Please, enter password!'));
+        this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_password_warning']));
       }
     }
   }, {

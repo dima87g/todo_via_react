@@ -266,19 +266,19 @@ class LoginReact extends React.Component {
 
         if (userName && password) {
             const data = {'userName': userName, 'password': password}
-            const loginResponseHandler = (response) => {
-                if (response.status === 200) {
+            const responseHandler = (response) => {
+                if (response.status === 200 && response.data['ok'] === true) {
                     this.createTaskList();
                     this.hideLoginWindow();
                 } else if (response.status === 401) {
-                    this.loginFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
+                    this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['login_error_warning']));
                 }
             }
-            this.app.knockKnock('/user_login', loginResponseHandler, data);
+            this.app.knockKnock('/user_login', responseHandler, data);
         } else if (!userName) {
-            this.loginFormInfo.current.appendChild(document.createTextNode('Please, enter user name!'));
+            this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_user_name_warning']));
         } else if (!password) {
-            this.loginFormInfo.current.appendChild(document.createTextNode('Please, enter password!'));
+            this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_password_warning']));
         }
     }
 
