@@ -798,7 +798,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         id: 'header'
       }, /*#__PURE__*/React.createElement("p", {
         className: "version"
-      }, "Ver. 2.0"), /*#__PURE__*/React.createElement("a", {
+      }, "Ver. 2.0 React"), /*#__PURE__*/React.createElement("a", {
         href: "/ru",
         className: 'language_switch_button'
       }, "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"), /*#__PURE__*/React.createElement("a", {

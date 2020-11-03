@@ -85,6 +85,7 @@ html, body {
     -ms-flex-pack: center;
         justify-content: center;
     border: none;
+    border-radius: 50px 0 0 50px;
     transition: 0.5s;
     background-color: aquamarine;
 }
@@ -96,12 +97,26 @@ html, body {
 
 .header_menu_list_buttons {
     width: 60px;
+    margin-bottom: 5px;
     transform: translateX(20px);
     transition: transform 0.5s;
 }
 
 .header_menu_list_buttons_visible {
     transform: translateX(0px);
+}
+
+.header_menu_list_buttons:nth-child(1) {
+    transition: transform 0.4s 0.1s;
+}
+
+.header_menu_list_buttons:nth-child(2) {
+    transition: transform 0.3s 0.2s;
+}
+
+.header_menu_list_buttons:nth-child(3) {
+    transition: transform 0.2s 0.3s;
+    margin-bottom: 0;
 }
 
 .burger_button {
@@ -120,8 +135,8 @@ html, body {
 }
 
 .burger_button_stick {
-    width: 100%;
-    height: 10%;
+    width: 25px;
+    height: 3px;
     background-color: firebrick;
     transition: transform 0.5s,
                 opacity 0.5s;

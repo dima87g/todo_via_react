@@ -649,37 +649,12 @@ class LoginReact extends React.Component {
                     </div>
                 </div>
                 <div className={"header"} id={'header'}>
-                    <p className="version">Ver. 2.0</p>
+                    <p className="version">Ver. 2.0 React</p>
                     <a href={"/ru"} className={'language_switch_button'}>Русский</a>
                     <a href={"/en"} className={'language_switch_button'}>English</a>
                     <p className={"user_name_field"}
                        id={'user_name_field'}
                        ref={this.userNameField}/>
-                    {/*<div id={'menu'} className={menuStyle} onClick={this.showMenu}>*/}
-                    {/*    <input type={'button'}*/}
-                    {/*           id={'close_menu_button'}*/}
-                    {/*           className={menuButtonsStyle}*/}
-                    {/*           value={'X'}*/}
-                    {/*           onClick={this.showMenu}/>*/}
-                    {/*    <input type="button"*/}
-                    {/*          className={menuButtonsStyle}*/}
-                    {/*          id='user_logout_button'*/}
-                    {/*          value={localisation['buttons']['logout']}*/}
-                    {/*          disabled={this.state.userLogOutButtonDisabled}*/}
-                    {/*          onClick={this.logOut}/>*/}
-                    {/*    <input type="button"*/}
-                    {/*           className={menuButtonsStyle}*/}
-                    {/*           id="user_delete_button"*/}
-                    {/*           value={localisation['buttons']['delete_user']}*/}
-                    {/*           disabled={this.state.userDeleteButtonDisabled}*/}
-                    {/*           onClick={this.userDelete}/>*/}
-                    {/*    <input type="button"*/}
-                    {/*           className={menuButtonsStyle}*/}
-                    {/*           id="change_password_button"*/}
-                    {/*           value={localisation['buttons']['change_password']}*/}
-                    {/*           disabled={this.state.changePasswordButtonDisabled}*/}
-                    {/*           onClick={this.changePasswordWindow}/>*/}
-                    {/*</div>*/}
                 <HeaderMenu login={this}/>
                 </div>
                 <div className={'task_list'} id={'task_list'}/>
