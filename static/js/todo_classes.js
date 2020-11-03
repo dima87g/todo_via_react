@@ -1063,7 +1063,7 @@ class TaskReact extends React.Component {
                     </button>
                 </div>
                 <div className={editTaskDivStyle}>
-                    <input className={editTaskTextFieldStyle}
+                    <textarea className={editTaskTextFieldStyle}
                            type={'text'}
                            ref={this.editTaskField}
                            onKeyDown={this.saveEdit}

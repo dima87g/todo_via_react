@@ -1345,7 +1345,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         alt: "+"
       }))), /*#__PURE__*/React.createElement("div", {
         className: editTaskDivStyle
-      }, /*#__PURE__*/React.createElement("input", {
+      }, /*#__PURE__*/React.createElement("textarea", {
         className: editTaskTextFieldStyle,
         type: 'text',
         ref: this.editTaskField,

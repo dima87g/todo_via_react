@@ -423,7 +423,7 @@ html, body {
 }
 
 /*Styles for show/hide subtask and task edit fields animation*/
-.subtask_div, .edit_task_div {
+.subtask_div {
     position: absolute;
     display: flex;
     align-items: center;
@@ -433,6 +433,22 @@ html, body {
     top: 50%;
     left: 25%;
     margin-top: -10px;
+    box-sizing: border-box;
+    visibility: visible;
+    z-index: 1;
+}
+
+.edit_task_div {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 75%;
+    /*height: 20px;*/
+    height: 100%;
+    /*top: 50%;*/
+    left: 25%;
+    /*margin-top: -10px;*/
     box-sizing: border-box;
     visibility: visible;
     z-index: 1;
@@ -491,9 +507,10 @@ html, body {
 }
 
 .edit_task_text_field {
-    width: 65%;
+    width: 75%;
+    height: 50%;
     transform: scale(1);
-    font-size: 18px;
+    font-size: 14px;
     border-radius: 20px;
     left: 0;
     opacity: 1;
