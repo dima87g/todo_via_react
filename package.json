@@ -1,6 +1,6 @@
 {
   "name": "todo",
-  "version": "0.0.1",
+  "version": "2.0.2",
   "scripts": {
     "main_js": "babel ./static/js/main.js --source-maps --out-file ./static/js/compiled/main_compiled.js",
     "classes_js": "babel static/js/todo_classes.js --source-maps --out-file ./static/js/compiled/todo_classes_compiled.js",
