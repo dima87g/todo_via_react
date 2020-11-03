@@ -1091,6 +1091,9 @@ class HeaderMenu extends React.Component {
             changePasswordButtonDisabled: true,
         }
         this.showHeaderMenu = this.showHeaderMenu.bind(this);
+        this.logOut = this.logOut.bind(this);
+        this.userDelete = this.userDelete.bind(this);
+        this.changePassword = this.changePassword.bind(this);
     }
 
     showHeaderMenu() {
@@ -1109,6 +1112,27 @@ class HeaderMenu extends React.Component {
                 changePasswordButtonDisabled: false,
             });
         }
+    }
+
+    logOut() {
+        this.setState({
+            menuShowed: false,
+        });
+        this.login.logOut();
+    }
+
+    userDelete() {
+        this.setState({
+            menuShowed: false,
+        });
+        this.login.userDelete();
+    }
+
+    changePassword() {
+        this.setState({
+            menuShowed: false,
+        });
+        this.login.changePasswordWindow();
     }
 
     render() {
@@ -1138,19 +1162,19 @@ class HeaderMenu extends React.Component {
                            id='user_logout_button'
                            value={localisation['buttons']['logout']}
                            disabled={this.state.userLogOutButtonDisabled}
-                           onClick={this.login.logOut}/>
+                           onClick={this.logOut}/>
                     <input type="button"
                            className={headerMenuListButtonsStyle}
                            id="user_delete_button"
                            value={localisation['buttons']['delete_user']}
                            disabled={this.state.userDeleteButtonDisabled}
-                           onClick={this.login.userDelete}/>
+                           onClick={this.userDelete}/>
                     <input type="button"
                            className={headerMenuListButtonsStyle}
-                           id="change_passsword_button"
+                           id="change_password_button"
                            value={localisation['buttons']['change_password']}
                            disabled={this.state.changePasswordButtonDisabled}
-                           onClick={this.login.changePasswordWindow}/>
+                           onClick={this.changePassword}/>
                 </div>
                <div id={'burger_button'} className={burgerButtonStyle} onClick={this.showHeaderMenu}>
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>

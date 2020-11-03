@@ -1384,6 +1384,9 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
       changePasswordButtonDisabled: true
     };
     _this20.showHeaderMenu = _this20.showHeaderMenu.bind(_assertThisInitialized(_this20));
+    _this20.logOut = _this20.logOut.bind(_assertThisInitialized(_this20));
+    _this20.userDelete = _this20.userDelete.bind(_assertThisInitialized(_this20));
+    _this20.changePassword = _this20.changePassword.bind(_assertThisInitialized(_this20));
     return _this20;
   }
 
@@ -1405,6 +1408,30 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
           changePasswordButtonDisabled: false
         });
       }
+    }
+  }, {
+    key: "logOut",
+    value: function logOut() {
+      this.setState({
+        menuShowed: false
+      });
+      this.login.logOut();
+    }
+  }, {
+    key: "userDelete",
+    value: function userDelete() {
+      this.setState({
+        menuShowed: false
+      });
+      this.login.userDelete();
+    }
+  }, {
+    key: "changePassword",
+    value: function changePassword() {
+      this.setState({
+        menuShowed: false
+      });
+      this.login.changePasswordWindow();
     }
   }, {
     key: "render",
@@ -1437,21 +1464,21 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
         id: "user_logout_button",
         value: localisation['buttons']['logout'],
         disabled: this.state.userLogOutButtonDisabled,
-        onClick: this.login.logOut
+        onClick: this.logOut
       }), /*#__PURE__*/React.createElement("input", {
         type: "button",
         className: headerMenuListButtonsStyle,
         id: "user_delete_button",
         value: localisation['buttons']['delete_user'],
         disabled: this.state.userDeleteButtonDisabled,
-        onClick: this.login.userDelete
+        onClick: this.userDelete
       }), /*#__PURE__*/React.createElement("input", {
         type: "button",
         className: headerMenuListButtonsStyle,
-        id: "change_passsword_button",
+        id: "change_password_button",
         value: localisation['buttons']['change_password'],
         disabled: this.state.changePasswordButtonDisabled,
-        onClick: this.login.changePasswordWindow
+        onClick: this.changePassword
       })), /*#__PURE__*/React.createElement("div", {
         id: 'burger_button',
         className: burgerButtonStyle,
