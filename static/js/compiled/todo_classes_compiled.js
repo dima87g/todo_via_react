@@ -559,26 +559,32 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
             _this11.registerFormInfo.current.appendChild(document.createTextNode('New user ' + userName + ' register!'));
           }
         }
-      };
+      }; // if (userName && password && confirmPassword && agreementCheckbox.checked) {
+      //     if (password === confirmPassword) {
+      //         const sendData = {'newUserName': userName, 'password': password};
+      //
+      //         this.app.knockKnock('/user_register', handleResponse, sendData);
+      //     }
 
-      if (userName && password && confirmPassword && agreementCheckbox.checked) {
+
+      if (!userName) {
+        this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_user_name_warning']));
+      } else if (!password) {
+        this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_password_warning']));
+      } else if (!confirmPassword) {
+        this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_confirm_password_warning']));
+      } else if (password !== confirmPassword) {
+        this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_match_passwords_warning']));
+      } else if (!agreementCheckbox.checked) {
+        this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_agreement_check_warning']));
+      } else if (userName && password && confirmPassword && agreementCheckbox.checked) {
         if (password === confirmPassword) {
           var sendData = {
             'newUserName': userName,
             'password': password
           };
           this.app.knockKnock('/user_register', handleResponse, sendData);
-        } else {
-          this.registerFormInfo.current.appendChild(document.createTextNode('Passwords are not match!'));
         }
-      } else if (!userName) {
-        this.registerFormInfo.current.appendChild(document.createTextNode('Please, enter user name!'));
-      } else if (!password) {
-        this.registerFormInfo.current.appendChild(document.createTextNode('Please, enter password!'));
-      } else if (!confirmPassword) {
-        this.registerFormInfo.current.appendChild(document.createTextNode('Please, confirm password!'));
-      } else if (!agreementCheckbox.checked) {
-        this.registerFormInfo.current.appendChild(document.createTextNode('Please, accept the agreements!'));
       }
     }
   }, {
@@ -622,14 +628,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         changePasswordWindowStyle = 'change_password_window change_password_window_visible';
       } else {
         changePasswordWindowStyle = 'change_password_window change_password_window_hidden';
-      } // if (this.state.menuShowed) {
-      //     menuStyle = 'menu';
-      //     menuButtonsStyle = 'menu_buttons';
-      // } else {
-      //     menuStyle = 'menu menu_hidden';
-      //     menuButtonsStyle = 'menu_buttons menu_buttons_hidden';
-      // }
-
+      }
 
       return /*#__PURE__*/React.createElement("div", {
         className: 'main',
