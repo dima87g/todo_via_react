@@ -436,6 +436,14 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       this.app.showConfirmWindow(message, confirmFunction);
     }
   }, {
+    key: "forceLogOut",
+    value: function forceLogOut() {
+      document.cookie = 'id=; expires=-1';
+      document.cookie = 'id=; expires=-1';
+      ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+      this.showLoginWindow();
+    }
+  }, {
     key: "userDelete",
     value: function userDelete() {
       var _this9 = this;
@@ -556,7 +564,9 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       var handleResponse = function handleResponse(response) {
         if (response.status === 200) {
           if (response.data['ok'] === true) {
-            _this11.registerFormInfo.current.appendChild(document.createTextNode('New user ' + userName + ' register!'));
+            _this11.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['register_confirm_pref'] + ' ' + userName + ' ' + localisation['register_window']['register_confirm_suf']));
+          } else if (response.data['error_code'] === 1062) {
+            _this11.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['user_exists_warning']));
           }
         }
       }; // if (userName && password && confirmPassword && agreementCheckbox.checked) {
@@ -586,15 +596,6 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
           this.app.knockKnock('/user_register', handleResponse, sendData);
         }
       }
-    }
-  }, {
-    key: "forceLogOut",
-    value: function forceLogOut() {
-      document.cookie = 'id=; expires=-1';
-      document.cookie = 'id=; expires=-1';
-      ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-      this.showLoginWindow();
-      console.log('Force logOut!!!!!');
     }
   }, {
     key: "render",

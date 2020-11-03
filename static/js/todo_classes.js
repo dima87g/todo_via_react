@@ -342,6 +342,15 @@ class LoginReact extends React.Component {
 
     }
 
+    forceLogOut() {
+        document.cookie = 'id=; expires=-1';
+        document.cookie = 'id=; expires=-1';
+
+        ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+
+        this.showLoginWindow();
+    }
+
     userDelete() {
         let userLanguage = getCookie('lang');
         let message;
@@ -447,7 +456,9 @@ class LoginReact extends React.Component {
         const handleResponse = (response) => {
             if (response.status === 200) {
                 if (response.data['ok'] === true) {
-                    this.registerFormInfo.current.appendChild(document.createTextNode('New user ' + userName + ' register!'));
+                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['register_confirm_pref'] + ' ' + userName + ' ' + localisation['register_window']['register_confirm_suf']));
+                } else if (response.data['error_code'] === 1062) {
+                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['user_exists_warning']));
                 }
             }
         }
@@ -475,16 +486,6 @@ class LoginReact extends React.Component {
                 this.app.knockKnock('/user_register', handleResponse, sendData);
             }
         }
-    }
-
-    forceLogOut() {
-        document.cookie = 'id=; expires=-1';
-        document.cookie = 'id=; expires=-1';
-
-        ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-
-        this.showLoginWindow();
-        console.log('Force logOut!!!!!');
     }
 
     render() {
