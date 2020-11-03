@@ -243,13 +243,13 @@ html, body {
     outline: none;
 }
 
-.login_form_button {
+.login_form_button, .register_form_button, .change_password_form_button {
     border-radius: 20px 20px;
     margin-left: 10px;
     outline: none;
 }
 
-.switch_to_register_button {
+.switch_to_register_button, .switch_to_login_button {
     position: absolute;
     min-width: 60px;
     bottom: 0;
@@ -277,19 +277,7 @@ html, body {
     word-break: break-word;
 }
 
-.register_form_button {
-    border-radius: 20px 20px;
-    margin-left: 10px;
-}
-
-.login_button {
-    position: absolute;
-    width: 60px;
-    bottom: 0;
-    border-radius: 20px 20px;
-}
-
-.login_window_info, .register_window_info {
+.login_window_info, .register_window_info, .change_password_window_info {
     text-align: center;
     font-size: 16px;
 }

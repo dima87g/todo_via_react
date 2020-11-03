@@ -522,8 +522,6 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         } else {
           _this10.changePasswordFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
         }
-
-        e.target.reset();
       };
 
       if (oldPassword && newPassword && newPasswordConfirm) {
@@ -533,15 +531,16 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
             'newPassword': newPassword
           };
           this.app.knockKnock('change_password', responseHandler, sendData);
+          e.target.reset();
         } else {
-          this.changePasswordFormInfo.current.appendChild(document.createTextNode('Passwords are not match!'));
+          this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_match_passwords_warning']));
         }
       } else if (!oldPassword) {
-        this.changePasswordFormInfo.current.appendChild(document.createTextNode('Please, enter old password!'));
+        this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_old_password_warning']));
       } else if (!newPassword) {
-        this.changePasswordFormInfo.current.appendChild(document.createTextNode('Please, enter new password!'));
+        this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_warning']));
       } else if (!newPasswordConfirm) {
-        this.changePasswordFormInfo.current.appendChild(document.createTextNode('Please, confirm new password!'));
+        this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_confirm_warning']));
       }
     }
     /**
@@ -737,8 +736,8 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         ref: this.registerFormInfo
       }), /*#__PURE__*/React.createElement("button", {
         type: "button",
-        className: "login_button",
-        id: "login_button",
+        className: "switch_to_login_button",
+        id: "switch_to_login_button",
         value: 'login',
         disabled: this.state.registerWindowSwitchButtonDisabled,
         onClick: this.switchLogin
