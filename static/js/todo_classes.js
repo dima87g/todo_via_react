@@ -190,6 +190,7 @@ class LoginReact extends React.Component {
         this.changePasswordWindow = this.changePasswordWindow.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
+        this.taskList = React.createRef();
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
@@ -291,9 +292,13 @@ class LoginReact extends React.Component {
                 this.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
 
                 ReactDOM.render(
-                    <TaskListReact app={this.app}
+                    <TaskListReact ref={this.taskList}
+                                   app={this.app}
                                    login={this}
                                    tasksFromServer={tasksFromServer}/>, document.getElementById('task_list'));
+                ReactDOM.render(
+                    <TaskInput taskList={this.taskList.current}/>, document.getElementById('input')
+                );
             } else if (response.status === 401) {
                 this.login.current.forceLogOut();
                 showInfoWindow('Authorisation problem!');
@@ -326,6 +331,7 @@ class LoginReact extends React.Component {
         document.cookie = 'id=; expires=-1';
 
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+        ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
         this.showLoginWindow();
         }
@@ -347,6 +353,7 @@ class LoginReact extends React.Component {
         document.cookie = 'id=; expires=-1';
 
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+        ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
         this.showLoginWindow();
     }
@@ -522,6 +529,18 @@ class LoginReact extends React.Component {
 
         return (
             <div className={'main'} id={'main'}>
+                <div className={"header"} id={'header'}>
+                    <div id={'header_login_section'} className={'header_login_section'}>
+                        <p className="version">Ver. 2.0 React</p>
+                        <a href={"/ru"} className={'language_switch_button'}>Русский</a>
+                        <a href={"/en"} className={'language_switch_button'}>English</a>
+                        <p className={"user_name_field"}
+                           id={'user_name_field'}
+                           ref={this.userNameField}/>
+                        <HeaderMenu login={this}/>
+                    </div>
+                    <div id={'input'}/>
+                </div>
                 <div id={'auth_menu'} className={authMenuStyle}>
                     <div id={'login_window'} className={loginWindowStyle}>
                         <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
@@ -647,15 +666,18 @@ class LoginReact extends React.Component {
                            ref={this.changePasswordFormInfo}/>
                     </div>
                 </div>
-                <div className={"header"} id={'header'}>
-                    <p className="version">Ver. 2.0 React</p>
-                    <a href={"/ru"} className={'language_switch_button'}>Русский</a>
-                    <a href={"/en"} className={'language_switch_button'}>English</a>
-                    <p className={"user_name_field"}
-                       id={'user_name_field'}
-                       ref={this.userNameField}/>
-                <HeaderMenu login={this}/>
-                </div>
+                {/*<div className={"header"} id={'header'}>*/}
+                {/*    <div id={'header_login_section'} className={'header_login_section'}>*/}
+                {/*        <p className="version">Ver. 2.0 React</p>*/}
+                {/*        <a href={"/ru"} className={'language_switch_button'}>Русский</a>*/}
+                {/*        <a href={"/en"} className={'language_switch_button'}>English</a>*/}
+                {/*        <p className={"user_name_field"}*/}
+                {/*           id={'user_name_field'}*/}
+                {/*           ref={this.userNameField}/>*/}
+                {/*        <HeaderMenu login={this}/>*/}
+                {/*    </div>*/}
+                {/*    <div id={'input'}/>*/}
+                {/*</div>*/}
                 <div className={'task_list'} id={'task_list'}/>
             </div>
         )
@@ -695,7 +717,6 @@ class TaskListReact extends React.Component {
         this.addTask = this.addTask.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
-        this.textInputField = React.createRef();
     }
 
     makeLinearList(tasksList) {
@@ -721,31 +742,26 @@ class TaskListReact extends React.Component {
      * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
      * 'error_message': 'string' or null}
      */
-    addTask(e) {
-        e.preventDefault();
-        if (this.textInputField.current.value) {
-            let taskText = this.textInputField.current.value;
-            this.textInputField.current.value = '';
-            let sendData = {'taskText': taskText, 'parentId': null}
+    addTask(taskText) {
+        let sendData = {'taskText': taskText, 'parentId': null}
 
-            const add = (answer) => {
-                if (answer.status === 200) {
-                    let taskId = answer.data['task_id'];
-                    let newTask = new Task(taskId, taskText);
+        const responseHandler = (answer) => {
+            if (answer.status === 200) {
+                let taskId = answer.data['task_id'];
+                let newTask = new Task(taskId, taskText);
 
-                    this.tasksTree.set(newTask.id, newTask);
-                    this.tasks.push(newTask);
+                this.tasksTree.set(newTask.id, newTask);
+                this.tasks.push(newTask);
 
-                    this.setState({
-                        linearTasksList: this.makeLinearList(this.tasks),
-                    })
-                } else if (answer.status === 401) {
-                    this.login.forceLogOut();
-                    showInfoWindow('Authorisation problem!');
-                }
+                this.setState({
+                    linearTasksList: this.makeLinearList(this.tasks),
+                })
+            } else if (answer.status === 401) {
+                this.login.forceLogOut();
+                showInfoWindow('Authorisation problem!');
             }
-            this.app.knockKnock('/save_task', add, sendData);
         }
+        this.app.knockKnock('/save_task', responseHandler, sendData);
     }
 
     /**
@@ -809,20 +825,20 @@ class TaskListReact extends React.Component {
     render() {
         return (
             <div className={'main_window'}>
-                <div className="task_input">
-                    <form onSubmit={this.addTask}>
-                        <label htmlFor={'task_input_field'}/>
-                            <input type={'text'}
-                                   className={'task_input_field'}
-                                   onSubmit={this.addTask}
-                                   ref={this.textInputField}/>
-                            <button type={'button'}
-                                    className={'task_input_button'}
-                                    onClick={this.addTask}>
-                        <img src="/static/icons/add_sub.svg" alt="+"/>
-                    </button>
-                    </form>
-                </div>
+                {/*<div className="task_input">*/}
+                {/*    <form onSubmit={this.addTask}>*/}
+                {/*        <label htmlFor={'task_input_field'}/>*/}
+                {/*            <input type={'text'}*/}
+                {/*                   className={'task_input_field'}*/}
+                {/*                   onSubmit={this.addTask}*/}
+                {/*                   ref={this.textInputField}/>*/}
+                {/*            <button type={'button'}*/}
+                {/*                    className={'task_input_button'}*/}
+                {/*                    onClick={this.addTask}>*/}
+                {/*        <img src="/static/icons/add_sub.svg" alt="+"/>*/}
+                {/*    </button>*/}
+                {/*    </form>*/}
+                {/*</div>*/}
                 <div className="main_tasks"
                      id={'main_tasks'}>
                     {this.state.linearTasksList.map((task) => <TaskReact key={task.id.toString()}
@@ -921,6 +937,7 @@ class TaskReact extends React.Component {
                 removeTaskButtonShowed: true,
                 removeTaskButtonDisabled: false,
             });
+            this.addSubtaskField.current.value = '';
         }
     }
 
@@ -1181,6 +1198,46 @@ class HeaderMenu extends React.Component {
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>
                </div>
+            </div>
+        )
+    }
+}
+
+class TaskInput extends React.Component{
+    constructor(props) {
+        super(props);
+        this.taskList = this.props.taskList;
+
+        this.addTask = this.addTask.bind(this);
+    }
+
+    addTask(e) {
+        e.preventDefault();
+
+        let taskText = e.target['task_input_field'].value;
+
+        if (taskText) {
+            this.taskList.addTask(taskText);
+        }
+        e.target.reset();
+    }
+
+    render() {
+        return(
+            <div className="task_input">
+                <form onSubmit={this.addTask}>
+                    <label htmlFor={'task_input_field'}/>
+                        <input type={'text'}
+                               name={'task_input_field'}
+                               className={'task_input_field'}
+                               autoComplete={'false'}
+                        />
+                        <button type={'submit'}
+                                className={'task_input_button'}
+                        >
+                            <img src="/static/icons/add_sub.svg" alt="+"/>
+                        </button>
+                </form>
             </div>
         )
     }

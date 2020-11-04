@@ -24,7 +24,17 @@ html, body {
     margin: 0 auto;
 }
 
+.main {
+    overflow: auto;
+}
+
 .header {
+    position: fixed;
+    top: 0;
+    z-index: 1;
+}
+
+.header_login_section {
     /*position: fixed;*/
     position: relative;
     /*top: 0;*/
@@ -296,8 +306,8 @@ html, body {
     display: flex;
     -ms-flex-align: center;
         align-items: center;
-    -ms-flex-pack: justify;
-        justify-content: space-between;
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
 }
 
 .task_input_field {
@@ -327,6 +337,10 @@ html, body {
 
 .task_input_button:active > img {
     transform: scale(0.9);
+}
+
+.task_list {
+    margin-top: 25vh;
 }
 
 .task_div_content {
@@ -371,7 +385,7 @@ html, body {
     height: 20px;
     border-radius: 20px 20px;
     outline: none;
-    z-index: 1;
+    z-index: 2;
 }
 
 .show_subtask_div_button_hidden {
@@ -445,7 +459,7 @@ html, body {
     margin-top: -10px;
     box-sizing: border-box;
     visibility: visible;
-    z-index: 1;
+    z-index: 2;
 }
 
 .edit_task_div {
@@ -464,7 +478,7 @@ html, body {
     /*margin-top: -10px;*/
     box-sizing: border-box;
     visibility: visible;
-    z-index: 1;
+    z-index: 2;
 }
 
 .subtask_div_hidden, .edit_task_div_hidden {
@@ -576,7 +590,7 @@ html, body {
     top: 20vw;
     left: 50%;
     margin-left: -100px;
-    z-index: 1;
+    /*z-index: 1;*/
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.5s;
@@ -585,6 +599,7 @@ html, body {
 .confirm_window_visible {
     visibility: visible;
     opacity: 1;
+    z-index: 2;
 }
 
 .confirm_window_hidden {
@@ -605,7 +620,7 @@ html, body {
     background-color: aqua;
     left: 50%;
     margin-left: -100px;
-    z-index: 1;
+    z-index: 2;
     /*display: none;*/
     visibility: hidden;
 }
@@ -618,7 +633,7 @@ html, body {
     background-color: aqua;
     left: 50%;
     margin-left: -100px;
-    z-index: 1;
+    z-index: 2;
     /*display: none;*/
     display: block;
     visibility: hidden;
@@ -638,6 +653,7 @@ html, body {
 .shadow_visible {
     visibility: visible;
     opacity: 0.5;
+    z-index: 1;
 }
 
 .shadow_hidden {

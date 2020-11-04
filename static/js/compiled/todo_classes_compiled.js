@@ -264,6 +264,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
     _this4.changePasswordWindow = _this4.changePasswordWindow.bind(_assertThisInitialized(_this4));
     _this4.changePassword = _this4.changePassword.bind(_assertThisInitialized(_this4));
     _this4.userRegister = _this4.userRegister.bind(_assertThisInitialized(_this4));
+    _this4.taskList = React.createRef();
     _this4.loginFormInfo = React.createRef();
     _this4.registerFormInfo = React.createRef();
     _this4.changePasswordFormInfo = React.createRef();
@@ -379,10 +380,14 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
           _this7.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
 
           ReactDOM.render( /*#__PURE__*/React.createElement(TaskListReact, {
+            ref: _this7.taskList,
             app: _this7.app,
             login: _this7,
             tasksFromServer: tasksFromServer
           }), document.getElementById('task_list'));
+          ReactDOM.render( /*#__PURE__*/React.createElement(TaskInput, {
+            taskList: _this7.taskList.current
+          }), document.getElementById('input'));
         } else if (response.status === 401) {
           _this7.login.current.forceLogOut();
 
@@ -420,6 +425,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         document.cookie = 'id=; expires=-1';
         document.cookie = 'id=; expires=-1';
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+        ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
         _this8.showLoginWindow();
       };
@@ -441,6 +447,7 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       document.cookie = 'id=; expires=-1';
       document.cookie = 'id=; expires=-1';
       ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+      ReactDOM.unmountComponentAtNode(document.getElementById('input'));
       this.showLoginWindow();
     }
   }, {
@@ -634,6 +641,28 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         className: 'main',
         id: 'main'
       }, /*#__PURE__*/React.createElement("div", {
+        className: "header",
+        id: 'header'
+      }, /*#__PURE__*/React.createElement("div", {
+        id: 'header_login_section',
+        className: 'header_login_section'
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "version"
+      }, "Ver. 2.0 React"), /*#__PURE__*/React.createElement("a", {
+        href: "/ru",
+        className: 'language_switch_button'
+      }, "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"), /*#__PURE__*/React.createElement("a", {
+        href: "/en",
+        className: 'language_switch_button'
+      }, "English"), /*#__PURE__*/React.createElement("p", {
+        className: "user_name_field",
+        id: 'user_name_field',
+        ref: this.userNameField
+      }), /*#__PURE__*/React.createElement(HeaderMenu, {
+        login: this
+      })), /*#__PURE__*/React.createElement("div", {
+        id: 'input'
+      })), /*#__PURE__*/React.createElement("div", {
         id: 'auth_menu',
         className: authMenuStyle
       }, /*#__PURE__*/React.createElement("div", {
@@ -793,23 +822,6 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
         id: "change_password_window_info",
         ref: this.changePasswordFormInfo
       }))), /*#__PURE__*/React.createElement("div", {
-        className: "header",
-        id: 'header'
-      }, /*#__PURE__*/React.createElement("p", {
-        className: "version"
-      }, "Ver. 2.0 React"), /*#__PURE__*/React.createElement("a", {
-        href: "/ru",
-        className: 'language_switch_button'
-      }, "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"), /*#__PURE__*/React.createElement("a", {
-        href: "/en",
-        className: 'language_switch_button'
-      }, "English"), /*#__PURE__*/React.createElement("p", {
-        className: "user_name_field",
-        id: 'user_name_field',
-        ref: this.userNameField
-      }), /*#__PURE__*/React.createElement(HeaderMenu, {
-        login: this
-      })), /*#__PURE__*/React.createElement("div", {
         className: 'task_list',
         id: 'task_list'
       }));
@@ -881,7 +893,6 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
     _this12.addTask = _this12.addTask.bind(_assertThisInitialized(_this12));
     _this12.addSubtask = _this12.addSubtask.bind(_assertThisInitialized(_this12));
     _this12.removeTask = _this12.removeTask.bind(_assertThisInitialized(_this12));
-    _this12.textInputField = React.createRef();
     return _this12;
   }
 
@@ -923,40 +934,34 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
 
   }, {
     key: "addTask",
-    value: function addTask(e) {
+    value: function addTask(taskText) {
       var _this13 = this;
 
-      e.preventDefault();
+      var sendData = {
+        'taskText': taskText,
+        'parentId': null
+      };
 
-      if (this.textInputField.current.value) {
-        var taskText = this.textInputField.current.value;
-        this.textInputField.current.value = '';
-        var sendData = {
-          'taskText': taskText,
-          'parentId': null
-        };
+      var responseHandler = function responseHandler(answer) {
+        if (answer.status === 200) {
+          var taskId = answer.data['task_id'];
+          var newTask = new Task(taskId, taskText);
 
-        var add = function add(answer) {
-          if (answer.status === 200) {
-            var taskId = answer.data['task_id'];
-            var newTask = new Task(taskId, taskText);
+          _this13.tasksTree.set(newTask.id, newTask);
 
-            _this13.tasksTree.set(newTask.id, newTask);
+          _this13.tasks.push(newTask);
 
-            _this13.tasks.push(newTask);
+          _this13.setState({
+            linearTasksList: _this13.makeLinearList(_this13.tasks)
+          });
+        } else if (answer.status === 401) {
+          _this13.login.forceLogOut();
 
-            _this13.setState({
-              linearTasksList: _this13.makeLinearList(_this13.tasks)
-            });
-          } else if (answer.status === 401) {
-            _this13.login.forceLogOut();
+          showInfoWindow('Authorisation problem!');
+        }
+      };
 
-            showInfoWindow('Authorisation problem!');
-          }
-        };
-
-        this.app.knockKnock('/save_task', add, sendData);
-      }
+      this.app.knockKnock('/save_task', responseHandler, sendData);
     }
     /**
      * POST: json = {'taskText': 'string', 'parentId' = 'number'}
@@ -1045,24 +1050,6 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
       return /*#__PURE__*/React.createElement("div", {
         className: 'main_window'
       }, /*#__PURE__*/React.createElement("div", {
-        className: "task_input"
-      }, /*#__PURE__*/React.createElement("form", {
-        onSubmit: this.addTask
-      }, /*#__PURE__*/React.createElement("label", {
-        htmlFor: 'task_input_field'
-      }), /*#__PURE__*/React.createElement("input", {
-        type: 'text',
-        className: 'task_input_field',
-        onSubmit: this.addTask,
-        ref: this.textInputField
-      }), /*#__PURE__*/React.createElement("button", {
-        type: 'button',
-        className: 'task_input_button',
-        onClick: this.addTask
-      }, /*#__PURE__*/React.createElement("img", {
-        src: "/static/icons/add_sub.svg",
-        alt: "+"
-      })))), /*#__PURE__*/React.createElement("div", {
         className: "main_tasks",
         id: 'main_tasks'
       }, this.state.linearTasksList.map(function (task) {
@@ -1184,6 +1171,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
           removeTaskButtonShowed: true,
           removeTaskButtonDisabled: false
         });
+        this.addSubtaskField.current.value = '';
       }
     }
   }, {
@@ -1498,54 +1486,109 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
   return HeaderMenu;
 }(React.Component);
 
-var LoadingWindowReact = /*#__PURE__*/function (_React$Component6) {
-  _inherits(LoadingWindowReact, _React$Component6);
+var TaskInput = /*#__PURE__*/function (_React$Component6) {
+  _inherits(TaskInput, _React$Component6);
 
-  var _super6 = _createSuper(LoadingWindowReact);
+  var _super6 = _createSuper(TaskInput);
+
+  function TaskInput(props) {
+    var _this21;
+
+    _classCallCheck(this, TaskInput);
+
+    _this21 = _super6.call(this, props);
+    _this21.taskList = _this21.props.taskList;
+    _this21.addTask = _this21.addTask.bind(_assertThisInitialized(_this21));
+    return _this21;
+  }
+
+  _createClass(TaskInput, [{
+    key: "addTask",
+    value: function addTask(e) {
+      e.preventDefault();
+      var taskText = e.target['task_input_field'].value;
+
+      if (taskText) {
+        this.taskList.addTask(taskText);
+      }
+
+      e.target.reset();
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return /*#__PURE__*/React.createElement("div", {
+        className: "task_input"
+      }, /*#__PURE__*/React.createElement("form", {
+        onSubmit: this.addTask
+      }, /*#__PURE__*/React.createElement("label", {
+        htmlFor: 'task_input_field'
+      }), /*#__PURE__*/React.createElement("input", {
+        type: 'text',
+        name: 'task_input_field',
+        className: 'task_input_field',
+        autoComplete: 'false'
+      }), /*#__PURE__*/React.createElement("button", {
+        type: 'submit',
+        className: 'task_input_button'
+      }, /*#__PURE__*/React.createElement("img", {
+        src: "/static/icons/add_sub.svg",
+        alt: "+"
+      }))));
+    }
+  }]);
+
+  return TaskInput;
+}(React.Component);
+
+var LoadingWindowReact = /*#__PURE__*/function (_React$Component7) {
+  _inherits(LoadingWindowReact, _React$Component7);
+
+  var _super7 = _createSuper(LoadingWindowReact);
 
   function LoadingWindowReact() {
-    var _this21;
+    var _this22;
 
     _classCallCheck(this, LoadingWindowReact);
 
-    _this21 = _super6.call(this);
-    _this21.isAlive = false;
-    _this21.reqCount = 0;
-    _this21.timerShow = null;
-    _this21.timerHide = null;
-    _this21.startTime = null;
-    _this21.stopTime = null;
-    _this21.state = {
+    _this22 = _super7.call(this);
+    _this22.isAlive = false;
+    _this22.reqCount = 0;
+    _this22.timerShow = null;
+    _this22.timerHide = null;
+    _this22.startTime = null;
+    _this22.stopTime = null;
+    _this22.state = {
       visibility: 'hidden'
     };
-    _this21.showWindow = _this21.showWindow.bind(_assertThisInitialized(_this21));
-    _this21.hideWindow = _this21.hideWindow.bind(_assertThisInitialized(_this21));
-    return _this21;
+    _this22.showWindow = _this22.showWindow.bind(_assertThisInitialized(_this22));
+    _this22.hideWindow = _this22.hideWindow.bind(_assertThisInitialized(_this22));
+    return _this22;
   }
 
   _createClass(LoadingWindowReact, [{
     key: "showWindow",
     value: function showWindow() {
-      var _this22 = this;
+      var _this23 = this;
 
       this.reqCount++;
 
       if (this.reqCount === 1) {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
-          _this22.setState({
+          _this23.setState({
             visibility: 'visible'
           });
 
-          _this22.startTime = Date.now();
-          _this22.isAlive = true;
+          _this23.startTime = Date.now();
+          _this23.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow() {
-      var _this23 = this;
+      var _this24 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -1563,11 +1606,11 @@ var LoadingWindowReact = /*#__PURE__*/function (_React$Component6) {
             this.isAlive = false;
           } else {
             this.timerHide = setTimeout(function () {
-              _this23.setState({
+              _this24.setState({
                 visibility: 'hidden'
               });
 
-              _this23.isAlive = false;
+              _this24.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }
