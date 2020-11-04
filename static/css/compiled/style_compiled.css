@@ -29,6 +29,7 @@ html, body {
 }
 
 .header {
+    height: 25vh;
     position: fixed;
     top: 0;
     z-index: 1;
@@ -297,8 +298,12 @@ html, body {
     margin: 0 auto;
 }
 
+.input {
+    margin-top: 4vh;
+}
+
 .task_input {
-    margin-top: 10px;
+    /*margin-top: 10px;*/
 }
 
 .task_input > form {
@@ -340,7 +345,7 @@ html, body {
 }
 
 .task_list {
-    margin-top: 25vh;
+    margin-top: 30vh;
 }
 
 .task_div_content {

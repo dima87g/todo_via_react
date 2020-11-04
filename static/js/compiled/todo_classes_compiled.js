@@ -661,7 +661,8 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       }), /*#__PURE__*/React.createElement(HeaderMenu, {
         login: this
       })), /*#__PURE__*/React.createElement("div", {
-        id: 'input'
+        id: 'input',
+        className: 'input'
       })), /*#__PURE__*/React.createElement("div", {
         id: 'auth_menu',
         className: authMenuStyle

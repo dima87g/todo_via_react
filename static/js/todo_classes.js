@@ -539,7 +539,7 @@ class LoginReact extends React.Component {
                            ref={this.userNameField}/>
                         <HeaderMenu login={this}/>
                     </div>
-                    <div id={'input'}/>
+                    <div id={'input'} className={'input'}/>
                 </div>
                 <div id={'auth_menu'} className={authMenuStyle}>
                     <div id={'login_window'} className={loginWindowStyle}>
