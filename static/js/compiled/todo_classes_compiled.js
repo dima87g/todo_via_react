@@ -649,12 +649,11 @@ var LoginReact = /*#__PURE__*/function (_React$Component2) {
       }, /*#__PURE__*/React.createElement("p", {
         className: "version"
       }, "Ver. 2.0 React"), /*#__PURE__*/React.createElement("a", {
-        href: "/ru",
+        href: localisation['language_change']['link'],
         className: 'language_switch_button'
-      }, "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"), /*#__PURE__*/React.createElement("a", {
-        href: "/en",
-        className: 'language_switch_button'
-      }, "English"), /*#__PURE__*/React.createElement("p", {
+      }, /*#__PURE__*/React.createElement("img", {
+        src: '/static/icons/' + localisation['language_change']['label'] + '_flag.png'
+      })), /*#__PURE__*/React.createElement("p", {
         className: "user_name_field",
         id: 'user_name_field',
         ref: this.userNameField

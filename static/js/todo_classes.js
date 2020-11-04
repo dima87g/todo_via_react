@@ -532,8 +532,10 @@ class LoginReact extends React.Component {
                 <div className={"header"} id={'header'}>
                     <div id={'header_login_section'} className={'header_login_section'}>
                         <p className="version">Ver. 2.0 React</p>
-                        <a href={"/ru"} className={'language_switch_button'}>Русский</a>
-                        <a href={"/en"} className={'language_switch_button'}>English</a>
+                        <a href={localisation['language_change']['link']} className={'language_switch_button'}>
+                            <img src={'/static/icons/' + localisation['language_change']['label'] + '_flag.png'}/>
+                        </a>
+                        {/*<a href={"/en"} className={'language_switch_button'}>En</a>*/}
                         <p className={"user_name_field"}
                            id={'user_name_field'}
                            ref={this.userNameField}/>

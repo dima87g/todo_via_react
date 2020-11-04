@@ -46,17 +46,18 @@ html, body {
 }
 
 .language_switch_button {
-    position: relative;
-    text-decoration: none;
+    /*position: relative;*/
+    /*text-decoration: none;*/
+    margin-left: 1vw;
     z-index: 1;
 }
 
 .language_switch_button:visited {
-    text-decoration: none;
+    /*text-decoration: none;*/
 }
 
 .language_switch_button:hover {
-    text-decoration: none;
+    /*text-decoration: none;*/
 }
 
 .version {
