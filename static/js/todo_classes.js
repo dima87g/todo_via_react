@@ -1230,7 +1230,7 @@ class TaskInput extends React.Component{
                         <input type={'text'}
                                name={'task_input_field'}
                                className={'task_input_field'}
-                               autoComplete={'false'}
+                               autoComplete={'off'}
                         />
                         <button type={'submit'}
                                 className={'task_input_button'}

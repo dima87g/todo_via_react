@@ -1527,7 +1527,7 @@ var TaskInput = /*#__PURE__*/function (_React$Component6) {
         type: 'text',
         name: 'task_input_field',
         className: 'task_input_field',
-        autoComplete: 'false'
+        autoComplete: 'off'
       }), /*#__PURE__*/React.createElement("button", {
         type: 'submit',
         className: 'task_input_button'
