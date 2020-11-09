@@ -1435,9 +1435,7 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
         headerMenuListStyle = 'header_menu_list header_menu_list_visible';
         headerMenuListButtonsStyle = 'header_menu_list_buttons' + ' header_menu_list_buttons_visible';
         burgerButtonStyle = 'burger_button burger_button_clicked';
-      } // burgerButtonStyle = this.state.menuShowed === true ? 'burger_button' +
-      //     ' burger_button_visible' : 'burger_button';
-
+      }
 
       return /*#__PURE__*/React.createElement("div", {
         id: 'header_menu',
@@ -1455,17 +1453,17 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
       }), /*#__PURE__*/React.createElement("input", {
         type: "button",
         className: headerMenuListButtonsStyle,
-        id: "user_delete_button",
-        value: localisation['buttons']['delete_user'],
-        disabled: this.state.userDeleteButtonDisabled,
-        onClick: this.userDelete
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "button",
-        className: headerMenuListButtonsStyle,
         id: "change_password_button",
         value: localisation['buttons']['change_password'],
         disabled: this.state.changePasswordButtonDisabled,
         onClick: this.changePassword
+      }), /*#__PURE__*/React.createElement("input", {
+        type: "button",
+        className: headerMenuListButtonsStyle,
+        id: "user_delete_button",
+        value: localisation['buttons']['delete_user'],
+        disabled: this.state.userDeleteButtonDisabled,
+        onClick: this.userDelete
       })), /*#__PURE__*/React.createElement("div", {
         id: 'burger_button',
         className: burgerButtonStyle,

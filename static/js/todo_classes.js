@@ -1170,9 +1170,6 @@ class HeaderMenu extends React.Component {
             burgerButtonStyle = 'burger_button burger_button_clicked'
         }
 
-        // burgerButtonStyle = this.state.menuShowed === true ? 'burger_button' +
-        //     ' burger_button_visible' : 'burger_button';
-
         return(
             <div id={'header_menu'} className={'header_menu'}>
                 <div id={'header_menu_list'} className={headerMenuListStyle}>
@@ -1184,16 +1181,16 @@ class HeaderMenu extends React.Component {
                            onClick={this.logOut}/>
                     <input type="button"
                            className={headerMenuListButtonsStyle}
-                           id="user_delete_button"
-                           value={localisation['buttons']['delete_user']}
-                           disabled={this.state.userDeleteButtonDisabled}
-                           onClick={this.userDelete}/>
-                    <input type="button"
-                           className={headerMenuListButtonsStyle}
                            id="change_password_button"
                            value={localisation['buttons']['change_password']}
                            disabled={this.state.changePasswordButtonDisabled}
                            onClick={this.changePassword}/>
+                    <input type="button"
+                           className={headerMenuListButtonsStyle}
+                           id="user_delete_button"
+                           value={localisation['buttons']['delete_user']}
+                           disabled={this.state.userDeleteButtonDisabled}
+                           onClick={this.userDelete}/>
                 </div>
                <div id={'burger_button'} className={burgerButtonStyle} onClick={this.showHeaderMenu}>
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>
