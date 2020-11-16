@@ -886,6 +886,8 @@ class TaskReact extends React.Component {
         this.showSubtaskField = this.showSubtaskField.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
         this.addSubtaskByEnterKey = this.addSubtaskByEnterKey.bind(this);
+        this.moveUp = this.moveUp.bind(this);
+        this.moveDown = this.moveDown.bind(this);
         this.addSubtaskField = React.createRef();
         this.editTaskField = React.createRef();
     }
@@ -1008,6 +1010,14 @@ class TaskReact extends React.Component {
         }
     }
 
+    moveUp() {
+        console.log('Moving up!');
+    }
+
+    moveDown() {
+        console.log('Moving down!');
+    }
+
     render() {
         let addSubtaskDivStyle;
         let showSubtaskDivButtonStyle;
@@ -1054,46 +1064,58 @@ class TaskReact extends React.Component {
         }
 
         return (
-            <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
-                <button className={'task_finish_button'}
+            <div className={'task'}>
+                <button className={'move_task_buttons'}
                         type={'button'}
-                        onClick={this.finishTask}>
-                    <img src="/static/icons/check.svg" alt="V"/>
+                        onClick={this.moveUp}>
+                    UP
                 </button>
-                <button className={showSubtaskDivButtonStyle} onClick={this.showSubtaskField}>+</button>
-                <p className={taskTextStyle}
-                   onClick={this.showEditTaskField}>{this.state.taskTextValue}</p>
-                <button className={removeTaskButtonStyle}
+                <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
+                    <button className={'task_finish_button'}
+                            type={'button'}
+                            onClick={this.finishTask}>
+                        <img src="/static/icons/check.svg" alt="V"/>
+                    </button>
+                    <button className={showSubtaskDivButtonStyle} onClick={this.showSubtaskField}>+</button>
+                    <p className={taskTextStyle}
+                       onClick={this.showEditTaskField}>{this.state.taskTextValue}</p>
+                    <button className={removeTaskButtonStyle}
+                            type={'button'}
+                            onClick={this.removeTask}
+                            disabled={this.state.removeTaskButtonDisabled}>
+                        <img src="/static/icons/delete.svg" alt=""/>
+                    </button>
+                    <div className={addSubtaskDivStyle}>
+                        <input className={addSubtaskTextFieldStyle}
+                               type="text"
+                               onKeyDown={this.addSubtaskByEnterKey}
+                               ref={this.addSubtaskField}/>
+                        <button className={addSubtaskButtonStyle}
+                                type={'button'}
+                                disabled={this.state.addSubtaskButtonDisabled}
+                                onClick={this.addSubtask}>
+                            <img src="/static/icons/add_sub.svg" alt="+"/>
+                        </button>
+                    </div>
+                    <div className={editTaskDivStyle}>
+                        <textarea className={editTaskTextFieldStyle}
+                               type={'text'}
+                               ref={this.editTaskField}
+                               onKeyDown={this.saveEdit}
+                        />
+                        <button className={saveEditButtonStyle}
+                                type={'button'}
+                                onClick={this.showEditTaskField}
+                                disabled={this.state.saveEditButtonDisabled}>
+                            <img src='/static/icons/edit.svg' alt='+'/>
+                        </button>
+                    </div>
+                </div>
+                <button className={'move_task_buttons'}
                         type={'button'}
-                        onClick={this.removeTask}
-                        disabled={this.state.removeTaskButtonDisabled}>
-                    <img src="/static/icons/delete.svg" alt=""/>
+                        onClick={this.moveDown}>
+                    DOWN
                 </button>
-                <div className={addSubtaskDivStyle}>
-                    <input className={addSubtaskTextFieldStyle}
-                           type="text"
-                           onKeyDown={this.addSubtaskByEnterKey}
-                           ref={this.addSubtaskField}/>
-                    <button className={addSubtaskButtonStyle}
-                            type={'button'}
-                            disabled={this.state.addSubtaskButtonDisabled}
-                            onClick={this.addSubtask}>
-                        <img src="/static/icons/add_sub.svg" alt="+"/>
-                    </button>
-                </div>
-                <div className={editTaskDivStyle}>
-                    <textarea className={editTaskTextFieldStyle}
-                           type={'text'}
-                           ref={this.editTaskField}
-                           onKeyDown={this.saveEdit}
-                    />
-                    <button className={saveEditButtonStyle}
-                            type={'button'}
-                            onClick={this.showEditTaskField}
-                            disabled={this.state.saveEditButtonDisabled}>
-                        <img src='/static/icons/edit.svg' alt='+'/>
-                    </button>
-                </div>
             </div>
         )
     }

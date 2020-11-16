@@ -1107,6 +1107,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
     _this17.showSubtaskField = _this17.showSubtaskField.bind(_assertThisInitialized(_this17));
     _this17.addSubtask = _this17.addSubtask.bind(_assertThisInitialized(_this17));
     _this17.addSubtaskByEnterKey = _this17.addSubtaskByEnterKey.bind(_assertThisInitialized(_this17));
+    _this17.moveUp = _this17.moveUp.bind(_assertThisInitialized(_this17));
+    _this17.moveDown = _this17.moveDown.bind(_assertThisInitialized(_this17));
     _this17.addSubtaskField = React.createRef();
     _this17.editTaskField = React.createRef();
     return _this17;
@@ -1246,6 +1248,16 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
       }
     }
   }, {
+    key: "moveUp",
+    value: function moveUp() {
+      console.log('Moving up!');
+    }
+  }, {
+    key: "moveDown",
+    value: function moveDown() {
+      console.log('Moving down!');
+    }
+  }, {
     key: "render",
     value: function render() {
       var addSubtaskDivStyle;
@@ -1293,6 +1305,12 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
       }
 
       return /*#__PURE__*/React.createElement("div", {
+        className: 'task'
+      }, /*#__PURE__*/React.createElement("button", {
+        className: 'move_task_buttons',
+        type: 'button',
+        onClick: this.moveUp
+      }, "UP"), /*#__PURE__*/React.createElement("div", {
         className: this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'
       }, /*#__PURE__*/React.createElement("button", {
         className: 'task_finish_button',
@@ -1345,7 +1363,11 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
       }, /*#__PURE__*/React.createElement("img", {
         src: "/static/icons/edit.svg",
         alt: "+"
-      }))));
+      })))), /*#__PURE__*/React.createElement("button", {
+        className: 'move_task_buttons',
+        type: 'button',
+        onClick: this.moveDown
+      }, "DOWN"));
     }
   }]);
 
