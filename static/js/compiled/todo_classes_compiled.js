@@ -897,6 +897,16 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
   }
 
   _createClass(TaskListReact, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      registry.taskList = this;
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      registry.taskList = null;
+    }
+  }, {
     key: "makeLinearList",
     value: function makeLinearList(tasksList) {
       var linearTasksList = [];

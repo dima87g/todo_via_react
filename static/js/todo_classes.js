@@ -721,6 +721,14 @@ class TaskListReact extends React.Component {
         this.removeTask = this.removeTask.bind(this);
     }
 
+    componentDidMount() {
+        registry.taskList = this;
+    }
+
+    componentWillUnmount() {
+        registry.taskList = null;
+    }
+
     makeLinearList(tasksList) {
         let linearTasksList = [];
 
