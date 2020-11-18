@@ -1,11 +1,12 @@
 'use strict';
 
 class Task {
-    constructor(id, text, parentId = null, status = false) {
+    constructor(id, text, position, parentId = null, status = false) {
         this.id = id;
         this.text = text;
         this.parentId = parentId;
         this.status = status;
+        this.position = position;
         this.subtasks = [];
     }
 }
@@ -28,7 +29,12 @@ class App extends React.Component {
     }
 
     componentDidMount() {
+        registry.app = this;
         this.authCheck();
+    }
+
+    componentWillUnmount() {
+        registry.app = null;
     }
 
     authCheck() {
@@ -695,14 +701,21 @@ class TaskListReact extends React.Component {
         this.tasksTree = new Map();
         this.tasks = [];
 
+        this.tasksFromServer.sort(function (a, b) {
+            return a['task_position'] - b['task_position'];
+        });
+
         for (let task of this.tasksFromServer) {
             let taskId = task['task_id'];
             let taskText = task['task_text'];
             let taskStatus = task['task_status'];
             let taskParentId = task['parent_id'];
+            let taskPosition = task['task_position'];
 
-            this.tasksTree.set(taskId, new Task(taskId, taskText, taskParentId, taskStatus));
+            this.tasksTree.set(taskId, new Task(taskId, taskText, taskPosition, taskParentId, taskStatus));
         }
+
+        console.log(this.tasksTree);
 
         for (let task of this.tasksTree.values()) {
             if (this.tasksTree.has(task.parentId)) {
@@ -859,8 +872,9 @@ class TaskListReact extends React.Component {
                                                                          status={task.status}
                                                                          taskText={task.text}
                                                                          parentId={task.parentId}
-                                                                         removeTaskFunc={this.removeTask}
-                                                                         addSubtaskFunc={this.addSubtask}/>)}
+                                                                         // removeTaskFunc={this.removeTask}
+                                                                         // addSubtaskFunc={this.addSubtask}
+                    />)}
                 </div>
             </div>
         )
@@ -927,7 +941,7 @@ class TaskReact extends React.Component {
     }
 
     removeTask() {
-        this.props.removeTaskFunc(this.taskInst);
+        registry.taskList.removeTask(this.taskInst);
     }
 
     showSubtaskField() {
@@ -960,7 +974,7 @@ class TaskReact extends React.Component {
 
             this.showSubtaskField();
 
-            this.props.addSubtaskFunc(this.taskId, subtaskText);
+            registry.taskList.addSubtask(this.taskId, subtaskText);
 
         }
     }
@@ -1021,16 +1035,33 @@ class TaskReact extends React.Component {
     moveUp() {
 
         let taskList = registry.taskList.state.linearTasksList;
-        let position = findPosition(taskList, this.taskId);
+        let currentTaskIndex = findPosition(taskList, this.taskInst.id);
 
-        console.log('Position is ' + position);
+        if (currentTaskIndex > 0) {
+            let taskToSwapIndex = currentTaskIndex - 1;
+            let currentTaskId = this.taskInst.id;
+            let currentTaskPosition = this.taskInst.position;
+            let taskToSwapId = taskList[taskToSwapIndex].id;
+            let taskToSwapPosition = taskList[taskToSwapIndex].position;
+            let sendData =
+                {
+                    'currentTaskId': currentTaskId,
+                    'currentTaskPosition': currentTaskPosition,
+                    'taskToSwapId': taskToSwapId,
+                    'taskToSwapPosition': taskToSwapPosition
+                }
 
-        if (position > 0) {
-            console.log('Moving up!');
+            const responseHandler = (response) => {
+                if (response.status === 200 && response.data['ok'] === true) {
 
-            registry.taskList.setState({
-                linearTasksList : taskList.swap(position, position - 1),
-            });
+                    console.log('Moving up!');
+
+                    registry.taskList.setState({
+                        linearTasksList : taskList.swap(currentTaskIndex, taskToSwapIndex),
+                    });
+                }
+            }
+            registry.app.knockKnock('/change_position', responseHandler, sendData);
         } else {
             console.log('I am the first already!');
         }
@@ -1038,18 +1069,33 @@ class TaskReact extends React.Component {
 
     moveDown() {
 
-
         let taskList = registry.taskList.state.linearTasksList;
-        let position = findPosition(taskList, this.taskId);
+        let currentTaskIndex = findPosition(taskList, this.taskInst.id);
 
-        console.log('Position is ' + position);
+        if (currentTaskIndex < taskList.length - 1 && currentTaskIndex !== -1) {
+            let taskToSwapIndex = currentTaskIndex + 1;
+            let currentTaskId = this.taskInst.id;
+            let currentTaskPosition = this.taskInst.position;
+            let taskToSwapId = taskList[taskToSwapIndex].id;
+            let taskToSwapPosition = taskList[taskToSwapIndex].position;
+            let sendData =
+                {
+                    'currentTaskId': currentTaskId,
+                    'currentTaskPosition': currentTaskPosition,
+                    'taskToSwapId': taskToSwapId,
+                    'taskToSwapPosition': taskToSwapPosition
+                }
 
-        if (position < taskList.length - 1) {
-            console.log('Moving down!');
+            const responseHandler = (response) => {
+                if (response.status === 200 && response.data['ok'] === true) {
+                    console.log('Moving down!');
 
-            registry.taskList.setState({
-                linearTasksList: taskList.swap(position, position + 1),
-            });
+                    registry.taskList.setState({
+                        linearTasksList: taskList.swap(currentTaskIndex, taskToSwapIndex),
+                    });
+                }
+            }
+            registry.app.knockKnock('/change_position', responseHandler, sendData);
         } else {
             console.log('I am the last already!');
         }

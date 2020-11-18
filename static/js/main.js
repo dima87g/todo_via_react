@@ -17,7 +17,8 @@ function findPosition(arr, id) {
 }
 
 const registry = {
-    taskList : null,
+    app: null,
+    taskList: null,
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'));

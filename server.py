@@ -311,7 +311,8 @@ def load_tasks():
             tasks.append({"task_id": task[0],
                           "task_text": task[2],
                           "task_status": bool(task[3]),
-                          "parent_id": task[4]})
+                          "parent_id": task[4],
+                          "task_position": task[5]})
 
         response = make_response(jsonify({
             'ok': True,
@@ -441,8 +442,13 @@ def save_task():
                     'VALUES ( '
                     '%s, %s, %s, %s)', (user_id, task_text, 0, parent_id))
 
-        connection.commit()
         task_id = cur.lastrowid
+
+        cur.execute('UPDATE tasks SET task_position = %s WHERE id = %s',
+                    (task_id, task_id))
+
+        connection.commit()
+        # task_id = cur.lastrowid
 
         response = make_response(jsonify({
             'ok': True,
@@ -642,6 +648,84 @@ def finish_task():
         cur.execute('UPDATE tasks SET status = %s WHERE id = %s and user_id '
                     '= %s',
                     (task_status, task_id, user_id,))
+
+        connection.commit()
+
+        response = make_response(jsonify({
+            "ok": True
+        }))
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config['MAX_AGE'])
+                            )
+        return response
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': None,
+                        'error_message': error.args[0]})
+    finally:
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
+
+
+@app.route("/change_position", methods=["POST"])
+def change_position():
+    """
+    request: json = {"currentTaskId": "int", "currentTaskPosition": "int,
+    "taskToSwapID: "int", "taskToSwapPosition: "int"}
+    response:
+    if OK = True: json =  {'ok': True}
+    if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
+    'error_message': 'str' or None}
+    """
+
+    connection = None
+    cur = None
+
+    try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
+        data = request.json
+        print(data)
+
+        current_task_id = data["currentTaskId"]
+        current_task_position = data["currentTaskPosition"]
+        task_to_swap_id = data["taskToSwapId"]
+        task_to_swap_position = data["taskToSwapPosition"]
+
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        if not check_cookies(user_text_id, sign):
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }))
+            response.delete_cookie("id")
+            response.delete_cookie("sign")
+
+            return response
+
+        cur.execute("SELECT id FROM users WHERE user_text_id = %s",
+                    (user_text_id,))
+
+        rows = cur.fetchall()
+        user_id = rows[0][0]
+
+        cur.execute('UPDATE tasks SET task_position = %s WHERE id = %s and '
+                    'user_id = %s',
+                    (task_to_swap_position, current_task_id, user_id,))
+        cur.execute('UPDATE tasks SET task_position = %s WHERE id = %s AND '
+                    'user_id = %s',
+                    (current_task_position, task_to_swap_id, user_id,))
 
         connection.commit()
 

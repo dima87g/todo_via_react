@@ -28,9 +28,9 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Task = function Task(id, text) {
-  var parentId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-  var status = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+var Task = function Task(id, text, position) {
+  var parentId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+  var status = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
   _classCallCheck(this, Task);
 
@@ -38,6 +38,7 @@ var Task = function Task(id, text) {
   this.text = text;
   this.parentId = parentId;
   this.status = status;
+  this.position = position;
   this.subtasks = [];
 };
 
@@ -70,7 +71,13 @@ var App = /*#__PURE__*/function (_React$Component) {
   _createClass(App, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      registry.app = this;
       this.authCheck();
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      registry.app = null;
     }
   }, {
     key: "authCheck",
@@ -848,6 +855,10 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
     _this12.tasksTree = new Map();
     _this12.tasks = [];
 
+    _this12.tasksFromServer.sort(function (a, b) {
+      return a['task_position'] - b['task_position'];
+    });
+
     var _iterator = _createForOfIteratorHelper(_this12.tasksFromServer),
         _step;
 
@@ -858,14 +869,17 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
         var taskText = task['task_text'];
         var taskStatus = task['task_status'];
         var taskParentId = task['parent_id'];
+        var taskPosition = task['task_position'];
 
-        _this12.tasksTree.set(taskId, new Task(taskId, taskText, taskParentId, taskStatus));
+        _this12.tasksTree.set(taskId, new Task(taskId, taskText, taskPosition, taskParentId, taskStatus));
       }
     } catch (err) {
       _iterator.e(err);
     } finally {
       _iterator.f();
     }
+
+    console.log(_this12.tasksTree);
 
     var _iterator2 = _createForOfIteratorHelper(_this12.tasksTree.values()),
         _step2;
@@ -1071,9 +1085,9 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
           taskId: task.id,
           status: task.status,
           taskText: task.text,
-          parentId: task.parentId,
-          removeTaskFunc: _this16.removeTask,
-          addSubtaskFunc: _this16.addSubtask
+          parentId: task.parentId // removeTaskFunc={this.removeTask}
+          // addSubtaskFunc={this.addSubtask}
+
         });
       })));
     }
@@ -1160,7 +1174,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
   }, {
     key: "removeTask",
     value: function removeTask() {
-      this.props.removeTaskFunc(this.taskInst);
+      registry.taskList.removeTask(this.taskInst);
     }
   }, {
     key: "showSubtaskField",
@@ -1193,7 +1207,7 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         var subtaskText = this.addSubtaskField.current.value;
         this.addSubtaskField.current.value = '';
         this.showSubtaskField();
-        this.props.addSubtaskFunc(this.taskId, subtaskText);
+        registry.taskList.addSubtask(this.taskId, subtaskText);
       }
     }
   }, {
@@ -1261,14 +1275,31 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
     key: "moveUp",
     value: function moveUp() {
       var taskList = registry.taskList.state.linearTasksList;
-      var position = findPosition(taskList, this.taskId);
-      console.log('Position is ' + position);
+      var currentTaskIndex = findPosition(taskList, this.taskInst.id);
 
-      if (position > 0) {
-        console.log('Moving up!');
-        registry.taskList.setState({
-          linearTasksList: taskList.swap(position, position - 1)
-        });
+      if (currentTaskIndex > 0) {
+        var taskToSwapIndex = currentTaskIndex - 1;
+        var currentTaskId = this.taskInst.id;
+        var currentTaskPosition = this.taskInst.position;
+        var taskToSwapId = taskList[taskToSwapIndex].id;
+        var taskToSwapPosition = taskList[taskToSwapIndex].position;
+        var sendData = {
+          'currentTaskId': currentTaskId,
+          'currentTaskPosition': currentTaskPosition,
+          'taskToSwapId': taskToSwapId,
+          'taskToSwapPosition': taskToSwapPosition
+        };
+
+        var responseHandler = function responseHandler(response) {
+          if (response.status === 200 && response.data['ok'] === true) {
+            console.log('Moving up!');
+            registry.taskList.setState({
+              linearTasksList: taskList.swap(currentTaskIndex, taskToSwapIndex)
+            });
+          }
+        };
+
+        registry.app.knockKnock('/change_position', responseHandler, sendData);
       } else {
         console.log('I am the first already!');
       }
@@ -1277,14 +1308,31 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
     key: "moveDown",
     value: function moveDown() {
       var taskList = registry.taskList.state.linearTasksList;
-      var position = findPosition(taskList, this.taskId);
-      console.log('Position is ' + position);
+      var currentTaskIndex = findPosition(taskList, this.taskInst.id);
 
-      if (position < taskList.length - 1) {
-        console.log('Moving down!');
-        registry.taskList.setState({
-          linearTasksList: taskList.swap(position, position + 1)
-        });
+      if (currentTaskIndex < taskList.length - 1 && currentTaskIndex !== -1) {
+        var taskToSwapIndex = currentTaskIndex + 1;
+        var currentTaskId = this.taskInst.id;
+        var currentTaskPosition = this.taskInst.position;
+        var taskToSwapId = taskList[taskToSwapIndex].id;
+        var taskToSwapPosition = taskList[taskToSwapIndex].position;
+        var sendData = {
+          'currentTaskId': currentTaskId,
+          'currentTaskPosition': currentTaskPosition,
+          'taskToSwapId': taskToSwapId,
+          'taskToSwapPosition': taskToSwapPosition
+        };
+
+        var responseHandler = function responseHandler(response) {
+          if (response.status === 200 && response.data['ok'] === true) {
+            console.log('Moving down!');
+            registry.taskList.setState({
+              linearTasksList: taskList.swap(currentTaskIndex, taskToSwapIndex)
+            });
+          }
+        };
+
+        registry.app.knockKnock('/change_position', responseHandler, sendData);
       } else {
         console.log('I am the last already!');
       }
