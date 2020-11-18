@@ -888,8 +888,8 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
 
     _this12.state = {
       linearTasksList: _this12.makeLinearList(_this12.tasks)
-    };
-    _this12.linearTasksList = _this12.makeLinearList(_this12.tasks);
+    }; // this.linearTasksList = this.makeLinearList(this.tasks);
+
     _this12.addTask = _this12.addTask.bind(_assertThisInitialized(_this12));
     _this12.addSubtask = _this12.addSubtask.bind(_assertThisInitialized(_this12));
     _this12.removeTask = _this12.removeTask.bind(_assertThisInitialized(_this12));
@@ -1260,12 +1260,34 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
   }, {
     key: "moveUp",
     value: function moveUp() {
-      console.log('Moving up!');
+      var taskList = registry.taskList.state.linearTasksList;
+      var position = findPosition(taskList, this.taskId);
+      console.log('Position is ' + position);
+
+      if (position > 0) {
+        console.log('Moving up!');
+        registry.taskList.setState({
+          linearTasksList: taskList.swap(position, position - 1)
+        });
+      } else {
+        console.log('I am the first already!');
+      }
     }
   }, {
     key: "moveDown",
     value: function moveDown() {
-      console.log('Moving down!');
+      var taskList = registry.taskList.state.linearTasksList;
+      var position = findPosition(taskList, this.taskId);
+      console.log('Position is ' + position);
+
+      if (position < taskList.length - 1) {
+        console.log('Moving down!');
+        registry.taskList.setState({
+          linearTasksList: taskList.swap(position, position + 1)
+        });
+      } else {
+        console.log('I am the last already!');
+      }
     }
   }, {
     key: "render",

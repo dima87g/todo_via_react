@@ -715,7 +715,7 @@ class TaskListReact extends React.Component {
         this.state = {
             linearTasksList: this.makeLinearList(this.tasks),
         }
-        this.linearTasksList = this.makeLinearList(this.tasks);
+        // this.linearTasksList = this.makeLinearList(this.tasks);
         this.addTask = this.addTask.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
@@ -1019,11 +1019,40 @@ class TaskReact extends React.Component {
     }
 
     moveUp() {
-        console.log('Moving up!');
+
+        let taskList = registry.taskList.state.linearTasksList;
+        let position = findPosition(taskList, this.taskId);
+
+        console.log('Position is ' + position);
+
+        if (position > 0) {
+            console.log('Moving up!');
+
+            registry.taskList.setState({
+                linearTasksList : taskList.swap(position, position - 1),
+            });
+        } else {
+            console.log('I am the first already!');
+        }
     }
 
     moveDown() {
-        console.log('Moving down!');
+
+
+        let taskList = registry.taskList.state.linearTasksList;
+        let position = findPosition(taskList, this.taskId);
+
+        console.log('Position is ' + position);
+
+        if (position < taskList.length - 1) {
+            console.log('Moving down!');
+
+            registry.taskList.setState({
+                linearTasksList: taskList.swap(position, position + 1),
+            });
+        } else {
+            console.log('I am the last already!');
+        }
     }
 
     render() {
