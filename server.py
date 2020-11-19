@@ -6,6 +6,8 @@ import mysql.connector
 from mysql.connector import pooling
 import configparser
 
+# TODO try resolve code duplicate in functions
+
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.config['JSON_AS_ASCII'] = False
