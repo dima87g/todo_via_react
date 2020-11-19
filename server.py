@@ -754,6 +754,7 @@ def change_position():
 
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
+    #TODO Need make check if user is in the database!!!!!!!!
     try:
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")

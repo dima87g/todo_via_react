@@ -702,7 +702,10 @@ class TaskListReact extends React.Component {
         this.tasks = [];
 
         this.tasksFromServer.sort(function (a, b) {
-            return a['task_position'] - b['task_position'];
+            if (a['task_position'] && b['task_position']) {
+                return a['task_position'] - b['task_position'];
+            }
+            return 0;
         });
 
         for (let task of this.tasksFromServer) {
@@ -714,8 +717,6 @@ class TaskListReact extends React.Component {
 
             this.tasksTree.set(taskId, new Task(taskId, taskText, taskPosition, taskParentId, taskStatus));
         }
-
-        console.log(this.tasksTree);
 
         for (let task of this.tasksTree.values()) {
             if (this.tasksTree.has(task.parentId)) {
@@ -1041,8 +1042,18 @@ class TaskReact extends React.Component {
             let taskToSwapIndex = currentTaskIndex - 1;
             let currentTaskId = this.taskInst.id;
             let currentTaskPosition = this.taskInst.position;
+
+            if (!currentTaskPosition) {
+                currentTaskPosition = currentTaskId;
+            }
+
             let taskToSwapId = taskList[taskToSwapIndex].id;
             let taskToSwapPosition = taskList[taskToSwapIndex].position;
+
+            if (!taskToSwapPosition) {
+                taskToSwapPosition = taskToSwapIndex;
+            }
+
             let sendData =
                 {
                     'currentTaskId': currentTaskId,
@@ -1076,8 +1087,18 @@ class TaskReact extends React.Component {
             let taskToSwapIndex = currentTaskIndex + 1;
             let currentTaskId = this.taskInst.id;
             let currentTaskPosition = this.taskInst.position;
+
+            if (!currentTaskPosition) {
+                currentTaskPosition = currentTaskIndex;
+            }
+
             let taskToSwapId = taskList[taskToSwapIndex].id;
             let taskToSwapPosition = taskList[taskToSwapIndex].position;
+
+            if (!taskToSwapPosition) {
+                taskToSwapPosition = taskToSwapId;
+            }
+
             let sendData =
                 {
                     'currentTaskId': currentTaskId,

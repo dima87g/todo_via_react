@@ -856,7 +856,11 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
     _this12.tasks = [];
 
     _this12.tasksFromServer.sort(function (a, b) {
-      return a['task_position'] - b['task_position'];
+      if (a['task_position'] && b['task_position']) {
+        return a['task_position'] - b['task_position'];
+      }
+
+      return 0;
     });
 
     var _iterator = _createForOfIteratorHelper(_this12.tasksFromServer),
@@ -878,8 +882,6 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
     } finally {
       _iterator.f();
     }
-
-    console.log(_this12.tasksTree);
 
     var _iterator2 = _createForOfIteratorHelper(_this12.tasksTree.values()),
         _step2;
@@ -1281,8 +1283,18 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         var taskToSwapIndex = currentTaskIndex - 1;
         var currentTaskId = this.taskInst.id;
         var currentTaskPosition = this.taskInst.position;
+
+        if (!currentTaskPosition) {
+          currentTaskPosition = currentTaskId;
+        }
+
         var taskToSwapId = taskList[taskToSwapIndex].id;
         var taskToSwapPosition = taskList[taskToSwapIndex].position;
+
+        if (!taskToSwapPosition) {
+          taskToSwapPosition = taskToSwapIndex;
+        }
+
         var sendData = {
           'currentTaskId': currentTaskId,
           'currentTaskPosition': currentTaskPosition,
@@ -1314,8 +1326,18 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         var taskToSwapIndex = currentTaskIndex + 1;
         var currentTaskId = this.taskInst.id;
         var currentTaskPosition = this.taskInst.position;
+
+        if (!currentTaskPosition) {
+          currentTaskPosition = currentTaskIndex;
+        }
+
         var taskToSwapId = taskList[taskToSwapIndex].id;
         var taskToSwapPosition = taskList[taskToSwapIndex].position;
+
+        if (!taskToSwapPosition) {
+          taskToSwapPosition = taskToSwapId;
+        }
+
         var sendData = {
           'currentTaskId': currentTaskId,
           'currentTaskPosition': currentTaskPosition,
