@@ -609,7 +609,7 @@ html, body {
 }
 
 .info_window {
-    position: absolute;
+    position: fixed;
     width: 200px;
     height: 100px;
     top: 20vw;
