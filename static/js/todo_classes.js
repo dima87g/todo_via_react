@@ -86,6 +86,12 @@ class App extends React.Component {
             menuDisabled: true,
         });
 
+        if (registry.taskInput) {
+            registry.taskInput.setState({
+                taskInputDisabled: true,
+            });
+        }
+
         this.setState({
             shadowModalIsVisible: true,
         });
@@ -95,6 +101,12 @@ class App extends React.Component {
         registry.headerMenu.setState({
             menuDisabled: false,
         });
+
+        if (registry.taskInput) {
+            registry.taskInput.setState({
+                taskInputDisabled: false,
+            });
+        }
 
         this.setState({
             shadowModalIsVisible: false,
@@ -1358,8 +1370,19 @@ class TaskInput extends React.Component{
     constructor(props) {
         super(props);
         this.taskList = this.props.taskList;
+        this.state = {
+            taskInputDisabled: false,
+        };
 
         this.addTask = this.addTask.bind(this);
+    }
+
+    componentDidMount() {
+        registry.taskInput = this;
+    }
+
+    componentWillUnmount() {
+        registry.taskInput = null;
     }
 
     addTask(e) {
@@ -1374,17 +1397,32 @@ class TaskInput extends React.Component{
     }
 
     render() {
+        let taskInputSubmitFunction;
+        let taskInputFieldDisabled;
+        let taskInputButtonDisabled;
+
+        if (this.state.taskInputDisabled === true) {
+            taskInputSubmitFunction = null;
+            taskInputFieldDisabled = true;
+            taskInputButtonDisabled = true;
+        } else {
+            taskInputSubmitFunction = this.addTask;
+            taskInputFieldDisabled = false;
+            taskInputButtonDisabled = false;
+        }
         return(
             <div className="task_input">
-                <form onSubmit={this.addTask}>
+                <form onSubmit={taskInputSubmitFunction}>
                     <label htmlFor={'task_input_field'}/>
                         <input type={'text'}
                                name={'task_input_field'}
                                className={'task_input_field'}
                                autoComplete={'off'}
+                               disabled={taskInputFieldDisabled}
                         />
                         <button type={'submit'}
                                 className={'task_input_button'}
+                                disabled={taskInputButtonDisabled}
                         >
                             <img src="/static/icons/add_sub.svg" alt="+"/>
                         </button>

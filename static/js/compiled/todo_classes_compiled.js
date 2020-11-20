@@ -138,6 +138,13 @@ var App = /*#__PURE__*/function (_React$Component) {
       registry.headerMenu.setState({
         menuDisabled: true
       });
+
+      if (registry.taskInput) {
+        registry.taskInput.setState({
+          taskInputDisabled: true
+        });
+      }
+
       this.setState({
         shadowModalIsVisible: true
       });
@@ -148,6 +155,13 @@ var App = /*#__PURE__*/function (_React$Component) {
       registry.headerMenu.setState({
         menuDisabled: false
       });
+
+      if (registry.taskInput) {
+        registry.taskInput.setState({
+          taskInputDisabled: false
+        });
+      }
+
       this.setState({
         shadowModalIsVisible: false
       });
@@ -1644,11 +1658,24 @@ var TaskInput = /*#__PURE__*/function (_React$Component6) {
 
     _this21 = _super6.call(this, props);
     _this21.taskList = _this21.props.taskList;
+    _this21.state = {
+      taskInputDisabled: false
+    };
     _this21.addTask = _this21.addTask.bind(_assertThisInitialized(_this21));
     return _this21;
   }
 
   _createClass(TaskInput, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      registry.taskInput = this;
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      registry.taskInput = null;
+    }
+  }, {
     key: "addTask",
     value: function addTask(e) {
       e.preventDefault();
@@ -1663,20 +1690,36 @@ var TaskInput = /*#__PURE__*/function (_React$Component6) {
   }, {
     key: "render",
     value: function render() {
+      var taskInputSubmitFunction;
+      var taskInputFieldDisabled;
+      var taskInputButtonDisabled;
+
+      if (this.state.taskInputDisabled === true) {
+        taskInputSubmitFunction = null;
+        taskInputFieldDisabled = true;
+        taskInputButtonDisabled = true;
+      } else {
+        taskInputSubmitFunction = this.addTask;
+        taskInputFieldDisabled = false;
+        taskInputButtonDisabled = false;
+      }
+
       return /*#__PURE__*/React.createElement("div", {
         className: "task_input"
       }, /*#__PURE__*/React.createElement("form", {
-        onSubmit: this.addTask
+        onSubmit: taskInputSubmitFunction
       }, /*#__PURE__*/React.createElement("label", {
         htmlFor: 'task_input_field'
       }), /*#__PURE__*/React.createElement("input", {
         type: 'text',
         name: 'task_input_field',
         className: 'task_input_field',
-        autoComplete: 'off'
+        autoComplete: 'off',
+        disabled: taskInputFieldDisabled
       }), /*#__PURE__*/React.createElement("button", {
         type: 'submit',
-        className: 'task_input_button'
+        className: 'task_input_button',
+        disabled: taskInputButtonDisabled
       }, /*#__PURE__*/React.createElement("img", {
         src: "/static/icons/add_sub.svg",
         alt: "+"

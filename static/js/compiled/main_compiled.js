@@ -18,8 +18,17 @@ function findPosition(arr, id) {
 }
 
 var registry = {
+  // Not guaranteed that taskInput always will be 'not null' in registry,
+  // while code is working,
+  // need
+  // check
+  // it
+  // in
+  // the
+  // code!!!
   app: null,
   headerMenu: null,
+  taskInput: null,
   taskList: null
 };
 ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('root'));
