@@ -154,17 +154,15 @@ class App extends React.Component {
                        className={'confirm_window_message'}>
                         {this.state.confirmWindowMessage}
                     </p>
-                    <button type="button"
-                            className="confirm_window_ok_button"
-                            id="confirm_window_ok_button"
-                            value="ok"
+                    <button type={"button"}
+                            className={"confirm_window_buttons"}
+                            value={"ok"}
                             onClick={this.confirmWindowClick}>
                         OK
                     </button>
-                    <button type="button"
-                            className="confirm_window_cancel_button"
-                            id="confirm_window_cancel_button"
-                            value='cancel'
+                    <button type={"button"}
+                            className={"confirm_window_buttons"}
+                            value={'cancel'}
                             onClick={this.confirmWindowClick}>
                         {localisation['confirm_window']['cancel_button']}
                     </button>

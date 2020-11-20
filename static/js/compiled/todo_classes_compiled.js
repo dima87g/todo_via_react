@@ -218,15 +218,13 @@ var App = /*#__PURE__*/function (_React$Component) {
         className: 'confirm_window_message'
       }, this.state.confirmWindowMessage), /*#__PURE__*/React.createElement("button", {
         type: "button",
-        className: "confirm_window_ok_button",
-        id: "confirm_window_ok_button",
+        className: "confirm_window_buttons",
         value: "ok",
         onClick: this.confirmWindowClick
       }, "OK"), /*#__PURE__*/React.createElement("button", {
         type: "button",
-        className: "confirm_window_cancel_button",
-        id: "confirm_window_cancel_button",
-        value: "cancel",
+        className: "confirm_window_buttons",
+        value: 'cancel',
         onClick: this.confirmWindowClick
       }, localisation['confirm_window']['cancel_button'])), /*#__PURE__*/React.createElement("div", {
         className: "info_window",

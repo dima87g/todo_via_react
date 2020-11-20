@@ -633,6 +633,10 @@ html, body {
     margin-top: 10px;
 }
 
+.confirm_window_buttons {
+    margin: 5px 5px;
+}
+
 .info_window {
     position: fixed;
     width: 200px;
