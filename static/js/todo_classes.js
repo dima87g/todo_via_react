@@ -1187,10 +1187,10 @@ class TaskReact extends React.Component {
 
         return (
             <div className={'task'}>
-                <button className={'move_task_buttons'}
+                <button className={'task_moving_buttons'}
                         type={'button'}
                         onClick={this.moveUp}>
-                    UP
+                    &#129089;&#129089;&#129089;
                 </button>
                 <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
                     <button className={'task_finish_button'}
@@ -1233,10 +1233,10 @@ class TaskReact extends React.Component {
                         </button>
                     </div>
                 </div>
-                <button className={'move_task_buttons'}
+                <button className={'task_moving_buttons'}
                         type={'button'}
                         onClick={this.moveDown}>
-                    DOWN
+                    &#129091;&#129091;&#129091;
                 </button>
             </div>
         )

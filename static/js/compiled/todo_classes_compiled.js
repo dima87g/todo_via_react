@@ -1427,10 +1427,10 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
       return /*#__PURE__*/React.createElement("div", {
         className: 'task'
       }, /*#__PURE__*/React.createElement("button", {
-        className: 'move_task_buttons',
+        className: 'task_moving_buttons',
         type: 'button',
         onClick: this.moveUp
-      }, "UP"), /*#__PURE__*/React.createElement("div", {
+      }, "\uD83E\uDC41\uD83E\uDC41\uD83E\uDC41"), /*#__PURE__*/React.createElement("div", {
         className: this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'
       }, /*#__PURE__*/React.createElement("button", {
         className: 'task_finish_button',
@@ -1484,10 +1484,10 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         src: "/static/icons/edit.svg",
         alt: "+"
       })))), /*#__PURE__*/React.createElement("button", {
-        className: 'move_task_buttons',
+        className: 'task_moving_buttons',
         type: 'button',
         onClick: this.moveDown
-      }, "DOWN"));
+      }, "\uD83E\uDC43\uD83E\uDC43\uD83E\uDC43"));
     }
   }]);
 

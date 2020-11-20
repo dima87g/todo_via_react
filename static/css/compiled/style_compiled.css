@@ -356,7 +356,7 @@ html, body {
         flex-direction: column;
     -ms-flex-align: center;
         align-items: center;
-    outline: solid 1px;
+    /*outline: solid 1px;*/
     margin: 10px auto ;
 }
 
@@ -377,6 +377,10 @@ html, body {
     min-height: 40px;
     /*margin: 10px auto ;*/
     box-shadow: 0 0 3px;
+}
+
+.task_moving_buttons {
+    font-size: 10px;
 }
 
 .task_finish_button {
