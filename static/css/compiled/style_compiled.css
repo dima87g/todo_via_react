@@ -647,7 +647,7 @@ html, body {
 }
 
 .loading_window {
-    position: absolute;
+    position: fixed;
     width: 200px;
     height: 100px;
     top: 20vw;
@@ -657,7 +657,7 @@ html, body {
     z-index: 2;
     /*display: none;*/
     display: block;
-    visibility: hidden;
+    /*visibility: hidden;*/
 }
 
 /*Styles for show/hide shadow animation*/
