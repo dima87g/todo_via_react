@@ -577,7 +577,7 @@ html, body {
 
 /*Styles for show/hide confirm window animation*/
 .confirm_window {
-    position: absolute;
+    position: fixed;
     width: 200px;
     height: 100px;
     text-align: center;
