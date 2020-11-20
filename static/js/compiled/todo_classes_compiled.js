@@ -135,6 +135,9 @@ var App = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "showShadowModal",
     value: function showShadowModal() {
+      registry.headerMenu.setState({
+        menuDisabled: true
+      });
       this.setState({
         shadowModalIsVisible: true
       });
@@ -142,6 +145,9 @@ var App = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "hideShadowModal",
     value: function hideShadowModal() {
+      registry.headerMenu.setState({
+        menuDisabled: false
+      });
       this.setState({
         shadowModalIsVisible: false
       });
@@ -1489,6 +1495,7 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
     _this20 = _super5.call(this, props);
     _this20.login = _this20.props.login;
     _this20.state = {
+      menuDisabled: true,
       menuShowed: false,
       userLogOutButtonDisabled: true,
       userDeleteButtonDisabled: true,
@@ -1502,6 +1509,16 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
   }
 
   _createClass(HeaderMenu, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      registry.headerMenu = this;
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      registry.headerMenu = null;
+    }
+  }, {
     key: "showHeaderMenu",
     value: function showHeaderMenu() {
       if (this.state.menuShowed) {
@@ -1550,6 +1567,13 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
       var headerMenuListStyle;
       var headerMenuListButtonsStyle;
       var burgerButtonStyle;
+      var menuButtonFunction;
+
+      if (this.state.menuDisabled === false) {
+        menuButtonFunction = this.showHeaderMenu;
+      } else {
+        menuButtonFunction = null;
+      }
 
       if (this.state.menuShowed === false) {
         headerMenuListStyle = 'header_menu_list';
@@ -1591,7 +1615,7 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
       })), /*#__PURE__*/React.createElement("div", {
         id: 'burger_button',
         className: burgerButtonStyle,
-        onClick: this.showHeaderMenu
+        onClick: menuButtonFunction
       }, /*#__PURE__*/React.createElement("div", {
         id: 'burger_button_stick',
         className: 'burger_button_stick'

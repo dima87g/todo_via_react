@@ -82,12 +82,20 @@ class App extends React.Component {
     }
 
     showShadowModal() {
+        registry.headerMenu.setState({
+            menuDisabled: true,
+        });
+
         this.setState({
             shadowModalIsVisible: true,
         });
     }
 
     hideShadowModal() {
+        registry.headerMenu.setState({
+            menuDisabled: false,
+        });
+
         this.setState({
             shadowModalIsVisible: false,
         })
@@ -1230,6 +1238,7 @@ class HeaderMenu extends React.Component {
         super(props)
         this.login = this.props.login;
         this.state = {
+            menuDisabled: true,
             menuShowed: false,
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
@@ -1239,6 +1248,14 @@ class HeaderMenu extends React.Component {
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
         this.changePassword = this.changePassword.bind(this);
+    }
+
+    componentDidMount() {
+        registry.headerMenu = this;
+    }
+
+    componentWillUnmount() {
+        registry.headerMenu = null;
     }
 
     showHeaderMenu() {
@@ -1284,6 +1301,13 @@ class HeaderMenu extends React.Component {
         let headerMenuListStyle;
         let headerMenuListButtonsStyle;
         let burgerButtonStyle;
+        let menuButtonFunction;
+
+        if (this.state.menuDisabled === false) {
+            menuButtonFunction = this.showHeaderMenu;
+        } else {
+            menuButtonFunction = null;
+        }
 
         if (this.state.menuShowed === false) {
             headerMenuListStyle = 'header_menu_list';
@@ -1318,7 +1342,9 @@ class HeaderMenu extends React.Component {
                            disabled={this.state.userDeleteButtonDisabled}
                            onClick={this.userDelete}/>
                 </div>
-               <div id={'burger_button'} className={burgerButtonStyle} onClick={this.showHeaderMenu}>
+               <div id={'burger_button'}
+                    className={burgerButtonStyle}
+                    onClick={menuButtonFunction}>
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>

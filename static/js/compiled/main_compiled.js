@@ -19,6 +19,7 @@ function findPosition(arr, id) {
 
 var registry = {
   app: null,
+  headerMenu: null,
   taskList: null
 };
 ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('root'));

@@ -18,6 +18,7 @@ function findPosition(arr, id) {
 
 const registry = {
     app: null,
+    headerMenu: null,
     taskList: null,
 }
 
