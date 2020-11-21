@@ -744,8 +744,12 @@ class TaskListReact extends React.Component {
             }
         }
 
+        console.log(this.tasksTree);
+        console.log(this.tasks);
+
         this.state = {
-            linearTasksList: this.makeLinearList(this.tasks),
+            // linearTasksList: this.makeLinearList(this.tasks),
+            linearTasksList: this.tasks,
         }
         // this.linearTasksList = this.makeLinearList(this.tasks);
         this.addTask = this.addTask.bind(this);
@@ -796,7 +800,8 @@ class TaskListReact extends React.Component {
                 this.tasks.push(newTask);
 
                 this.setState({
-                    linearTasksList: this.makeLinearList(this.tasks),
+                    // linearTasksList: this.makeLinearList(this.tasks),
+                    linearTasksList: this.tasks,
                 })
             } else if (answer.status === 401) {
                 this.login.forceLogOut();
@@ -847,14 +852,19 @@ class TaskListReact extends React.Component {
         let sendData = {'taskId': task.id}
         const remove = (answer) => {
             if (answer.status === 200) {
-                if (this.tasksTree.has(task.parentId)) {
-                    let childrenList = this.tasksTree.get(task.parentId).subtasks;
-                    childrenList.splice(childrenList.indexOf(task), 1);
-                } else {
-                    this.tasks.splice(this.tasks.indexOf(task), 1);
-                }
+                // if (this.tasksTree.has(task.parentId)) {
+                //     let childrenList = this.tasksTree.get(task.parentId).subtasks;
+                //     childrenList.splice(childrenList.indexOf(task), 1);
+                // } else {
+                //     this.tasks.splice(this.tasks.indexOf(task), 1);
+                // }
+
+                this.tasks.splice(findPosition(this.tasks, task.id), 1);
+                this.tasksTree.delete(task.id);
+
                 this.setState({
-                    linearTasksList: this.makeLinearList(this.tasks),
+                    // linearTasksList: this.makeLinearList(this.tasks),
+                    linearTasksList: this.tasks,
                 })
             } else if (answer.status === 401) {
                 this.login.forceLogOut();
@@ -1052,8 +1062,15 @@ class TaskReact extends React.Component {
     }
 
     moveUp() {
+        //TODO need to make one function for moving up/down!
+        let taskList;
 
-        let taskList = registry.taskList.state.linearTasksList;
+        if (!this.taskInst.parentId) {
+            taskList = registry.taskList.state.linearTasksList;
+        } else {
+            taskList = registry.taskList.tasksTree.get(this.taskInst.parentId);
+        }
+
         let currentTaskIndex = findPosition(taskList, this.taskInst.id);
 
         if (currentTaskIndex > 0) {
@@ -1065,11 +1082,12 @@ class TaskReact extends React.Component {
                 currentTaskPosition = currentTaskId;
             }
 
-            let taskToSwapId = taskList[taskToSwapIndex].id;
-            let taskToSwapPosition = taskList[taskToSwapIndex].position;
+            let taskToSwap = taskList[taskToSwapIndex];
+            let taskToSwapId = taskToSwap.id;
+            let taskToSwapPosition = taskToSwap.position;
 
             if (!taskToSwapPosition) {
-                taskToSwapPosition = taskToSwapIndex;
+                taskToSwapPosition = taskToSwapId;
             }
 
             let sendData =
@@ -1084,6 +1102,9 @@ class TaskReact extends React.Component {
                 if (response.status === 200 && response.data['ok'] === true) {
 
                     console.log('Moving up!');
+
+                    this.taskInst.position = taskToSwapPosition;
+                    taskToSwap.position = currentTaskPosition;
 
                     registry.taskList.setState({
                         linearTasksList : taskList.swap(currentTaskIndex, taskToSwapIndex),
@@ -1107,11 +1128,12 @@ class TaskReact extends React.Component {
             let currentTaskPosition = this.taskInst.position;
 
             if (!currentTaskPosition) {
-                currentTaskPosition = currentTaskIndex;
+                currentTaskPosition = currentTaskId;
             }
 
-            let taskToSwapId = taskList[taskToSwapIndex].id;
-            let taskToSwapPosition = taskList[taskToSwapIndex].position;
+            let taskToSwap = taskList[taskToSwapIndex];
+            let taskToSwapId = taskToSwap.id;
+            let taskToSwapPosition = taskToSwap.position;
 
             if (!taskToSwapPosition) {
                 taskToSwapPosition = taskToSwapId;
@@ -1128,6 +1150,9 @@ class TaskReact extends React.Component {
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
                     console.log('Moving down!');
+
+                    this.taskInst.position = taskToSwapPosition;
+                    taskToSwap.position = currentTaskPosition;
 
                     registry.taskList.setState({
                         linearTasksList: taskList.swap(currentTaskIndex, taskToSwapIndex),
@@ -1198,7 +1223,11 @@ class TaskReact extends React.Component {
                             onClick={this.finishTask}>
                         <img src="/static/icons/check.svg" alt="V"/>
                     </button>
-                    <button className={showSubtaskDivButtonStyle} onClick={this.showSubtaskField}>+</button>
+                    <button className={showSubtaskDivButtonStyle}
+                            onClick={this.showSubtaskField}
+                            disabled={true}>
+                        +
+                    </button>
                     <p className={taskTextStyle}
                        onClick={this.showEditTaskField}>{this.state.taskTextValue}</p>
                     <button className={removeTaskButtonStyle}

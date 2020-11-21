@@ -920,8 +920,11 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
       _iterator2.f();
     }
 
+    console.log(_this12.tasksTree);
+    console.log(_this12.tasks);
     _this12.state = {
-      linearTasksList: _this12.makeLinearList(_this12.tasks)
+      // linearTasksList: this.makeLinearList(this.tasks),
+      linearTasksList: _this12.tasks
     }; // this.linearTasksList = this.makeLinearList(this.tasks);
 
     _this12.addTask = _this12.addTask.bind(_assertThisInitialized(_this12));
@@ -996,7 +999,8 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
           _this13.tasks.push(newTask);
 
           _this13.setState({
-            linearTasksList: _this13.makeLinearList(_this13.tasks)
+            // linearTasksList: this.makeLinearList(this.tasks),
+            linearTasksList: _this13.tasks
           });
         } else if (answer.status === 401) {
           _this13.login.forceLogOut();
@@ -1066,16 +1070,19 @@ var TaskListReact = /*#__PURE__*/function (_React$Component3) {
 
       var remove = function remove(answer) {
         if (answer.status === 200) {
-          if (_this15.tasksTree.has(task.parentId)) {
-            var childrenList = _this15.tasksTree.get(task.parentId).subtasks;
+          // if (this.tasksTree.has(task.parentId)) {
+          //     let childrenList = this.tasksTree.get(task.parentId).subtasks;
+          //     childrenList.splice(childrenList.indexOf(task), 1);
+          // } else {
+          //     this.tasks.splice(this.tasks.indexOf(task), 1);
+          // }
+          _this15.tasks.splice(findPosition(_this15.tasks, task.id), 1);
 
-            childrenList.splice(childrenList.indexOf(task), 1);
-          } else {
-            _this15.tasks.splice(_this15.tasks.indexOf(task), 1);
-          }
+          _this15.tasksTree.delete(task.id);
 
           _this15.setState({
-            linearTasksList: _this15.makeLinearList(_this15.tasks)
+            // linearTasksList: this.makeLinearList(this.tasks),
+            linearTasksList: _this15.tasks
           });
         } else if (answer.status === 401) {
           _this15.login.forceLogOut();
@@ -1294,7 +1301,17 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
   }, {
     key: "moveUp",
     value: function moveUp() {
-      var taskList = registry.taskList.state.linearTasksList;
+      var _this20 = this;
+
+      //TODO need to make one function for moving up/down!
+      var taskList;
+
+      if (!this.taskInst.parentId) {
+        taskList = registry.taskList.state.linearTasksList;
+      } else {
+        taskList = registry.taskList.tasksTree.get(this.taskInst.parentId);
+      }
+
       var currentTaskIndex = findPosition(taskList, this.taskInst.id);
 
       if (currentTaskIndex > 0) {
@@ -1306,11 +1323,12 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
           currentTaskPosition = currentTaskId;
         }
 
-        var taskToSwapId = taskList[taskToSwapIndex].id;
-        var taskToSwapPosition = taskList[taskToSwapIndex].position;
+        var taskToSwap = taskList[taskToSwapIndex];
+        var taskToSwapId = taskToSwap.id;
+        var taskToSwapPosition = taskToSwap.position;
 
         if (!taskToSwapPosition) {
-          taskToSwapPosition = taskToSwapIndex;
+          taskToSwapPosition = taskToSwapId;
         }
 
         var sendData = {
@@ -1323,6 +1341,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         var responseHandler = function responseHandler(response) {
           if (response.status === 200 && response.data['ok'] === true) {
             console.log('Moving up!');
+            _this20.taskInst.position = taskToSwapPosition;
+            taskToSwap.position = currentTaskPosition;
             registry.taskList.setState({
               linearTasksList: taskList.swap(currentTaskIndex, taskToSwapIndex)
             });
@@ -1337,6 +1357,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
   }, {
     key: "moveDown",
     value: function moveDown() {
+      var _this21 = this;
+
       var taskList = registry.taskList.state.linearTasksList;
       var currentTaskIndex = findPosition(taskList, this.taskInst.id);
 
@@ -1346,11 +1368,12 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         var currentTaskPosition = this.taskInst.position;
 
         if (!currentTaskPosition) {
-          currentTaskPosition = currentTaskIndex;
+          currentTaskPosition = currentTaskId;
         }
 
-        var taskToSwapId = taskList[taskToSwapIndex].id;
-        var taskToSwapPosition = taskList[taskToSwapIndex].position;
+        var taskToSwap = taskList[taskToSwapIndex];
+        var taskToSwapId = taskToSwap.id;
+        var taskToSwapPosition = taskToSwap.position;
 
         if (!taskToSwapPosition) {
           taskToSwapPosition = taskToSwapId;
@@ -1366,6 +1389,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         var responseHandler = function responseHandler(response) {
           if (response.status === 200 && response.data['ok'] === true) {
             console.log('Moving down!');
+            _this21.taskInst.position = taskToSwapPosition;
+            taskToSwap.position = currentTaskPosition;
             registry.taskList.setState({
               linearTasksList: taskList.swap(currentTaskIndex, taskToSwapIndex)
             });
@@ -1441,7 +1466,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         alt: "V"
       })), /*#__PURE__*/React.createElement("button", {
         className: showSubtaskDivButtonStyle,
-        onClick: this.showSubtaskField
+        onClick: this.showSubtaskField,
+        disabled: true
       }, "+"), /*#__PURE__*/React.createElement("p", {
         className: taskTextStyle,
         onClick: this.showEditTaskField
@@ -1500,24 +1526,24 @@ var HeaderMenu = /*#__PURE__*/function (_React$Component5) {
   var _super5 = _createSuper(HeaderMenu);
 
   function HeaderMenu(props) {
-    var _this20;
+    var _this22;
 
     _classCallCheck(this, HeaderMenu);
 
-    _this20 = _super5.call(this, props);
-    _this20.login = _this20.props.login;
-    _this20.state = {
+    _this22 = _super5.call(this, props);
+    _this22.login = _this22.props.login;
+    _this22.state = {
       menuDisabled: true,
       menuShowed: false,
       userLogOutButtonDisabled: true,
       userDeleteButtonDisabled: true,
       changePasswordButtonDisabled: true
     };
-    _this20.showHeaderMenu = _this20.showHeaderMenu.bind(_assertThisInitialized(_this20));
-    _this20.logOut = _this20.logOut.bind(_assertThisInitialized(_this20));
-    _this20.userDelete = _this20.userDelete.bind(_assertThisInitialized(_this20));
-    _this20.changePassword = _this20.changePassword.bind(_assertThisInitialized(_this20));
-    return _this20;
+    _this22.showHeaderMenu = _this22.showHeaderMenu.bind(_assertThisInitialized(_this22));
+    _this22.logOut = _this22.logOut.bind(_assertThisInitialized(_this22));
+    _this22.userDelete = _this22.userDelete.bind(_assertThisInitialized(_this22));
+    _this22.changePassword = _this22.changePassword.bind(_assertThisInitialized(_this22));
+    return _this22;
   }
 
   _createClass(HeaderMenu, [{
@@ -1650,17 +1676,17 @@ var TaskInput = /*#__PURE__*/function (_React$Component6) {
   var _super6 = _createSuper(TaskInput);
 
   function TaskInput(props) {
-    var _this21;
+    var _this23;
 
     _classCallCheck(this, TaskInput);
 
-    _this21 = _super6.call(this, props);
-    _this21.taskList = _this21.props.taskList;
-    _this21.state = {
+    _this23 = _super6.call(this, props);
+    _this23.taskList = _this23.props.taskList;
+    _this23.state = {
       taskInputDisabled: false
     };
-    _this21.addTask = _this21.addTask.bind(_assertThisInitialized(_this21));
-    return _this21;
+    _this23.addTask = _this23.addTask.bind(_assertThisInitialized(_this23));
+    return _this23;
   }
 
   _createClass(TaskInput, [{
@@ -1734,48 +1760,48 @@ var LoadingWindowReact = /*#__PURE__*/function (_React$Component7) {
   var _super7 = _createSuper(LoadingWindowReact);
 
   function LoadingWindowReact() {
-    var _this22;
+    var _this24;
 
     _classCallCheck(this, LoadingWindowReact);
 
-    _this22 = _super7.call(this);
-    _this22.isAlive = false;
-    _this22.reqCount = 0;
-    _this22.timerShow = null;
-    _this22.timerHide = null;
-    _this22.startTime = null;
-    _this22.stopTime = null;
-    _this22.state = {
+    _this24 = _super7.call(this);
+    _this24.isAlive = false;
+    _this24.reqCount = 0;
+    _this24.timerShow = null;
+    _this24.timerHide = null;
+    _this24.startTime = null;
+    _this24.stopTime = null;
+    _this24.state = {
       visibility: 'hidden'
     };
-    _this22.showWindow = _this22.showWindow.bind(_assertThisInitialized(_this22));
-    _this22.hideWindow = _this22.hideWindow.bind(_assertThisInitialized(_this22));
-    return _this22;
+    _this24.showWindow = _this24.showWindow.bind(_assertThisInitialized(_this24));
+    _this24.hideWindow = _this24.hideWindow.bind(_assertThisInitialized(_this24));
+    return _this24;
   }
 
   _createClass(LoadingWindowReact, [{
     key: "showWindow",
     value: function showWindow() {
-      var _this23 = this;
+      var _this25 = this;
 
       this.reqCount++;
 
       if (this.reqCount === 1) {
         this.timerHide = clearTimeout(this.timerHide);
         this.timerShow = setTimeout(function () {
-          _this23.setState({
+          _this25.setState({
             visibility: 'visible'
           });
 
-          _this23.startTime = Date.now();
-          _this23.isAlive = true;
+          _this25.startTime = Date.now();
+          _this25.isAlive = true;
         }, 200);
       }
     }
   }, {
     key: "hideWindow",
     value: function hideWindow() {
-      var _this24 = this;
+      var _this26 = this;
 
       if (this.reqCount > 0) {
         this.reqCount--;
@@ -1793,11 +1819,11 @@ var LoadingWindowReact = /*#__PURE__*/function (_React$Component7) {
             this.isAlive = false;
           } else {
             this.timerHide = setTimeout(function () {
-              _this24.setState({
+              _this26.setState({
                 visibility: 'hidden'
               });
 
-              _this24.isAlive = false;
+              _this26.isAlive = false;
             }, 200 - (this.stopTime - this.startTime));
           }
         }

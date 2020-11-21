@@ -7,6 +7,7 @@ from mysql.connector import pooling
 import configparser
 
 # TODO try resolve code duplicate in functions
+# TODO make correct statuses on response body, not in data!
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -419,6 +420,9 @@ def save_task():
         data = request.json
         task_text = data['taskText']
         parent_id = data['parentId']
+
+        if parent_id:
+            return make_response({"ok": False}, 403)
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
