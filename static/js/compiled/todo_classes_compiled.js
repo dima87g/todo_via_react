@@ -1448,7 +1448,8 @@ var TaskReact = /*#__PURE__*/function (_React$Component4) {
         alt: "V"
       })), /*#__PURE__*/React.createElement("button", {
         className: showSubtaskDivButtonStyle,
-        onClick: this.showSubtaskField
+        onClick: this.showSubtaskField,
+        disabled: true
       }, "+"), /*#__PURE__*/React.createElement("p", {
         className: taskTextStyle,
         onClick: this.showEditTaskField

@@ -1205,7 +1205,11 @@ class TaskReact extends React.Component {
                             onClick={this.finishTask}>
                         <img src="/static/icons/check.svg" alt="V"/>
                     </button>
-                    <button className={showSubtaskDivButtonStyle} onClick={this.showSubtaskField}>+</button>
+                    <button className={showSubtaskDivButtonStyle}
+                            onClick={this.showSubtaskField}
+                            disabled={true}>
+                        +
+                    </button>
                     <p className={taskTextStyle}
                        onClick={this.showEditTaskField}>{this.state.taskTextValue}</p>
                     <button className={removeTaskButtonStyle}
