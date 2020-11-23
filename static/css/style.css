@@ -342,6 +342,8 @@ html, body {
     align-items: center;
     /*outline: solid 1px;*/
     margin: 10px auto ;
+    border-radius: 25px;
+    box-shadow: 0 0 3px;
 }
 
 .move_task_buttons {
@@ -357,7 +359,7 @@ html, body {
     width: 100%;
     min-height: 40px;
     /*margin: 10px auto ;*/
-    box-shadow: 0 0 3px;
+    /*box-shadow: 0 0 3px;*/
 }
 
 .task_moving_buttons {

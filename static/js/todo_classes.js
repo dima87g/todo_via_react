@@ -1219,6 +1219,9 @@ class TaskReact extends React.Component {
                     <i className="fas fa-angle-double-up"></i>
                     <i className="fas fa-angle-double-up"></i>
                     <i className="fas fa-angle-double-up"></i>
+                    <i className="fas fa-angle-double-up"></i>
+                    <i className="fas fa-angle-double-up"></i>
+                    <i className="fas fa-angle-double-up"></i>
                 </button>
                 <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
                     <button className={'task_finish_button'}
@@ -1269,6 +1272,9 @@ class TaskReact extends React.Component {
                         type={'button'}
                         onClick={this.moveDown}>
                     {/*&#129091;&#129091;&#129091;*/}
+                    <i className="fas fa-angle-double-down"></i>
+                    <i className="fas fa-angle-double-down"></i>
+                    <i className="fas fa-angle-double-down"></i>
                     <i className="fas fa-angle-double-down"></i>
                     <i className="fas fa-angle-double-down"></i>
                     <i className="fas fa-angle-double-down"></i>
