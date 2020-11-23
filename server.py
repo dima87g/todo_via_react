@@ -582,6 +582,23 @@ def delete_task():
         rows = cur.fetchall()
         user_id = rows[0][0]
 
+        cur.execute("SELECT * FROM tasks WHERE id = %s AND user_id = %s",
+                    (task_id, user_id))
+
+        rows = cur.fetchall()
+
+        print(rows)
+
+        if not rows:
+            response = make_response(jsonify(
+                {
+                    "ok": False,
+                    "error_code": None,
+                    "error_message": "Task is not exists!"
+                }))
+
+            return response
+
         cur.execute('DELETE FROM tasks WHERE id = %s and user_id = %s',
                     (task_id, user_id,))
 
