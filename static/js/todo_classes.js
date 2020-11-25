@@ -713,7 +713,6 @@ class LoginReact extends React.Component {
 class TaskListReact extends React.Component {
     constructor(props) {
         super(props)
-        this.app = this.props.app;
         this.login = this.props.login;
         this.tasksFromServer = this.props.tasksFromServer;
         this.tasksTree = new Map();
@@ -751,7 +750,6 @@ class TaskListReact extends React.Component {
             // linearTasksList: this.makeLinearList(this.tasks),
             linearTasksList: this.tasks,
         }
-        // this.linearTasksList = this.makeLinearList(this.tasks);
         this.addTask = this.addTask.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
@@ -808,7 +806,7 @@ class TaskListReact extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        this.app.knockKnock('/save_task', responseHandler, sendData);
+        registry.app.knockKnock('/save_task', responseHandler, sendData);
     }
 
     /**
@@ -837,7 +835,7 @@ class TaskListReact extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        this.app.knockKnock('/save_task', add, sendData);
+        registry.app.knockKnock('/save_task', add, sendData);
     }
 
     /**
@@ -871,7 +869,7 @@ class TaskListReact extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        this.app.knockKnock('/delete_task', remove, sendData);
+        registry.app.knockKnock('/delete_task', remove, sendData);
     }
 
     render() {
@@ -894,7 +892,7 @@ class TaskListReact extends React.Component {
                 <div className="main_tasks"
                      id={'main_tasks'}>
                     {this.state.linearTasksList.map((task) => <TaskReact key={task.id.toString()}
-                                                                         app={this.app}
+                                                                         app={registry.app}
                                                                          login={this.login}
                                                                          taskInst={task}
                                                                          taskId={task.id}
@@ -942,6 +940,18 @@ class TaskReact extends React.Component {
         this.addSubtaskField = React.createRef();
         this.editTaskField = React.createRef();
     }
+
+    // componentDidMount() {
+    //     console.log(this.taskId + ' is mounted!');
+    // }
+    //
+    // componentDidUpdate() {
+    //     console.log(this.taskId + ' is updated!');
+    // }
+    //
+    // componentWillUnmount() {
+    //     console.log(this.taskId + ' will unmounted!');
+    // }
 
     /**
      * POST: json = {'task_id': 'number', 'status': 'boolean'}
