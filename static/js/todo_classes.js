@@ -716,7 +716,7 @@ class TaskListReact extends React.Component {
         this.login = this.props.login;
         this.tasksFromServer = this.props.tasksFromServer;
         this.tasksTree = new Map();
-        this.tasks = [];
+        this.rootTasksList = [];
 
         this.tasksFromServer.sort(function (a, b) {
             if (a['task_position'] && b['task_position']) {
@@ -739,16 +739,17 @@ class TaskListReact extends React.Component {
             if (this.tasksTree.has(task.parentId)) {
                 this.tasksTree.get(task.parentId).subtasks.push(task);
             } else {
-                this.tasks.push(task);
+                this.rootTasksList.push(task);
             }
         }
 
         console.log(this.tasksTree);
-        console.log(this.tasks);
+        console.log(this.rootTasksList);
 
         this.state = {
-            // linearTasksList: this.makeLinearList(this.tasks),
-            linearTasksList: this.tasks,
+            linearTasksList: this.rootTasksList,
+            taskMovingUp: null,
+            taskMovingDown: null,
         }
         this.addTask = this.addTask.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
@@ -763,20 +764,34 @@ class TaskListReact extends React.Component {
         registry.taskList = null;
     }
 
-    makeLinearList(tasksList) {
-        let linearTasksList = [];
+    // makeLinearList(tasksList) {
+    //     let linearTasksList = [];
+    //
+    //     function recursionWalk(tasksList) {
+    //         for (let task of tasksList) {
+    //             linearTasksList.push(task);
+    //             if (task.subtasks.length > 0) {
+    //                 recursionWalk(task.subtasks);
+    //             }
+    //         }
+    //     }
+    //     recursionWalk(tasksList);
+    //
+    //     return linearTasksList;
+    // }
 
-        function recursionWalk(tasksList) {
-            for (let task of tasksList) {
-                linearTasksList.push(task);
-                if (task.subtasks.length > 0) {
-                    recursionWalk(task.subtasks);
-                }
-            }
-        }
-        recursionWalk(tasksList);
-
-        return linearTasksList;
+    /**
+     * POST: json =  {
+     *                'currentTaskId': 'number',
+     *                'currentTaskPosition': 'number',
+     *                'taskToSwapId': 'number',
+     *                'taskToSwapPosition': 'number'
+     *              }
+     * @param task
+     */
+    moveUp(task) {
+        //TODO need to make one function for moving up/down!
+        
     }
 
     /**
@@ -795,11 +810,11 @@ class TaskListReact extends React.Component {
                 let newTask = new Task(taskId, taskText);
 
                 this.tasksTree.set(newTask.id, newTask);
-                this.tasks.push(newTask);
+                this.rootTasksList.push(newTask);
 
                 this.setState({
-                    // linearTasksList: this.makeLinearList(this.tasks),
-                    linearTasksList: this.tasks,
+                    // linearTasksList: this.makeLinearList(this.rootTasksList),
+                    linearTasksList: this.rootTasksList,
                 })
             } else if (answer.status === 401) {
                 this.login.forceLogOut();
@@ -816,27 +831,27 @@ class TaskListReact extends React.Component {
      * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
      * 'error_message': 'string' or null}
      */
-    addSubtask(subtaskParentId, subtaskText) {
-        let sendData = {'taskText': subtaskText, 'parentId': subtaskParentId}
-
-        const add = (answer) => {
-            if (answer.status === 200) {
-                let taskId = answer.data['task_id'];
-                let newTask = new Task(taskId, subtaskText, subtaskParentId);
-
-                this.tasksTree.set(taskId, newTask);
-                this.tasksTree.get(subtaskParentId).subtasks.push(newTask);
-
-                this.setState({
-                    linearTasksList : this.makeLinearList(this.tasks),
-                })
-            } else if (answer.status === 401) {
-                this.login.forceLogOut();
-                showInfoWindow('Authorisation problem!');
-            }
-        }
-        registry.app.knockKnock('/save_task', add, sendData);
-    }
+    // addSubtask(subtaskParentId, subtaskText) {
+    //     let sendData = {'taskText': subtaskText, 'parentId': subtaskParentId}
+    //
+    //     const add = (answer) => {
+    //         if (answer.status === 200) {
+    //             let taskId = answer.data['task_id'];
+    //             let newTask = new Task(taskId, subtaskText, subtaskParentId);
+    //
+    //             this.tasksTree.set(taskId, newTask);
+    //             this.tasksTree.get(subtaskParentId).subtasks.push(newTask);
+    //
+    //             this.setState({
+    //                 linearTasksList : this.makeLinearList(this.rootTasksList),
+    //             })
+    //         } else if (answer.status === 401) {
+    //             this.login.forceLogOut();
+    //             showInfoWindow('Authorisation problem!');
+    //         }
+    //     }
+    //     registry.app.knockKnock('/save_task', add, sendData);
+    // }
 
     /**
      * POST: {taskId: 'number'}
@@ -854,15 +869,15 @@ class TaskListReact extends React.Component {
                 //     let childrenList = this.tasksTree.get(task.parentId).subtasks;
                 //     childrenList.splice(childrenList.indexOf(task), 1);
                 // } else {
-                //     this.tasks.splice(this.tasks.indexOf(task), 1);
+                //     this.rootTasksList.splice(this.rootTasksList.indexOf(task), 1);
                 // }
 
-                this.tasks.splice(findPosition(this.tasks, task.id), 1);
+                this.rootTasksList.splice(findPosition(this.rootTasksList, task.id), 1);
                 this.tasksTree.delete(task.id);
 
                 this.setState({
-                    // linearTasksList: this.makeLinearList(this.tasks),
-                    linearTasksList: this.tasks,
+                    // linearTasksList: this.makeLinearList(this.rootTasksList),
+                    linearTasksList: this.rootTasksList,
                 })
             } else if (answer.status === 401) {
                 this.login.forceLogOut();
@@ -899,8 +914,7 @@ class TaskListReact extends React.Component {
                                                                          status={task.status}
                                                                          taskText={task.text}
                                                                          parentId={task.parentId}
-                                                                         // removeTaskFunc={this.removeTask}
-                                                                         // addSubtaskFunc={this.addSubtask}
+                                                                         movingTask={this.state.taskMovingUp}
                     />)}
                 </div>
             </div>
@@ -1073,58 +1087,61 @@ class TaskReact extends React.Component {
 
     moveUp() {
         //TODO need to make one function for moving up/down!
-        let taskList;
 
-        if (!this.taskInst.parentId) {
-            taskList = registry.taskList.state.linearTasksList;
-        } else {
-            taskList = registry.taskList.tasksTree.get(this.taskInst.parentId);
-        }
+        registry.taskList.moveUp(this);
 
-        let currentTaskIndex = findPosition(taskList, this.taskInst.id);
-
-        if (currentTaskIndex > 0) {
-            let taskToSwapIndex = currentTaskIndex - 1;
-            let currentTaskId = this.taskInst.id;
-            let currentTaskPosition = this.taskInst.position;
-
-            if (!currentTaskPosition) {
-                currentTaskPosition = currentTaskId;
-            }
-
-            let taskToSwap = taskList[taskToSwapIndex];
-            let taskToSwapId = taskToSwap.id;
-            let taskToSwapPosition = taskToSwap.position;
-
-            if (!taskToSwapPosition) {
-                taskToSwapPosition = taskToSwapId;
-            }
-
-            let sendData =
-                {
-                    'currentTaskId': currentTaskId,
-                    'currentTaskPosition': currentTaskPosition,
-                    'taskToSwapId': taskToSwapId,
-                    'taskToSwapPosition': taskToSwapPosition
-                }
-
-            const responseHandler = (response) => {
-                if (response.status === 200 && response.data['ok'] === true) {
-
-                    console.log('Moving up!');
-
-                    this.taskInst.position = taskToSwapPosition;
-                    taskToSwap.position = currentTaskPosition;
-
-                    registry.taskList.setState({
-                        linearTasksList : taskList.swap(currentTaskIndex, taskToSwapIndex),
-                    });
-                }
-            }
-            registry.app.knockKnock('/change_position', responseHandler, sendData);
-        } else {
-            console.log('I am the first already!');
-        }
+        // let taskList;
+        //
+        // if (!this.taskInst.parentId) {
+        //     taskList = registry.taskList.state.linearTasksList;
+        // } else {
+        //     taskList = registry.taskList.tasksTree.get(this.taskInst.parentId);
+        // }
+        //
+        // let currentTaskIndex = findPosition(taskList, this.taskInst.id);
+        //
+        // if (currentTaskIndex > 0) {
+        //     let taskToSwapIndex = currentTaskIndex - 1;
+        //     let currentTaskId = this.taskInst.id;
+        //     let currentTaskPosition = this.taskInst.position;
+        //
+        //     if (!currentTaskPosition) {
+        //         currentTaskPosition = currentTaskId;
+        //     }
+        //
+        //     let taskToSwap = taskList[taskToSwapIndex];
+        //     let taskToSwapId = taskToSwap.id;
+        //     let taskToSwapPosition = taskToSwap.position;
+        //
+        //     if (!taskToSwapPosition) {
+        //         taskToSwapPosition = taskToSwapId;
+        //     }
+        //
+        //     let sendData =
+        //         {
+        //             'currentTaskId': currentTaskId,
+        //             'currentTaskPosition': currentTaskPosition,
+        //             'taskToSwapId': taskToSwapId,
+        //             'taskToSwapPosition': taskToSwapPosition
+        //         }
+        //
+        //     const responseHandler = (response) => {
+        //         if (response.status === 200 && response.data['ok'] === true) {
+        //
+        //             console.log('Moving up!');
+        //
+        //             this.taskInst.position = taskToSwapPosition;
+        //             taskToSwap.position = currentTaskPosition;
+        //
+        //             registry.taskList.setState({
+        //                 linearTasksList : taskList.swap(currentTaskIndex, taskToSwapIndex),
+        //             });
+        //         }
+        //     }
+        //     registry.app.knockKnock('/change_position', responseHandler, sendData);
+        // } else {
+        //     console.log('I am the first already!');
+        // }
     }
 
     moveDown() {
@@ -1176,6 +1193,7 @@ class TaskReact extends React.Component {
     }
 
     render() {
+        let taskStyle;
         let addSubtaskDivStyle;
         let showSubtaskDivButtonStyle;
         let addSubtaskTextFieldStyle;
@@ -1185,6 +1203,12 @@ class TaskReact extends React.Component {
         let editTaskDivStyle;
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
+
+        if (this.props.movingTask === this.taskId) {
+            taskStyle = 'task task_moving_up';
+        } else {
+            taskStyle = 'task';
+        }
 
         if (this.state.addSubtaskDivShowed) {
             addSubtaskDivStyle = 'subtask_div';
@@ -1221,7 +1245,7 @@ class TaskReact extends React.Component {
         }
 
         return (
-            <div className={'task'}>
+            <div className={taskStyle}>
                 <button className={'task_moving_buttons'}
                         type={'button'}
                         onClick={this.moveUp}>
