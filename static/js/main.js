@@ -23,6 +23,7 @@ const registry = {
     headerMenu: null,
     taskInput: null,
     taskList: null,
+    tasksComponents: null,
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'));
