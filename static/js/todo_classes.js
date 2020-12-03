@@ -1,5 +1,9 @@
 'use strict';
 
+import {registry} from './main_compiled'
+
+import {showInfoWindow, removeChildren, showCookiesAlertWindow, getCookie, findPosition} from './todo_functions_compiled'
+
 class Task {
     constructor(id, text, position, parentId = null, status = false) {
         this.id = id;
@@ -11,7 +15,7 @@ class Task {
     }
 }
 
-class App extends React.Component {
+export class App extends React.Component {
     constructor() {
         super();
         this.confirmWindowFunction = null;
@@ -748,11 +752,14 @@ class TaskListReact extends React.Component {
 
         this.state = {
             linearTasksList: this.rootTasksList,
-            taskMovingUp: null,
-            taskMovingDown: null,
+            movingTasks: {
+                taskMovingUpId: null,
+                taskMovingDownId: null,
+                activeMovingTaskId: null,
+            },
         }
         this.addTask = this.addTask.bind(this);
-        this.addSubtask = this.addSubtask.bind(this);
+        // this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
     }
 
@@ -791,6 +798,14 @@ class TaskListReact extends React.Component {
      */
     moveUp(task) {
         //TODO need to make one function for moving up/down!
+
+        this.setState({
+            movingTasks: {
+                taskMovingUpId: task.taskId,
+                taskMovingDownId: null,
+                activeMovingTaskId: task.taskId,
+            },
+        });
         
     }
 
@@ -914,7 +929,7 @@ class TaskListReact extends React.Component {
                                                                          status={task.status}
                                                                          taskText={task.text}
                                                                          parentId={task.parentId}
-                                                                         movingTask={this.state.taskMovingUp}
+                                                                         movingTasks={this.state.movingTasks}
                     />)}
                 </div>
             </div>
@@ -959,9 +974,18 @@ class TaskReact extends React.Component {
     //     console.log(this.taskId + ' is mounted!');
     // }
     //
-    // componentDidUpdate() {
-    //     console.log(this.taskId + ' is updated!');
-    // }
+    componentDidUpdate() {
+        console.log(this.taskId + ' is updated!');
+        if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
+            console.log('I am active moving task!');
+        }
+        if (this.props.movingTasks.taskMovingUpId === this.taskId) {
+            console.log('I am moving up!');
+        }
+        if (this.props.movingTasks.taskMovingDownId === this.taskId) {
+            console.log('I am moving down!');
+        }
+    }
     //
     // componentWillUnmount() {
     //     console.log(this.taskId + ' will unmounted!');
@@ -1204,7 +1228,7 @@ class TaskReact extends React.Component {
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
 
-        if (this.props.movingTask === this.taskId) {
+        if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
             taskStyle = 'task task_moving_up';
         } else {
             taskStyle = 'task';
@@ -1574,3 +1598,5 @@ class LoadingWindowReact extends React.Component {
         )
     }
 }
+
+// export {App}

@@ -1,13 +1,16 @@
 {
   "name": "todo",
   "version": "2.0.2",
+  "private": true,
   "scripts": {
     "main_js": "babel ./static/js/main.js --source-maps --out-file ./static/js/compiled/main_compiled.js",
     "classes_js": "babel static/js/todo_classes.js --source-maps --out-file ./static/js/compiled/todo_classes_compiled.js",
     "functions_js": "babel ./static/js/todo_functions.js --source-maps --out-file ./static/js/compiled/todo_functions_compiled.js",
     "js": "npm run main_js && npm run classes_js && npm run functions_js",
     "css": "postcss ./static/css/style.css -o ./static/css/compiled/style_compiled.css",
-    "build": "npm run js && npm run css"
+    "bundle": "npm run js && npm run css",
+    "build": "webpack",
+    "start": "webpack --watch"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
@@ -15,8 +18,11 @@
     "@babel/preset-env": "^7.10.2",
     "@babel/preset-react": "^7.10.4",
     "autoprefixer": "^9.8.0",
+    "babel-loader": "^8.2.2",
     "postcss-cli": "^7.1.1",
-    "postcss-preset-env": "^6.7.0"
+    "postcss-preset-env": "^6.7.0",
+    "webpack": "^5.9.0",
+    "webpack-cli": "^4.2.0"
   },
   "browserslist": [
     "defaults",

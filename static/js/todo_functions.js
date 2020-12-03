@@ -1,6 +1,6 @@
 'use strict';
 
-function showInfoWindow(message) {
+export function showInfoWindow(message) {
 
     let infoWindow = document.getElementById("info_window");
     let infoWindowMessage = document.getElementById("info_window_message");
@@ -15,13 +15,13 @@ function showInfoWindow(message) {
     }, 3000)
 }
 
-function removeChildren(field) {
+export function removeChildren(field) {
     while (field.firstChild) {
         field.removeChild(field.firstChild);
     }
 }
 
-function showCookiesAlertWindow() {
+export function showCookiesAlertWindow() {
     let userLanguage = getCookie('lang');
     let cookiesAlertWindow = document.getElementById('cookies_alert_window');
     let cookiesAlertWindowText = document.getElementById('cookies_alert_window_text');
@@ -47,7 +47,7 @@ function showCookiesAlertWindow() {
     cookiesAlertWindow.style.display = 'block';
 }
 
-function getCookie(name) {
+export function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
     "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
@@ -61,7 +61,7 @@ Array.prototype.swap = function (x,y) {
   return this;
 }
 
-function findPosition(arr, id) {
+export function findPosition(arr, id) {
     for (let i = 0; i < arr.length; i++) {
         if (arr[i].id === id) {
             return i;

@@ -7,3 +7,4 @@ static/js/compiled
 node_modules/
 package-lock.json
 /static/polyfill/polyfill.js
+/static/bundle.js
