@@ -1,8 +1,8 @@
 'use strict';
 
-import {registry} from './main_compiled'
+import {registry} from './main'
 
-import {showInfoWindow, removeChildren, showCookiesAlertWindow, getCookie, findPosition} from './todo_functions_compiled'
+import {showInfoWindow, removeChildren, showCookiesAlertWindow, getCookie, findPosition} from './todo_functions'
 
 class Task {
     constructor(id, text, position, parentId = null, status = false) {
