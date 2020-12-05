@@ -61,9 +61,22 @@ Array.prototype.swap = function (x,y) {
   return this;
 }
 
-export function findPosition(arr, id) {
+export function swap(arr, currentTaskIndex, taskToSwapIndex) {
+    let buff = arr[currentTaskIndex];
+    arr[currentTaskIndex] = arr[taskToSwapIndex];
+    arr[taskToSwapIndex] = buff;
+    return arr;
+}
+
+/**
+ *
+ * @param arr
+ * @param object
+ * @returns {number}
+ */
+export function findPosition(arr, object) {
     for (let i = 0; i < arr.length; i++) {
-        if (arr[i].id === id) {
+        if (arr[i] === object) {
             return i;
         }
     }
