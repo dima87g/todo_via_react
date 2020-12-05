@@ -802,6 +802,8 @@ class TaskListReact extends React.Component {
         let taskToSwapIndex;
         let taskToSwapId;
         let taskToSwapPosition;
+        let taskMovingUpId;
+        let taskMovingDownId;
 
         if (currentTask.parentId) {
             taskList = this.tasksTree.get(currentTask.parentId).subtasks;
@@ -818,6 +820,8 @@ class TaskListReact extends React.Component {
                 taskToSwap = taskList[taskToSwapIndex]
                 taskToSwapId = taskToSwap.id;
                 taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
+                taskMovingUpId = currentTaskId;
+                taskMovingDownId = taskToSwapId;
             }
         } else if (taskMoveDirection === 'DOWN') {
             console.log('down');
@@ -826,6 +830,8 @@ class TaskListReact extends React.Component {
                 taskToSwap = taskList[taskToSwapIndex];
                 taskToSwapId = taskToSwap.id;
                 taskToSwapPosition = taskToSwap.position ? taskToSwap.position: taskToSwapId;
+                taskMovingUpId = taskToSwapId;
+                taskMovingDownId = currentTaskId;
             }
         } else {
             return;
@@ -843,8 +849,27 @@ class TaskListReact extends React.Component {
                 taskToSwap.position = currentTaskPosition;
 
                 this.setState({
-                    linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
-                });
+                    movingTasks: {
+                        taskMovingUpId: taskMovingUpId,
+                        taskMovingDownId: taskMovingDownId,
+                        activeMovingTaskId: currentTaskId,
+                    },
+                })
+
+                setTimeout(()=>{
+                    this.setState({
+                        linearTaskList: swap(taskList, currentTaskIndex, taskToSwapIndex),
+                        movingTasks: {
+                            taskMovingUpId: null,
+                            taskMovingDownId: null,
+                            activeMovingTaskId: null,
+                        },
+                    });
+                }, 1000);
+
+                // this.setState({
+                //     linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
+                // });
             }
         }
         registry.app.knockKnock('/change_position', responseHandler, sendData);
@@ -1006,27 +1031,29 @@ class TaskReact extends React.Component {
         this.addSubtask = this.addSubtask.bind(this);
         this.addSubtaskByEnterKey = this.addSubtaskByEnterKey.bind(this);
         this.moveTask = this.moveTask.bind(this);
+        this.taskDiv = React.createRef();
         this.addSubtaskField = React.createRef();
         this.editTaskField = React.createRef();
     }
 
-    // componentDidMount() {
-    //     console.log(this.taskId + ' is mounted!');
-    // }
-    //
-    componentDidUpdate() {
-        console.log(this.taskId + ' is updated!');
-        if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
-            console.log('I am active moving task!');
-        }
-        if (this.props.movingTasks.taskMovingUpId === this.taskId) {
-            console.log('I am moving up!');
-        }
-        if (this.props.movingTasks.taskMovingDownId === this.taskId) {
-            console.log('I am moving down!');
-        }
+    componentDidMount() {
+        // console.log(this.taskId + ' is mounted!');
     }
-    //
+
+    componentDidUpdate() {
+        console.log(this.taskDiv.current.clientHeight);
+        // console.log(this.taskId + ' is updated!');
+        // if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
+        //     console.log('I am active moving task!');
+        // }
+        // if (this.props.movingTasks.taskMovingUpId === this.taskId) {
+        //     console.log('I am moving up!');
+        // }
+        // if (this.props.movingTasks.taskMovingDownId === this.taskId) {
+        //     console.log('I am moving down!');
+        // }
+    }
+
     // componentWillUnmount() {
     //     console.log(this.taskId + ' will unmounted!');
     // }
@@ -1168,10 +1195,29 @@ class TaskReact extends React.Component {
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
 
-        if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
+        if (this.props.movingTasks.taskMovingUpId === this.taskId) {
             taskStyle = 'task task_moving_up';
+        } else if (this.props.movingTasks.taskMovingDownId === this.taskId) {
+            let taskMovingUp = this.taskDiv.current.nextElementSibling;
+            let taskMovingDownHeight = this.taskDiv.current.clientHeight;
+            let taskMovingUpHeight = taskMovingUp.clientHeight;
+            taskStyle = 'task task_moving_down';
+            this.taskDiv.current.style.transitionDuration = '1s';
+            this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
+            taskMovingUp.style.transitionDuration = '1s';
+            taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
         } else {
             taskStyle = 'task';
+            if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
+                let taskMovingUp = this.taskDiv.current.nextElementSibling;
+                this.taskDiv.current.style.transitionDuration = '0s';
+                this.taskDiv.current.style.transform = 'translateY(0)';
+                taskMovingUp.style.transitionDuration = '0s';
+                taskMovingUp.style.transform = 'translateY(0)';
+            } else if (this.taskDiv.current) {
+                this.taskDiv.current.style.transitionDuration = '0s';
+                this.taskDiv.current.style.transform = 'translateY(0)';
+            }
         }
 
         if (this.state.addSubtaskDivShowed) {
@@ -1209,7 +1255,9 @@ class TaskReact extends React.Component {
         }
 
         return (
-            <div className={taskStyle}>
+            <div className={taskStyle}
+                 ref={this.taskDiv}
+            >
                 <button className={'task_moving_buttons'}
                         type={'button'}
                         value={'UP'}

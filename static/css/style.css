@@ -344,10 +344,17 @@ html, body {
     margin: 10px auto ;
     border-radius: 25px;
     box-shadow: 0 0 3px;
+    /*transition: transform 0s;*/
 }
 
 .task_moving_up {
+    /*transition: transform 1s;*/
+    /*transform: translateY(calc(-100% - 10px));*/
+}
 
+.task_moving_down {
+    /*transition: transform 1s;*/
+    /*transform: translateY(calc(100% + 10px));*/
 }
 
 .move_task_buttons {
