@@ -2,7 +2,7 @@
 
 import {registry} from './main'
 
-import {showInfoWindow, removeChildren, showCookiesAlertWindow, getCookie, findPosition} from './todo_functions'
+import {showInfoWindow, removeChildren, showCookiesAlertWindow, getCookie, swap, findPosition} from './todo_functions'
 
 class Task {
     constructor(id, text, position, parentId = null, status = false) {
@@ -15,7 +15,7 @@ class Task {
     }
 }
 
-export class App extends React.Component {
+class App extends React.Component {
     constructor() {
         super();
         this.confirmWindowFunction = null;
@@ -788,25 +788,66 @@ class TaskListReact extends React.Component {
     // }
 
     /**
-     * POST: json =  {
-     *                'currentTaskId': 'number',
-     *                'currentTaskPosition': 'number',
-     *                'taskToSwapId': 'number',
-     *                'taskToSwapPosition': 'number'
-     *              }
+     *
      * @param task
+     * @param taskMoveDirection
      */
-    moveUp(task) {
-        //TODO need to make one function for moving up/down!
+    moveTask(task, taskMoveDirection) {
+        let taskList;
+        let currentTask = task.taskInst;
+        let currentTaskIndex;
+        let currentTaskId = currentTask.id
+        let currentTaskPosition = currentTask.position ? currentTask.position : currentTaskId;
+        let taskToSwap;
+        let taskToSwapIndex;
+        let taskToSwapId;
+        let taskToSwapPosition;
 
-        this.setState({
-            movingTasks: {
-                taskMovingUpId: task.taskId,
-                taskMovingDownId: null,
-                activeMovingTaskId: task.taskId,
-            },
-        });
-        
+        if (currentTask.parentId) {
+            taskList = this.tasksTree.get(currentTask.parentId).subtasks;
+        } else {
+            taskList = this.rootTasksList;
+        }
+
+        currentTaskIndex = findPosition(taskList, currentTask);
+
+        if (taskMoveDirection === 'UP') {
+            console.log('up');
+            if (currentTaskIndex > 0 && currentTaskIndex !== -1) {
+                taskToSwapIndex = currentTaskIndex - 1;
+                taskToSwap = taskList[taskToSwapIndex]
+                taskToSwapId = taskToSwap.id;
+                taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
+            }
+        } else if (taskMoveDirection === 'DOWN') {
+            console.log('down');
+            if (currentTaskIndex < taskList.length - 1 && currentTaskIndex !== -1) {
+                taskToSwapIndex = currentTaskIndex + 1;
+                taskToSwap = taskList[taskToSwapIndex];
+                taskToSwapId = taskToSwap.id;
+                taskToSwapPosition = taskToSwap.position ? taskToSwap.position: taskToSwapId;
+            }
+        } else {
+            return;
+        }
+        let sendData = {
+            'currentTaskId': currentTaskId,
+            'currentTaskPosition': currentTaskPosition,
+            'taskToSwapId': taskToSwapId,
+            'taskToSwapPosition': taskToSwapPosition,
+        }
+
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                currentTask.position = taskToSwapPosition;
+                taskToSwap.position = currentTaskPosition;
+
+                this.setState({
+                    linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
+                });
+            }
+        }
+        registry.app.knockKnock('/change_position', responseHandler, sendData);
     }
 
     /**
@@ -964,8 +1005,7 @@ class TaskReact extends React.Component {
         this.showSubtaskField = this.showSubtaskField.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
         this.addSubtaskByEnterKey = this.addSubtaskByEnterKey.bind(this);
-        this.moveUp = this.moveUp.bind(this);
-        this.moveDown = this.moveDown.bind(this);
+        this.moveTask = this.moveTask.bind(this);
         this.addSubtaskField = React.createRef();
         this.editTaskField = React.createRef();
     }
@@ -1109,111 +1149,11 @@ class TaskReact extends React.Component {
         }
     }
 
-    moveUp() {
-        //TODO need to make one function for moving up/down!
+    moveTask(e) {
+        let taskMoveDirection = e.currentTarget.value;
 
-        registry.taskList.moveUp(this);
+        registry.taskList.moveTask(this, taskMoveDirection);
 
-        // let taskList;
-        //
-        // if (!this.taskInst.parentId) {
-        //     taskList = registry.taskList.state.linearTasksList;
-        // } else {
-        //     taskList = registry.taskList.tasksTree.get(this.taskInst.parentId);
-        // }
-        //
-        // let currentTaskIndex = findPosition(taskList, this.taskInst.id);
-        //
-        // if (currentTaskIndex > 0) {
-        //     let taskToSwapIndex = currentTaskIndex - 1;
-        //     let currentTaskId = this.taskInst.id;
-        //     let currentTaskPosition = this.taskInst.position;
-        //
-        //     if (!currentTaskPosition) {
-        //         currentTaskPosition = currentTaskId;
-        //     }
-        //
-        //     let taskToSwap = taskList[taskToSwapIndex];
-        //     let taskToSwapId = taskToSwap.id;
-        //     let taskToSwapPosition = taskToSwap.position;
-        //
-        //     if (!taskToSwapPosition) {
-        //         taskToSwapPosition = taskToSwapId;
-        //     }
-        //
-        //     let sendData =
-        //         {
-        //             'currentTaskId': currentTaskId,
-        //             'currentTaskPosition': currentTaskPosition,
-        //             'taskToSwapId': taskToSwapId,
-        //             'taskToSwapPosition': taskToSwapPosition
-        //         }
-        //
-        //     const responseHandler = (response) => {
-        //         if (response.status === 200 && response.data['ok'] === true) {
-        //
-        //             console.log('Moving up!');
-        //
-        //             this.taskInst.position = taskToSwapPosition;
-        //             taskToSwap.position = currentTaskPosition;
-        //
-        //             registry.taskList.setState({
-        //                 linearTasksList : taskList.swap(currentTaskIndex, taskToSwapIndex),
-        //             });
-        //         }
-        //     }
-        //     registry.app.knockKnock('/change_position', responseHandler, sendData);
-        // } else {
-        //     console.log('I am the first already!');
-        // }
-    }
-
-    moveDown() {
-
-        let taskList = registry.taskList.state.linearTasksList;
-        let currentTaskIndex = findPosition(taskList, this.taskInst.id);
-
-        if (currentTaskIndex < taskList.length - 1 && currentTaskIndex !== -1) {
-            let taskToSwapIndex = currentTaskIndex + 1;
-            let currentTaskId = this.taskInst.id;
-            let currentTaskPosition = this.taskInst.position;
-
-            if (!currentTaskPosition) {
-                currentTaskPosition = currentTaskId;
-            }
-
-            let taskToSwap = taskList[taskToSwapIndex];
-            let taskToSwapId = taskToSwap.id;
-            let taskToSwapPosition = taskToSwap.position;
-
-            if (!taskToSwapPosition) {
-                taskToSwapPosition = taskToSwapId;
-            }
-
-            let sendData =
-                {
-                    'currentTaskId': currentTaskId,
-                    'currentTaskPosition': currentTaskPosition,
-                    'taskToSwapId': taskToSwapId,
-                    'taskToSwapPosition': taskToSwapPosition
-                }
-
-            const responseHandler = (response) => {
-                if (response.status === 200 && response.data['ok'] === true) {
-                    console.log('Moving down!');
-
-                    this.taskInst.position = taskToSwapPosition;
-                    taskToSwap.position = currentTaskPosition;
-
-                    registry.taskList.setState({
-                        linearTasksList: taskList.swap(currentTaskIndex, taskToSwapIndex),
-                    });
-                }
-            }
-            registry.app.knockKnock('/change_position', responseHandler, sendData);
-        } else {
-            console.log('I am the last already!');
-        }
     }
 
     render() {
@@ -1272,14 +1212,15 @@ class TaskReact extends React.Component {
             <div className={taskStyle}>
                 <button className={'task_moving_buttons'}
                         type={'button'}
-                        onClick={this.moveUp}>
+                        value={'UP'}
+                        onClick={this.moveTask}>
                     {/*&#129089;&#129089;&#129089;*/}
-                    <i className="fas fa-angle-double-up"></i>
-                    <i className="fas fa-angle-double-up"></i>
-                    <i className="fas fa-angle-double-up"></i>
-                    <i className="fas fa-angle-double-up"></i>
-                    <i className="fas fa-angle-double-up"></i>
-                    <i className="fas fa-angle-double-up"></i>
+                    <i className="fas fa-angle-double-up"/>
+                    <i className="fas fa-angle-double-up"/>
+                    <i className="fas fa-angle-double-up"/>
+                    <i className="fas fa-angle-double-up"/>
+                    <i className="fas fa-angle-double-up"/>
+                    <i className="fas fa-angle-double-up"/>
                 </button>
                 <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
                     <button className={'task_finish_button'}
@@ -1328,14 +1269,15 @@ class TaskReact extends React.Component {
                 </div>
                 <button className={'task_moving_buttons'}
                         type={'button'}
-                        onClick={this.moveDown}>
+                        value={'DOWN'}
+                        onClick={this.moveTask}>
                     {/*&#129091;&#129091;&#129091;*/}
-                    <i className="fas fa-angle-double-down"></i>
-                    <i className="fas fa-angle-double-down"></i>
-                    <i className="fas fa-angle-double-down"></i>
-                    <i className="fas fa-angle-double-down"></i>
-                    <i className="fas fa-angle-double-down"></i>
-                    <i className="fas fa-angle-double-down"></i>
+                    <i className="fas fa-angle-double-down"/>
+                    <i className="fas fa-angle-double-down"/>
+                    <i className="fas fa-angle-double-down"/>
+                    <i className="fas fa-angle-double-down"/>
+                    <i className="fas fa-angle-double-down"/>
+                    <i className="fas fa-angle-double-down"/>
                 </button>
             </div>
         )
@@ -1599,4 +1541,4 @@ class LoadingWindowReact extends React.Component {
     }
 }
 
-// export {App}
+export {App}
