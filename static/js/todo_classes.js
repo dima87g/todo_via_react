@@ -753,6 +753,7 @@ class TaskListReact extends React.Component {
         this.state = {
             linearTasksList: this.rootTasksList,
             movingTasks: {
+                moving: false,
                 taskMovingUpId: null,
                 taskMovingDownId: null,
                 activeMovingTaskId: null,
@@ -850,6 +851,7 @@ class TaskListReact extends React.Component {
 
                 this.setState({
                     movingTasks: {
+                        moving: true,
                         taskMovingUpId: taskMovingUpId,
                         taskMovingDownId: taskMovingDownId,
                         activeMovingTaskId: currentTaskId,
@@ -860,6 +862,7 @@ class TaskListReact extends React.Component {
                     this.setState({
                         linearTaskList: swap(taskList, currentTaskIndex, taskToSwapIndex),
                         movingTasks: {
+                            moving: false,
                             taskMovingUpId: null,
                             taskMovingDownId: null,
                             activeMovingTaskId: null,
@@ -1184,6 +1187,7 @@ class TaskReact extends React.Component {
     }
 
     render() {
+        let taskMoveButtonDisabled;
         let taskStyle;
         let addSubtaskDivStyle;
         let showSubtaskDivButtonStyle;
@@ -1195,28 +1199,36 @@ class TaskReact extends React.Component {
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
 
+        taskMoveButtonDisabled = this.props.movingTasks.moving === true;
+
+        if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
+            taskStyle = 'task active_moving_task';
+        } else {
+            taskStyle = 'task';
+        }
+
         if (this.props.movingTasks.taskMovingUpId === this.taskId) {
-            taskStyle = 'task task_moving_up';
+            // taskStyle = 'task task_moving_up';
         } else if (this.props.movingTasks.taskMovingDownId === this.taskId) {
             let taskMovingUp = this.taskDiv.current.nextElementSibling;
             let taskMovingDownHeight = this.taskDiv.current.clientHeight;
             let taskMovingUpHeight = taskMovingUp.clientHeight;
-            taskStyle = 'task task_moving_down';
+            // taskStyle = 'task task_moving_down';
             this.taskDiv.current.style.transitionDuration = '1s';
             this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
             taskMovingUp.style.transitionDuration = '1s';
             taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
         } else {
-            taskStyle = 'task';
+            // taskStyle = 'task';
             if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
                 let taskMovingUp = this.taskDiv.current.nextElementSibling;
                 this.taskDiv.current.style.transitionDuration = '0s';
-                this.taskDiv.current.style.transform = 'translateY(0)';
+                this.taskDiv.current.style.transform = '';
                 taskMovingUp.style.transitionDuration = '0s';
-                taskMovingUp.style.transform = 'translateY(0)';
+                taskMovingUp.style.transform = '';
             } else if (this.taskDiv.current) {
                 this.taskDiv.current.style.transitionDuration = '0s';
-                this.taskDiv.current.style.transform = 'translateY(0)';
+                this.taskDiv.current.style.transform = '';
             }
         }
 
@@ -1261,6 +1273,7 @@ class TaskReact extends React.Component {
                 <button className={'task_moving_buttons'}
                         type={'button'}
                         value={'UP'}
+                        disabled={taskMoveButtonDisabled}
                         onClick={this.moveTask}>
                     {/*&#129089;&#129089;&#129089;*/}
                     <i className="fas fa-angle-double-up"/>
@@ -1318,6 +1331,7 @@ class TaskReact extends React.Component {
                 <button className={'task_moving_buttons'}
                         type={'button'}
                         value={'DOWN'}
+                        disabled={taskMoveButtonDisabled}
                         onClick={this.moveTask}>
                     {/*&#129091;&#129091;&#129091;*/}
                     <i className="fas fa-angle-double-down"/>

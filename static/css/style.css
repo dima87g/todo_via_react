@@ -337,6 +337,7 @@ html, body {
 }
 
 .task {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -344,7 +345,11 @@ html, body {
     margin: 10px auto ;
     border-radius: 25px;
     box-shadow: 0 0 3px;
-    /*transition: transform 0s;*/
+    background-color: white;
+}
+
+.active_moving_task {
+    z-index: 1;
 }
 
 .task_moving_up {
