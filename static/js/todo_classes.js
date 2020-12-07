@@ -725,6 +725,12 @@ class TaskListReact extends React.Component {
         this.tasksFromServer.sort(function (a, b) {
             if (a['task_position'] && b['task_position']) {
                 return a['task_position'] - b['task_position'];
+            } else if (!a['task_position'] && !b['task_position']) {
+                return a['task_id'] - b['task_id'];
+            } else if (!a['task_position']) {
+                return a['task_id'] - b['task_position'];
+            } else if (!b['task_position']) {
+                return a['task_position'] - b['task_id'];
             }
             return 0;
         });
