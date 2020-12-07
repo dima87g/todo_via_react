@@ -874,7 +874,7 @@ class TaskListReact extends React.Component {
                             activeMovingTaskId: null,
                         },
                     });
-                }, 1000);
+                }, 300);
 
                 // this.setState({
                 //     linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
@@ -1220,9 +1220,9 @@ class TaskReact extends React.Component {
             let taskMovingDownHeight = this.taskDiv.current.clientHeight;
             let taskMovingUpHeight = taskMovingUp.clientHeight;
             // taskStyle = 'task task_moving_down';
-            this.taskDiv.current.style.transitionDuration = '1s';
+            this.taskDiv.current.style.transitionDuration = '0.3s';
             this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
-            taskMovingUp.style.transitionDuration = '1s';
+            taskMovingUp.style.transitionDuration = '0.3s';
             taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
         } else {
             // taskStyle = 'task';
