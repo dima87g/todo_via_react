@@ -1,8 +1,9 @@
 'use strict';
 
 import {registry} from './main'
-
+import axios from "axios";
 import {showInfoWindow, showCookiesAlertWindow, getCookie, swap, findPosition} from './todo_functions'
+
 
 class Task {
     constructor(id, text, position, parentId = null, status = false) {
