@@ -2,7 +2,7 @@
 
 import {registry} from './main'
 
-import {showInfoWindow, removeChildren, showCookiesAlertWindow, getCookie, swap, findPosition} from './todo_functions'
+import {showInfoWindow, showCookiesAlertWindow, getCookie, swap, findPosition} from './todo_functions'
 
 class Task {
     constructor(id, text, position, parentId = null, status = false) {
@@ -528,8 +528,6 @@ class LoginReact extends React.Component {
         let loginWindowStyle;
         let registerWindowStyle;
         let changePasswordWindowStyle;
-        let menuStyle;
-        let menuButtonsStyle;
 
         if (this.state.authMenuShowed) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -561,7 +559,10 @@ class LoginReact extends React.Component {
                     <div id={'header_login_section'} className={'header_login_section'}>
                         <p className="version">Ver. 2.0 React</p>
                         <a href={localisation['language_change']['link']} className={'language_switch_button'}>
-                            <img src={'/static/icons/' + localisation['language_change']['label'] + '_flag.png'}/>
+                            <img
+                                src={'/static/icons/' + localisation['language_change']['label'] + '_flag.png'}
+                                alt={localisation['language_change']['label']}
+                            />
                         </a>
                         {/*<a href={"/en"} className={'language_switch_button'}>En</a>*/}
                         <p className={"user_name_field"}
@@ -1322,7 +1323,6 @@ class TaskReact extends React.Component {
                     </div>
                     <div className={editTaskDivStyle}>
                         <textarea className={editTaskTextFieldStyle}
-                               type={'text'}
                                ref={this.editTaskField}
                                onKeyDown={this.saveEdit}
                         />

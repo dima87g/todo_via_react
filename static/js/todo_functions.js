@@ -54,13 +54,6 @@ export function getCookie(name) {
     return matches ? decodeURIComponent(matches[1]) : undefined;
 }
 
-Array.prototype.swap = function (x,y) {
-  let b = this[x];
-  this[x] = this[y];
-  this[y] = b;
-  return this;
-}
-
 export function swap(arr, currentTaskIndex, taskToSwapIndex) {
     let buff = arr[currentTaskIndex];
     arr[currentTaskIndex] = arr[taskToSwapIndex];
