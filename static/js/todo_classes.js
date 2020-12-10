@@ -209,6 +209,7 @@ class LoginReact extends React.Component {
             changePasswordWindowShowed: false,
             changePasswordWindowCancelButtonDisabled: true,
             changePasswordWindowSubmitButtonDisabled: true,
+            listSelectMenu: [],
         }
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
@@ -224,6 +225,14 @@ class LoginReact extends React.Component {
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
         this.userNameField = React.createRef();
+    }
+
+    componentDidMount() {
+        registry.login = this;
+    }
+
+    componentWillUnmount() {
+        registry.login = null;
     }
 
     switchLogin(e) {
@@ -317,14 +326,23 @@ class LoginReact extends React.Component {
             if (response.status === 200 && response.data['ok'] === true) {
                 let userName = response.data['user_name'];
                 let tasksFromServer = response.data['tasks'];
+                let mainListId = response.data['main_list_id'];
+                let listsDict = response.data['lists_dict'];
 
                 this.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
+
+                this.setState({
+                    listSelectMenu: Object.values(listsDict),
+                });
 
                 ReactDOM.render(
                     <TaskListReact ref={this.taskList}
                                    app={this.app}
                                    login={this}
-                                   tasksFromServer={tasksFromServer}/>, document.getElementById('task_list'));
+                                   listId={mainListId}
+                                   listsDict={listsDict}
+                                   tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
+                );
                 ReactDOM.render(
                     <TaskInput taskList={this.taskList.current}/>, document.getElementById('input')
                 );
@@ -524,6 +542,28 @@ class LoginReact extends React.Component {
         }
     }
 
+    listChange(e) {
+        console.log(e.target.value);
+
+        let selectedListName = e.target.value;
+
+        console.log(registry.taskList.listsDict);
+
+        console.log(registry.taskList.listId);
+
+        let currentListName = registry.taskList.listsDict[registry.taskList.listId];
+
+        console.log(selectedListName);
+        console.log(currentListName);
+
+        if (selectedListName !== currentListName) {
+            console.log('Changing list ' + currentListName + ' to' +
+                ' ' + selectedListName + ' !');
+        } else {
+            console.log('You are currently use ' + selectedListName + ' list!');
+        }
+    }
+
     render() {
         let authMenuStyle;
         let loginWindowStyle;
@@ -558,7 +598,11 @@ class LoginReact extends React.Component {
             <div className={'main'} id={'main'}>
                 <div className={"header"} id={'header'}>
                     <div id={'header_login_section'} className={'header_login_section'}>
-                        <p className="version">Ver. 2.0 React</p>
+                        {/*<p className="version">Ver. 2.0 React</p>*/}
+                        <p className={"user_name_field"}
+                           id={'user_name_field'}
+                           ref={this.userNameField}
+                        />
                         <a href={localisation['language_change']['link']} className={'language_switch_button'}>
                             <img
                                 src={'/static/icons/' + localisation['language_change']['label'] + '_flag.png'}
@@ -566,9 +610,15 @@ class LoginReact extends React.Component {
                             />
                         </a>
                         {/*<a href={"/en"} className={'language_switch_button'}>En</a>*/}
-                        <p className={"user_name_field"}
-                           id={'user_name_field'}
-                           ref={this.userNameField}/>
+                        {/*<p className={"user_name_field"}*/}
+                        {/*   id={'user_name_field'}*/}
+                        {/*   ref={this.userNameField}*/}
+                        {/*/>*/}
+                        <select onChange={this.listChange}>
+                            {this.state.listSelectMenu.map((value, index) => {
+                                return <option key={index} value={value}>{value}</option>
+                            })}
+                        </select>
                         <HeaderMenu login={this}/>
                     </div>
                     <div id={'input'} className={'input'}/>
@@ -720,6 +770,8 @@ class TaskListReact extends React.Component {
     constructor(props) {
         super(props)
         this.login = this.props.login;
+        this.listId = this.props.listId;
+        this.listsDict = this.props.listsDict;
         this.tasksFromServer = this.props.tasksFromServer;
         this.tasksTree = new Map();
         this.rootTasksList = [];
@@ -964,7 +1016,7 @@ class TaskListReact extends React.Component {
                 //     this.rootTasksList.splice(this.rootTasksList.indexOf(task), 1);
                 // }
 
-                this.rootTasksList.splice(findPosition(this.rootTasksList, task.id), 1);
+                this.rootTasksList.splice(findPosition(this.rootTasksList, task), 1);
                 this.tasksTree.delete(task.id);
 
                 this.setState({
