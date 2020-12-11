@@ -226,7 +226,7 @@ def user_login():
                     {
                         'ok': False,
                         'error_message': 'Username or Password are incorrect!'
-                     }
+                    }
                 ), 401)
             return response
 
@@ -716,7 +716,6 @@ def change_position():
         cur = connection.cursor()
 
         data = request.json
-        print(data)
 
         current_task_id = data["currentTaskId"]
         current_task_position = data["currentTaskPosition"]
@@ -777,7 +776,7 @@ def change_position():
 
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
-    #TODO Need make check if user is in the database!!!!!!!!
+    # TODO Need make check if user is in the database!!!!!!!!
     try:
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
@@ -806,6 +805,8 @@ def load_tasks():
     try:
         connection = connection_pool.get_connection()
         cur = connection.cursor()
+
+        data = request.json
 
         tasks = []
         user_text_id = request.cookies.get("id")
@@ -842,15 +843,18 @@ def load_tasks():
         for list_info in rows:
             lists_dict[list_info[0]] = list_info[1]
 
-        cur.execute('SELECT id FROM lists WHERE user_id = %s AND name = %s',
-                    (user_id, 'main',))
+        if data["listId"]:
+            list_id = data["listId"]
+        else:
+            cur.execute('SELECT id FROM lists WHERE user_id = %s AND name = %s',
+                        (user_id, 'main',))
 
-        rows = cur.fetchall()
+            rows = cur.fetchall()
 
-        main_list_id = rows[0][0]
+            list_id = rows[0][0]
 
         cur.execute('SELECT * from tasks WHERE user_id = %s AND list_id = %s',
-                    (user_id, main_list_id,))
+                    (user_id, list_id,))
 
         for task in cur:
             tasks.append({"task_id": task[0],
@@ -862,7 +866,7 @@ def load_tasks():
         response = make_response(jsonify({
             'ok': True,
             "user_name": user_name,
-            "main_list_id": main_list_id,
+            "list_id": list_id,
             'lists_dict': lists_dict,
             'tasks': tasks
         }))
@@ -888,6 +892,7 @@ def load_tasks():
             connection.close()
 
 
+# Service functions
 def create_text_id():
     symbols = list(
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_"

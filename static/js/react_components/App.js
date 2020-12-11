@@ -119,7 +119,8 @@ export class App extends React.Component {
             .catch((error) => {
                 this.loadingWindow.current.hideWindow();
                 console.log(error);
-                func(error.response);
+                console.log(error.response);
+                // func(error.response);
             })
     }
 

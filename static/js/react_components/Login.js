@@ -32,6 +32,7 @@ export class Login extends React.Component {
         this.changePasswordWindow = this.changePasswordWindow.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
+        this.listChange = this.listChange.bind(this);
         this.taskList = React.createRef();
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
@@ -134,36 +135,41 @@ export class Login extends React.Component {
     }
 
     createTaskList() {
+        let sendData = {'listId': null}
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 let userName = response.data['user_name'];
                 let tasksFromServer = response.data['tasks'];
-                let mainListId = response.data['main_list_id'];
+                let mainListId = response.data['list_id'];
                 let listsDict = response.data['lists_dict'];
 
                 this.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
 
-                this.setState({
-                    listSelectMenu: Object.values(listsDict),
-                });
+                // this.setState({
+                //     listSelectMenu: Object.entries(listsDict),
+                // });
 
                 ReactDOM.render(
-                    <TaskList ref={this.taskList}
-                                   app={this.app}
-                                   login={this}
-                                   listId={mainListId}
-                                   listsDict={listsDict}
-                                   tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
+                    <TaskList app={this.app}
+                              login={this}
+                              listId={mainListId}
+                              listsDict={listsDict}
+                              tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
                 );
                 ReactDOM.render(
                     <TaskInput taskList={this.taskList.current}/>, document.getElementById('input')
                 );
+
+                this.setState({
+                    listSelectMenu: Object.entries(listsDict),
+                });
+
             } else if (response.status === 401) {
                 this.login.current.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
-        this.app.knockKnock('/load_tasks', responseHandler);
+        this.app.knockKnock('/load_tasks', responseHandler, sendData);
     }
 
     showMenu() {
@@ -355,27 +361,37 @@ export class Login extends React.Component {
     }
 
     listChange(e) {
-        console.log(e.target.value);
+        let selectedListId = e.target.value;
+        let currentListId = registry.taskList.listId;
 
-        let selectedListName = e.target.value;
+        if (selectedListId !== currentListId && selectedListId !== '0') {
+            let sendData = {'listId': selectedListId};
 
-        console.log(registry.taskList.listsDict);
+            const responseHandler = (response) => {
+                if (response.status === 200 && response.data['ok'] === true) {
+                    let tasksFromServer = response.data['tasks'];
+                    let mainListId = response.data['list_id'];
+                    let listsDict = response.data['lists_dict'];
 
-        console.log(registry.taskList.listId);
+                    ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
 
-        let currentListName = registry.taskList.listsDict[registry.taskList.listId];
+                    ReactDOM.render(
+                        <TaskList app={this.app}
+                                  login={this}
+                                  listId={mainListId}
+                                  listsDict={listsDict}
+                                  tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
+                    );
 
-        console.log(selectedListName);
-        console.log(currentListName);
+                    this.setState({
+                        listSelectMenu: Object.entries(listsDict),
+                    });
 
-        if (selectedListName !== currentListName) {
-            console.log('Changing list ' + currentListName + ' to' +
-                ' ' + selectedListName + ' !');
-        } else {
-            console.log('You are currently use ' + selectedListName + ' list!');
+                }
+            }
+            registry.app.knockKnock('/load_tasks', responseHandler, sendData);
         }
     }
-
     render() {
         let authMenuStyle;
         let loginWindowStyle;
@@ -405,7 +421,6 @@ export class Login extends React.Component {
         } else {
             changePasswordWindowStyle = 'change_password_window change_password_window_hidden'
         }
-
         return (
             <div className={'main'} id={'main'}>
                 <div className={"header"} id={'header'}>
@@ -426,10 +441,19 @@ export class Login extends React.Component {
                         {/*   id={'user_name_field'}*/}
                         {/*   ref={this.userNameField}*/}
                         {/*/>*/}
-                        <select onChange={this.listChange}>
+                        <select
+                            // TODO Need to make defaultValue in select tag instead selected in option tag
+                            className={'list_select_menu'}
+                            onChange={this.listChange}
+                        >
                             {this.state.listSelectMenu.map((value, index) => {
-                                return <option key={index} value={value}>{value}</option>
+                                // TODO object keys are always of string type !!!
+                                //  Need to make the listsDict structure from the server
+                                //  so that id is a numeric type without parseInt function!!!
+                                let currentSelectedList = registry.taskList.listId === parseInt(value[0]);
+                                return <option key={index} selected={currentSelectedList} value={value[0]}>{value[1]}</option>
                             })}
+                            <option value={0}>...new list...</option>
                         </select>
                         <HeaderMenu login={this}/>
                     </div>

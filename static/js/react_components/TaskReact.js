@@ -39,7 +39,7 @@ export class TaskReact extends React.Component {
     }
 
     componentDidUpdate() {
-        console.log(this.taskDiv.current.clientHeight);
+        // console.log('My height is ' + this.taskDiv.current.clientHeight + ' !');
         // console.log(this.taskId + ' is updated!');
         // if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
         //     console.log('I am active moving task!');
