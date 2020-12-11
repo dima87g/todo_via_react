@@ -6,7 +6,6 @@ import {TaskReact} from "./TaskReact";
 export class TaskList extends React.Component {
     constructor(props) {
         super(props)
-        this.login = this.props.login;
         this.listId = this.props.listId;
         this.listsDict = this.props.listsDict;
         this.tasksFromServer = this.props.tasksFromServer;
@@ -183,11 +182,15 @@ export class TaskList extends React.Component {
      * 'error_message': 'string' or null}
      */
     addTask(taskText) {
-        let sendData = {'taskText': taskText, 'parentId': null}
+        let sendData = {
+            'listId': this.listId,
+            'taskText': taskText,
+            'parentId': null
+        };
 
-        const responseHandler = (answer) => {
-            if (answer.status === 200) {
-                let taskId = answer.data['task_id'];
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                let taskId = response.data['task_id'];
                 let newTask = new Task(taskId, taskText);
 
                 this.tasksTree.set(newTask.id, newTask);
@@ -197,9 +200,11 @@ export class TaskList extends React.Component {
                     // linearTasksList: this.makeLinearList(this.rootTasksList),
                     linearTasksList: this.rootTasksList,
                 })
-            } else if (answer.status === 401) {
-                this.login.forceLogOut();
+            } else if (response.status === 401) {
+                registry.login.forceLogOut();
                 showInfoWindow('Authorisation problem!');
+            } else {
+                showInfoWindow('Some problem!');
             }
         }
         registry.app.knockKnock('/save_task', responseHandler, sendData);
@@ -227,7 +232,7 @@ export class TaskList extends React.Component {
     //                 linearTasksList : this.makeLinearList(this.rootTasksList),
     //             })
     //         } else if (answer.status === 401) {
-    //             this.login.forceLogOut();
+    //             registry.login.forceLogOut();
     //             showInfoWindow('Authorisation problem!');
     //         }
     //     }
@@ -261,7 +266,7 @@ export class TaskList extends React.Component {
                     linearTasksList: this.rootTasksList,
                 })
             } else if (answer.status === 401) {
-                this.login.forceLogOut();
+                registry.login.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
@@ -271,32 +276,17 @@ export class TaskList extends React.Component {
     render() {
         return (
             <div className={'main_window'}>
-                {/*<div className="task_input">*/}
-                {/*    <form onSubmit={this.addTask}>*/}
-                {/*        <label htmlFor={'task_input_field'}/>*/}
-                {/*            <input type={'text'}*/}
-                {/*                   className={'task_input_field'}*/}
-                {/*                   onSubmit={this.addTask}*/}
-                {/*                   ref={this.textInputField}/>*/}
-                {/*            <button type={'button'}*/}
-                {/*                    className={'task_input_button'}*/}
-                {/*                    onClick={this.addTask}>*/}
-                {/*        <img src="/static/icons/add_sub.svg" alt="+"/>*/}
-                {/*    </button>*/}
-                {/*    </form>*/}
-                {/*</div>*/}
                 <div className="main_tasks"
                      id={'main_tasks'}>
-                    {this.state.linearTasksList.map((task) => <TaskReact key={task.id.toString()}
-                                                                         app={registry.app}
-                                                                         login={this.login}
-                                                                         taskInst={task}
-                                                                         taskId={task.id}
-                                                                         status={task.status}
-                                                                         taskText={task.text}
-                                                                         parentId={task.parentId}
-                                                                         movingTasks={this.state.movingTasks}
-                    />)}
+                    {this.state.linearTasksList.map((task) =>
+                        <TaskReact key={task.id.toString()}
+                                   taskInst={task}
+                                   taskId={task.id}
+                                   status={task.status}
+                                   taskText={task.text}
+                                   parentId={task.parentId}
+                                   movingTasks={this.state.movingTasks}
+                        />)}
                 </div>
             </div>
         )

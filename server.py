@@ -273,77 +273,6 @@ def user_login():
             connection.close()
 
 
-# @app.route("/load_tasks", methods=["GET", "POST"])
-# def load_tasks():
-#     connection = None
-#     cur = None
-#
-#     try:
-#         connection = connection_pool.get_connection()
-#         cur = connection.cursor()
-#
-#         tasks = []
-#         user_text_id = request.cookies.get("id")
-#         sign = request.cookies.get("sign")
-#
-#         if not check_cookies(user_text_id, sign):
-#             response = make_response(jsonify(
-#                 {
-#                     "ok": False, "error_code": 401,
-#                     "error_message": "Disconnect"
-#                 }))
-#             response.delete_cookie("id")
-#             response.delete_cookie("sign")
-#
-#             return response
-#
-#         cur.execute('SELECT id, user_name FROM users WHERE user_text_id = %s',
-#                     (user_text_id,))
-#
-#         rows = cur.fetchall()
-#
-#         if not rows:
-#             return jsonify({"ok": False, "error_code": None,
-#                             "error_message": "Some Error"})
-#         user_id = rows[0][0]
-#         user_name = rows[0][1]
-#
-#         cur.execute('SELECT * from tasks WHERE user_id = %s', (user_id,))
-#
-#         for task in cur:
-#             tasks.append({"task_id": task[0],
-#                           "task_text": task[2],
-#                           "task_status": bool(task[3]),
-#                           "parent_id": task[4],
-#                           "task_position": task[5]})
-#
-#         response = make_response(jsonify({
-#             'ok': True,
-#             "user_name": user_name,
-#             'tasks': tasks
-#         }))
-#
-#         response.set_cookie("id", user_text_id,
-#                             max_age=int(cookies_config['MAX_AGE'])
-#                             )
-#         response.set_cookie("sign", sign,
-#                             max_age=int(cookies_config['MAX_AGE'])
-#                             )
-#
-#         return response
-#     except mysql.connector.Error as error:
-#         return jsonify({'ok': False, 'error_code': error.errno,
-#                         'error_message': error.msg})
-#     except Exception as error:
-#         return jsonify({'ok': False, 'error_code': None,
-#                         'error_message': error.args[0]})
-#     finally:
-#         if cur is not None:
-#             cur.close()
-#         if connection is not None:
-#             connection.close()
-
-
 @app.route("/user_delete", methods=["GET", "POST"])
 def user_delete():
     """
@@ -418,6 +347,7 @@ def save_task():
         cur = connection.cursor()
 
         data = request.json
+        list_id = data["listId"]
         task_text = data['taskText']
         parent_id = data['parentId']
 
@@ -443,10 +373,12 @@ def save_task():
 
         rows = cur.fetchall()
         user_id = rows[0][0]
-
-        cur.execute('INSERT INTO tasks (user_id, text, status, parent_id) '
+        # TODO Need to make confirmation that list_id is exists in lists table
+        cur.execute('INSERT INTO tasks (user_id, text, status, parent_id, '
+                    'list_id) '
                     'VALUES ( '
-                    '%s, %s, %s, %s)', (user_id, task_text, 0, parent_id))
+                    '%s, %s, %s, %s, %s)', (user_id, task_text, 0, parent_id,
+                                        list_id))
 
         task_id = cur.lastrowid
 

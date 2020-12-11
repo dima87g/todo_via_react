@@ -3,7 +3,6 @@ import {registry} from "../main";
 export class TaskInput extends React.Component{
     constructor(props) {
         super(props);
-        this.taskList = this.props.taskList;
         this.state = {
             taskInputDisabled: false,
         };
@@ -25,7 +24,7 @@ export class TaskInput extends React.Component{
         let taskText = e.target['task_input_field'].value;
 
         if (taskText) {
-            this.taskList.addTask(taskText);
+            registry.taskList.addTask(taskText);
         }
         e.target.reset();
     }

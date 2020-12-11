@@ -33,7 +33,6 @@ export class Login extends React.Component {
         this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
         this.listChange = this.listChange.bind(this);
-        this.taskList = React.createRef();
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
@@ -157,7 +156,7 @@ export class Login extends React.Component {
                               tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
                 );
                 ReactDOM.render(
-                    <TaskInput taskList={this.taskList.current}/>, document.getElementById('input')
+                    <TaskInput/>, document.getElementById('input')
                 );
 
                 this.setState({
@@ -392,6 +391,7 @@ export class Login extends React.Component {
             registry.app.knockKnock('/load_tasks', responseHandler, sendData);
         }
     }
+
     render() {
         let authMenuStyle;
         let loginWindowStyle;

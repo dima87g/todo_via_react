@@ -4,8 +4,6 @@ import {registry} from "../main";
 export class TaskReact extends React.Component {
     constructor(props) {
         super(props);
-        this.app = this.props.app;
-        this.login = this.props.login;
         this.taskInst = this.props.taskInst;
         this.taskId = this.props.taskId;
         this.state = {
@@ -75,11 +73,11 @@ export class TaskReact extends React.Component {
                     status: taskStatus
                 });
             } else if (answer.status === 401) {
-                this.login.forceLogOut();
+                registry.login.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
-        this.app.knockKnock('/finish_task', finish, sendData);
+        registry.app.knockKnock('/finish_task', finish, sendData);
     }
 
     removeTask() {
@@ -88,7 +86,7 @@ export class TaskReact extends React.Component {
 
     showSubtaskField() {
         if (this.state.addSubtaskDivShowed === false) {
-            this.app.showShadowModal();
+            registry.app.showShadowModal();
             this.setState({
                 taskTextShowed: false,
                 addSubtaskDivShowed: true,
@@ -97,7 +95,7 @@ export class TaskReact extends React.Component {
                 removeTaskButtonDisabled: true,
             });
         } else {
-            this.app.hideShadowModal();
+            registry.app.hideShadowModal();
             this.setState({
                 taskTextShowed: true,
                 addSubtaskDivShowed: false,
@@ -129,7 +127,7 @@ export class TaskReact extends React.Component {
 
     showEditTaskField() {
         if (this.state.editTaskDivShowed === false) {
-            this.app.showShadowModal();
+            registry.app.showShadowModal();
             this.setState({
                 taskTextShowed: false,
                 editTaskDivShowed: true,
@@ -145,19 +143,19 @@ export class TaskReact extends React.Component {
                     'taskText': this.editTaskField.current.value
                 };
 
-                const saveEdit = (answer) => {
-                    if (answer.status === 200) {
+                const responseHandler = (response) => {
+                    if (response.status === 200 && response.data['ok'] === true) {
                         this.setState({
                             taskTextValue: this.editTaskField.current.value,
                         })
-                    } else if (answer.status === 401) {
-                        this.login.forceLogOut();
+                    } else if (response.status === 401) {
+                        registry.login.forceLogOut();
                         showInfoWindow('Authorisation problem!');
                     }
                 }
-                this.app.knockKnock('/save_edit_task', saveEdit, sendData);
+                registry.app.knockKnock('/save_edit_task', responseHandler, sendData);
             }
-            this.app.hideShadowModal();
+            registry.app.hideShadowModal();
             this.setState({
                 taskTextShowed: true,
                 editTaskDivShowed: false,

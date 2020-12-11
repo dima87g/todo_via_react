@@ -52,6 +52,7 @@ export class LoadingWindow extends React.Component {
             }
         }
     }
+
     render() {
         return(
             <div className={'loading_window'}

@@ -17,7 +17,6 @@ export class App extends React.Component {
         this.showConfirmWindow = this.showConfirmWindow.bind(this);
         this.confirmWindowClick = this.confirmWindowClick.bind(this);
         this.knockKnock = this.knockKnock.bind(this);
-        this.login = React.createRef();
         this.loadingWindow = React.createRef();
     }
 
@@ -33,8 +32,8 @@ export class App extends React.Component {
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                this.login.current.createTaskList();
-                this.login.current.hideLoginWindow();
+                registry.login.createTaskList();
+                registry.login.hideLoginWindow();
             } else {
                 showCookiesAlertWindow();
                 this.setState({
@@ -141,8 +140,9 @@ export class App extends React.Component {
         }
         return (
             <div className={'app'} id={'app'}>
-                <Login app={this}
-                            ref={this.login}/>
+                <Login
+                    app={this}
+                />
                 <div id={"confirm_window"} className={confirmWindowStyle}>
                     <p id={"confirm_window_message"}
                        className={'confirm_window_message'}>

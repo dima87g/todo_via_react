@@ -638,7 +638,10 @@ html, body {
     margin: 5px 5px;
 }
 
-.info_window {
+.info_window, .loading_window {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: fixed;
     width: 200px;
     height: 100px;
@@ -647,22 +650,7 @@ html, body {
     left: 50%;
     margin-left: -100px;
     z-index: 2;
-    /*display: none;*/
     visibility: hidden;
-}
-
-.loading_window {
-    position: fixed;
-    width: 200px;
-    height: 100px;
-    top: 20vw;
-    background-color: aqua;
-    left: 50%;
-    margin-left: -100px;
-    z-index: 2;
-    /*display: none;*/
-    display: block;
-    /*visibility: hidden;*/
 }
 
 /*Styles for show/hide shadow animation*/
