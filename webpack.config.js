@@ -7,9 +7,9 @@ module.exports = {
     path: path.resolve(__dirname, 'static'),
     filename: 'bundle.js'
   },
-  // optimization: {
-  //   minimize: false
-  // },
+  optimization: {
+    minimize: false
+  },
   module: {
     rules: [
       {
@@ -21,7 +21,8 @@ module.exports = {
             presets: [
                 ['@babel/preset-env'],
                 ["@babel/preset-react"],
-            ]
+            ],
+            cacheDirectory: true
           }
         }
       }
