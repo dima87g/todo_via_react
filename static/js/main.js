@@ -1,6 +1,6 @@
 'use strict';
 
-import {App} from './todo_classes'
+import {App} from "./react_components/App";
 
 export const registry = {
     // Not guaranteed that taskInput always will be 'not null' in registry,
