@@ -386,7 +386,7 @@ def save_task():
 
         rows = cur.fetchall()
         user_id = rows[0][0]
-        
+
         cur.execute("SELECT * FROM lists WHERE id = %s AND user_id = %s",
                     (list_id, user_id))
 
@@ -740,7 +740,13 @@ def change_position():
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
     # TODO Need make check if user is exists in the database!!!!!!!!
+    connection = None
+    cur = None
+
     try:
+        connection = connection_pool.get_connection()
+        cur = connection.cursor()
+
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
 
@@ -750,6 +756,21 @@ def auth_check():
                     "ok": False
                 }), 200)
             return response
+
+        cur.execute("SELECT * FROM users WHERE user_text_id = %s",
+                    (user_text_id,))
+
+        rows = cur.fetchall()
+
+        if not rows:
+            response = make_response(jsonify(
+                {
+                    "ok": False
+                }
+            ), 200)
+
+            return response
+
         response = make_response(jsonify(
             {
                 "ok": True
@@ -761,9 +782,17 @@ def auth_check():
                             max_age=int(cookies_config['MAX_AGE'])
                             )
         return response
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
     except Exception as error:
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
+    finally:
+        if cur is not None:
+            cur.close()
+        if connection is not None:
+            connection.close()
 
 
 @app.route("/load_tasks", methods=["GET", "POST"])
