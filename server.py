@@ -739,7 +739,7 @@ def change_position():
 
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
-    # TODO Need make check if user is exists in the database!!!!!!!!
+    
     connection = None
     cur = None
 
