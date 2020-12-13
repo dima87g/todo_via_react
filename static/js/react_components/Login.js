@@ -194,6 +194,10 @@ export class Login extends React.Component {
         document.cookie = 'id=; expires=-1';
         document.cookie = 'id=; expires=-1';
 
+        this.setState({
+            listSelectMenu: [],
+        });
+
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
         ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
@@ -215,6 +219,10 @@ export class Login extends React.Component {
     forceLogOut() {
         document.cookie = 'id=; expires=-1';
         document.cookie = 'id=; expires=-1';
+
+        this.setState({
+            listSelectMenu: [],
+        });
 
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
         ReactDOM.unmountComponentAtNode(document.getElementById('input'));
@@ -324,7 +332,7 @@ export class Login extends React.Component {
         let confirmPassword = e.target['register_form_password_confirm'].value;
         let agreementCheckbox = e.target['agreement_checkbox'];
 
-        const handleResponse = (response) => {
+        const responseHandler = (response) => {
             if (response.status === 200) {
                 if (response.data['ok'] === true) {
                     this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['register_confirm_pref'] + ' ' + userName + ' ' + localisation['register_window']['register_confirm_suf']));
@@ -334,12 +342,6 @@ export class Login extends React.Component {
             }
         }
 
-        // if (userName && password && confirmPassword && agreementCheckbox.checked) {
-        //     if (password === confirmPassword) {
-        //         const sendData = {'newUserName': userName, 'password': password};
-        //
-        //         this.app.knockKnock('/user_register', handleResponse, sendData);
-        //     }
         if (!userName) {
             this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_user_name_warning']));
         } else if (!password) {
@@ -354,7 +356,7 @@ export class Login extends React.Component {
             if (password === confirmPassword) {
                 const sendData = {'newUserName': userName, 'password': password};
 
-                this.app.knockKnock('/user_register', handleResponse, sendData);
+                this.app.knockKnock('/user_register', responseHandler, sendData);
             }
         }
     }
@@ -451,8 +453,6 @@ export class Login extends React.Component {
                                 // TODO object keys are always of string type !!!
                                 //  Need to make the listsDict structure from the server
                                 //  so that id is a numeric type without parseInt function!!!
-                                // TODO when logout there still old list of user lists in menu, need to delete them
-                                //  at the same time with logout
                                 if (registry.taskList) {
                                     currentSelectedList = registry.taskList.listId === parseInt(value[0]);
                                 }
