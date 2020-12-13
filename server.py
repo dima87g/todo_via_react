@@ -372,7 +372,8 @@ def save_task():
         if not check_cookies(user_text_id, sign):
             response = make_response(jsonify(
                 {
-                    "ok": False, "error_code": 401,
+                    "ok": False,
+                    "error_code": 401,
                     "error_message": "Disconnect"
                 }), 401)
             response.delete_cookie("id")
@@ -385,7 +386,23 @@ def save_task():
 
         rows = cur.fetchall()
         user_id = rows[0][0]
-        # TODO Need to make confirmation that list_id is exists in lists table
+        
+        cur.execute("SELECT * FROM lists WHERE id = %s AND user_id = %s",
+                    (list_id, user_id))
+
+        rows = cur.fetchall()
+
+        if not rows:
+            response = make_response(jsonify(
+                {
+                    "ok": False,
+                    "error_code": None,
+                    "error_message": "List is not exists!"
+                }
+            ), 200)
+
+            return response
+
         cur.execute('INSERT INTO tasks (user_id, text, status, parent_id, '
                     'list_id) '
                     'VALUES ( '
