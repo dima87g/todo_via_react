@@ -249,7 +249,7 @@ export class TaskList extends React.Component {
      */
     removeTask(task) {
         let sendData = {'taskId': task.id}
-        const remove = (answer) => {
+        const responseHandler = (answer) => {
             if (answer.status === 200 && answer.data['ok'] === true) {
                 // if (this.tasksTree.has(task.parentId)) {
                 //     let childrenList = this.tasksTree.get(task.parentId).subtasks;
@@ -270,7 +270,7 @@ export class TaskList extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        registry.app.knockKnock('/delete_task', remove, sendData);
+        registry.app.knockKnock('/delete_task', responseHandler, sendData);
     }
 
     render() {
