@@ -447,10 +447,15 @@ export class Login extends React.Component {
                             onChange={this.listChange}
                         >
                             {this.state.listSelectMenu.map((value, index) => {
+                                let currentSelectedList;
                                 // TODO object keys are always of string type !!!
                                 //  Need to make the listsDict structure from the server
                                 //  so that id is a numeric type without parseInt function!!!
-                                let currentSelectedList = registry.taskList.listId === parseInt(value[0]);
+                                // TODO when logout there still old list of user lists in menu, need to delete them
+                                //  at the same time with logout
+                                if (registry.taskList) {
+                                    currentSelectedList = registry.taskList.listId === parseInt(value[0]);
+                                }
                                 return <option key={index} selected={currentSelectedList} value={value[0]}>{value[1]}</option>
                             })}
                             <option value={0}>...new list...</option>

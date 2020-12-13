@@ -105,6 +105,11 @@ def user_register():
                     'hashed_password) VALUES (%s, %s, %s)'
                     , (user_text_id, user_name, hashed_password,))
 
+        new_user_id = cur.lastrowid
+
+        cur.execute('INSERT INTO lists (user_id, name) VALUES (%s, %s)',
+                    (new_user_id, 'main'))
+
         connection.commit()
 
         return jsonify({'ok': True, 'error_code': None, 'error_message': None})
@@ -142,7 +147,7 @@ def change_password():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 401)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -378,7 +383,7 @@ def save_task():
                     'list_id) '
                     'VALUES ( '
                     '%s, %s, %s, %s, %s)', (user_id, task_text, 0, parent_id,
-                                        list_id))
+                                            list_id))
 
         task_id = cur.lastrowid
 
@@ -588,7 +593,7 @@ def finish_task():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 401)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -708,7 +713,7 @@ def change_position():
 
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
-    # TODO Need make check if user is in the database!!!!!!!!
+    # TODO Need make check if user is exists in the database!!!!!!!!
     try:
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
@@ -766,7 +771,8 @@ def load_tasks():
         user_id = rows[0][0]
         user_name = rows[0][1]
 
-        cur.execute('SELECT id, name FROM lists WHERE user_id = %s', (user_id,))
+        cur.execute('SELECT id, name FROM lists WHERE user_id = %s',
+                    (user_id,))
 
         rows = cur.fetchall()
 
@@ -778,8 +784,9 @@ def load_tasks():
         if data["listId"]:
             list_id = data["listId"]
         else:
-            cur.execute('SELECT id FROM lists WHERE user_id = %s AND name = %s',
-                        (user_id, 'main',))
+            cur.execute(
+                'SELECT id FROM lists WHERE user_id = %s AND name = %s',
+                (user_id, 'main',))
 
             rows = cur.fetchall()
 

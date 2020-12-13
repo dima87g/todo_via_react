@@ -106,6 +106,7 @@ export class App extends React.Component {
     }
 
     knockKnock(path, func, sendData) {
+        // TODO need to make the 401 error text displayed to the user
         const req = axios.default;
         this.loadingWindow.current.showWindow();
         req.post(path, sendData)
@@ -119,6 +120,9 @@ export class App extends React.Component {
                 this.loadingWindow.current.hideWindow();
                 console.log(error);
                 console.log(error.response);
+                if (error.response.status) {
+                    func(error.response);
+                }
                 // func(error.response);
             })
     }
