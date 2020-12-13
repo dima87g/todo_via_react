@@ -7,7 +7,6 @@ from mysql.connector import pooling
 import configparser
 
 # TODO try resolve code duplicate in functions
-# TODO make correct statuses on response body, not in data!
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -159,8 +158,12 @@ def change_password():
         rows = cur.fetchall()
 
         if not rows:
-            return jsonify({"ok": False, "error_code": 401,
-                            "error_message": "Disconnect"})
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }), 401)
+            return response
 
         hashed_password = rows[0][0]
 
@@ -169,7 +172,7 @@ def change_password():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Your password are incorrect!"
-                }))
+                }), 401)
 
             return response
 
@@ -183,7 +186,7 @@ def change_password():
 
         response = make_response(jsonify({
             "ok": True
-        }))
+        }), 200)
         response.set_cookie("id", user_text_id)
         response.set_cookie("sign", sign)
 
@@ -255,8 +258,11 @@ def user_login():
         sign.update(user_text_id.encode())
         sign = sign.hexdigest()
 
-        response = make_response(jsonify({"ok": True,
-                                          "user_name": user_name}))
+        response = make_response(jsonify(
+            {
+                "ok": True,
+                "user_name": user_name
+            }), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -300,7 +306,7 @@ def user_delete():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 401)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -311,11 +317,12 @@ def user_delete():
 
         connection.commit()
 
-        response = make_response(jsonify({
-            "ok": True,
-            "error_code": None,
-            "error_message": None
-        }))
+        response = make_response(jsonify(
+            {
+                "ok": True,
+                "error_code": None,
+                "error_message": None
+            }), 200)
 
         response.delete_cookie("id")
         response.delete_cookie("sign")
@@ -367,7 +374,7 @@ def save_task():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 401)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -391,12 +398,12 @@ def save_task():
                     (task_id, task_id))
 
         connection.commit()
-        # task_id = cur.lastrowid
 
-        response = make_response(jsonify({
-            'ok': True,
-            'task_id': task_id
-        }))
+        response = make_response(jsonify(
+            {
+                "ok": True,
+                "task_id": task_id
+            }), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -438,7 +445,7 @@ def save_edit_task():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 401)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -455,9 +462,10 @@ def save_edit_task():
 
         connection.commit()
 
-        response = make_response(jsonify({
-            "ok": True
-        }))
+        response = make_response(jsonify(
+            {
+                "ok": True
+            }), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -507,7 +515,7 @@ def delete_task():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 200)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -524,15 +532,13 @@ def delete_task():
 
         rows = cur.fetchall()
 
-        print(rows)
-
         if not rows:
             response = make_response(jsonify(
                 {
                     "ok": False,
                     "error_code": None,
                     "error_message": "Task is not exists!"
-                }))
+                }), 200)
 
             return response
 
@@ -541,9 +547,10 @@ def delete_task():
 
         connection.commit()
 
-        response = make_response(jsonify({
-            "ok": True
-        }))
+        response = make_response(jsonify(
+            {
+                "ok": True
+            }), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -611,9 +618,10 @@ def finish_task():
 
         connection.commit()
 
-        response = make_response(jsonify({
-            "ok": True
-        }))
+        response = make_response(jsonify(
+            {
+                "ok": True
+            }), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -667,7 +675,7 @@ def change_position():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 401)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -688,9 +696,10 @@ def change_position():
 
         connection.commit()
 
-        response = make_response(jsonify({
-            "ok": True
-        }))
+        response = make_response(jsonify(
+            {
+                "ok": True
+            }), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -719,9 +728,15 @@ def auth_check():
         sign = request.cookies.get("sign")
 
         if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify({"ok": False}), 200)
+            response = make_response(jsonify(
+                {
+                    "ok": False
+                }), 200)
             return response
-        response = make_response(jsonify({"ok": True}), 200)
+        response = make_response(jsonify(
+            {
+                "ok": True
+            }), 200)
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
@@ -754,7 +769,7 @@ def load_tasks():
                 {
                     "ok": False, "error_code": 401,
                     "error_message": "Disconnect"
-                }))
+                }), 401)
             response.delete_cookie("id")
             response.delete_cookie("sign")
 
@@ -766,8 +781,16 @@ def load_tasks():
         rows = cur.fetchall()
 
         if not rows:
-            return jsonify({"ok": False, "error_code": None,
-                            "error_message": "Some Error"})
+            response = make_response(jsonify(
+                {
+                    "ok": False, "error_code": 401,
+                    "error_message": "Disconnect"
+                }), 401)
+            response.delete_cookie("id")
+            response.delete_cookie("sign")
+
+            return response
+
         user_id = rows[0][0]
         user_name = rows[0][1]
 
@@ -802,13 +825,14 @@ def load_tasks():
                           "parent_id": task[4],
                           "task_position": task[5]})
 
-        response = make_response(jsonify({
-            'ok': True,
-            "user_name": user_name,
-            "list_id": list_id,
-            'lists_dict': lists_dict,
-            'tasks': tasks
-        }))
+        response = make_response(jsonify(
+            {
+                "ok": True,
+                "user_name": user_name,
+                "list_id": list_id,
+                "lists_dict": lists_dict,
+                "tasks": tasks
+            }), 200)
 
         response.set_cookie("id", user_text_id,
                             max_age=int(cookies_config['MAX_AGE'])
