@@ -859,6 +859,17 @@ def load_tasks():
 
             rows = cur.fetchall()
 
+            if not rows:
+                response = make_response(jsonify(
+                    {
+                        "ok": False, "error_code": 401,
+                        "error_message": "Disconnect"
+                    }), 401)
+                response.delete_cookie("id")
+                response.delete_cookie("sign")
+
+                return response
+
             list_id = rows[0][0]
 
         cur.execute('SELECT * from tasks WHERE user_id = %s AND list_id = %s',
