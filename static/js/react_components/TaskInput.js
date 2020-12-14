@@ -47,11 +47,13 @@ export class TaskInput extends React.Component{
             <div className="task_input">
                 <form onSubmit={taskInputSubmitFunction}>
                     <label htmlFor={'task_input_field'}/>
-                        <input type={'text'}
-                               name={'task_input_field'}
-                               className={'task_input_field'}
-                               autoComplete={'off'}
-                               disabled={taskInputFieldDisabled}
+                        <input
+                            type={'text'}
+                            name={'task_input_field'}
+                            className={'task_input_field'}
+                            autoComplete={'off'}
+                            maxLength={255}
+                            disabled={taskInputFieldDisabled}
                         />
                         <button type={'submit'}
                                 className={'task_input_button'}

@@ -268,7 +268,6 @@ export class TaskReact extends React.Component {
                         value={'UP'}
                         disabled={taskMoveButtonDisabled}
                         onClick={this.moveTask}>
-                    {/*&#129089;&#129089;&#129089;*/}
                     <i className="fas fa-angle-double-up"/>
                     <i className="fas fa-angle-double-up"/>
                     <i className="fas fa-angle-double-up"/>
@@ -297,7 +296,8 @@ export class TaskReact extends React.Component {
                     </button>
                     <div className={addSubtaskDivStyle}>
                         <input className={addSubtaskTextFieldStyle}
-                               type="text"
+                               type={"text"}
+                               maxLength={255}
                                onKeyDown={this.addSubtaskByEnterKey}
                                ref={this.addSubtaskField}/>
                         <button className={addSubtaskButtonStyle}
@@ -308,9 +308,11 @@ export class TaskReact extends React.Component {
                         </button>
                     </div>
                     <div className={editTaskDivStyle}>
-                        <textarea className={editTaskTextFieldStyle}
-                               ref={this.editTaskField}
-                               onKeyDown={this.saveEdit}
+                        <textarea
+                            className={editTaskTextFieldStyle}
+                            maxLength={255}
+                            ref={this.editTaskField}
+                            onKeyDown={this.saveEdit}
                         />
                         <button className={saveEditButtonStyle}
                                 type={'button'}
@@ -325,7 +327,6 @@ export class TaskReact extends React.Component {
                         value={'DOWN'}
                         disabled={taskMoveButtonDisabled}
                         onClick={this.moveTask}>
-                    {/*&#129091;&#129091;&#129091;*/}
                     <i className="fas fa-angle-double-down"/>
                     <i className="fas fa-angle-double-down"/>
                     <i className="fas fa-angle-double-down"/>
