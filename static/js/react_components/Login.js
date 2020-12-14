@@ -164,7 +164,7 @@ export class Login extends React.Component {
                 });
 
             } else if (response.status === 401) {
-                this.login.current.forceLogOut();
+                this.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             }
         }
