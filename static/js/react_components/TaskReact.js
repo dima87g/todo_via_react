@@ -81,7 +81,9 @@ export class TaskReact extends React.Component {
     }
 
     removeTask() {
-        registry.taskList.removeTask(this.taskInst);
+        if (this.state.status === true) {
+            registry.taskList.removeTask(this.taskInst);
+        }
     }
 
     showSubtaskField() {
