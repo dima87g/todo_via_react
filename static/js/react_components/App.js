@@ -3,10 +3,11 @@ import {showCookiesAlertWindow} from "../todo_functions";
 import axios from "axios";
 import {Login} from "./Login";
 import {LoadingWindow} from "./LoadingWindow";
+import React from "react";
 
 export class App extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.confirmWindowFunction = null;
         this.state = {
             shadowModalIsVisible: false,

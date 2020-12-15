@@ -1,5 +1,6 @@
 import {showInfoWindow} from "../todo_functions";
 import {registry} from "../main";
+import React from "react";
 
 export class TaskReact extends React.Component {
     constructor(props) {

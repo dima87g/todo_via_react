@@ -1,6 +1,8 @@
 'use strict';
 
 import {App} from "./react_components/App";
+import React from "react";
+import ReactDOM from "react-dom";
 
     // Not guaranteed that taskInput always will be 'not null' in registry,
     // while code is working, need always check if it exists in the registry!!!

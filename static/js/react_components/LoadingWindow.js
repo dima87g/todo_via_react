@@ -1,6 +1,8 @@
+import React from "react";
+
 export class LoadingWindow extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.isAlive = false;
         this.reqCount = 0;
         this.timerShow = null;

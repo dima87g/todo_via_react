@@ -2,6 +2,7 @@ import {registry} from "../main";
 import {findPosition, showInfoWindow, swap} from "../todo_functions";
 import {Task} from "../todo_classes";
 import {TaskReact} from "./TaskReact";
+import React from "react";
 
 export class TaskList extends React.Component {
     constructor(props) {

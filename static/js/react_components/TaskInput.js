@@ -1,4 +1,5 @@
 import {registry} from "../main";
+import React from "react";
 
 export class TaskInput extends React.Component{
     constructor(props) {

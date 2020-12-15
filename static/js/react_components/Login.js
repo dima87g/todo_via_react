@@ -3,6 +3,8 @@ import {getCookie, showInfoWindow} from "../todo_functions";
 import {TaskList} from "./TaskList";
 import {TaskInput} from "./TaskInput";
 import {HeaderMenu} from "./HeaderMenu";
+import React from "react";
+import ReactDOM from "react-dom";
 
 export class Login extends React.Component {
     constructor(props) {
@@ -431,8 +433,8 @@ export class Login extends React.Component {
                 <div className={"header"} id={'header'}>
                     <div id={'header_login_section'} className={'header_login_section'}>
                         <p
-                            className={"user_name_field"}
                             id={'user_name_field'}
+                            className={"user_name_field"}
                             ref={this.userNameField}
                         />
                         <a href={localisation['language_change']['link']} className={'language_switch_button'}>
