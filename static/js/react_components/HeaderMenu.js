@@ -3,7 +3,6 @@ import {registry} from "../main";
 export class HeaderMenu extends React.Component {
     constructor(props) {
         super(props)
-        this.login = this.props.login;
         this.state = {
             menuDisabled: true,
             menuShowed: false,
@@ -47,21 +46,21 @@ export class HeaderMenu extends React.Component {
         this.setState({
             menuShowed: false,
         });
-        this.login.logOut();
+        registry.login.logOut();
     }
 
     userDelete() {
         this.setState({
             menuShowed: false,
         });
-        this.login.userDelete();
+        registry.login.userDelete();
     }
 
     changePassword() {
         this.setState({
             menuShowed: false,
         });
-        this.login.changePasswordWindow();
+        registry.login.changePasswordWindow();
     }
 
     render() {
@@ -109,7 +108,7 @@ export class HeaderMenu extends React.Component {
                            disabled={this.state.userDeleteButtonDisabled}
                            onClick={this.userDelete}/>
                 </div>
-               <div id={'burger_button'}
+                <div id={'burger_button'}
                     className={burgerButtonStyle}
                     onClick={menuButtonFunction}>
                    <div id={'burger_button_stick'} className={'burger_button_stick'}/>

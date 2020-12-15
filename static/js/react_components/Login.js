@@ -7,7 +7,6 @@ import {HeaderMenu} from "./HeaderMenu";
 export class Login extends React.Component {
     constructor(props) {
         super(props);
-        this.app = this.props.app;
         this.state = {
             menuShowed: false,
             userLogOutButtonDisabled: true,
@@ -60,7 +59,7 @@ export class Login extends React.Component {
                 });
             }, 500);
             document.forms['login_form'].reset();
-            this.app.removeChildren(this.loginFormInfo.current);
+            registry.app.removeChildren(this.loginFormInfo.current);
         } else {
             this.setState({
                 loginWindowShowed: true,
@@ -73,15 +72,15 @@ export class Login extends React.Component {
                 });
             }, 500);
             document.forms['register_form'].reset();
-            this.app.removeChildren(this.registerFormInfo.current);
+            registry.app.removeChildren(this.registerFormInfo.current);
         }
     }
 
     hideLoginWindow() {
         document.forms['login_form'].reset();
         document.forms['register_form'].reset();
-        this.app.removeChildren(this.loginFormInfo.current);
-        this.app.hideShadowModal();
+        registry.app.removeChildren(this.loginFormInfo.current);
+        registry.app.hideShadowModal();
 
         this.setState({
             authMenuShowed: false,
@@ -94,9 +93,9 @@ export class Login extends React.Component {
     }
 
     showLoginWindow() {
-        this.app.removeChildren(this.userNameField.current);
+        registry.app.removeChildren(this.userNameField.current);
 
-        this.app.showShadowModal();
+        registry.app.showShadowModal();
 
         this.setState({
             authMenuShowed: true,
@@ -110,7 +109,7 @@ export class Login extends React.Component {
     login(e) {
         e.preventDefault();
 
-        this.app.removeChildren(this.loginFormInfo.current);
+        registry.app.removeChildren(this.loginFormInfo.current);
 
         const userName = e.target['login_form_username'].value;
         const password = e.target['login_form_password'].value;
@@ -125,7 +124,7 @@ export class Login extends React.Component {
                     this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['login_error_warning']));
                 }
             }
-            this.app.knockKnock('/user_login', responseHandler, data);
+            registry.app.knockKnock('/user_login', responseHandler, data);
         } else if (!userName) {
             this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_user_name_warning']));
         } else if (!password) {
@@ -149,11 +148,10 @@ export class Login extends React.Component {
                 // });
 
                 ReactDOM.render(
-                    <TaskList app={this.app}
-                              login={this}
-                              listId={mainListId}
-                              listsDict={listsDict}
-                              tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
+                    <TaskList
+                        listId={mainListId}
+                        listsDict={listsDict}
+                        tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
                 );
                 ReactDOM.render(
                     <TaskInput/>, document.getElementById('input')
@@ -168,7 +166,7 @@ export class Login extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        this.app.knockKnock('/load_tasks', responseHandler, sendData);
+        registry.app.knockKnock('/load_tasks', responseHandler, sendData);
     }
 
     showMenu() {
@@ -212,7 +210,7 @@ export class Login extends React.Component {
             message = 'Are you sure, you want to logOut?';
         }
 
-        this.app.showConfirmWindow(message, confirmFunction);
+        registry.app.showConfirmWindow(message, confirmFunction);
 
     }
 
@@ -249,10 +247,10 @@ export class Login extends React.Component {
         }
 
         const confirmFunction = () => {
-            this.app.knockKnock('/user_delete', responseHandler);
+            registry.app.knockKnock('/user_delete', responseHandler);
         }
 
-        this.app.showConfirmWindow(message, confirmFunction);
+        registry.app.showConfirmWindow(message, confirmFunction);
     }
 
     changePasswordWindow() {
@@ -282,7 +280,7 @@ export class Login extends React.Component {
     changePassword(e) {
         e.preventDefault();
 
-        this.app.removeChildren(this.changePasswordFormInfo.current);
+        registry.app.removeChildren(this.changePasswordFormInfo.current);
 
         let oldPassword = e.target['change_password_form_old_password'].value;
         let newPassword = e.target['change_password_form_new_password'].value;
@@ -304,7 +302,7 @@ export class Login extends React.Component {
             if (newPassword === newPasswordConfirm) {
                 const sendData = {'oldPassword': oldPassword, 'newPassword': newPassword};
 
-                this.app.knockKnock('change_password', responseHandler, sendData);
+                registry.app.knockKnock('change_password', responseHandler, sendData);
                 e.target.reset();
             } else {
                 this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_match_passwords_warning']));
@@ -325,7 +323,7 @@ export class Login extends React.Component {
     userRegister(e) {
         e.preventDefault();
 
-        this.app.removeChildren(this.registerFormInfo.current);
+        registry.app.removeChildren(this.registerFormInfo.current);
 
         let userName = e.target['register_form_username'].value;
         let password = e.target['register_form_password'].value;
@@ -356,7 +354,7 @@ export class Login extends React.Component {
             if (password === confirmPassword) {
                 const sendData = {'newUserName': userName, 'password': password};
 
-                this.app.knockKnock('/user_register', responseHandler, sendData);
+                registry.app.knockKnock('/user_register', responseHandler, sendData);
             }
         }
     }
@@ -377,11 +375,10 @@ export class Login extends React.Component {
                     ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
 
                     ReactDOM.render(
-                        <TaskList app={this.app}
-                                  login={this}
-                                  listId={mainListId}
-                                  listsDict={listsDict}
-                                  tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
+                        <TaskList
+                            listId={mainListId}
+                            listsDict={listsDict}
+                            tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
                     );
 
                     this.setState({
@@ -391,7 +388,13 @@ export class Login extends React.Component {
                 }
             }
             registry.app.knockKnock('/load_tasks', responseHandler, sendData);
+        } else if (selectedListId === '0') {
+            this.createNewList();
         }
+    }
+
+    createNewList() {
+
     }
 
     render() {
@@ -427,10 +430,10 @@ export class Login extends React.Component {
             <div className={'main'} id={'main'}>
                 <div className={"header"} id={'header'}>
                     <div id={'header_login_section'} className={'header_login_section'}>
-                        {/*<p className="version">Ver. 2.0 React</p>*/}
-                        <p className={"user_name_field"}
-                           id={'user_name_field'}
-                           ref={this.userNameField}
+                        <p
+                            className={"user_name_field"}
+                            id={'user_name_field'}
+                            ref={this.userNameField}
                         />
                         <a href={localisation['language_change']['link']} className={'language_switch_button'}>
                             <img
@@ -438,11 +441,6 @@ export class Login extends React.Component {
                                 alt={localisation['language_change']['label']}
                             />
                         </a>
-                        {/*<a href={"/en"} className={'language_switch_button'}>En</a>*/}
-                        {/*<p className={"user_name_field"}*/}
-                        {/*   id={'user_name_field'}*/}
-                        {/*   ref={this.userNameField}*/}
-                        {/*/>*/}
                         <select
                             // TODO Need to make defaultValue in select tag instead selected in option tag
                             className={'list_select_menu'}
@@ -460,7 +458,7 @@ export class Login extends React.Component {
                             })}
                             <option value={0}>...new list...</option>
                         </select>
-                        <HeaderMenu login={this}/>
+                        <HeaderMenu/>
                     </div>
                     <div id={'input'} className={'input'}/>
                 </div>
@@ -589,18 +587,6 @@ export class Login extends React.Component {
                            ref={this.changePasswordFormInfo}/>
                     </div>
                 </div>
-                {/*<div className={"header"} id={'header'}>*/}
-                {/*    <div id={'header_login_section'} className={'header_login_section'}>*/}
-                {/*        <p className="version">Ver. 2.0 React</p>*/}
-                {/*        <a href={"/ru"} className={'language_switch_button'}>Русский</a>*/}
-                {/*        <a href={"/en"} className={'language_switch_button'}>English</a>*/}
-                {/*        <p className={"user_name_field"}*/}
-                {/*           id={'user_name_field'}*/}
-                {/*           ref={this.userNameField}/>*/}
-                {/*        <HeaderMenu login={this}/>*/}
-                {/*    </div>*/}
-                {/*    <div id={'input'}/>*/}
-                {/*</div>*/}
                 <div className={'task_list'} id={'task_list'}/>
             </div>
         )

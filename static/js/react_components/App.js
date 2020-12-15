@@ -143,9 +143,7 @@ export class App extends React.Component {
         }
         return (
             <div className={'app'} id={'app'}>
-                <Login
-                    app={this}
-                />
+                <Login app={this}/>
                 <div id={"confirm_window"} className={confirmWindowStyle}>
                     <p id={"confirm_window_message"}
                        className={'confirm_window_message'}>
