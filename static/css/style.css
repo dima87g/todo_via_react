@@ -350,6 +350,12 @@ html, body {
     border-radius: 25px;
     box-shadow: 0 0 3px;
     background-color: white;
+    /*transition: transform 0.5s;*/
+}
+
+.remove_task {
+    transition: transform 0.5s;
+    transform: scale(0);
 }
 
 .active_moving_task {

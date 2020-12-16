@@ -6,7 +6,7 @@ export class TaskReact extends React.Component {
     constructor(props) {
         super(props);
         this.taskInst = this.props.taskInst;
-        this.taskId = this.props.taskId;
+        this.id = this.props.taskId;
         this.state = {
             status: this.props.status,
             taskTextValue: this.props.taskText,
@@ -34,25 +34,25 @@ export class TaskReact extends React.Component {
     }
 
     componentDidMount() {
-        // console.log(this.taskId + ' is mounted!');
+        // console.log(this.id + ' is mounted!');
     }
 
     componentDidUpdate() {
         // console.log('My height is ' + this.taskDiv.current.clientHeight + ' !');
-        // console.log(this.taskId + ' is updated!');
-        // if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
+        // console.log(this.id + ' is updated!');
+        // if (this.props.movingTasks.activeMovingTaskId === this.id) {
         //     console.log('I am active moving task!');
         // }
-        // if (this.props.movingTasks.taskMovingUpId === this.taskId) {
+        // if (this.props.movingTasks.taskMovingUpId === this.id) {
         //     console.log('I am moving up!');
         // }
-        // if (this.props.movingTasks.taskMovingDownId === this.taskId) {
+        // if (this.props.movingTasks.taskMovingDownId === this.id) {
         //     console.log('I am moving down!');
         // }
     }
 
     // componentWillUnmount() {
-    //     console.log(this.taskId + ' will unmounted!');
+    //     console.log(this.id + ' will unmounted!');
     // }
 
     /**
@@ -65,7 +65,7 @@ export class TaskReact extends React.Component {
     finishTask() {
         let taskStatus = this.state.status === false;
         let sendData = {
-            'taskId': this.taskId,
+            'taskId': this.id,
             'status': taskStatus
         };
         const finish = (answer) => {
@@ -83,7 +83,7 @@ export class TaskReact extends React.Component {
 
     removeTask() {
         if (this.state.status === true) {
-            registry.taskList.removeTask(this.taskInst);
+            registry.taskList.removeTask(this);
         }
     }
 
@@ -117,7 +117,7 @@ export class TaskReact extends React.Component {
 
             this.showSubtaskField();
 
-            registry.taskList.addSubtask(this.taskId, subtaskText);
+            registry.taskList.addSubtask(this.id, subtaskText);
 
         }
     }
@@ -195,38 +195,72 @@ export class TaskReact extends React.Component {
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
 
+
+        if (this.props.removingTaskId !== this.id && this.props.movingTasks.activeMovingTaskId !== this.id && this.props.movingTasks.moving === false) {
+            taskStyle = 'task';
+        } else if (this.props.removingTaskId === this.id) {
+            taskStyle = 'task remove_task';
+        }
+
         taskMoveButtonDisabled = this.props.movingTasks.moving === true;
 
-        if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
-            taskStyle = 'task active_moving_task';
-        } else {
-            taskStyle = 'task';
-        }
-
-        if (this.props.movingTasks.taskMovingUpId === this.taskId) {
-            // taskStyle = 'task task_moving_up';
-        } else if (this.props.movingTasks.taskMovingDownId === this.taskId) {
-            let taskMovingUp = this.taskDiv.current.nextElementSibling;
-            let taskMovingDownHeight = this.taskDiv.current.clientHeight;
-            let taskMovingUpHeight = taskMovingUp.clientHeight;
-            // taskStyle = 'task task_moving_down';
-            this.taskDiv.current.style.transitionDuration = '0.3s';
-            this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
-            taskMovingUp.style.transitionDuration = '0.3s';
-            taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
-        } else {
-            // taskStyle = 'task';
-            if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
+        if (this.props.movingTasks.moving === true) {
+            if (this.props.movingTasks.activeMovingTaskId === this.id) {
+                taskStyle = 'task active_moving_task';
+            }
+            if (this.props.movingTasks.taskMovingUpId === this.id) {
+                // taskStyle = 'task task_moving_up';
+            } else if (this.props.movingTasks.taskMovingDownId === this.id) {
                 let taskMovingUp = this.taskDiv.current.nextElementSibling;
-                this.taskDiv.current.style.transitionDuration = '0s';
-                this.taskDiv.current.style.transform = '';
-                taskMovingUp.style.transitionDuration = '0s';
-                taskMovingUp.style.transform = '';
-            } else if (this.taskDiv.current) {
-                this.taskDiv.current.style.transitionDuration = '0s';
-                this.taskDiv.current.style.transform = '';
+                let taskMovingDownHeight = this.taskDiv.current.clientHeight;
+                let taskMovingUpHeight = taskMovingUp.clientHeight;
+                // taskStyle = 'task task_moving_down';
+                this.taskDiv.current.style.transitionDuration = '0.3s';
+                this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
+                taskMovingUp.style.transitionDuration = '0.3s';
+                taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
+            } else {
+                // taskStyle = 'task';
+                if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
+                    let taskMovingUp = this.taskDiv.current.nextElementSibling;
+                    // this.taskDiv.current.style.transitionDuration = '0s';
+                    this.taskDiv.current.style.transitionDuration = '';
+                    this.taskDiv.current.style.transform = '';
+                    // taskMovingUp.style.transitionDuration = '0s';
+                    taskMovingUp.style.transitionDuration = '';
+                    taskMovingUp.style.transform = '';
+                } else if (this.taskDiv.current) {
+                    // this.taskDiv.current.style.transitionDuration = '0s';
+                    this.taskDiv.current.style.transitionDuration = '';
+                    this.taskDiv.current.style.transform = '';
+                }
             }
         }
+
+        // if (this.props.movingTasks.taskMovingUpId === this.id) {
+        //     // taskStyle = 'task task_moving_up';
+        // } else if (this.props.movingTasks.taskMovingDownId === this.id) {
+        //     let taskMovingUp = this.taskDiv.current.nextElementSibling;
+        //     let taskMovingDownHeight = this.taskDiv.current.clientHeight;
+        //     let taskMovingUpHeight = taskMovingUp.clientHeight;
+        //     // taskStyle = 'task task_moving_down';
+        //     this.taskDiv.current.style.transitionDuration = '0.3s';
+        //     this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
+        //     taskMovingUp.style.transitionDuration = '0.3s';
+        //     taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
+        // } else {
+        //     // taskStyle = 'task';
+        //     if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
+        //         let taskMovingUp = this.taskDiv.current.nextElementSibling;
+        //         this.taskDiv.current.style.transitionDuration = '0s';
+        //         this.taskDiv.current.style.transform = '';
+        //         taskMovingUp.style.transitionDuration = '0s';
+        //         taskMovingUp.style.transform = '';
+        //     } else if (this.taskDiv.current) {
+        //         this.taskDiv.current.style.transitionDuration = '0s';
+        //         this.taskDiv.current.style.transform = '';
+        //     }
+        // }
 
         if (this.state.addSubtaskDivShowed) {
             addSubtaskDivStyle = 'subtask_div';
