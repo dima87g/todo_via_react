@@ -5,11 +5,13 @@ import {TaskInput} from "./TaskInput";
 import {HeaderMenu} from "./HeaderMenu";
 import React from "react";
 import ReactDOM from "react-dom";
+import {Header} from "./Header";
 
 export class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            userName: null,
             menuShowed: false,
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
@@ -37,7 +39,7 @@ export class Login extends React.Component {
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
-        this.userNameField = React.createRef();
+        // this.userNameField = React.createRef();
     }
 
     componentDidMount() {
@@ -95,7 +97,7 @@ export class Login extends React.Component {
     }
 
     showLoginWindow() {
-        registry.app.removeChildren(this.userNameField.current);
+        // registry.app.removeChildren(this.userNameField.current);
 
         registry.app.showShadowModal();
 
@@ -143,7 +145,11 @@ export class Login extends React.Component {
                 let mainListId = response.data['list_id'];
                 let listsDict = response.data['lists_dict'];
 
-                this.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
+                // this.setState({
+                //     userName: userName,
+                // });
+
+                // this.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
 
                 // this.setState({
                 //     listSelectMenu: Object.entries(listsDict),
@@ -155,9 +161,9 @@ export class Login extends React.Component {
                         listsDict={listsDict}
                         tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
                 );
-                ReactDOM.render(
-                    <TaskInput/>, document.getElementById('input')
-                );
+                // ReactDOM.render(
+                //     <TaskInput/>, document.getElementById('input')
+                // );
 
                 this.setState({
                     listSelectMenu: Object.entries(listsDict),
@@ -199,7 +205,7 @@ export class Login extends React.Component {
         });
 
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-        ReactDOM.unmountComponentAtNode(document.getElementById('input'));
+        // ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
         this.showLoginWindow();
         }
@@ -225,7 +231,7 @@ export class Login extends React.Component {
         });
 
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-        ReactDOM.unmountComponentAtNode(document.getElementById('input'));
+        // ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
         this.showLoginWindow();
     }
@@ -430,40 +436,41 @@ export class Login extends React.Component {
         }
         return (
             <div className={'main'} id={'main'}>
-                <div className={"header"} id={'header'}>
-                    <div id={'header_login_section'} className={'header_login_section'}>
-                        <p
-                            id={'user_name_field'}
-                            className={"user_name_field"}
-                            ref={this.userNameField}
-                        />
-                        <a href={localisation['language_change']['link']} className={'language_switch_button'}>
-                            <img
-                                src={'/static/icons/' + localisation['language_change']['label'] + '_flag.png'}
-                                alt={localisation['language_change']['label']}
-                            />
-                        </a>
-                        <select
-                            // TODO Need to make defaultValue in select tag instead selected in option tag
-                            className={'list_select_menu'}
-                            onChange={this.listChange}
-                        >
-                            {this.state.listSelectMenu.map((value, index) => {
-                                let currentSelectedList;
-                                // TODO object keys are always of string type !!!
-                                //  Need to make the listsDict structure from the server
-                                //  so that id is a numeric type without parseInt function!!!
-                                if (registry.taskList) {
-                                    currentSelectedList = registry.taskList.listId === parseInt(value[0]);
-                                }
-                                return <option key={index} selected={currentSelectedList} value={value[0]}>{value[1]}</option>
-                            })}
-                            <option value={0}>...new list...</option>
-                        </select>
-                        <HeaderMenu/>
-                    </div>
-                    <div id={'input'} className={'input'}/>
-                </div>
+                <Header userName={this.state.userName}/>
+                {/*<div className={"header"} id={'header'}>*/}
+                {/*    <div id={'header_login_section'} className={'header_login_section'}>*/}
+                {/*        <p*/}
+                {/*            id={'user_name_field'}*/}
+                {/*            className={"user_name_field"}*/}
+                {/*            ref={this.userNameField}*/}
+                {/*        />*/}
+                {/*        <a href={localisation['language_change']['link']} className={'language_switch_button'}>*/}
+                {/*            <img*/}
+                {/*                src={'/static/icons/' + localisation['language_change']['label'] + '_flag.png'}*/}
+                {/*                alt={localisation['language_change']['label']}*/}
+                {/*            />*/}
+                {/*        </a>*/}
+                {/*        <select*/}
+                {/*            // TODO Need to make defaultValue in select tag instead selected in option tag*/}
+                {/*            className={'list_select_menu'}*/}
+                {/*            onChange={this.listChange}*/}
+                {/*        >*/}
+                {/*            {this.state.listSelectMenu.map((value, index) => {*/}
+                {/*                let currentSelectedList;*/}
+                {/*                // TODO object keys are always of string type !!!*/}
+                {/*                //  Need to make the listsDict structure from the server*/}
+                {/*                //  so that id is a numeric type without parseInt function!!!*/}
+                {/*                if (registry.taskList) {*/}
+                {/*                    currentSelectedList = registry.taskList.listId === parseInt(value[0]);*/}
+                {/*                }*/}
+                {/*                return <option key={index} selected={currentSelectedList} value={value[0]}>{value[1]}</option>*/}
+                {/*            })}*/}
+                {/*            <option value={0}>...new list...</option>*/}
+                {/*        </select>*/}
+                {/*        <HeaderMenu/>*/}
+                {/*    </div>*/}
+                {/*    <div id={'input'} className={'input'}/>*/}
+                {/*</div>*/}
                 <div id={'auth_menu'} className={authMenuStyle}>
                     <div id={'login_window'} className={loginWindowStyle}>
                         <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
