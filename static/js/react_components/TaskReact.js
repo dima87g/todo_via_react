@@ -194,7 +194,7 @@ export class TaskReact extends React.Component {
         let editTaskDivStyle;
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
-        //TODO refactor IF statements!!1
+        //TODO refactor IF statements!!!
 
         taskMoveButtonDisabled = this.props.movingTasks.moving === true;
 
@@ -224,12 +224,9 @@ export class TaskReact extends React.Component {
         }
 
         if (this.props.removingTask.removingTask === true) {
-            console.log('Removing task === true!!!');
             if (this.props.removingTask.removingTaskId === this.id) {
-                console.log('I am removing task!!!');
                 taskStyle = 'task remove_task';
             } else if (this.props.removingTask.removingTaskPosition < this.taskInst.position) {
-                console.log('I am moving to removing task place!!!');
                 taskStyle = 'task';
                 this.taskDiv.current.style.transitionDuration = '0.5s';
                 this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.removingTask.removingTaskHeight + 'px - 10px))';
@@ -238,15 +235,15 @@ export class TaskReact extends React.Component {
             }
         } else if (this.props.removingTask.removingTask === false) {
             if (this.taskDiv.current) {
-                console.log('Task is not removing!!!');
                 taskStyle = 'task';
                 this.taskDiv.current.style.transitionDuration = '';
                 this.taskDiv.current.style.transform = '';
+            } else {
+                taskStyle = 'task';
             }
         } else if (this.props.movingTasks.activeMovingTaskId === this.id) {
             taskStyle = 'task active_moving_task';
         } else {
-            console.log('I am a simple task!!!');
             taskStyle = 'task';
         }
 

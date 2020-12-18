@@ -145,9 +145,9 @@ export class Login extends React.Component {
                 let mainListId = response.data['list_id'];
                 let listsDict = response.data['lists_dict'];
 
-                // this.setState({
-                //     userName: userName,
-                // });
+                this.setState({
+                    userName: userName,
+                });
 
                 // this.userNameField.current.appendChild(document.createTextNode('User: ' + userName));
 
@@ -201,6 +201,7 @@ export class Login extends React.Component {
         document.cookie = 'id=; expires=-1';
 
         this.setState({
+            userName: null,
             listSelectMenu: [],
         });
 
@@ -227,6 +228,7 @@ export class Login extends React.Component {
         document.cookie = 'id=; expires=-1';
 
         this.setState({
+            userName: null,
             listSelectMenu: [],
         });
 
@@ -436,7 +438,9 @@ export class Login extends React.Component {
         }
         return (
             <div className={'main'} id={'main'}>
-                <Header userName={this.state.userName}/>
+                <Header userName={this.state.userName}
+                        listSelectMenu={this.state.listSelectMenu}
+                />
                 {/*<div className={"header"} id={'header'}>*/}
                 {/*    <div id={'header_login_section'} className={'header_login_section'}>*/}
                 {/*        <p*/}

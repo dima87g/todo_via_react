@@ -22,13 +22,15 @@ export class Header extends React.Component {
         console.log(this.count);
         console.log(prevProps);
         console.log(this.props);
-        if (this.props.userName) {
+        if (this.props.userName && !this.userNameField.current.firstChild) {
             this.userNameField.current.appendChild(document.createTextNode('User: '+ this.props.userName));
+        } else {
+            registry.app.removeChildren(this.userNameField);
         }
     }
 
-    listChange() {
-
+    listChange(e) {
+        registry.login.listChange(e);
     }
 
     render() {
@@ -51,16 +53,16 @@ export class Header extends React.Component {
                         className={'list_select_menu'}
                         onChange={this.listChange}
                     >
-                        {/*{this.state.listSelectMenu.map((value, index) => {*/}
-                        {/*    let currentSelectedList;*/}
-                        {/*    // TODO object keys are always of string type !!!*/}
-                        {/*    //  Need to make the listsDict structure from the server*/}
-                        {/*    //  so that id is a numeric type without parseInt function!!!*/}
-                        {/*    if (registry.taskList) {*/}
-                        {/*        currentSelectedList = registry.taskList.listId === parseInt(value[0]);*/}
-                        {/*    }*/}
-                        {/*    return <option key={index} selected={currentSelectedList} value={value[0]}>{value[1]}</option>*/}
-                        {/*})}*/}
+                        {this.props.listSelectMenu.map((value, index) => {
+                            let currentSelectedList;
+                            // TODO object keys are always of string type !!!
+                            //  Need to make the listsDict structure from the server
+                            //  so that id is a numeric type without parseInt function!!!
+                            if (registry.taskList) {
+                                currentSelectedList = registry.taskList.listId === parseInt(value[0]);
+                            }
+                            return <option key={index} selected={currentSelectedList} value={value[0]}>{value[1]}</option>
+                        })}
                         <option value={0}>...new list...</option>
                     </select>
                     <HeaderMenu/>
