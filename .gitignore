@@ -9,3 +9,4 @@ package-lock.json
 /static/bundle.js
 /static/bundle.js.map
 /test_daemon.py
+/static/bundle.js.LICENSE.txt
