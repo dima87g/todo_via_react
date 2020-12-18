@@ -6,7 +6,7 @@ export class TaskReact extends React.Component {
     constructor(props) {
         super(props);
         this.taskInst = this.props.taskInst;
-        this.taskId = this.props.taskId;
+        this.id = this.props.taskId;
         this.state = {
             status: this.props.status,
             taskTextValue: this.props.taskText,
@@ -34,25 +34,25 @@ export class TaskReact extends React.Component {
     }
 
     componentDidMount() {
-        // console.log(this.taskId + ' is mounted!');
+        // console.log(this.id + ' is mounted!');
     }
 
     componentDidUpdate() {
         // console.log('My height is ' + this.taskDiv.current.clientHeight + ' !');
-        // console.log(this.taskId + ' is updated!');
-        // if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
+        // console.log(this.id + ' is updated!');
+        // if (this.props.movingTasks.activeMovingTaskId === this.id) {
         //     console.log('I am active moving task!');
         // }
-        // if (this.props.movingTasks.taskMovingUpId === this.taskId) {
+        // if (this.props.movingTasks.taskMovingUpId === this.id) {
         //     console.log('I am moving up!');
         // }
-        // if (this.props.movingTasks.taskMovingDownId === this.taskId) {
+        // if (this.props.movingTasks.taskMovingDownId === this.id) {
         //     console.log('I am moving down!');
         // }
     }
 
     // componentWillUnmount() {
-    //     console.log(this.taskId + ' will unmounted!');
+    //     console.log(this.id + ' will unmounted!');
     // }
 
     /**
@@ -65,10 +65,10 @@ export class TaskReact extends React.Component {
     finishTask() {
         let taskStatus = this.state.status === false;
         let sendData = {
-            'taskId': this.taskId,
+            'taskId': this.id,
             'status': taskStatus
         };
-        const finish = (answer) => {
+        const responseHandler = (answer) => {
             if (answer.status === 200) {
                 this.setState({
                     status: taskStatus
@@ -78,12 +78,12 @@ export class TaskReact extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        registry.app.knockKnock('/finish_task', finish, sendData);
+        registry.app.knockKnock('/finish_task', responseHandler, sendData);
     }
 
     removeTask() {
         if (this.state.status === true) {
-            registry.taskList.removeTask(this.taskInst);
+            registry.taskList.removeTask(this);
         }
     }
 
@@ -117,7 +117,7 @@ export class TaskReact extends React.Component {
 
             this.showSubtaskField();
 
-            registry.taskList.addSubtask(this.taskId, subtaskText);
+            registry.taskList.addSubtask(this.id, subtaskText);
 
         }
     }
@@ -194,18 +194,13 @@ export class TaskReact extends React.Component {
         let editTaskDivStyle;
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
+        //TODO refactor IF statements!!1
 
         taskMoveButtonDisabled = this.props.movingTasks.moving === true;
 
-        if (this.props.movingTasks.activeMovingTaskId === this.taskId) {
-            taskStyle = 'task active_moving_task';
-        } else {
-            taskStyle = 'task';
-        }
-
-        if (this.props.movingTasks.taskMovingUpId === this.taskId) {
+        if (this.props.movingTasks.taskMovingUpId === this.id) {
             // taskStyle = 'task task_moving_up';
-        } else if (this.props.movingTasks.taskMovingDownId === this.taskId) {
+        } else if (this.props.movingTasks.taskMovingDownId === this.id) {
             let taskMovingUp = this.taskDiv.current.nextElementSibling;
             let taskMovingDownHeight = this.taskDiv.current.clientHeight;
             let taskMovingUpHeight = taskMovingUp.clientHeight;
@@ -218,14 +213,41 @@ export class TaskReact extends React.Component {
             // taskStyle = 'task';
             if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
                 let taskMovingUp = this.taskDiv.current.nextElementSibling;
-                this.taskDiv.current.style.transitionDuration = '0s';
+                this.taskDiv.current.style.transitionDuration = '';
                 this.taskDiv.current.style.transform = '';
-                taskMovingUp.style.transitionDuration = '0s';
+                taskMovingUp.style.transitionDuration = '';
                 taskMovingUp.style.transform = '';
             } else if (this.taskDiv.current) {
-                this.taskDiv.current.style.transitionDuration = '0s';
+                this.taskDiv.current.style.transitionDuration = '';
                 this.taskDiv.current.style.transform = '';
             }
+        }
+
+        if (this.props.removingTask.removingTask === true) {
+            console.log('Removing task === true!!!');
+            if (this.props.removingTask.removingTaskId === this.id) {
+                console.log('I am removing task!!!');
+                taskStyle = 'task remove_task';
+            } else if (this.props.removingTask.removingTaskPosition < this.taskInst.position) {
+                console.log('I am moving to removing task place!!!');
+                taskStyle = 'task';
+                this.taskDiv.current.style.transitionDuration = '0.5s';
+                this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.removingTask.removingTaskHeight + 'px - 10px))';
+            } else {
+                taskStyle = 'task';
+            }
+        } else if (this.props.removingTask.removingTask === false) {
+            if (this.taskDiv.current) {
+                console.log('Task is not removing!!!');
+                taskStyle = 'task';
+                this.taskDiv.current.style.transitionDuration = '';
+                this.taskDiv.current.style.transform = '';
+            }
+        } else if (this.props.movingTasks.activeMovingTaskId === this.id) {
+            taskStyle = 'task active_moving_task';
+        } else {
+            console.log('I am a simple task!!!');
+            taskStyle = 'task';
         }
 
         if (this.state.addSubtaskDivShowed) {

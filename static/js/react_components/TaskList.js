@@ -55,6 +55,12 @@ export class TaskList extends React.Component {
                 taskMovingDownId: null,
                 activeMovingTaskId: null,
             },
+            removingTask: {
+                removingTask: null,
+                removingTaskId: null,
+                removingTaskPosition: null,
+                removingTaskHeight: null,
+            },
         }
         this.addTask = this.addTask.bind(this);
         // this.addSubtask = this.addSubtask.bind(this);
@@ -192,7 +198,8 @@ export class TaskList extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 let taskId = response.data['task_id'];
-                let newTask = new Task(taskId, taskText);
+                let taskPosition = taskId;
+                let newTask = new Task(taskId, taskText, taskPosition);
 
                 this.tasksTree.set(newTask.id, newTask);
                 this.rootTasksList.push(newTask);
@@ -252,20 +259,37 @@ export class TaskList extends React.Component {
         let sendData = {'taskId': task.id}
         const responseHandler = (answer) => {
             if (answer.status === 200 && answer.data['ok'] === true) {
-                // if (this.tasksTree.has(task.parentId)) {
-                //     let childrenList = this.tasksTree.get(task.parentId).subtasks;
-                //     childrenList.splice(childrenList.indexOf(task), 1);
+                // if (this.tasksTree.has(task.taskInst.parentId)) {
+                //     let childrenList = this.tasksTree.get(task.taskInst.parentId).subtasks;
+                //     childrenList.splice(childrenList.indexOf(task.taskInst), 1);
                 // } else {
-                //     this.rootTasksList.splice(this.rootTasksList.indexOf(task), 1);
+                //     this.rootTasksList.splice(this.rootTasksList.indexOf(task.taskInst), 1);
                 // }
 
-                this.rootTasksList.splice(findPosition(this.rootTasksList, task), 1);
-                this.tasksTree.delete(task.id);
-
                 this.setState({
-                    // linearTasksList: this.makeLinearList(this.rootTasksList),
-                    linearTasksList: this.rootTasksList,
-                })
+                    removingTask: {
+                        removingTask: true,
+                        removingTaskId: task.id,
+                        removingTaskPosition: task.taskInst.position,
+                        removingTaskHeight: task.taskDiv.current.offsetHeight,
+                    },
+                });
+
+                setTimeout(() => {
+                    this.rootTasksList.splice(findPosition(this.rootTasksList, task.taskInst), 1);
+                    this.tasksTree.delete(task.id);
+
+                    this.setState({
+                        // linearTasksList: this.makeLinearList(this.rootTasksList),
+                        linearTasksList: this.rootTasksList,
+                        removingTask: {
+                            removingTask: false,
+                            removingTaskId: null,
+                            removingTaskPosition: null,
+                            removingTaskHeight: null,
+                        },
+                    });
+                }, 500);
             } else if (answer.status === 401) {
                 registry.login.forceLogOut();
                 showInfoWindow('Authorisation problem!');
@@ -287,6 +311,7 @@ export class TaskList extends React.Component {
                                    taskText={task.text}
                                    parentId={task.parentId}
                                    movingTasks={this.state.movingTasks}
+                                   removingTask={this.state.removingTask}
                         />)}
                 </div>
             </div>
