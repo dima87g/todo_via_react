@@ -46,6 +46,9 @@ export class HeaderMenu extends React.Component {
     logOut() {
         this.setState({
             menuShowed: false,
+            userLogOutButtonDisabled: true,
+            userDeleteButtonDisabled: true,
+            changePasswordButtonDisabled: true,
         });
         registry.login.logOut();
     }
@@ -53,6 +56,9 @@ export class HeaderMenu extends React.Component {
     userDelete() {
         this.setState({
             menuShowed: false,
+            userLogOutButtonDisabled: true,
+            userDeleteButtonDisabled: true,
+            changePasswordButtonDisabled: true,
         });
         registry.login.userDelete();
     }
@@ -60,6 +66,9 @@ export class HeaderMenu extends React.Component {
     changePassword() {
         this.setState({
             menuShowed: false,
+            userLogOutButtonDisabled: true,
+            userDeleteButtonDisabled: true,
+            changePasswordButtonDisabled: true,
         });
         registry.login.changePasswordWindow();
     }

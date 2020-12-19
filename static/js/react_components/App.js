@@ -30,6 +30,12 @@ export class App extends React.Component {
         registry.app = null;
     }
 
+    appClick(e) {
+        if (registry.headerMenu.state.menuDisabled === false && e.target.id !== 'header_menu_list') {
+            registry.headerMenu.showHeaderMenu();
+        }
+    }
+
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
@@ -143,7 +149,7 @@ export class App extends React.Component {
             confirmWindowStyle = 'confirm_window confirm_window_hidden';
         }
         return (
-            <div className={'app'} id={'app'}>
+            <div className={'app'} id={'app'} onClick={this.appClick}>
                 <Login app={this}/>
                 <div id={"confirm_window"} className={confirmWindowStyle}>
                     <p id={"confirm_window_message"}
