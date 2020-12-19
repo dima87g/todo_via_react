@@ -194,55 +194,45 @@ export class TaskReact extends React.Component {
         let editTaskDivStyle;
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
-        //TODO refactor IF statements!!!
 
-        taskMoveButtonDisabled = this.props.movingTasks.moving === true;
-
-        if (this.props.movingTasks.taskMovingUpId === this.id) {
-            // taskStyle = 'task task_moving_up';
-        } else if (this.props.movingTasks.taskMovingDownId === this.id) {
-            let taskMovingUp = this.taskDiv.current.nextElementSibling;
-            let taskMovingDownHeight = this.taskDiv.current.clientHeight;
-            let taskMovingUpHeight = taskMovingUp.clientHeight;
-            // taskStyle = 'task task_moving_down';
-            this.taskDiv.current.style.transitionDuration = '0.3s';
-            this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
-            taskMovingUp.style.transitionDuration = '0.3s';
-            taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
-        } else {
-            // taskStyle = 'task';
-            if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
+        if (this.props.movingTasks.moving === true || this.props.removingTask.removing === true) {
+            taskMoveButtonDisabled = true;
+            if (this.props.movingTasks.moving === true) {
+                if (this.props.movingTasks.activeMovingTaskId === this.id) {
+                    taskStyle = 'task active_moving_task';
+                } else {
+                    taskStyle = 'task';
+                }
+                if (this.props.movingTasks.taskMovingDownId === this.id) {
+                    let taskMovingUp = this.taskDiv.current.nextElementSibling;
+                    let taskMovingDownHeight = this.taskDiv.current.clientHeight;
+                    let taskMovingUpHeight = taskMovingUp.clientHeight;
+                    this.taskDiv.current.style.transitionDuration = '0.3s';
+                    this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
+                    taskMovingUp.style.transitionDuration = '0.3s';
+                    taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
+                }
+            } else if (this.props.removingTask.removing === true) {
+                if (this.props.removingTask.removingTaskId === this.id) {
+                    taskStyle = 'task remove_task';
+                } else if (this.props.removingTask.removingTaskPosition < this.taskInst.position) {
+                    taskStyle = 'task';
+                    this.taskDiv.current.style.transitionDuration = '0.5s';
+                    this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.removingTask.removingTaskHeight + 'px - 10px))';
+                } else {
+                    taskStyle = 'task';
+                }
+            } else if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
                 let taskMovingUp = this.taskDiv.current.nextElementSibling;
                 this.taskDiv.current.style.transitionDuration = '';
                 this.taskDiv.current.style.transform = '';
                 taskMovingUp.style.transitionDuration = '';
                 taskMovingUp.style.transform = '';
-            } else if (this.taskDiv.current) {
-                this.taskDiv.current.style.transitionDuration = '';
-                this.taskDiv.current.style.transform = '';
             }
-        }
-
-        if (this.props.removingTask.removingTask === true) {
-            if (this.props.removingTask.removingTaskId === this.id) {
-                taskStyle = 'task remove_task';
-            } else if (this.props.removingTask.removingTaskPosition < this.taskInst.position) {
-                taskStyle = 'task';
-                this.taskDiv.current.style.transitionDuration = '0.5s';
-                this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.removingTask.removingTaskHeight + 'px - 10px))';
-            } else {
-                taskStyle = 'task';
-            }
-        } else if (this.props.removingTask.removingTask === false) {
-            if (this.taskDiv.current) {
-                taskStyle = 'task';
-                this.taskDiv.current.style.transitionDuration = '';
-                this.taskDiv.current.style.transform = '';
-            } else {
-                taskStyle = 'task';
-            }
-        } else if (this.props.movingTasks.activeMovingTaskId === this.id) {
-            taskStyle = 'task active_moving_task';
+        } else if (this.taskDiv.current) {
+            taskStyle = 'task';
+            this.taskDiv.current.style.transitionDuration = '';
+            this.taskDiv.current.style.transform = '';
         } else {
             taskStyle = 'task';
         }

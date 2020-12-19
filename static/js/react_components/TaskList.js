@@ -56,7 +56,7 @@ export class TaskList extends React.Component {
                 activeMovingTaskId: null,
             },
             removingTask: {
-                removingTask: null,
+                removing: false,
                 removingTaskId: null,
                 removingTaskPosition: null,
                 removingTaskHeight: null,
@@ -268,7 +268,7 @@ export class TaskList extends React.Component {
 
                 this.setState({
                     removingTask: {
-                        removingTask: true,
+                        removing: true,
                         removingTaskId: task.id,
                         removingTaskPosition: task.taskInst.position,
                         removingTaskHeight: task.taskDiv.current.offsetHeight,
@@ -283,7 +283,7 @@ export class TaskList extends React.Component {
                         // linearTasksList: this.makeLinearList(this.rootTasksList),
                         linearTasksList: this.rootTasksList,
                         removingTask: {
-                            removingTask: false,
+                            removing: false,
                             removingTaskId: null,
                             removingTaskPosition: null,
                             removingTaskHeight: null,
