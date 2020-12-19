@@ -31,7 +31,7 @@ export class App extends React.Component {
     }
 
     appClick(e) {
-        if (registry.headerMenu.state.menuDisabled === false && e.target.id !== 'header_menu_list') {
+        if (registry.headerMenu.state.menuShowed === true && e.target.id !== 'header_menu_list') {
             registry.headerMenu.showHeaderMenu();
         }
     }
