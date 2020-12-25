@@ -61,6 +61,11 @@ export function swap(arr, currentTaskIndex, taskToSwapIndex) {
     return arr;
 }
 
+export function isInternetExplorer() {
+    return window.navigator.userAgent.indexOf('MSIE ') > -1 || window.navigator.userAgent.indexOf('Trident/') > -1;
+}
+
+
 /**
  *
  * @param arr
