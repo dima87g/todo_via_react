@@ -1,5 +1,7 @@
 'use strict';
 
+import 'core-js/stable';
+import "regenerator-runtime/runtime";
 import {App} from "./react_components/App";
 import React from "react";
 import ReactDOM from "react-dom";
