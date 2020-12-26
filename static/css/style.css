@@ -215,6 +215,7 @@ html, body {
 
 .auth_menu_labels {
     margin-left: 10px;
+    font-size: 14px;
 }
 
 /*Styles for show/hide login & register windows animation*/
@@ -252,6 +253,7 @@ html, body {
 .login_form_button, .register_form_button, .change_password_form_button {
     border-radius: 20px 20px;
     margin-left: 10px;
+    margin-top: 15px;
     outline: none;
 }
 
@@ -278,9 +280,18 @@ html, body {
 }
 
 .agreement {
-    margin: 10px;
+    margin: 10px 10px 0;
     font-size: 14px;
     word-break: break-word;
+}
+
+.change_password_window_cancel_button {
+    display: block;
+    position: relative;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    left: calc(100% - 25px);
 }
 
 .login_window_info, .register_window_info, .change_password_window_info {
