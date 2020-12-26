@@ -24,22 +24,24 @@
     "webpack": "^5.10.3",
     "webpack-cli": "^4.2.0"
   },
-  "browserslist": [
-    "defaults",
-    "ie >= 10"
-  ],
   "postcss": {
     "plugins": {
       "postcss-preset-env": {},
       "autoprefixer": {}
     }
   },
+  "browserslist": [
+    "defaults",
+    "ie >= 10",
+    "chrome >= 72",
+    "firefox >= 60"
+  ],
   "babel": {
     "presets": [
       [
         "@babel/preset-env",
         {
-          "useBuiltIns": "entry",
+          "useBuiltIns": "usage",
           "corejs": 3.8
         }
       ],

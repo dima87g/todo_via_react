@@ -1,4 +1,4 @@
-import {showInfoWindow} from "../todo_functions";
+import {showInfoWindow, isInternetExplorer} from "../todo_functions";
 import {registry} from "../main";
 import React from "react";
 
@@ -208,9 +208,14 @@ export class TaskReact extends React.Component {
                     let taskMovingDownHeight = this.taskDiv.current.clientHeight;
                     let taskMovingUpHeight = taskMovingUp.clientHeight;
                     this.taskDiv.current.style.transitionDuration = '0.3s';
-                    this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
                     taskMovingUp.style.transitionDuration = '0.3s';
-                    taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
+                    if (isInternetExplorer()) {
+                        this.taskDiv.current.style.transform = 'translateY(' + taskMovingUpHeight + 'px) translateY(10px)';
+                        taskMovingUp.style.transform = 'translateY(-' + taskMovingDownHeight + 'px) translateY(-10px)';
+                    } else {
+                        this.taskDiv.current.style.transform = 'translateY(calc(' + taskMovingUpHeight + 'px + 10px))';
+                        taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
+                    }
                 }
             } else if (this.props.removingTask.removing === true) {
                 if (this.props.removingTask.removingTaskId === this.id) {
@@ -218,7 +223,11 @@ export class TaskReact extends React.Component {
                 } else if (this.props.removingTask.removingTaskPosition < this.taskInst.position) {
                     taskStyle = 'task';
                     this.taskDiv.current.style.transitionDuration = '0.5s';
-                    this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.removingTask.removingTaskHeight + 'px - 10px))';
+                    if (isInternetExplorer()) {
+                        this.taskDiv.current.style.transform = 'translateY(-' + this.props.removingTask.removingTaskHeight + 'px) translateY(-10px)';
+                    } else {
+                        this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.removingTask.removingTaskHeight + 'px - 10px))';
+                    }
                 } else {
                     taskStyle = 'task';
                 }
