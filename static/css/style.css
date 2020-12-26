@@ -133,8 +133,8 @@ html, body {
 
 .burger_button {
     position: absolute;
-    width: 25px;
-    height: 25px;
+    width: 30px;
+    height: 30px;
     top: 5px;
     right: 5px;
     /*background-color: darkorange;*/
@@ -144,8 +144,8 @@ html, body {
 }
 
 .burger_button_stick {
-    width: 25px;
-    height: 3px;
+    width: 30px;
+    height: 4px;
     background-color: firebrick;
     transition: transform 0.5s,
                 opacity 0.5s;
@@ -163,7 +163,7 @@ html, body {
 }
 
 .burger_button_clicked > :nth-child(2) {
-    transform: translateX(-20px);
+    transform: translateX(-30px);
     opacity: 0;
 }
 
