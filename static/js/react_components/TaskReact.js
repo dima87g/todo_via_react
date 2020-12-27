@@ -33,28 +33,6 @@ export class TaskReact extends React.Component {
         this.editTaskField = React.createRef();
     }
 
-    componentDidMount() {
-        // console.log(this.id + ' is mounted!');
-    }
-
-    componentDidUpdate() {
-        // console.log('My height is ' + this.taskDiv.current.clientHeight + ' !');
-        // console.log(this.id + ' is updated!');
-        // if (this.props.movingTasks.activeMovingTaskId === this.id) {
-        //     console.log('I am active moving task!');
-        // }
-        // if (this.props.movingTasks.taskMovingUpId === this.id) {
-        //     console.log('I am moving up!');
-        // }
-        // if (this.props.movingTasks.taskMovingDownId === this.id) {
-        //     console.log('I am moving down!');
-        // }
-    }
-
-    // componentWillUnmount() {
-    //     console.log(this.id + ' will unmounted!');
-    // }
-
     /**
      * POST: json = {'task_id': 'number', 'status': 'boolean'}
      * GET:
@@ -205,8 +183,8 @@ export class TaskReact extends React.Component {
                 }
                 if (this.props.movingTasks.taskMovingDownId === this.id) {
                     let taskMovingUp = this.taskDiv.current.nextElementSibling;
-                    let taskMovingDownHeight = this.taskDiv.current.clientHeight;
-                    let taskMovingUpHeight = taskMovingUp.clientHeight;
+                    let taskMovingDownHeight = this.taskDiv.current.offsetHeight;
+                    let taskMovingUpHeight = taskMovingUp.offsetHeight;
                     this.taskDiv.current.style.transitionDuration = '0.3s';
                     taskMovingUp.style.transitionDuration = '0.3s';
                     if (isInternetExplorer()) {
