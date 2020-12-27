@@ -1,5 +1,5 @@
 import {registry} from "../main";
-import {getCookie, showInfoWindow} from "../todo_functions";
+import {getCookie, showInfoWindow, isInternetExplorer} from "../todo_functions";
 import {TaskList} from "./TaskList";
 import {TaskInput} from "./TaskInput";
 import {HeaderMenu} from "./HeaderMenu";
@@ -144,6 +144,9 @@ export class Login extends React.Component {
                 let tasksFromServer = response.data['tasks'];
                 let mainListId = response.data['list_id'];
                 let listsDict = response.data['lists_dict'];
+
+                console.log('lists dict is:');
+                console.log(listsDict);
 
                 this.setState({
                     userName: userName,
@@ -420,21 +423,51 @@ export class Login extends React.Component {
         }
 
         if (this.state.loginWindowShowed) {
-            loginWindowStyle = 'login_window login_window_visible';
+            if (isInternetExplorer()) {
+                loginWindowStyle = 'login_window_ie login_window_visible';
+            } else {
+                loginWindowStyle = 'login_window login_window_visible';
+            }
         } else {
-            loginWindowStyle = 'login_window login_window_hidden';
+            if (isInternetExplorer()) {
+                loginWindowStyle = 'login_window_ie login_window_hidden';
+            } else {
+                loginWindowStyle = 'login_window login_window_hidden';
+            }
         }
 
         if (this.state.registerWindowShowed) {
-            registerWindowStyle = 'register_window register_window_visible';
+            if (isInternetExplorer()) {
+                registerWindowStyle = 'register_window_ie' +
+                    ' register_window_visible';
+            } else {
+                registerWindowStyle = 'register_window register_window_visible';
+            }
         } else {
-            registerWindowStyle = 'register_window register_window_hidden';
+            if (isInternetExplorer()) {
+                registerWindowStyle = 'register_window_ie' +
+                    ' register_window_hidden';
+            } else {
+                registerWindowStyle = 'register_window register_window_hidden';
+            }
         }
 
         if (this.state.changePasswordWindowShowed) {
-            changePasswordWindowStyle = 'change_password_window change_password_window_visible';
+            if (isInternetExplorer()) {
+                changePasswordWindowStyle = 'change_password_window_ie' +
+                    ' change_password_window_visible';
+            } else {
+                changePasswordWindowStyle = 'change_password_window' +
+                    ' change_password_window_visible';
+            }
         } else {
-            changePasswordWindowStyle = 'change_password_window change_password_window_hidden'
+            if (isInternetExplorer()) {
+                changePasswordWindowStyle = 'change_password_window_ie' +
+                    ' change_password_window_hidden';
+            } else {
+                changePasswordWindowStyle = 'change_password_window' +
+                    ' change_password_window_hidden';
+            }
         }
         return (
             <div className={'main'} id={'main'}>

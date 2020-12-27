@@ -229,6 +229,18 @@ html, body {
     transition: opacity 0.5s;
 }
 
+.login_window_ie, .register_window_ie, .change_password_window_ie {
+    position: absolute;
+    height: 70%;
+    width: 70%;
+    opacity: 0;
+    border: 1px solid;
+    border-radius: 10px 10px;
+    transition: opacity 0.5s;
+    left: 15%;
+    top: 15%;
+}
+
 .login_window_visible, .register_window_visible, .change_password_window_visible {
     visibility: visible;
     opacity: 1;
