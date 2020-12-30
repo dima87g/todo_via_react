@@ -389,8 +389,16 @@ export class Login extends React.Component {
         }
     }
 
-    createNewList() {
+    createNewList(e) {
+        console.log('New list!');
+        const sendData = null;
 
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                console.log('New list creating successfully!');
+            }
+        }
+        registry.app.knockKnock('/create_list', responseHandler, sendData);
     }
 
     render() {

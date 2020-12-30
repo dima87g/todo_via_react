@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify, make_response, g
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 import random
@@ -35,6 +35,37 @@ connection_pool = mysql.connector.pooling.MySQLConnectionPool(
 
 print("Connection Pool Name - ", connection_pool.pool_name)
 print("Connection Pool Size - ", connection_pool.pool_size)
+
+
+@app.before_request
+def before_request():
+    try:
+        if request.path == "/create_list":
+            print("Creating new list")
+
+            g.connection = connection_pool.get_connection()
+            g.cur = g.connection.cursor()
+
+    except mysql.connector.Error as error:
+        response = make_response(jsonify(
+            {
+                "ok": False,
+                "error_code": error.errno,
+                "error_message": error.msg
+            }
+        ), 500)
+
+        return response
+
+
+@app.teardown_appcontext
+def teardown_appcontext(err):
+    if hasattr(g, "cur"):
+        print(g.cur)
+        g.cur.close()
+    if hasattr(g, "connection"):
+        print(g.connection)
+        g.connection.close()
 
 
 @app.route("/")
@@ -910,6 +941,22 @@ def load_tasks():
             cur.close()
         if connection is not None:
             connection.close()
+
+
+@app.route("/create_list", methods=["POST"])
+def create_list():
+    user_text_id = request.cookies.get("id")
+    sign = request.cookies.get("sign")
+
+    if not check_cookies(user_text_id, sign):
+        pass
+
+    response = make_response(jsonify(
+        {
+            "ok": True
+        }), 200)
+
+    return response
 
 
 # Service functions

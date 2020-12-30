@@ -20,8 +20,8 @@ export class Header extends React.Component {
         console.log('I am updating!');
         this.count++;
         console.log(this.count);
-        console.log(prevProps);
-        console.log(this.props);
+        // console.log(prevProps);
+        // console.log(this.props);
         if (this.props.userName && !this.userNameField.current.firstChild) {
             this.userNameField.current.appendChild(document.createTextNode('User: '+ this.props.userName));
         } else {
