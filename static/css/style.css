@@ -176,6 +176,8 @@ html, body {
 
 .list_select_menu {
     display: block;
+    position: absolute;
+    bottom: 0;
 }
 
 /*Styles for show/hide auth menu animation*/
