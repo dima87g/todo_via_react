@@ -43,6 +43,10 @@ export class Login extends React.Component {
         registry.login = this;
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('UPDATE');
+    }
+
     componentWillUnmount() {
         registry.login = null;
     }
@@ -356,6 +360,7 @@ export class Login extends React.Component {
     }
 
     listChange(e) {
+        console.log('Changing list!');
         let selectedListId = e.target.value;
         let currentListId = registry.taskList.listId;
 
@@ -396,6 +401,10 @@ export class Login extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 console.log('New list creating successfully!');
+                this.setState({
+                    listSelectMenu: this.state.listSelectMenu,
+                })
+                this.forceUpdate();
             }
         }
         registry.app.knockKnock('/create_list', responseHandler, sendData);

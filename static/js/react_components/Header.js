@@ -6,6 +6,9 @@ import {TaskInput} from "./TaskInput";
 export class Header extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            selectedListName: this.props.selectedListName,
+        }
         this.userNameField = React.createRef();
         this.count = 0;
     }
@@ -17,11 +20,9 @@ export class Header extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('I am updating!');
+        console.log('I am HEADER and i am updating!');
         this.count++;
         console.log(this.count);
-        // console.log(prevProps);
-        // console.log(this.props);
         if (this.props.userName && !this.userNameField.current.firstChild) {
             this.userNameField.current.appendChild(document.createTextNode('User: '+ this.props.userName));
         } else {
@@ -49,8 +50,8 @@ export class Header extends React.Component {
                         />
                     </a>
                     <select
-                        // TODO Need to make defaultValue in select tag instead selected in option tag
                         className={'list_select_menu'}
+                        value={registry.taskList ? registry.taskList.listId.toString() : '0'}
                         onChange={this.listChange}
                     >
                         {this.props.listSelectMenu.map((value, index) => {
@@ -61,7 +62,7 @@ export class Header extends React.Component {
                             if (registry.taskList) {
                                 currentSelectedList = registry.taskList.listId === parseInt(value[0]);
                             }
-                            return <option key={index} selected={currentSelectedList} value={value[0]}>{value[1]}</option>
+                            return <option key={index} value={value[0]}>{value[1]}</option>
                         })}
                         <option value={0}>...new list...</option>
                     </select>
