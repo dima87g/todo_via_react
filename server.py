@@ -830,7 +830,7 @@ def auth_check():
 def load_tasks():
     connection = None
     cur = None
-
+    # TODO Check if list id exists even user auth is correct
     try:
         connection = connection_pool.get_connection()
         cur = connection.cursor()
