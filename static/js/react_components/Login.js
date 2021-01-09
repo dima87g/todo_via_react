@@ -43,10 +43,6 @@ export class Login extends React.Component {
         registry.login = this;
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('UPDATE');
-    }
-
     componentWillUnmount() {
         registry.login = null;
     }

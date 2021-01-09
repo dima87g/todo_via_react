@@ -13,16 +13,7 @@ export class Header extends React.Component {
         this.count = 0;
     }
 
-    componentDidMount() {
-        console.log('I am Mounted!');
-        this.count++;
-        console.log(this.count);
-    }
-
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('I am HEADER and i am updating!');
-        this.count++;
-        console.log(this.count);
         if (this.props.userName && !this.userNameField.current.firstChild) {
             this.userNameField.current.appendChild(document.createTextNode('User: '+ this.props.userName));
         } else {
@@ -59,9 +50,6 @@ export class Header extends React.Component {
                             // TODO object keys are always of string type !!!
                             //  Need to make the listsDict structure from the server
                             //  so that id is a numeric type without parseInt function!!!
-                            if (registry.taskList) {
-                                currentSelectedList = registry.taskList.listId === parseInt(value[0]);
-                            }
                             return <option key={index} value={value[0]}>{value[1]}</option>
                         })}
                         <option value={0}>...new list...</option>
