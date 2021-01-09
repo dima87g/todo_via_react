@@ -22,6 +22,8 @@ export class Login extends React.Component {
             changePasswordWindowShowed: false,
             changePasswordWindowCancelButtonDisabled: true,
             changePasswordWindowSubmitButtonDisabled: true,
+            createNewListWindowCancelButtonDisabled: true,
+            createNewListWindowSubmitButtonDisabled: true,
             listSelectMenu: [],
         }
         this.switchLogin = this.switchLogin.bind(this);
@@ -34,6 +36,7 @@ export class Login extends React.Component {
         this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
         this.listChange = this.listChange.bind(this);
+        this.createNewListWindow = this.createNewListWindow.bind(this);
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
@@ -287,6 +290,7 @@ export class Login extends React.Component {
                 this.changePasswordWindow();
                 showInfoWindow('Password is changed!');
             } else if (response.status === 401) {
+                this.changePasswordWindow();
                 this.forceLogOut();
                 showInfoWindow('Authorisation problem!');
             } else {
@@ -556,7 +560,8 @@ export class Login extends React.Component {
                         </button>
                     </div>
                     <div id={"change_password_window"} className={changePasswordWindowStyle}>
-                        <button type={"button"} id={"change_password_window_cancel_button"}
+                        <button type={"button"}
+                                id={"change_password_window_cancel_button"}
                                 className={"change_password_window_cancel_button"}
                                 disabled={this.state.changePasswordWindowCancelButtonDisabled}
                                 onClick={this.changePasswordWindow}>X
@@ -593,6 +598,34 @@ export class Login extends React.Component {
                         <p className={"change_password_window_info"}
                            id={"change_password_window_info"}
                            ref={this.changePasswordFormInfo}/>
+                    </div>
+                    <div className={"create_new_list_window"}
+                         id={"create_new_list_window"}>
+                        <button
+                            type={"button"}
+                            id={"create_new_list_window_cancel_button"}
+                            className={"create_new_list_window_cancel_button"}
+                            disabled={this.state.createNewListWindowCancelButtonDisabled}
+                            onClick={this.createNewListWindow}>
+                            X
+                        </button>
+                        <p className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["label"]}</p>
+                        <form name={"create_new_list_form"} onSubmit={this.createNewList}>
+                            <label htmlFor={"create_new_list_form_list_name"}
+                                   className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["new_list_name"]}</label>
+                            <input type={"text"}
+                                   name={"create_new_list_form_list_name"}
+                                   id={"create_new_list_form_list_name"}
+                                   className={"create_new_list_form_list_name"}
+                                   placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}/>
+                           <button type={"submit"}
+                                   value={"create_new_list"}
+                                   id={"create_new_list_button"}
+                                   className={"create_new_list_button"}
+                                   disabled={this.state.createNewListWindowSubmitButtonDisabled}>
+                               {localisation["create_new_list_window"]["new_list_button"]}
+                           </button>
+                        </form>
                     </div>
                 </div>
                 <div className={'task_list'} id={'task_list'}/>
