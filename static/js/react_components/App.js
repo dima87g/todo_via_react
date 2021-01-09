@@ -51,12 +51,6 @@ export class App extends React.Component {
         this.knockKnock('/auth_check', responseHandler);
     }
 
-    removeChildren(element) {
-        while (element.firstChild) {
-            element.removeChild(element.firstChild)
-        }
-    }
-
     showConfirmWindow(message, func) {
         this.showShadowModal();
         this.confirmWindowFunction = func;
@@ -81,32 +75,12 @@ export class App extends React.Component {
     }
 
     showShadowModal() {
-        registry.headerMenu.setState({
-            menuDisabled: true,
-        });
-
-        if (registry.taskInput) {
-            registry.taskInput.setState({
-                taskInputDisabled: true,
-            });
-        }
-
         this.setState({
             shadowModalIsVisible: true,
         });
     }
 
     hideShadowModal() {
-        registry.headerMenu.setState({
-            menuDisabled: false,
-        });
-
-        if (registry.taskInput) {
-            registry.taskInput.setState({
-                taskInputDisabled: false,
-            });
-        }
-
         this.setState({
             shadowModalIsVisible: false,
         })
@@ -150,7 +124,8 @@ export class App extends React.Component {
         }
         return (
             <div className={'app'} id={'app'} onClick={this.appClick}>
-                <Login app={this}/>
+                <Login app={this}
+                       shadowModalIsVisible={this.state.shadowModalIsVisible}/>
                 <div id={"confirm_window"} className={confirmWindowStyle}>
                     <p id={"confirm_window_message"}
                        className={'confirm_window_message'}>

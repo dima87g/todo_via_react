@@ -2,6 +2,7 @@ import {registry} from "../main";
 import React from "react";
 import {HeaderMenu} from "./HeaderMenu";
 import {TaskInput} from "./TaskInput";
+import {removeChildren} from "../todo_functions";
 
 export class Header extends React.Component {
     constructor(props) {
@@ -13,14 +14,6 @@ export class Header extends React.Component {
         this.count = 0;
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.userName && !this.userNameField.current.firstChild) {
-            this.userNameField.current.appendChild(document.createTextNode('User: '+ this.props.userName));
-        } else {
-            registry.app.removeChildren(this.userNameField);
-        }
-    }
-
     listChange(e) {
         registry.login.listChange(e);
     }
@@ -29,11 +22,11 @@ export class Header extends React.Component {
         return(
             <div id={"header"} className={"header"}>
                 <div id={"header_login_section"} className={"header_login_section"}>
-                    <p
-                        id={"user_name_field"}
-                        className={"user_name_field"}
-                        ref={this.userNameField}
-                    />
+                    <p id={"user_name_field"}
+                       className={"user_name_field"}
+                       ref={this.userNameField}>
+                        {"User: " + this.props.userName}
+                    </p>
                     <a href={localisation['language_change']['link']} className={'language_switch_button'}>
                         <img
                             src={'/static/icons/' + localisation['language_change']['label'] + '_flag.png'}
@@ -54,9 +47,9 @@ export class Header extends React.Component {
                         })}
                         <option value={0}>...new list...</option>
                     </select>
-                    <HeaderMenu/>
+                    <HeaderMenu shadowModalIsVisible={this.props.shadowModalIsVisible}/>
                 </div>
-                <TaskInput/>
+                <TaskInput shadowModalIsVisible={this.props.shadowModalIsVisible}/>
             </div>
         )
     }
