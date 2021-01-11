@@ -5,7 +5,6 @@ export class HeaderMenu extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            menuDisabled: true,
             menuShowed: false,
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
@@ -79,7 +78,7 @@ export class HeaderMenu extends React.Component {
         let burgerButtonStyle;
         let menuButtonFunction;
 
-        if (this.state.menuDisabled === false) {
+        if (this.props.shadowModalIsVisible === false) {
             menuButtonFunction = this.showHeaderMenu;
         } else {
             menuButtonFunction = null;

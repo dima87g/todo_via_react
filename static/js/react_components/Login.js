@@ -1,5 +1,10 @@
 import {registry} from "../main";
-import {getCookie, showInfoWindow, isInternetExplorer} from "../todo_functions";
+import {
+    getCookie,
+    showInfoWindow,
+    isInternetExplorer,
+    removeChildren
+} from "../todo_functions";
 import {TaskList} from "./TaskList";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -9,7 +14,7 @@ export class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            userName: null,
+            userName: "",
             menuShowed: false,
             userLogOutButtonDisabled: true,
             userDeleteButtonDisabled: true,
@@ -63,7 +68,7 @@ export class Login extends React.Component {
                 });
             }, 500);
             document.forms['login_form'].reset();
-            registry.app.removeChildren(this.loginFormInfo.current);
+            removeChildren(this.loginFormInfo.current);
         } else {
             this.setState({
                 loginWindowShowed: true,
@@ -76,14 +81,14 @@ export class Login extends React.Component {
                 });
             }, 500);
             document.forms['register_form'].reset();
-            registry.app.removeChildren(this.registerFormInfo.current);
+            removeChildren(this.registerFormInfo.current);
         }
     }
 
     hideLoginWindow() {
         document.forms['login_form'].reset();
         document.forms['register_form'].reset();
-        registry.app.removeChildren(this.loginFormInfo.current);
+        removeChildren(this.loginFormInfo.current);
         registry.app.hideShadowModal();
 
         this.setState({
@@ -111,7 +116,7 @@ export class Login extends React.Component {
     login(e) {
         e.preventDefault();
 
-        registry.app.removeChildren(this.loginFormInfo.current);
+        removeChildren(this.loginFormInfo.current);
 
         const userName = e.target['login_form_username'].value;
         const password = e.target['login_form_password'].value;
@@ -190,7 +195,7 @@ export class Login extends React.Component {
         document.cookie = 'id=; expires=-1';
 
         this.setState({
-            userName: null,
+            userName: "",
             listSelectMenu: [],
         });
 
@@ -217,7 +222,7 @@ export class Login extends React.Component {
         document.cookie = 'id=; expires=-1';
 
         this.setState({
-            userName: null,
+            userName: "",
             listSelectMenu: [],
         });
 
@@ -279,7 +284,7 @@ export class Login extends React.Component {
     changePassword(e) {
         e.preventDefault();
 
-        registry.app.removeChildren(this.changePasswordFormInfo.current);
+        removeChildren(this.changePasswordFormInfo.current);
 
         let oldPassword = e.target['change_password_form_old_password'].value;
         let newPassword = e.target['change_password_form_new_password'].value;
@@ -323,7 +328,7 @@ export class Login extends React.Component {
     userRegister(e) {
         e.preventDefault();
 
-        registry.app.removeChildren(this.registerFormInfo.current);
+        removeChildren(this.registerFormInfo.current);
 
         let userName = e.target['register_form_username'].value;
         let password = e.target['register_form_password'].value;
@@ -412,6 +417,10 @@ export class Login extends React.Component {
                 createNewListWindowShowed: false,
             });
         }
+    }
+
+    createNewListWindow() {
+
     }
 
     createNewList(e) {
@@ -515,6 +524,7 @@ export class Login extends React.Component {
             <div className={'main'} id={'main'}>
                 <Header userName={this.state.userName}
                         listSelectMenu={this.state.listSelectMenu}
+                        shadowModalIsVisible={this.props.shadowModalIsVisible}
                 />
                 <div id={'auth_menu'} className={authMenuStyle}>
                     <div id={'login_window'} className={loginWindowStyle}>

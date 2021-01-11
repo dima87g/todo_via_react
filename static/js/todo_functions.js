@@ -15,9 +15,9 @@ export function showInfoWindow(message) {
     }, 3000)
 }
 
-export function removeChildren(field) {
-    while (field.firstChild) {
-        field.removeChild(field.firstChild);
+export function removeChildren(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
     }
 }
 

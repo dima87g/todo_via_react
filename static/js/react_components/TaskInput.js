@@ -4,10 +4,6 @@ import React from "react";
 export class TaskInput extends React.Component{
     constructor(props) {
         super(props);
-        this.state = {
-            taskInputDisabled: false,
-        };
-
         this.addTask = this.addTask.bind(this);
     }
 
@@ -35,7 +31,7 @@ export class TaskInput extends React.Component{
         let taskInputFieldDisabled;
         let taskInputButtonDisabled;
 
-        if (this.state.taskInputDisabled === true) {
+        if (this.props.shadowModalIsVisible === true) {
             taskInputSubmitFunction = null;
             taskInputFieldDisabled = true;
             taskInputButtonDisabled = true;
