@@ -22,7 +22,7 @@ export class Login extends React.Component {
             changePasswordWindowShowed: false,
             changePasswordWindowCancelButtonDisabled: true,
             changePasswordWindowSubmitButtonDisabled: true,
-            createNewListWindowCancelButtonDisabled: true,
+            createNewListWindowShowed: false,
             createNewListWindowSubmitButtonDisabled: true,
             listSelectMenu: [],
         }
@@ -390,7 +390,27 @@ export class Login extends React.Component {
             }
             registry.app.knockKnock('/load_tasks', responseHandler, sendData);
         } else if (selectedListId === '0') {
-            this.createNewList();
+            this.createNewListWindow();
+        }
+    }
+
+    createNewListWindow() {
+        if (this.state.createNewListWindowShowed === false) {
+            registry.app.showShadowModal();
+            this.setState({
+                authMenuShowed: true,
+                createNewListWindowShowed: true,
+                loginWindowShowed: false,
+                registerWindowShowed: false,
+                changePasswordWindowShowed: false,
+            });
+        } else {
+            registry.app.hideShadowModal();
+            this.setState({
+
+                authMenuShowed: false,
+                createNewListWindowShowed: false,
+            });
         }
     }
 
@@ -415,6 +435,9 @@ export class Login extends React.Component {
         let loginWindowStyle;
         let registerWindowStyle;
         let changePasswordWindowStyle;
+        let createNewListWindowStyle;
+        let createNewListWindowCancelButtonDisabled;
+        let createNewListWindowSubmitButtonDisabled;
 
         if (this.state.authMenuShowed) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -469,6 +492,25 @@ export class Login extends React.Component {
                     ' change_password_window_hidden';
             }
         }
+
+        if (this.state.createNewListWindowShowed) {
+            createNewListWindowCancelButtonDisabled = false;
+            createNewListWindowSubmitButtonDisabled = false;
+            if (isInternetExplorer()) {
+                createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_visible';
+            } else {
+                createNewListWindowStyle = 'create_new_list_window create_new_list_window_visible';
+            }
+        } else {
+            createNewListWindowCancelButtonDisabled = true;
+            createNewListWindowSubmitButtonDisabled = true;
+            if (isInternetExplorer()) {
+                createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_hidden';
+            } else {
+                createNewListWindowStyle = 'create_new_list_window create_new_list_window_hidden';
+            }
+        }
+
         return (
             <div className={'main'} id={'main'}>
                 <Header userName={this.state.userName}
@@ -599,20 +641,19 @@ export class Login extends React.Component {
                            id={"change_password_window_info"}
                            ref={this.changePasswordFormInfo}/>
                     </div>
-                    <div className={"create_new_list_window"}
-                         id={"create_new_list_window"}>
+                    <div id={"create_new_list_window"} className={createNewListWindowStyle}>
                         <button
                             type={"button"}
                             id={"create_new_list_window_cancel_button"}
                             className={"create_new_list_window_cancel_button"}
-                            disabled={this.state.createNewListWindowCancelButtonDisabled}
+                            disabled={createNewListWindowCancelButtonDisabled}
                             onClick={this.createNewListWindow}>
                             X
                         </button>
                         <p className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["label"]}</p>
                         <form name={"create_new_list_form"} onSubmit={this.createNewList}>
                             <label htmlFor={"create_new_list_form_list_name"}
-                                   className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["new_list_name"]}</label>
+                                   className={"auth_menu_labels"}>{localisation["create_new_list_window"]["new_list_name"]}</label>
                             <input type={"text"}
                                    name={"create_new_list_form_list_name"}
                                    id={"create_new_list_form_list_name"}
@@ -622,7 +663,7 @@ export class Login extends React.Component {
                                    value={"create_new_list"}
                                    id={"create_new_list_button"}
                                    className={"create_new_list_button"}
-                                   disabled={this.state.createNewListWindowSubmitButtonDisabled}>
+                                   disabled={createNewListWindowSubmitButtonDisabled}>
                                {localisation["create_new_list_window"]["new_list_button"]}
                            </button>
                         </form>
