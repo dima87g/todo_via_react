@@ -264,7 +264,7 @@ html, body {
     outline: none;
 }
 
-.login_form_button, .register_form_button, .change_password_form_button, .create_new_list_button {
+.login_form_button, .register_form_button, .change_password_form_submit_button, .create_new_list_form_submit_button {
     border-radius: 20px 20px;
     margin-left: 10px;
     margin-top: 15px;

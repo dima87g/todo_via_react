@@ -15,25 +15,17 @@ export class Login extends React.Component {
         super(props);
         this.state = {
             userName: "",
-            menuShowed: false,
-            userLogOutButtonDisabled: true,
-            userDeleteButtonDisabled: true,
-            changePasswordButtonDisabled: true,
             authMenuShowed: true,
             loginWindowShowed: true,
             loginWindowSwitchButtonDisabled: false,
             registerWindowShowed: false,
             registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
-            changePasswordWindowCancelButtonDisabled: true,
-            changePasswordWindowSubmitButtonDisabled: true,
             createNewListWindowShowed: false,
-            createNewListWindowSubmitButtonDisabled: true,
             listSelectMenu: [],
         }
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
-        this.showMenu = this.showMenu.bind(this);
         this.login = this.login.bind(this);
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
@@ -95,9 +87,6 @@ export class Login extends React.Component {
             authMenuShowed: false,
             loginWindowShowed: false,
             registerWindowShowed: false,
-            userLogOutButtonDisabled: false,
-            userDeleteButtonDisabled: false,
-            changePasswordButtonDisabled: false,
         })
     }
 
@@ -107,9 +96,6 @@ export class Login extends React.Component {
         this.setState({
             authMenuShowed: true,
             loginWindowShowed: true,
-            userLogOutButtonDisabled: true,
-            userDeleteButtonDisabled: true,
-            changePasswordButtonDisabled: true,
         })
     }
 
@@ -171,24 +157,6 @@ export class Login extends React.Component {
         registry.app.knockKnock('/load_tasks', responseHandler, sendData);
     }
 
-    showMenu() {
-        if (this.state.menuShowed) {
-            this.setState({
-                menuShowed: false,
-                userLogOutButtonDisabled: true,
-                userDeleteButtonDisabled: true,
-                changePasswordButtonDisabled: true,
-            });
-        } else {
-            this.setState({
-                menuShowed: true,
-                userLogOutButtonDisabled: false,
-                userDeleteButtonDisabled: false,
-                changePasswordButtonDisabled: false,
-            });
-        }
-    }
-
     logOut() {
         const confirmFunction = () => {
         document.cookie = 'id=; expires=-1';
@@ -200,7 +168,6 @@ export class Login extends React.Component {
         });
 
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-        // ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
         this.showLoginWindow();
         }
@@ -227,7 +194,6 @@ export class Login extends React.Component {
         });
 
         ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-        // ReactDOM.unmountComponentAtNode(document.getElementById('input'));
 
         this.showLoginWindow();
     }
@@ -269,6 +235,7 @@ export class Login extends React.Component {
                 changePasswordWindowSubmitButtonDisabled: false,
             })
         } else {
+            document.forms["change_password_form"].reset();
             this.hideLoginWindow();
             this.setState({
                 changePasswordWindowShowed: false,
@@ -410,6 +377,7 @@ export class Login extends React.Component {
                 changePasswordWindowShowed: false,
             });
         } else {
+            document.forms["create_new_list_form"].reset();
             registry.app.hideShadowModal();
             this.setState({
 
@@ -419,11 +387,7 @@ export class Login extends React.Component {
         }
     }
 
-    createNewListWindow() {
-
-    }
-
-    createNewList(e) {
+    createNewList() {
         console.log('New list!');
         const sendData = null;
 
@@ -444,6 +408,8 @@ export class Login extends React.Component {
         let loginWindowStyle;
         let registerWindowStyle;
         let changePasswordWindowStyle;
+        let changePasswordWindowCancelButtonDisabled;
+        let changePasswordWindowSubmitButtonDisabled;
         let createNewListWindowStyle;
         let createNewListWindowCancelButtonDisabled;
         let createNewListWindowSubmitButtonDisabled;
@@ -485,6 +451,9 @@ export class Login extends React.Component {
         }
 
         if (this.state.changePasswordWindowShowed) {
+            changePasswordWindowCancelButtonDisabled = false;
+            changePasswordWindowSubmitButtonDisabled = false;
+
             if (isInternetExplorer()) {
                 changePasswordWindowStyle = 'change_password_window_ie' +
                     ' change_password_window_visible';
@@ -493,6 +462,9 @@ export class Login extends React.Component {
                     ' change_password_window_visible';
             }
         } else {
+            changePasswordWindowCancelButtonDisabled = true;
+            changePasswordWindowSubmitButtonDisabled = true;
+
             if (isInternetExplorer()) {
                 changePasswordWindowStyle = 'change_password_window_ie' +
                     ' change_password_window_hidden';
@@ -505,6 +477,7 @@ export class Login extends React.Component {
         if (this.state.createNewListWindowShowed) {
             createNewListWindowCancelButtonDisabled = false;
             createNewListWindowSubmitButtonDisabled = false;
+
             if (isInternetExplorer()) {
                 createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_visible';
             } else {
@@ -513,6 +486,7 @@ export class Login extends React.Component {
         } else {
             createNewListWindowCancelButtonDisabled = true;
             createNewListWindowSubmitButtonDisabled = true;
+
             if (isInternetExplorer()) {
                 createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_hidden';
             } else {
@@ -615,7 +589,7 @@ export class Login extends React.Component {
                         <button type={"button"}
                                 id={"change_password_window_cancel_button"}
                                 className={"change_password_window_cancel_button"}
-                                disabled={this.state.changePasswordWindowCancelButtonDisabled}
+                                disabled={changePasswordWindowCancelButtonDisabled}
                                 onClick={this.changePasswordWindow}>X
                         </button>
                         <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
@@ -641,9 +615,11 @@ export class Login extends React.Component {
                                    id={"change_password_form_new_password_confirm"}
                                    className={"change_password_form_new_password_confirm"}
                                    placeholder={localisation['change_password_window']['new_password_confirm_placeholder']}/>
-                            <button type={"submit"} value={"Change password"} id={"change_password_form_button"}
-                                    className={"change_password_form_button"}
-                                    disabled={this.state.changePasswordWindowSubmitButtonDisabled}>
+                            <button type={"submit"}
+                                    value={"Change password"}
+                                    id={"change_password_form_submit_button"}
+                                    className={"change_password_form_submit_button"}
+                                    disabled={changePasswordWindowSubmitButtonDisabled}>
                                 {localisation['change_password_window']['change_password_button']}
                             </button>
                         </form>
@@ -671,8 +647,8 @@ export class Login extends React.Component {
                                    placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}/>
                            <button type={"submit"}
                                    value={"create_new_list"}
-                                   id={"create_new_list_button"}
-                                   className={"create_new_list_button"}
+                                   id={"create_new_list_form_submit_button"}
+                                   className={"create_new_list_form_submit_button"}
                                    disabled={createNewListWindowSubmitButtonDisabled}>
                                {localisation["create_new_list_window"]["new_list_button"]}
                            </button>

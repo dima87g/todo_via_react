@@ -19,6 +19,10 @@ export class Header extends React.Component {
     }
 
     render() {
+        let listSelectMenuDisabled;
+
+        listSelectMenuDisabled = !!this.props.shadowModalIsVisible;
+
         return(
             <div id={"header"} className={"header"}>
                 <div id={"header_login_section"} className={"header_login_section"}>
@@ -37,6 +41,7 @@ export class Header extends React.Component {
                         className={'list_select_menu'}
                         value={registry.taskList ? registry.taskList.listId.toString() : '0'}
                         onChange={this.listChange}
+                        disabled={listSelectMenuDisabled}
                     >
                         {this.props.listSelectMenu.map((value, index) => {
                             let currentSelectedList;

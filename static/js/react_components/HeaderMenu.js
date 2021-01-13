@@ -99,20 +99,20 @@ export class HeaderMenu extends React.Component {
             <div id={'header_menu'} className={'header_menu'}>
                 <div id={'header_menu_list'} className={headerMenuListStyle}>
                     <input type="button"
+                           id={"user_logout_button"}
                            className={headerMenuListButtonsStyle}
-                           id='user_logout_button'
                            value={localisation['buttons']['logout']}
                            disabled={this.state.userLogOutButtonDisabled}
                            onClick={this.logOut}/>
                     <input type="button"
+                           id={"change_password_button"}
                            className={headerMenuListButtonsStyle}
-                           id="change_password_button"
                            value={localisation['buttons']['change_password']}
                            disabled={this.state.changePasswordButtonDisabled}
                            onClick={this.changePassword}/>
                     <input type="button"
+                           id={"user_delete_button"}
                            className={headerMenuListButtonsStyle}
-                           id="user_delete_button"
                            value={localisation['buttons']['delete_user']}
                            disabled={this.state.userDeleteButtonDisabled}
                            onClick={this.userDelete}/>
