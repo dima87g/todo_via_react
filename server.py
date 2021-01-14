@@ -39,23 +39,26 @@ print("Connection Pool Size - ", connection_pool.pool_size)
 
 @app.before_request
 def before_request():
-    try:
-        if request.path == "/create_list":
-            print("Creating new list")
+    access_mode = config["access"]["access_mode"]
+    debug_print(request.path)
+    if request.path == "/auth_check" or request.path == "/user_login" or \
+            request.path == "/user_register":
+        if access_mode == "developer":
 
-            g.connection = connection_pool.get_connection()
-            g.cur = g.connection.cursor()
+            dev_cookie = request.cookies.get("developer")
+            dev_cookie_sign = request.cookies.get("developer_sign")
 
-    except mysql.connector.Error as error:
-        response = make_response(jsonify(
-            {
-                "ok": False,
-                "error_code": error.errno,
-                "error_message": error.msg
-            }
-        ), 500)
+            if not check_cookies(dev_cookie, dev_cookie_sign):
+                response = make_response(
+                    {
+                        "ok": False,
+                        "error_message": "Sorry, this app is working only for "
+                                         "developers now. Will be worked soon;)"
+                    },
+                    403
+                )
 
-        return response
+                return response
 
 
 @app.teardown_appcontext
@@ -300,6 +303,8 @@ def user_login():
         response.set_cookie("sign", sign,
                             max_age=int(cookies_config['MAX_AGE'])
                             )
+        if user_name == "dima87g":
+            response = make_dev(response)
 
         return response
     except mysql.connector.Error as error:
@@ -945,18 +950,22 @@ def load_tasks():
 
 @app.route("/create_list", methods=["POST"])
 def create_list():
-    user_text_id = request.cookies.get("id")
-    sign = request.cookies.get("sign")
+    try:
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
 
-    if not check_cookies(user_text_id, sign):
-        pass
+        if not check_cookies(user_text_id, sign):
+            pass
 
-    response = make_response(jsonify(
-        {
-            "ok": True
-        }), 200)
+        response = make_response(jsonify(
+            {
+                "ok": True
+            }), 200)
 
-    return response
+        return response
+    except Exception as e:
+        print("UUUps")
+        print(e)
 
 
 # Service functions
@@ -969,7 +978,20 @@ def create_text_id():
     return "".join(salt)
 
 
-def check_cookies(user_text_id: str, sign):
+def make_dev(response):
+    dev_cookie = create_text_id()
+    dev_cookie_sign = hashlib.sha256()
+    dev_cookie_sign.update(static_salt.encode())
+    dev_cookie_sign.update(dev_cookie.encode())
+    dev_cookie_sign = dev_cookie_sign.hexdigest()
+
+    response.set_cookie("developer", dev_cookie)
+    response.set_cookie("developer_sign", dev_cookie_sign)
+
+    return response
+
+
+def check_cookies(user_text_id: str, sign: str):
     if not user_text_id or not sign:
         return False
 

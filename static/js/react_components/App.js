@@ -1,5 +1,5 @@
 import {registry} from "../main";
-import {showCookiesAlertWindow} from "../todo_functions";
+import {showCookiesAlertWindow, showInfoWindow} from "../todo_functions";
 import axios from "axios";
 import {Login} from "./Login";
 import {LoadingWindow} from "./LoadingWindow";
@@ -100,7 +100,11 @@ export class App extends React.Component {
                 this.loadingWindow.current.hideWindow();
                 console.log(error);
                 console.log(error.response);
-                if (error.response.status) {
+                if (error.response.status === 403) {
+                    this.showShadowModal();
+                    showInfoWindow(error.response.data['error_message']);
+                }
+                else if (error.response.status) {
                     func(error.response);
                 }
                 // func(error.response);
