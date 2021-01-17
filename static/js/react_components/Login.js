@@ -24,6 +24,7 @@ export class Login extends React.Component {
             createNewListWindowShowed: false,
             listSelectMenu: [],
         }
+        this.listSelectMenu = null;
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
         this.login = this.login.bind(this);
@@ -34,6 +35,7 @@ export class Login extends React.Component {
         this.userRegister = this.userRegister.bind(this);
         this.listChange = this.listChange.bind(this);
         this.createNewListWindow = this.createNewListWindow.bind(this);
+        this.createNewList = this.createNewList.bind(this);
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
@@ -141,12 +143,12 @@ export class Login extends React.Component {
                 ReactDOM.render(
                     <TaskList
                         listId={mainListId}
-                        listsDict={listsDict}
                         tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
                 );
 
+                this.listSelectMenu = Object.entries(listsDict);
                 this.setState({
-                    listSelectMenu: Object.entries(listsDict),
+                    listSelectMenu: this.listSelectMenu,
                 });
 
             } else if (response.status === 401) {
@@ -161,6 +163,8 @@ export class Login extends React.Component {
         const confirmFunction = () => {
         document.cookie = 'id=; expires=-1';
         document.cookie = 'id=; expires=-1';
+
+        this.listSelectMenu = [];
 
         this.setState({
             userName: "",
@@ -187,6 +191,8 @@ export class Login extends React.Component {
     forceLogOut() {
         document.cookie = 'id=; expires=-1';
         document.cookie = 'id=; expires=-1';
+
+        this.listSelectMenu = [];
 
         this.setState({
             userName: "",
@@ -350,12 +356,12 @@ export class Login extends React.Component {
                     ReactDOM.render(
                         <TaskList
                             listId={mainListId}
-                            listsDict={listsDict}
                             tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
                     );
 
+                    this.listSelectMenu = Object.entries(listsDict);
                     this.setState({
-                        listSelectMenu: Object.entries(listsDict),
+                        listSelectMenu: this.listSelectMenu,
                     });
 
                 }
@@ -387,17 +393,32 @@ export class Login extends React.Component {
         }
     }
 
-    createNewList() {
-        console.log('New list!');
-        const sendData = null;
+    createNewList(e) {
+        e.preventDefault();
+
+        let newListName = document.forms['create_new_list_form']['create_new_list_form_list_name'].value;
+
+        const sendData = {'newListName': newListName};
 
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                console.log('New list creating successfully!');
+                let newListId = response.data['new_list_id'];
+
+                this.createNewListWindow();
+
+                ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+
+                ReactDOM.render(
+                    <TaskList
+                        listId={newListId}
+                        tasksFromServer={[]}
+                    />, document.getElementById('task_list')
+                );
+
+                this.listSelectMenu.push([newListId.toString(), newListName]);
                 this.setState({
                     listSelectMenu: this.state.listSelectMenu,
-                })
-                this.forceUpdate();
+                });
             }
         }
         registry.app.knockKnock('/create_list', responseHandler, sendData);
@@ -644,7 +665,8 @@ export class Login extends React.Component {
                                    name={"create_new_list_form_list_name"}
                                    id={"create_new_list_form_list_name"}
                                    className={"create_new_list_form_list_name"}
-                                   placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}/>
+                                   placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}
+                                   autoComplete={'off'}/>
                            <button type={"submit"}
                                    value={"create_new_list"}
                                    id={"create_new_list_form_submit_button"}

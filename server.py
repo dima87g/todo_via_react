@@ -4,6 +4,7 @@ import hashlib
 import random
 import mysql.connector
 from mysql.connector import pooling
+import sqlalchemy.exc
 import configparser
 
 # TODO try resolve code duplicate in functions
@@ -38,9 +39,8 @@ print("Connection Pool Size - ", connection_pool.pool_size)
 
 
 @app.before_request
-def before_request():
+def dev_check():
     access_mode = config["access"]["access_mode"]
-    debug_print(request.path)
     if request.path == "/auth_check" or request.path == "/user_login" or \
             request.path == "/user_register":
         if access_mode == "developer":
@@ -59,6 +59,36 @@ def before_request():
                 )
 
                 return response
+
+
+@app.before_request
+def before_request():
+    if request.path == "/create_list":
+        try:
+            user_text_id = request.cookies.get("id")
+            sign = request.cookies.get("sign")
+
+            if not check_cookies(user_text_id, sign):
+                response = make_response(
+                    {
+                        "ok": False,
+                        "error_code": 401,
+                        "error_message": "Disconnect"
+
+                    }, 401
+                )
+                return response
+        except mysql.connector.Error as error:
+            return jsonify({'ok': False, 'error_code': error.errno,
+                            'error_message': error.msg})
+        except Exception as error:
+            return jsonify({'ok': False, 'error_code': None,
+                            'error_message': error.args[0]})
+        # finally:
+        #     if cur is not None:
+        #         cur.close()
+        #     if connection is not None:
+        #         connection.close()
 
 
 @app.teardown_appcontext
@@ -950,22 +980,67 @@ def load_tasks():
 
 @app.route("/create_list", methods=["POST"])
 def create_list():
+    """
+    request: json = {"newListName": "str"}
+    response: json = {"ok": "bool",
+    """
+    from alchemy_sql import make_session, User, List, Task
+
+    session = None
+
     try:
+
         user_text_id = request.cookies.get("id")
-        sign = request.cookies.get("sign")
 
-        if not check_cookies(user_text_id, sign):
-            pass
+        session = make_session()
 
-        response = make_response(jsonify(
+        query = session.query(User).filter(User.user_text_id == user_text_id)
+
+        user = query.first()
+
+        if not user:
+            response = make_response(
+                {
+                    "ok": False,
+                    "error_code": 401,
+                    "error_message": "Not Authorized!"
+                }, 401
+            )
+
+            return response
+
+        data = request.json
+
+        new_list = List(user_id=user.id, name=data["newListName"])
+
+        session.add(new_list)
+
+        session.commit()
+
+        response = make_response(
             {
-                "ok": True
-            }), 200)
+                "ok": True,
+                "new_list_id": new_list.id
+            }, 200
+        )
 
         return response
-    except Exception as e:
-        print("UUUps")
-        print(e)
+
+    except mysql.connector.Error as error:
+        return jsonify({'ok': False, 'error_code': error.errno,
+                        'error_message': error.msg})
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        return jsonify(
+            {
+                "ok": False,
+                "Error": error
+            }
+        )
+    except Exception as error:
+        return jsonify({'ok': False, 'error_code': None,
+                        'error_message': error.args[0]})
+    finally:
+        session.close()
 
 
 # Service functions
