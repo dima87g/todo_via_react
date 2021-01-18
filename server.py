@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, make_response, g
 from werkzeug.security import generate_password_hash, check_password_hash
+from alchemy_sql import make_session, User
 import hashlib
 import random
 import mysql.connector
@@ -64,6 +65,7 @@ def dev_check():
 @app.before_request
 def before_request():
     if request.path == "/create_list":
+        session = None
         try:
             user_text_id = request.cookies.get("id")
             sign = request.cookies.get("sign")
@@ -77,18 +79,43 @@ def before_request():
 
                     }, 401
                 )
+
+                return response
+
+            session = make_session()
+
+            query = session.query(User).filter(User.user_text_id == user_text_id)
+
+            user = query.first()
+
+            if not user:
+                response = make_response(
+                    {
+                        "ok": False,
+                        "error_code": 401,
+                        "error_message": "Not Authorized!"
+                    }, 401
+                )
+
                 return response
         except mysql.connector.Error as error:
             return jsonify({'ok': False, 'error_code': error.errno,
                             'error_message': error.msg})
+        except sqlalchemy.exc.SQLAlchemyError as error:
+            print(error.__traceback__)
+            return jsonify(
+                {
+                    "ok": False,
+                    "error": error
+                }
+            )
         except Exception as error:
             return jsonify({'ok': False, 'error_code': None,
                             'error_message': error.args[0]})
-        # finally:
-        #     if cur is not None:
-        #         cur.close()
-        #     if connection is not None:
-        #         connection.close()
+        finally:
+            debug_print("End teardown request")
+            if session is not None:
+                session.close()
 
 
 @app.teardown_appcontext
@@ -988,6 +1015,8 @@ def create_list():
 
     session = None
 
+    debug_print(request.data)
+
     try:
 
         user_text_id = request.cookies.get("id")
@@ -1030,6 +1059,7 @@ def create_list():
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except sqlalchemy.exc.SQLAlchemyError as error:
+        print(error.__traceback__)
         return jsonify(
             {
                 "ok": False,
