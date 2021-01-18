@@ -162,7 +162,7 @@ export class Login extends React.Component {
     logOut() {
         const confirmFunction = () => {
         document.cookie = 'id=; expires=-1';
-        document.cookie = 'id=; expires=-1';
+        document.cookie = 'sign=; expires=-1';
 
         this.listSelectMenu = [];
 
@@ -190,7 +190,7 @@ export class Login extends React.Component {
 
     forceLogOut() {
         document.cookie = 'id=; expires=-1';
-        document.cookie = 'id=; expires=-1';
+        document.cookie = 'sign=; expires=-1';
 
         this.listSelectMenu = [];
 
