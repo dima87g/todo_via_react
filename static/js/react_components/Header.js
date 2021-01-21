@@ -2,7 +2,6 @@ import {registry} from "../main";
 import React from "react";
 import {HeaderMenu} from "./HeaderMenu";
 import {TaskInput} from "./TaskInput";
-import {removeChildren} from "../todo_functions";
 
 export class Header extends React.Component {
     constructor(props) {
@@ -10,12 +9,17 @@ export class Header extends React.Component {
         this.state = {
             selectedListName: this.props.selectedListName,
         }
+        this.deleteList = this.deleteList.bind(this);
         this.userNameField = React.createRef();
-        this.count = 0;
+        this.listSelectMenu = React.createRef();
     }
 
     listChange(e) {
         registry.login.listChange(e);
+    }
+
+    deleteList() {
+        console.log(this.listSelectMenu.current);
     }
 
     render() {
@@ -37,21 +41,31 @@ export class Header extends React.Component {
                             alt={localisation['language_change']['label']}
                         />
                     </a>
-                    <select
-                        className={'list_select_menu'}
-                        value={registry.taskList ? registry.taskList.listId.toString() : '0'}
-                        onChange={this.listChange}
-                        disabled={listSelectMenuDisabled}
-                    >
-                        {this.props.listSelectMenu.map((value, index) => {
-                            let currentSelectedList;
-                            // TODO object keys are always of string type !!!
-                            //  Need to make the listsDict structure from the server
-                            //  so that id is a numeric type without parseInt function!!!
-                            return <option key={index} value={value[0]}>{value[1]}</option>
-                        })}
-                        <option value={0}>...new list...</option>
-                    </select>
+                    <div className={'list_select_menu_block'}>
+                        <select
+                            className={'list_select_menu'}
+                            value={registry.taskList ? registry.taskList.listId.toString() : '0'}
+                            onChange={this.listChange}
+                            disabled={listSelectMenuDisabled}
+                            ref={this.listSelectMenu}
+                        >
+                            {this.props.listSelectMenu.map((value, index) => {
+                                let currentSelectedList;
+                                // TODO object keys are always of string type !!!
+                                //  Need to make the listsDict structure from the server
+                                //  so that id is a numeric type without parseInt function!!!
+                                return <option key={index} value={value[0]}>{value[1]}</option>
+                            })}
+                            <option value={0}>{localisation['list_select_menu']['add_list']}</option>
+                        </select>
+                        <button
+                            className={'delete_list_button'}
+                            type={'button'}
+                            onClick={this.deleteList}
+                        >
+                            {localisation['buttons']['delete_list']}
+                        </button>
+                    </div>
                     <HeaderMenu shadowModalIsVisible={this.props.shadowModalIsVisible}/>
                 </div>
                 <TaskInput shadowModalIsVisible={this.props.shadowModalIsVisible}/>

@@ -174,10 +174,19 @@ html, body {
 }
 /*Styles for show/hide header_menu animation*/
 
-.list_select_menu {
+.list_select_menu_block {
     display: block;
     position: absolute;
     bottom: 0;
+}
+
+.list_select_menu {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.delete_list_button {
+    display: inline-block;
 }
 
 /*Styles for show/hide auth menu animation*/
