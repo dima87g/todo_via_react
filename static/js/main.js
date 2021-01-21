@@ -18,4 +18,15 @@ export const registry = {
     taskList: null,
 }
 
+document.addEventListener(
+    'scroll',
+    function(e) {
+        console.log('Scrolling');
+        console.log(e);
+        if (registry.headerMenu.state.menuShowed === true) {
+            registry.headerMenu.showHeaderMenu();
+        }
+    }
+);
+
 ReactDOM.render(<App/>, document.getElementById('root'));
