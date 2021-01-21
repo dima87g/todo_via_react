@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, make_response, g
 from werkzeug.security import generate_password_hash, check_password_hash
-from alchemy_sql import make_session, User
+from alchemy_sql import make_session, User, List, Task
 import hashlib
 import random
 import mysql.connector
@@ -35,6 +35,8 @@ connection_pool = mysql.connector.pooling.MySQLConnectionPool(
     database=db_config['database']
 )
 
+routes_to_check = ["/create_list", "/delete_list"]
+
 print("Connection Pool Name - ", connection_pool.pool_name)
 print("Connection Pool Size - ", connection_pool.pool_size)
 
@@ -64,7 +66,7 @@ def dev_check():
 
 @app.before_request
 def before_request():
-    if request.path == "/create_list":
+    if request.path in routes_to_check:
         session = None
         try:
             user_text_id = request.cookies.get("id")
@@ -84,7 +86,8 @@ def before_request():
 
             session = make_session()
 
-            query = session.query(User).filter(User.user_text_id == user_text_id)
+            query = session.query(User).filter(
+                User.user_text_id == user_text_id)
 
             user = query.first()
 
@@ -832,7 +835,6 @@ def change_position():
 
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
-    
     connection = None
     cur = None
 
@@ -1011,11 +1013,7 @@ def create_list():
     request: json = {"newListName": "str"}
     response: json = {"ok": "bool",
     """
-    from alchemy_sql import make_session, User, List, Task
-
     session = None
-
-    debug_print(request.data)
 
     try:
 
@@ -1026,17 +1024,6 @@ def create_list():
         query = session.query(User).filter(User.user_text_id == user_text_id)
 
         user = query.first()
-
-        if not user:
-            response = make_response(
-                {
-                    "ok": False,
-                    "error_code": 401,
-                    "error_message": "Not Authorized!"
-                }, 401
-            )
-
-            return response
 
         data = request.json
 
@@ -1059,7 +1046,6 @@ def create_list():
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except sqlalchemy.exc.SQLAlchemyError as error:
-        print(error.__traceback__)
         return jsonify(
             {
                 "ok": False,
@@ -1067,10 +1053,69 @@ def create_list():
             }
         )
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": error.args[0]
+            }
+        )
     finally:
-        session.close()
+        if session is not None:
+            session.close()
+
+
+@app.route("/delete_list", methods=["POST"])
+def delete_list():
+    session = None
+
+    try:
+        user_text_id = request.cookies.get("id")
+        data = request.json
+
+        list_id = data["listId"]
+        list_name = data["listName"]
+
+        session = make_session()
+
+        query = session.query(User).filter(User.user_text_id == user_text_id)
+
+        user = query.first()
+
+        query = session.query(List).filter(List.user_id == user.id, List.id ==
+                                           list_id)
+
+        list_to_delete = query.first()
+
+        session.delete(list_to_delete)
+
+        session.commit()
+
+        response = make_response(
+            {
+                "ok": True
+            }
+        )
+
+        return response
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        return jsonify(
+            {
+                "ok": False,
+                "Error": error
+            }
+        )
+    except Exception as error:
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": error.args[0]
+            }
+        )
+    finally:
+        if session is not None:
+            session.close()
 
 
 # Service functions

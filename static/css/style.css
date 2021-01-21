@@ -174,7 +174,7 @@ html, body {
 }
 /*Styles for show/hide header_menu animation*/
 
-.list_select_menu_block {
+.list_select_menu_div {
     display: block;
     position: absolute;
     bottom: 0;

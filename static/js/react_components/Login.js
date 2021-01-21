@@ -424,6 +424,29 @@ export class Login extends React.Component {
         registry.app.knockKnock('/create_list', responseHandler, sendData);
     }
 
+    deleteList(listToDeleteId, listToDeleteName) {
+        if (listToDeleteName === 'main') {
+            showInfoWindow('You cannot delete list "main"!');
+        } else {
+            let sendData = {'listId': listToDeleteId, 'listName': listToDeleteName}
+            let message = localisation['confirm_window']['delete_list_confirm_message'] + ' ' + listToDeleteName + ' ?'
+
+            let responseHandler = (response) => {
+                if (response.status === 200 && response.data['ok'] === true) {
+                    console.log('List ' + listToDeleteName + ' deleted!');
+
+                    ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+
+                    this.createTaskList();
+                }
+            }
+            const confirmFunction = () => {
+                registry.app.knockKnock('/delete_list', responseHandler, sendData);
+            }
+            registry.app.showConfirmWindow(message, confirmFunction);
+        }
+    }
+
     render() {
         let authMenuStyle;
         let loginWindowStyle;

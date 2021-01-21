@@ -72,6 +72,7 @@ export function isInternetExplorer() {
  * @param object
  * @returns {number}
  */
+//TODO rename function to .... eg to findTaskPosition
 export function findPosition(arr, object) {
     for (let i = 0; i < arr.length; i++) {
         if (arr[i] === object) {

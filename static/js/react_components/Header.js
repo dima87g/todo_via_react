@@ -19,13 +19,18 @@ export class Header extends React.Component {
     }
 
     deleteList() {
-        console.log(this.listSelectMenu.current);
+        let listToDeleteId = this.listSelectMenu.current.value;
+        let listToDeleteName =  this.listSelectMenu.current.options[this.listSelectMenu.current.selectedIndex].innerText
+
+        registry.login.deleteList(listToDeleteId, listToDeleteName);
     }
 
     render() {
         let listSelectMenuDisabled;
+        let deleteListButtonDisabled;
 
         listSelectMenuDisabled = !!this.props.shadowModalIsVisible;
+        deleteListButtonDisabled = !!this.props.shadowModalIsVisible;
 
         return(
             <div id={"header"} className={"header"}>
@@ -41,7 +46,7 @@ export class Header extends React.Component {
                             alt={localisation['language_change']['label']}
                         />
                     </a>
-                    <div className={'list_select_menu_block'}>
+                    <div className={'list_select_menu_div'}>
                         <select
                             className={'list_select_menu'}
                             value={registry.taskList ? registry.taskList.listId.toString() : '0'}
@@ -62,6 +67,7 @@ export class Header extends React.Component {
                             className={'delete_list_button'}
                             type={'button'}
                             onClick={this.deleteList}
+                            disabled={deleteListButtonDisabled}
                         >
                             {localisation['buttons']['delete_list']}
                         </button>
