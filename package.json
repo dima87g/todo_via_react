@@ -9,7 +9,8 @@
     "js": "npm run main_js && npm run classes_js && npm run functions_js",
     "css": "postcss ./static/css/style.css -o ./static/css/compiled/style_compiled.css",
     "bundle": "npm run js && npm run css",
-    "build": "webpack",
+    "build_prod": "webpack --mode=production",
+    "build_dev": "webpack --mode=development",
     "start": "webpack --watch"
   },
   "devDependencies": {

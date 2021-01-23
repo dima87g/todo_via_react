@@ -7,9 +7,6 @@ module.exports = {
     path: path.resolve(__dirname, 'static'),
     filename: 'bundle.js'
   },
-  // optimization: {
-  //   minimize: false
-  // },
   module: {
     rules: [
       {
