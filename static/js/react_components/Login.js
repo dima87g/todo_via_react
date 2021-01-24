@@ -22,6 +22,8 @@ export class Login extends React.Component {
             registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
             createNewListWindowShowed: false,
+            currentListId: null,
+            tasksFromServer: [],
             listSelectMenu: [],
         }
         this.listSelectMenu = null;
@@ -127,38 +129,6 @@ export class Login extends React.Component {
         }
     }
 
-    createTaskList() {
-        let sendData = {'listId': null}
-        const responseHandler = (response) => {
-            if (response.status === 200 && response.data['ok'] === true) {
-                let userName = response.data['user_name'];
-                let tasksFromServer = response.data['tasks'];
-                let mainListId = response.data['list_id'];
-                let listsDict = response.data['lists_dict'];
-
-                this.setState({
-                    userName: userName,
-                });
-
-                ReactDOM.render(
-                    <TaskList
-                        listId={mainListId}
-                        tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
-                );
-
-                this.listSelectMenu = Object.entries(listsDict);
-                this.setState({
-                    listSelectMenu: this.listSelectMenu,
-                });
-
-            } else if (response.status === 401) {
-                this.forceLogOut();
-                showInfoWindow('Authorisation problem!');
-            }
-        }
-        registry.app.knockKnock('/load_tasks', responseHandler, sendData);
-    }
-
     logOut() {
         const confirmFunction = () => {
         document.cookie = 'id=; expires=-1';
@@ -168,21 +138,15 @@ export class Login extends React.Component {
 
         this.setState({
             userName: "",
+            currentListId: null,
+            tasksFromServer: [],
             listSelectMenu: [],
         });
-
-        ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
 
         this.showLoginWindow();
         }
         let userLanguage = getCookie('lang');
-        let message;
-
-        if (userLanguage === 'ru') {
-            message = 'Вы уверены, что хотите выйти?';
-        } else {
-            message = 'Are you sure, you want to logOut?';
-        }
+        let message = localisation['confirm_window']['log_out_confirm_message'];
 
         registry.app.showConfirmWindow(message, confirmFunction);
 
@@ -196,12 +160,55 @@ export class Login extends React.Component {
 
         this.setState({
             userName: "",
+            currentListId: null,
+            tasksFromServer: [],
             listSelectMenu: [],
         });
 
-        ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-
         this.showLoginWindow();
+    }
+
+    /**
+     * POST: json =  {"newUserName": "string",  "password": "string"}
+     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null, 'error_message': 'string' or null}
+     */
+    userRegister(e) {
+        e.preventDefault();
+
+        removeChildren(this.registerFormInfo.current);
+
+        let userName = e.target['register_form_username'].value;
+        let password = e.target['register_form_password'].value;
+        let confirmPassword = e.target['register_form_password_confirm'].value;
+        let agreementCheckbox = e.target['agreement_checkbox'];
+
+        const responseHandler = (response) => {
+            if (response.status === 200) {
+                if (response.data['ok'] === true) {
+                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['register_confirm_pref'] + ' ' + userName + ' ' + localisation['register_window']['register_confirm_suf']));
+                } else if (response.data['error_code'] === 1062) {
+                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['user_exists_warning']));
+                }
+            }
+        }
+
+        if (!userName) {
+            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_user_name_warning']));
+        } else if (!password) {
+            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_password_warning']));
+        } else if (!confirmPassword) {
+            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_confirm_password_warning']));
+        } else if (password !== confirmPassword) {
+            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_match_passwords_warning']));
+        } else if (!agreementCheckbox.checked) {
+            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_agreement_check_warning']));
+        } else if (userName && password && confirmPassword && agreementCheckbox.checked) {
+            if (password === confirmPassword) {
+                const sendData = {'newUserName': userName, 'password': password};
+
+                registry.app.knockKnock('/user_register', responseHandler, sendData);
+            }
+        }
     }
 
     userDelete() {
@@ -250,6 +257,7 @@ export class Login extends React.Component {
             })
         }
     }
+
     /**
      * POST: json =  {"oldPassword": "string",  "newPassword": "string"}
      * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null, 'error_message': 'string' or null}
@@ -294,47 +302,29 @@ export class Login extends React.Component {
         }
     }
 
-    /**
-     * POST: json =  {"newUserName": "string",  "password": "string"}
-     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null, 'error_message': 'string' or null}
-     */
-    userRegister(e) {
-        e.preventDefault();
-
-        removeChildren(this.registerFormInfo.current);
-
-        let userName = e.target['register_form_username'].value;
-        let password = e.target['register_form_password'].value;
-        let confirmPassword = e.target['register_form_password_confirm'].value;
-        let agreementCheckbox = e.target['agreement_checkbox'];
-
+    createTaskList() {
+        let sendData = {'listId': null}
         const responseHandler = (response) => {
-            if (response.status === 200) {
-                if (response.data['ok'] === true) {
-                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['register_confirm_pref'] + ' ' + userName + ' ' + localisation['register_window']['register_confirm_suf']));
-                } else if (response.data['error_code'] === 1062) {
-                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['user_exists_warning']));
-                }
+            if (response.status === 200 && response.data['ok'] === true) {
+                let userName = response.data['user_name'];
+                let tasksFromServer = response.data['tasks'];
+                let mainListId = response.data['list_id'];
+                let listsDict = response.data['lists_dict'];
+
+                this.listSelectMenu = Object.entries(listsDict);
+
+                this.setState({
+                    userName: userName,
+                    currentListId: mainListId,
+                    tasksFromServer: tasksFromServer,
+                    listSelectMenu: this.listSelectMenu,
+                });
+            } else if (response.status === 401) {
+                this.forceLogOut();
+                showInfoWindow('Authorisation problem!');
             }
         }
-
-        if (!userName) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_user_name_warning']));
-        } else if (!password) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_password_warning']));
-        } else if (!confirmPassword) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_confirm_password_warning']));
-        } else if (password !== confirmPassword) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_match_passwords_warning']));
-        } else if (!agreementCheckbox.checked) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_agreement_check_warning']));
-        } else if (userName && password && confirmPassword && agreementCheckbox.checked) {
-            if (password === confirmPassword) {
-                const sendData = {'newUserName': userName, 'password': password};
-
-                registry.app.knockKnock('/user_register', responseHandler, sendData);
-            }
-        }
+        registry.app.knockKnock('/load_tasks', responseHandler, sendData);
     }
 
     listChange(e) {
@@ -348,19 +338,14 @@ export class Login extends React.Component {
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
                     let tasksFromServer = response.data['tasks'];
-                    let mainListId = response.data['list_id'];
+                    let selectedListId = response.data['list_id'];
                     let listsDict = response.data['lists_dict'];
 
-                    ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-
-                    ReactDOM.render(
-                        <TaskList
-                            listId={mainListId}
-                            tasksFromServer={tasksFromServer}/>, document.getElementById('task_list')
-                    );
-
                     this.listSelectMenu = Object.entries(listsDict);
+
                     this.setState({
+                        currentListId: selectedListId,
+                        tasksFromServer: tasksFromServer,
                         listSelectMenu: this.listSelectMenu,
                     });
 
@@ -404,20 +389,13 @@ export class Login extends React.Component {
             if (response.status === 200 && response.data['ok'] === true) {
                 let newListId = response.data['new_list_id'];
 
-                this.createNewListWindow();
-
-                ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
-
-                ReactDOM.render(
-                    <TaskList
-                        listId={newListId}
-                        tasksFromServer={[]}
-                    />, document.getElementById('task_list')
-                );
+                this.createNewListWindow();``
 
                 this.listSelectMenu.push([newListId.toString(), newListName]);
                 this.setState({
-                    listSelectMenu: this.state.listSelectMenu,
+                    currentListId: newListId,
+                    tasksFromServer: [],
+                    listSelectMenu: this.listSelectMenu,
                 });
             }
         }
@@ -426,18 +404,27 @@ export class Login extends React.Component {
 
     deleteList(listToDeleteId, listToDeleteName) {
         if (listToDeleteName === 'main') {
-            showInfoWindow('You cannot delete list "main"!');
+            showInfoWindow(localisation['delete_list']['cannot_delete_main_info']);
         } else {
             let sendData = {'listId': listToDeleteId, 'listName': listToDeleteName}
             let message = localisation['confirm_window']['delete_list_confirm_message'] + ' ' + listToDeleteName + ' ?'
 
             let responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
-                    console.log('List ' + listToDeleteName + ' deleted!');
 
-                    ReactDOM.unmountComponentAtNode(document.getElementById('task_list'));
+                    let userName = response.data['user_name'];
+                    let tasksFromServer = response.data['tasks'];
+                    let mainListId = response.data['list_id'];
+                    let listsDict = response.data['lists_dict'];
 
-                    this.createTaskList();
+                    this.listSelectMenu = Object.entries(listsDict);
+
+                    this.setState({
+                        userName: userName,
+                        currentListId: mainListId,
+                        tasksFromServer: tasksFromServer,
+                        listSelectMenu: this.listSelectMenu,
+                    });
                 }
             }
             const confirmFunction = () => {
@@ -541,6 +528,7 @@ export class Login extends React.Component {
         return (
             <div className={'main'} id={'main'}>
                 <Header userName={this.state.userName}
+                        currentListId={this.state.currentListId}
                         listSelectMenu={this.state.listSelectMenu}
                         shadowModalIsVisible={this.props.shadowModalIsVisible}
                 />
@@ -700,7 +688,10 @@ export class Login extends React.Component {
                         </form>
                     </div>
                 </div>
-                <div className={'task_list'} id={'task_list'}/>
+                <div className={'task_list'} id={'task_list'}>
+                    <TaskList listId={this.state.currentListId}
+                              tasksFromServer={this.state.tasksFromServer}/>
+                </div>
             </div>
         )
     }

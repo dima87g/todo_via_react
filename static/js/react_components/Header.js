@@ -6,9 +6,6 @@ import {TaskInput} from "./TaskInput";
 export class Header extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            selectedListName: this.props.selectedListName,
-        }
         this.deleteList = this.deleteList.bind(this);
         this.userNameField = React.createRef();
         this.listSelectMenu = React.createRef();
@@ -47,9 +44,11 @@ export class Header extends React.Component {
                         />
                     </a>
                     <div className={'list_select_menu_div'}>
+                        {/*{console.log(this.currentListId)}*/}
+                        {/*{console.log(this.props.currentListId ? this.props.currentListId.toString() : null)}*/}
                         <select
                             className={'list_select_menu'}
-                            value={registry.taskList ? registry.taskList.listId.toString() : '0'}
+                            value={this.props.currentListId ? this.props.currentListId.toString() : '0'}
                             onChange={this.listChange}
                             disabled={listSelectMenuDisabled}
                             ref={this.listSelectMenu}

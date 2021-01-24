@@ -7,45 +7,43 @@ import React from "react";
 export class TaskList extends React.Component {
     constructor(props) {
         super(props)
-        this.listId = this.props.listId;
-        this.listsDict = this.props.listsDict;
-        this.tasksFromServer = this.props.tasksFromServer;
+        this.tasksFromServer = [];
         this.tasksTree = new Map();
         this.rootTasksList = [];
 
-        this.tasksFromServer.sort(function (a, b) {
-            if (a['task_position'] && b['task_position']) {
-                return a['task_position'] - b['task_position'];
-            } else if (!a['task_position'] && !b['task_position']) {
-                return a['task_id'] - b['task_id'];
-            } else if (!a['task_position']) {
-                return a['task_id'] - b['task_position'];
-            } else if (!b['task_position']) {
-                return a['task_position'] - b['task_id'];
-            }
-            return 0;
-        });
+        // this.tasksFromServer.sort(function (a, b) {
+        //     if (a['task_position'] && b['task_position']) {
+        //         return a['task_position'] - b['task_position'];
+        //     } else if (!a['task_position'] && !b['task_position']) {
+        //         return a['task_id'] - b['task_id'];
+        //     } else if (!a['task_position']) {
+        //         return a['task_id'] - b['task_position'];
+        //     } else if (!b['task_position']) {
+        //         return a['task_position'] - b['task_id'];
+        //     }
+        //     return 0;
+        // });
+        //
+        // for (let task of this.tasksFromServer) {
+        //     let taskId = task['task_id'];
+        //     let taskText = task['task_text'];
+        //     let taskStatus = task['task_status'];
+        //     let taskParentId = task['parent_id'];
+        //     let taskPosition = task['task_position'];
+        //
+        //     this.tasksTree.set(taskId, new Task(taskId, taskText, taskPosition, taskParentId, taskStatus));
+        // }
+        //
+        // for (let task of this.tasksTree.values()) {
+        //     if (this.tasksTree.has(task.parentId)) {
+        //         this.tasksTree.get(task.parentId).subtasks.push(task);
+        //     } else {
+        //         this.rootTasksList.push(task);
+        //     }
+        // }
 
-        for (let task of this.tasksFromServer) {
-            let taskId = task['task_id'];
-            let taskText = task['task_text'];
-            let taskStatus = task['task_status'];
-            let taskParentId = task['parent_id'];
-            let taskPosition = task['task_position'];
-
-            this.tasksTree.set(taskId, new Task(taskId, taskText, taskPosition, taskParentId, taskStatus));
-        }
-
-        for (let task of this.tasksTree.values()) {
-            if (this.tasksTree.has(task.parentId)) {
-                this.tasksTree.get(task.parentId).subtasks.push(task);
-            } else {
-                this.rootTasksList.push(task);
-            }
-        }
-
-        console.log(this.tasksTree);
-        console.log(this.rootTasksList);
+        // console.log(this.tasksTree);
+        // console.log(this.rootTasksList);
 
         this.state = {
             linearTasksList: this.rootTasksList,
@@ -69,6 +67,52 @@ export class TaskList extends React.Component {
 
     componentDidMount() {
         registry.taskList = this;
+    }
+
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        if (this.props.tasksFromServer !== nextProps.tasksFromServer && nextProps.tasksFromServer) {
+            this.tasksFromServer = nextProps.tasksFromServer;
+            this.tasksTree = new Map();
+            this.rootTasksList = [];
+
+            this.tasksFromServer.sort(function (a, b) {
+            if (a['task_position'] && b['task_position']) {
+                return a['task_position'] - b['task_position'];
+            } else if (!a['task_position'] && !b['task_position']) {
+                return a['task_id'] - b['task_id'];
+            } else if (!a['task_position']) {
+                return a['task_id'] - b['task_position'];
+            } else if (!b['task_position']) {
+                return a['task_position'] - b['task_id'];
+            }
+            return 0;
+            });
+
+            for (let task of this.tasksFromServer) {
+                let taskId = task['task_id'];
+                let taskText = task['task_text'];
+                let taskStatus = task['task_status'];
+                let taskParentId = task['parent_id'];
+                let taskPosition = task['task_position'];
+
+                this.tasksTree.set(taskId, new Task(taskId, taskText, taskPosition, taskParentId, taskStatus));
+            }
+
+            for (let task of this.tasksTree.values()) {
+                if (this.tasksTree.has(task.parentId)) {
+                    this.tasksTree.get(task.parentId).subtasks.push(task);
+                } else {
+                    this.rootTasksList.push(task);
+                }
+            }
+            this.setState({
+                linearTasksList: this.rootTasksList,
+            });
+
+            console.log(this.tasksTree);
+            console.log(this.rootTasksList);
+        }
+        return true;
     }
 
     componentWillUnmount() {
@@ -160,10 +204,10 @@ export class TaskList extends React.Component {
                         activeMovingTaskId: currentTaskId,
                     },
                 })
-
+                console.log(this.state);
                 setTimeout(()=>{
                     this.setState({
-                        linearTaskList: swap(taskList, currentTaskIndex, taskToSwapIndex),
+                        linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
                         movingTasks: {
                             moving: false,
                             taskMovingUpId: null,
@@ -171,6 +215,7 @@ export class TaskList extends React.Component {
                             activeMovingTaskId: null,
                         },
                     });
+                    console.log(this.state);
                 }, 300);
 
                 // this.setState({
@@ -190,7 +235,7 @@ export class TaskList extends React.Component {
      */
     addTask(taskText) {
         let sendData = {
-            'listId': this.listId,
+            'listId': this.props.listId,
             'taskText': taskText,
             'parentId': null
         };
@@ -299,21 +344,19 @@ export class TaskList extends React.Component {
     }
 
     render() {
+        console.log(this.state.linearTasksList);
         return (
-            <div className={'main_window'}>
-                <div className="main_tasks"
-                     id={'main_tasks'}>
-                    {this.state.linearTasksList.map((task) =>
-                        <TaskReact key={task.id.toString()}
-                                   taskInst={task}
-                                   taskId={task.id}
-                                   status={task.status}
-                                   taskText={task.text}
-                                   parentId={task.parentId}
-                                   movingTasks={this.state.movingTasks}
-                                   removingTask={this.state.removingTask}
-                        />)}
-                </div>
+            <div className={'tasks'} id={'tasks'}>
+                {this.state.linearTasksList.map((task) =>
+                    <TaskReact key={task.id.toString()}
+                               taskInst={task}
+                               taskId={task.id}
+                               status={task.status}
+                               taskText={task.text}
+                               parentId={task.parentId}
+                               movingTasks={this.state.movingTasks}
+                               removingTask={this.state.removingTask}
+                    />)}
             </div>
         )
     }
