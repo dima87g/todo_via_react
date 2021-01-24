@@ -7,6 +7,9 @@ import mysql.connector
 from mysql.connector import pooling
 import sqlalchemy.exc
 import configparser
+import os
+import sys
+import traceback
 
 # TODO try resolve code duplicate in functions
 
@@ -105,7 +108,6 @@ def before_request():
             return jsonify({'ok': False, 'error_code': error.errno,
                             'error_message': error.msg})
         except sqlalchemy.exc.SQLAlchemyError as error:
-            print(error.__traceback__)
             return jsonify(
                 {
                     "ok": False,
@@ -116,7 +118,6 @@ def before_request():
             return jsonify({'ok': False, 'error_code': None,
                             'error_message': error.args[0]})
         finally:
-            debug_print("End teardown request")
             if session is not None:
                 session.close()
 
@@ -528,6 +529,7 @@ def save_task():
         return jsonify({'ok': False, 'error_code': error.errno,
                         'error_message': error.msg})
     except Exception as error:
+        print(error)
         return jsonify({'ok': False, 'error_code': None,
                         'error_message': error.args[0]})
     finally:
@@ -987,10 +989,10 @@ def load_tasks():
             }), 200)
 
         response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config['MAX_AGE'])
+                            max_age=int(cookies_config["MAX_AGE"])
                             )
         response.set_cookie("sign", sign,
-                            max_age=int(cookies_config['MAX_AGE'])
+                            max_age=int(cookies_config["MAX_AGE"])
                             )
 
         return response
@@ -1070,11 +1072,14 @@ def delete_list():
     session = None
 
     try:
+        lists_dict = {}
+        tasks = []
+
         user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
         data = request.json
 
         list_id = data["listId"]
-        list_name = data["listName"]
 
         session = make_session()
 
@@ -1089,20 +1094,59 @@ def delete_list():
 
         session.delete(list_to_delete)
 
+        query = session.query(List).filter(List.user_id == user.id,
+                                           List.name == "main")
+
+        main_list = query.first()
+
+        query = session.query(List).filter(List.user_id == user.id)
+
+        user_lists = query.all()
+
+        for row in user_lists:
+            lists_dict[row.id] = row.name
+
+        query = session.query(Task).filter(Task.user_id == user.id,
+                                           Task.list_id == main_list.id)
+
+        rows = query.all()
+
+        for task in rows:
+            tasks.append(
+                {
+                    "task_id": task.id,
+                    "task_text": task.text,
+                    "task_status": bool(task.status),
+                    "patent_id": task.parent_id,
+                    "task_position": task.task_position
+                }
+            )
+
         session.commit()
 
         response = make_response(
             {
-                "ok": True
+                "ok": True,
+                "user_name": user.user_name,
+                "list_id": main_list.id,
+                "lists_dict": lists_dict,
+                "tasks": tasks
             }
         )
 
+        response.set_cookie("id", user_text_id,
+                            max_age=int(cookies_config["MAX_AGE"]))
+        response.set_cookie("sign", sign,
+                            max_age=int(cookies_config["MAX_AGE"]))
+
         return response
     except sqlalchemy.exc.SQLAlchemyError as error:
+        tb = sys.exc_info()
+        traceback.print_exception(*tb)
         return jsonify(
             {
                 "ok": False,
-                "Error": error
+                "Error": error.args
             }
         )
     except Exception as error:
@@ -1135,8 +1179,8 @@ def make_dev(response):
     dev_cookie_sign.update(dev_cookie.encode())
     dev_cookie_sign = dev_cookie_sign.hexdigest()
 
-    response.set_cookie("developer", dev_cookie)
-    response.set_cookie("developer_sign", dev_cookie_sign)
+    response.set_cookie("developer", dev_cookie, max_age=60*60*24*7)
+    response.set_cookie("developer_sign", dev_cookie_sign, max_age=60*60*24*7)
 
     return response
 

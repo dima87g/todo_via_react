@@ -24,7 +24,7 @@ class User(Base):
     user_name = Column(VARCHAR(128), nullable=False, unique=True)
     hashed_password = Column(VARCHAR(255), nullable=False)
 
-    lists = relationship("List")
+    # lists = relationship("List")
 
     def __repr__(self):
         return "<User(user_text_id = '%s', user_name = '%s', " \
@@ -40,8 +40,8 @@ class List(Base):
                      nullable=False)
     name = Column(VARCHAR(255), nullable=False)
 
-    user = relationship("User")
-    tasks = relationship("Task")
+    # user = relationship("User")
+    # tasks = relationship("Task")
 
     def __repr__(self):
         return "<List(user_id = '%s', name = '%s')>" % \
@@ -61,8 +61,8 @@ class Task(Base):
     list_id = Column(BIGINT, ForeignKey("lists.id", ondelete="CASCADE"),
                      nullable=False)
 
-    children = relationship("Task")
-    list = relationship("List")
+    # children = relationship("Task", back_populates="")
+    # list = relationship("List")
 
     def __repr__(self):
         return "<Task(user_id = '%s', text = '%s', status = '%s', parent_id " \
@@ -73,7 +73,7 @@ class Task(Base):
 
 # if __name__ == "__main__":
 #     Base.metadata.drop_all(engine)
-#
+# #
 #     Base.metadata.create_all(engine)
 #
 #     dima = User(user_text_id="dimaTextId", user_name="dima",
