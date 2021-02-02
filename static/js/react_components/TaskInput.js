@@ -7,14 +7,6 @@ export class TaskInput extends React.Component{
         this.addTask = this.addTask.bind(this);
     }
 
-    componentDidMount() {
-        registry.taskInput = this;
-    }
-
-    componentWillUnmount() {
-        registry.taskInput = null;
-    }
-
     addTask(e) {
         e.preventDefault();
 

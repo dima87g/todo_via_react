@@ -11,40 +11,6 @@ export class TaskList extends React.Component {
         this.tasksTree = new Map();
         this.rootTasksList = [];
 
-        // this.tasksFromServer.sort(function (a, b) {
-        //     if (a['task_position'] && b['task_position']) {
-        //         return a['task_position'] - b['task_position'];
-        //     } else if (!a['task_position'] && !b['task_position']) {
-        //         return a['task_id'] - b['task_id'];
-        //     } else if (!a['task_position']) {
-        //         return a['task_id'] - b['task_position'];
-        //     } else if (!b['task_position']) {
-        //         return a['task_position'] - b['task_id'];
-        //     }
-        //     return 0;
-        // });
-        //
-        // for (let task of this.tasksFromServer) {
-        //     let taskId = task['task_id'];
-        //     let taskText = task['task_text'];
-        //     let taskStatus = task['task_status'];
-        //     let taskParentId = task['parent_id'];
-        //     let taskPosition = task['task_position'];
-        //
-        //     this.tasksTree.set(taskId, new Task(taskId, taskText, taskPosition, taskParentId, taskStatus));
-        // }
-        //
-        // for (let task of this.tasksTree.values()) {
-        //     if (this.tasksTree.has(task.parentId)) {
-        //         this.tasksTree.get(task.parentId).subtasks.push(task);
-        //     } else {
-        //         this.rootTasksList.push(task);
-        //     }
-        // }
-
-        // console.log(this.tasksTree);
-        // console.log(this.rootTasksList);
-
         this.state = {
             linearTasksList: this.rootTasksList,
             movingTasks: {

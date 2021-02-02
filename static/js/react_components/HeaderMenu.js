@@ -17,11 +17,26 @@ export class HeaderMenu extends React.Component {
     }
 
     componentDidMount() {
-        registry.headerMenu = this;
-    }
+        document.addEventListener(
+            'scroll',
+            (e) => {
+                if (this.state.menuShowed === true) {
+                    this.showHeaderMenu();
+                }
+            }
+        );
 
-    componentWillUnmount() {
-        registry.headerMenu = null;
+        document.addEventListener(
+            'click',
+            (e) => {
+                console.log('click');
+                let menu = document.getElementById('header_menu');
+                let target = e.target;
+                if (this.state.menuShowed === true && e.target instanceof Node && !menu.contains(e.target)) {
+                    this.showHeaderMenu();
+                }
+            }
+        );
     }
 
     showHeaderMenu() {

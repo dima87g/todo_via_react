@@ -13,30 +13,7 @@ export const registry = {
     //App React component
     app: null,
     login: null,
-    headerMenu: null,
-    taskInput: null,
     taskList: null,
 }
-
-document.addEventListener(
-    'scroll',
-    function(e) {
-        if (registry.headerMenu.state.menuShowed === true) {
-            registry.headerMenu.showHeaderMenu();
-        }
-    }
-);
-
-// document.addEventListener(
-//     'click',
-//     function(e) {
-//         console.log(e);
-//         console.log(e.target.id);
-//         if (registry.headerMenu.state.menuShowed === true && e.target.id !== 'header_menu_list') {
-//             console.log(true);
-//             registry.headerMenu.showHeaderMenu();
-//         }
-//     }
-// )
 
 ReactDOM.render(<App/>, document.getElementById('root'));

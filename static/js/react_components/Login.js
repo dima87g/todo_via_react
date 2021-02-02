@@ -7,7 +7,6 @@ import {
 } from "../todo_functions";
 import {TaskList} from "./TaskList";
 import React from "react";
-import ReactDOM from "react-dom";
 import {Header} from "./Header";
 
 export class Login extends React.Component {
@@ -330,9 +329,8 @@ export class Login extends React.Component {
     listChange(e) {
         console.log('Changing list!');
         let selectedListId = e.target.value;
-        let currentListId = registry.taskList.listId;
 
-        if (selectedListId !== currentListId && selectedListId !== '0') {
+        if (selectedListId !== this.state.currentListId && selectedListId !== '0') {
             let sendData = {'listId': selectedListId};
 
             const responseHandler = (response) => {
