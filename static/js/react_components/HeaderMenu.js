@@ -29,7 +29,6 @@ export class HeaderMenu extends React.Component {
         document.addEventListener(
             'click',
             (e) => {
-                console.log('click');
                 let menu = document.getElementById('header_menu');
                 let target = e.target;
                 if (this.state.menuShowed === true && e.target instanceof Node && !menu.contains(e.target)) {

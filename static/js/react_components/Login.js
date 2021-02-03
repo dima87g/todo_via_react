@@ -1,6 +1,5 @@
 import {registry} from "../main";
 import {
-    getCookie,
     showInfoWindow,
     isInternetExplorer,
     removeChildren
@@ -144,7 +143,6 @@ export class Login extends React.Component {
 
         this.showLoginWindow();
         }
-        let userLanguage = getCookie('lang');
         let message = localisation['confirm_window']['log_out_confirm_message'];
 
         registry.app.showConfirmWindow(message, confirmFunction);
@@ -211,14 +209,8 @@ export class Login extends React.Component {
     }
 
     userDelete() {
-        let userLanguage = getCookie('lang');
-        let message;
+        let message = localisation['delete_user']['confirm_message'];
 
-        if (userLanguage === 'ru') {
-            message = 'Выуверены, что хотите удалить пользователя?';
-        } else {
-            message = 'Are you sure, you want to delete user?';
-        }
         const responseHandler = (response) => {
             if (response.status === 200) {
                 this.forceLogOut();

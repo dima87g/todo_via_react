@@ -19,7 +19,7 @@ app.config['JSON_AS_ASCII'] = False
 
 # Read configs from 'server_config.ini'
 config = configparser.ConfigParser()
-config.read('server_config.ini')
+config.read(os.path.dirname(__file__) + '/server_config.ini')
 db_config = config['data_base']
 security_config = config['security']
 cookies_config = config['cookies']
