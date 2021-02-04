@@ -4,8 +4,9 @@ import axios from "axios";
 import {Login} from "./Login";
 import {LoadingWindow} from "./LoadingWindow";
 import React from "react";
+import {connect} from "react-redux";
 
-export class App extends React.Component {
+class App extends React.Component {
     constructor(props) {
         super(props);
         this.confirmWindowFunction = null;
@@ -65,6 +66,7 @@ export class App extends React.Component {
         this.confirmWindowFunction = null;
         this.setState({
             confirmWindowIsVisible: false,
+            confirmWindowMessage: '',
         })
     }
 
@@ -161,3 +163,9 @@ export class App extends React.Component {
         )
     }
 }
+
+export default connect((state) => (
+    {
+        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
+    }
+    ))(App);
