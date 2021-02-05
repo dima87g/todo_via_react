@@ -1,10 +1,6 @@
 import {createStore} from "@reduxjs/toolkit";
 import {reducer} from "./reducer";
 
-let init = {
-    CONFIRM_WINDOW_IS_VISIBLE: false,
-}
-
-const store = createStore(reducer);
+const store = createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
 export {store}

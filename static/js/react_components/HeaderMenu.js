@@ -1,5 +1,6 @@
 import {registry} from "../main";
 import React from "react";
+import {connect} from "react-redux";
 
 export class HeaderMenu extends React.Component {
     constructor(props) {
@@ -92,7 +93,7 @@ export class HeaderMenu extends React.Component {
         let burgerButtonStyle;
         let menuButtonFunction;
 
-        if (this.props.shadowModalIsVisible === false) {
+        if (this.props.SHADOW_MODAL_IS_VISIBLE === false) {
             menuButtonFunction = this.showHeaderMenu;
         } else {
             menuButtonFunction = null;
@@ -142,3 +143,11 @@ export class HeaderMenu extends React.Component {
         )
     }
 }
+
+function mapToStateProps(state) {
+    return {
+        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
+    }
+}
+
+export default connect(mapToStateProps)(HeaderMenu);

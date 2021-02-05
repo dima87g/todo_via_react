@@ -5,6 +5,7 @@ import React from "react";
 export class TaskReact extends React.Component {
     constructor(props) {
         super(props);
+        this.app = this.props.app;
         this.taskInst = this.props.taskInst;
         this.id = this.props.taskId;
         this.state = {
@@ -56,7 +57,7 @@ export class TaskReact extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        registry.app.knockKnock('/finish_task', responseHandler, sendData);
+        this.app.knockKnock('/finish_task', responseHandler, sendData);
     }
 
     removeTask() {
@@ -67,7 +68,7 @@ export class TaskReact extends React.Component {
 
     showSubtaskField() {
         if (this.state.addSubtaskDivShowed === false) {
-            registry.app.showShadowModal();
+            this.app.showShadowModal();
             this.setState({
                 taskTextShowed: false,
                 addSubtaskDivShowed: true,
@@ -76,7 +77,7 @@ export class TaskReact extends React.Component {
                 removeTaskButtonDisabled: true,
             });
         } else {
-            registry.app.hideShadowModal();
+            this.app.hideShadowModal();
             this.setState({
                 taskTextShowed: true,
                 addSubtaskDivShowed: false,
@@ -108,7 +109,7 @@ export class TaskReact extends React.Component {
 
     showEditTaskField() {
         if (this.state.editTaskDivShowed === false) {
-            registry.app.showShadowModal();
+            this.app.showShadowModal();
             this.setState({
                 taskTextShowed: false,
                 editTaskDivShowed: true,
@@ -134,9 +135,9 @@ export class TaskReact extends React.Component {
                         showInfoWindow('Authorisation problem!');
                     }
                 }
-                registry.app.knockKnock('/save_edit_task', responseHandler, sendData);
+                this.app.knockKnock('/save_edit_task', responseHandler, sendData);
             }
-            registry.app.hideShadowModal();
+            this.app.hideShadowModal();
             this.setState({
                 taskTextShowed: true,
                 editTaskDivShowed: false,

@@ -1,9 +1,10 @@
 import {registry} from "../main";
 import React from "react";
-import {HeaderMenu} from "./HeaderMenu";
-import {TaskInput} from "./TaskInput";
+import HeaderMenu from "./HeaderMenu";
+import TaskInput from "./TaskInput";
+import {connect} from "react-redux";
 
-export class Header extends React.Component {
+class Header extends React.Component {
     constructor(props) {
         super(props);
         this.deleteList = this.deleteList.bind(this);
@@ -26,8 +27,8 @@ export class Header extends React.Component {
         let listSelectMenuDisabled;
         let deleteListButtonDisabled;
 
-        listSelectMenuDisabled = !!this.props.shadowModalIsVisible;
-        deleteListButtonDisabled = !!this.props.shadowModalIsVisible;
+        listSelectMenuDisabled = !!this.props.SHADOW_MODAL_IS_VISIBLE;
+        deleteListButtonDisabled = !!this.props.SHADOW_MODAL_IS_VISIBLE;
 
         return(
             <div id={"header"} className={"header"}>
@@ -71,10 +72,18 @@ export class Header extends React.Component {
                             {localisation['buttons']['delete_list']}
                         </button>
                     </div>
-                    <HeaderMenu shadowModalIsVisible={this.props.shadowModalIsVisible}/>
+                    <HeaderMenu/>
                 </div>
-                <TaskInput shadowModalIsVisible={this.props.shadowModalIsVisible}/>
+                <TaskInput/>
             </div>
         )
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
+    }
+}
+
+export default connect(mapStateToProps)(Header);

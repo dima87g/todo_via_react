@@ -1,15 +1,22 @@
-export function shadowModalShowing(value) {
+export function showShadowModal(value) {
     return {
         type: 'SHADOW_MODAL_IS_VISIBLE',
-        value
+        value,
     }
 }
 
-export function conformWindowShowing(value, message, func) {
+export function showConfirmWindow(value, message) {
     return {
         type: 'CONFIRM_WINDOW_IS_VISIBLE',
         value,
         message,
-        func
+    }
+}
+
+export function showInfoWindows(value, message) {
+    return {
+        type: 'INFO_WINDOW_IS_VISIBLE',
+        value,
+        message,
     }
 }

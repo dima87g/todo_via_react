@@ -700,6 +700,10 @@ html, body {
     visibility: hidden;
 }
 
+.info_window_visible {
+    visibility: visible;
+}
+
 /*Styles for show/hide shadow animation*/
 .shadow_main {
     position: fixed;

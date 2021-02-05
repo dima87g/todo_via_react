@@ -40,8 +40,8 @@ connection_pool = mysql.connector.pooling.MySQLConnectionPool(
 
 routes_to_check = ["/create_list", "/delete_list"]
 
-print("Connection Pool Name - ", connection_pool.pool_name)
-print("Connection Pool Size - ", connection_pool.pool_size)
+# print("Connection Pool Name - ", connection_pool.pool_name)
+# print("Connection Pool Size - ", connection_pool.pool_size)
 
 
 @app.before_request

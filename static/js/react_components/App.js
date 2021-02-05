@@ -5,30 +5,23 @@ import {Login} from "./Login";
 import {LoadingWindow} from "./LoadingWindow";
 import React from "react";
 import {connect} from "react-redux";
+import {showConfirmWindow, showShadowModal, showInfoWindows} from "../redux/actions";
+import {store} from "../redux/store";
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.confirmWindowFunction = null;
-        this.state = {
-            shadowModalIsVisible: false,
-            confirmWindowIsVisible: false,
-            confirmWindowMessage: '',
-        }
         this.authCheck = this.authCheck.bind(this);
         this.showConfirmWindow = this.showConfirmWindow.bind(this);
         this.confirmWindowClick = this.confirmWindowClick.bind(this);
         this.knockKnock = this.knockKnock.bind(this);
+        this.login = React.createRef();
         this.loadingWindow = React.createRef();
     }
 
     componentDidMount() {
-        registry.app = this;
         this.authCheck();
-    }
-
-    componentWillUnmount() {
-        registry.app = null;
     }
 
     authCheck() {
@@ -38,22 +31,25 @@ class App extends React.Component {
                 registry.login.hideLoginWindow();
             } else {
                 showCookiesAlertWindow();
-                this.setState({
-                    shadowModalIsVisible: true,
-                });
+                store.dispatch(showShadowModal(true));
             }
         }
         this.knockKnock('/auth_check', responseHandler);
     }
 
+    showInfoWindow(message) {
+        store.dispatch(showInfoWindows(true, message));
+
+        let timer = setTimeout(() => {
+            store.dispatch(showInfoWindows(false, ''));
+            timer = clearTimeout(timer);
+        }, 3000);
+    }
+
     showConfirmWindow(message, func) {
         this.showShadowModal();
         this.confirmWindowFunction = func;
-
-        this.setState({
-            confirmWindowIsVisible: true,
-            confirmWindowMessage: message,
-        });
+        store.dispatch(showConfirmWindow(true, message));
     }
 
     confirmWindowClick(e) {
@@ -64,22 +60,15 @@ class App extends React.Component {
             this.hideShadowModal();
         }
         this.confirmWindowFunction = null;
-        this.setState({
-            confirmWindowIsVisible: false,
-            confirmWindowMessage: '',
-        })
+        store.dispatch(showConfirmWindow(false, ''));
     }
 
     showShadowModal() {
-        this.setState({
-            shadowModalIsVisible: true,
-        });
+        store.dispatch(showShadowModal(true));
     }
 
     hideShadowModal() {
-        this.setState({
-            shadowModalIsVisible: false,
-        })
+        store.dispatch(showShadowModal(false));
     }
 
     knockKnock(path, func, sendData) {
@@ -110,26 +99,33 @@ class App extends React.Component {
     render() {
         let shadowStyle;
         let confirmWindowStyle;
+        let infoWindowStyle;
 
-        if (this.state.shadowModalIsVisible) {
+        if (this.props.SHADOW_MODAL_IS_VISIBLE) {
             shadowStyle = 'shadow_main shadow_visible';
         } else {
             shadowStyle = 'shadow_main shadow_hidden';
         }
 
-        if (this.state.confirmWindowIsVisible) {
+        if (this.props.CONFIRM_WINDOW_IS_VISIBLE) {
             confirmWindowStyle = 'confirm_window confirm_window_visible';
         } else {
             confirmWindowStyle = 'confirm_window confirm_window_hidden';
         }
+
+        if (this.props.INFO_WINDOW_IS_VISIBLE) {
+            infoWindowStyle = 'info_window';
+        } else {
+            infoWindowStyle = 'info_window info_window_visible';
+        }
+
         return (
             <div className={'app'} id={'app'}>
-                <Login app={this}
-                       shadowModalIsVisible={this.state.shadowModalIsVisible}/>
+                <Login ref={this.login} app={this}/>
                 <div id={"confirm_window"} className={confirmWindowStyle}>
                     <p id={"confirm_window_message"}
                        className={'confirm_window_message'}>
-                        {this.state.confirmWindowMessage}
+                        {this.props.CONFIRM_WINDOW_MESSAGE}
                     </p>
                     <button type={"button"}
                             className={"confirm_window_buttons"}
@@ -144,8 +140,10 @@ class App extends React.Component {
                         {localisation['confirm_window']['cancel_button']}
                     </button>
                 </div>
-                <div className="info_window" id="info_window">
-                    <p className="info_window_message" id="info_window_message"/>
+                <div id={'info_window'} className={infoWindowStyle}>
+                    <p className="info_window_message" id="info_window_message">
+                        {this.props.INFO_WINDOW_MESSAGE}
+                    </p>
                 </div>
                 <LoadingWindow ref={this.loadingWindow}/>
                 <div id={'shadow'}
@@ -164,8 +162,14 @@ class App extends React.Component {
     }
 }
 
-export default connect((state) => (
-    {
+function mapStateToProps(state) {
+    return {
         SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
+        CONFIRM_WINDOW_IS_VISIBLE: state.CONFIRM_WINDOW_IS_VISIBLE,
+        CONFIRM_WINDOW_MESSAGE: state.CONFIRM_WINDOW_MESSAGE,
+        INFO_WINDOW_IS_VISIBLE: state.INFO_WINDOW_IS_VISIBLE,
+        INFO_WINDOW_MESSAGE: state.INFO_WINDOW_MESSAGE,
     }
-    ))(App);
+}
+
+export default connect(mapStateToProps)(App);

@@ -1,5 +1,6 @@
 import {registry} from "../main";
 import React from "react";
+import {connect} from "react-redux";
 
 export class TaskInput extends React.Component{
     constructor(props) {
@@ -23,7 +24,7 @@ export class TaskInput extends React.Component{
         let taskInputFieldDisabled;
         let taskInputButtonDisabled;
 
-        if (this.props.shadowModalIsVisible === true) {
+        if (this.props.SHADOW_MODAL_IS_VISIBLE === true) {
             taskInputSubmitFunction = null;
             taskInputFieldDisabled = true;
             taskInputButtonDisabled = true;
@@ -55,3 +56,11 @@ export class TaskInput extends React.Component{
         )
     }
 }
+
+function mapToStateProps(state) {
+    return {
+        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
+    }
+}
+
+export default connect(mapToStateProps)(TaskInput);

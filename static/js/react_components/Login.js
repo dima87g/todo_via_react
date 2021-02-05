@@ -6,11 +6,12 @@ import {
 } from "../todo_functions";
 import {TaskList} from "./TaskList";
 import React from "react";
-import {Header} from "./Header";
+import Header from "./Header";
 
 export class Login extends React.Component {
     constructor(props) {
         super(props);
+        this.app = this.props.app;
         this.state = {
             userName: "",
             authMenuShowed: true,
@@ -83,7 +84,7 @@ export class Login extends React.Component {
         document.forms['login_form'].reset();
         document.forms['register_form'].reset();
         removeChildren(this.loginFormInfo.current);
-        registry.app.hideShadowModal();
+        this.app.hideShadowModal();
 
         this.setState({
             authMenuShowed: false,
@@ -93,7 +94,7 @@ export class Login extends React.Component {
     }
 
     showLoginWindow() {
-        registry.app.showShadowModal();
+        this.app.showShadowModal();
 
         this.setState({
             authMenuShowed: true,
@@ -119,7 +120,7 @@ export class Login extends React.Component {
                     this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['login_error_warning']));
                 }
             }
-            registry.app.knockKnock('/user_login', responseHandler, data);
+            this.app.knockKnock('/user_login', responseHandler, data);
         } else if (!userName) {
             this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_user_name_warning']));
         } else if (!password) {
@@ -145,7 +146,7 @@ export class Login extends React.Component {
         }
         let message = localisation['confirm_window']['log_out_confirm_message'];
 
-        registry.app.showConfirmWindow(message, confirmFunction);
+        this.app.showConfirmWindow(message, confirmFunction);
 
     }
 
@@ -203,7 +204,7 @@ export class Login extends React.Component {
             if (password === confirmPassword) {
                 const sendData = {'newUserName': userName, 'password': password};
 
-                registry.app.knockKnock('/user_register', responseHandler, sendData);
+                this.app.knockKnock('/user_register', responseHandler, sendData);
             }
         }
     }
@@ -221,10 +222,10 @@ export class Login extends React.Component {
         }
 
         const confirmFunction = () => {
-            registry.app.knockKnock('/user_delete', responseHandler);
+            this.app.knockKnock('/user_delete', responseHandler);
         }
 
-        registry.app.showConfirmWindow(message, confirmFunction);
+        this.app.showConfirmWindow(message, confirmFunction);
     }
 
     changePasswordWindow() {
@@ -265,7 +266,7 @@ export class Login extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 this.changePasswordWindow();
-                showInfoWindow('Password is changed!');
+                this.app.showInfoWindow('Password is changed!');
             } else if (response.status === 401) {
                 this.changePasswordWindow();
                 this.forceLogOut();
@@ -279,7 +280,7 @@ export class Login extends React.Component {
             if (newPassword === newPasswordConfirm) {
                 const sendData = {'oldPassword': oldPassword, 'newPassword': newPassword};
 
-                registry.app.knockKnock('change_password', responseHandler, sendData);
+                this.app.knockKnock('change_password', responseHandler, sendData);
                 e.target.reset();
             } else {
                 this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_match_passwords_warning']));
@@ -315,11 +316,10 @@ export class Login extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        registry.app.knockKnock('/load_tasks', responseHandler, sendData);
+        this.app.knockKnock('/load_tasks', responseHandler, sendData);
     }
 
     listChange(e) {
-        console.log('Changing list!');
         let selectedListId = e.target.value;
 
         if (selectedListId !== this.state.currentListId && selectedListId !== '0') {
@@ -341,7 +341,7 @@ export class Login extends React.Component {
 
                 }
             }
-            registry.app.knockKnock('/load_tasks', responseHandler, sendData);
+            this.app.knockKnock('/load_tasks', responseHandler, sendData);
         } else if (selectedListId === '0') {
             this.createNewListWindow();
         }
@@ -349,7 +349,7 @@ export class Login extends React.Component {
 
     createNewListWindow() {
         if (this.state.createNewListWindowShowed === false) {
-            registry.app.showShadowModal();
+            this.app.showShadowModal();
             this.setState({
                 authMenuShowed: true,
                 createNewListWindowShowed: true,
@@ -359,7 +359,7 @@ export class Login extends React.Component {
             });
         } else {
             document.forms["create_new_list_form"].reset();
-            registry.app.hideShadowModal();
+            this.app.hideShadowModal();
             this.setState({
 
                 authMenuShowed: false,
@@ -389,7 +389,7 @@ export class Login extends React.Component {
                 });
             }
         }
-        registry.app.knockKnock('/create_list', responseHandler, sendData);
+        this.app.knockKnock('/create_list', responseHandler, sendData);
     }
 
     deleteList(listToDeleteId, listToDeleteName) {
@@ -418,9 +418,9 @@ export class Login extends React.Component {
                 }
             }
             const confirmFunction = () => {
-                registry.app.knockKnock('/delete_list', responseHandler, sendData);
+                this.app.knockKnock('/delete_list', responseHandler, sendData);
             }
-            registry.app.showConfirmWindow(message, confirmFunction);
+            this.app.showConfirmWindow(message, confirmFunction);
         }
     }
 
@@ -520,7 +520,6 @@ export class Login extends React.Component {
                 <Header userName={this.state.userName}
                         currentListId={this.state.currentListId}
                         listSelectMenu={this.state.listSelectMenu}
-                        shadowModalIsVisible={this.props.shadowModalIsVisible}
                 />
                 <div id={'auth_menu'} className={authMenuStyle}>
                     <div id={'login_window'} className={loginWindowStyle}>
@@ -679,7 +678,8 @@ export class Login extends React.Component {
                     </div>
                 </div>
                 <div className={'task_list'} id={'task_list'}>
-                    <TaskList listId={this.state.currentListId}
+                    <TaskList app={this.app}
+                              listId={this.state.currentListId}
                               tasksFromServer={this.state.tasksFromServer}/>
                 </div>
             </div>

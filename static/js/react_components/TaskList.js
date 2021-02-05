@@ -7,6 +7,7 @@ import React from "react";
 export class TaskList extends React.Component {
     constructor(props) {
         super(props)
+        this.app = this.props.app;
         this.tasksFromServer = [];
         this.tasksTree = new Map();
         this.rootTasksList = [];
@@ -74,9 +75,6 @@ export class TaskList extends React.Component {
             this.setState({
                 linearTasksList: this.rootTasksList,
             });
-
-            console.log(this.tasksTree);
-            console.log(this.rootTasksList);
         }
         return true;
     }
@@ -189,7 +187,7 @@ export class TaskList extends React.Component {
                 // });
             }
         }
-        registry.app.knockKnock('/change_position', responseHandler, sendData);
+        this.app.knockKnock('/change_position', responseHandler, sendData);
     }
 
     /**
@@ -226,7 +224,7 @@ export class TaskList extends React.Component {
                 showInfoWindow('Some problem!');
             }
         }
-        registry.app.knockKnock('/save_task', responseHandler, sendData);
+        this.app.knockKnock('/save_task', responseHandler, sendData);
     }
 
     /**
@@ -255,7 +253,7 @@ export class TaskList extends React.Component {
     //             showInfoWindow('Authorisation problem!');
     //         }
     //     }
-    //     registry.app.knockKnock('/save_task', add, sendData);
+    //     this.app.knockKnock('/save_task', add, sendData);
     // }
 
     /**
@@ -306,15 +304,15 @@ export class TaskList extends React.Component {
                 showInfoWindow('Authorisation problem!');
             }
         }
-        registry.app.knockKnock('/delete_task', responseHandler, sendData);
+        this.app.knockKnock('/delete_task', responseHandler, sendData);
     }
 
     render() {
-        console.log(this.state.linearTasksList);
         return (
             <div className={'tasks'} id={'tasks'}>
                 {this.state.linearTasksList.map((task) =>
                     <TaskReact key={task.id.toString()}
+                               app={this.app}
                                taskInst={task}
                                taskId={task.id}
                                status={task.status}
