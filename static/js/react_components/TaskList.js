@@ -1,5 +1,5 @@
 import {registry} from "../main";
-import {findPosition, showInfoWindow, swap} from "../todo_functions";
+import {findPosition, swap} from "../todo_functions";
 import {Task} from "../todo_classes";
 import {TaskReact} from "./TaskReact";
 import React from "react";
@@ -219,9 +219,9 @@ export class TaskList extends React.Component {
                 })
             } else if (response.status === 401) {
                 registry.login.forceLogOut();
-                showInfoWindow('Authorisation problem!');
+                this.app.showInfoWindow('Authorisation problem!');
             } else {
-                showInfoWindow('Some problem!');
+                this.app.showInfoWindow('Some problem!');
             }
         }
         this.app.knockKnock('/save_task', responseHandler, sendData);
@@ -250,7 +250,7 @@ export class TaskList extends React.Component {
     //             })
     //         } else if (answer.status === 401) {
     //             registry.login.forceLogOut();
-    //             showInfoWindow('Authorisation problem!');
+    //             this.app.showInfoWindow('Authorisation problem!');
     //         }
     //     }
     //     this.app.knockKnock('/save_task', add, sendData);
@@ -301,7 +301,7 @@ export class TaskList extends React.Component {
                 }, 500);
             } else if (answer.status === 401) {
                 registry.login.forceLogOut();
-                showInfoWindow('Authorisation problem!');
+                this.app.showInfoWindow('Authorisation problem!');
             }
         }
         this.app.knockKnock('/delete_task', responseHandler, sendData);

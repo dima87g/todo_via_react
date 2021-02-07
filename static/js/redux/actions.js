@@ -13,7 +13,7 @@ export function showConfirmWindow(value, message) {
     }
 }
 
-export function showInfoWindows(value, message) {
+export function showInfoWindow(value, message) {
     return {
         type: 'INFO_WINDOW_IS_VISIBLE',
         value,

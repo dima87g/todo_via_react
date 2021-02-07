@@ -1,9 +1,5 @@
 import {registry} from "../main";
-import {
-    showInfoWindow,
-    isInternetExplorer,
-    removeChildren
-} from "../todo_functions";
+import {isInternetExplorer, removeChildren} from "../todo_functions";
 import {TaskList} from "./TaskList";
 import React from "react";
 import Header from "./Header";
@@ -217,7 +213,7 @@ export class Login extends React.Component {
                 this.forceLogOut();
             } else if (response.status === 401) {
                 this.forceLogOut();
-                showInfoWindow('Authorisation problem!');
+                this.app.showInfoWindow('Authorisation problem!');
             }
         }
 
@@ -270,7 +266,7 @@ export class Login extends React.Component {
             } else if (response.status === 401) {
                 this.changePasswordWindow();
                 this.forceLogOut();
-                showInfoWindow('Authorisation problem!');
+                this.app.showInfoWindow('Authorisation problem!');
             } else {
                 this.changePasswordFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
             }
@@ -313,7 +309,7 @@ export class Login extends React.Component {
                 });
             } else if (response.status === 401) {
                 this.forceLogOut();
-                showInfoWindow('Authorisation problem!');
+                this.app.showInfoWindow('Authorisation problem!');
             }
         }
         this.app.knockKnock('/load_tasks', responseHandler, sendData);
@@ -394,7 +390,7 @@ export class Login extends React.Component {
 
     deleteList(listToDeleteId, listToDeleteName) {
         if (listToDeleteName === 'main') {
-            showInfoWindow(localisation['delete_list']['cannot_delete_main_info']);
+            this.app.showInfoWindow(localisation['delete_list']['cannot_delete_main_info']);
         } else {
             let sendData = {'listId': listToDeleteId, 'listName': listToDeleteName}
             let message = localisation['confirm_window']['delete_list_confirm_message'] + ' ' + listToDeleteName + ' ?'

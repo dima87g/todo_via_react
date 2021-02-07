@@ -1,4 +1,4 @@
-import {showInfoWindow, isInternetExplorer} from "../todo_functions";
+import {isInternetExplorer} from "../todo_functions";
 import {registry} from "../main";
 import React from "react";
 
@@ -54,7 +54,7 @@ export class TaskReact extends React.Component {
                 });
             } else if (answer.status === 401) {
                 registry.login.forceLogOut();
-                showInfoWindow('Authorisation problem!');
+                this.app.showInfoWindow('Authorisation problem!');
             }
         }
         this.app.knockKnock('/finish_task', responseHandler, sendData);
@@ -132,7 +132,7 @@ export class TaskReact extends React.Component {
                         })
                     } else if (response.status === 401) {
                         registry.login.forceLogOut();
-                        showInfoWindow('Authorisation problem!');
+                        this.app.showInfoWindow('Authorisation problem!');
                     }
                 }
                 this.app.knockKnock('/save_edit_task', responseHandler, sendData);

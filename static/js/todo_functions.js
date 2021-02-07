@@ -1,20 +1,5 @@
 'use strict';
 
-export function showInfoWindow(message) {
-
-    let infoWindow = document.getElementById("info_window");
-    let infoWindowMessage = document.getElementById("info_window_message");
-
-    removeChildren(infoWindowMessage);
-
-    infoWindowMessage.appendChild(document.createTextNode(message));
-    infoWindow.style.visibility = 'visible';
-
-    setTimeout(function() {
-        infoWindow.style.visibility = 'hidden';
-    }, 3000)
-}
-
 export function removeChildren(element) {
     while (element.firstChild) {
         element.removeChild(element.firstChild);

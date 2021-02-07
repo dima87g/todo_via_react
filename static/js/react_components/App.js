@@ -1,12 +1,12 @@
 import {registry} from "../main";
-import {showCookiesAlertWindow, showInfoWindow} from "../todo_functions";
 import axios from "axios";
-import {Login} from "./Login";
-import {LoadingWindow} from "./LoadingWindow";
 import React from "react";
 import {connect} from "react-redux";
-import {showConfirmWindow, showShadowModal, showInfoWindows} from "../redux/actions";
 import {store} from "../redux/store";
+import {showCookiesAlertWindow} from "../todo_functions";
+import {showConfirmWindow, showShadowModal, showInfoWindow} from "../redux/actions";
+import {Login} from "./Login";
+import {LoadingWindow} from "./LoadingWindow";
 
 class App extends React.Component {
     constructor(props) {
@@ -27,8 +27,8 @@ class App extends React.Component {
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                registry.login.createTaskList();
-                registry.login.hideLoginWindow();
+                this.login.current.createTaskList();
+                this.login.current.hideLoginWindow();
             } else {
                 showCookiesAlertWindow();
                 store.dispatch(showShadowModal(true));
@@ -38,10 +38,10 @@ class App extends React.Component {
     }
 
     showInfoWindow(message) {
-        store.dispatch(showInfoWindows(true, message));
+        store.dispatch(showInfoWindow(true, message));
 
         let timer = setTimeout(() => {
-            store.dispatch(showInfoWindows(false, ''));
+            store.dispatch(showInfoWindow(false, ''));
             timer = clearTimeout(timer);
         }, 3000);
     }
@@ -87,7 +87,7 @@ class App extends React.Component {
                 console.log(error.response);
                 if (error.response.status === 403) {
                     this.showShadowModal();
-                    showInfoWindow(error.response.data['error_message']);
+                    this.showInfoWindow(error.response.data['error_message']);
                 }
                 else if (error.response.status) {
                     func(error.response);
@@ -114,9 +114,9 @@ class App extends React.Component {
         }
 
         if (this.props.INFO_WINDOW_IS_VISIBLE) {
-            infoWindowStyle = 'info_window';
-        } else {
             infoWindowStyle = 'info_window info_window_visible';
+        } else {
+            infoWindowStyle = 'info_window';
         }
 
         return (
