@@ -1,6 +1,6 @@
 import React from "react";
 
-export class LoadingWindow extends React.Component {
+class LoadingWindow extends React.Component {
     constructor(props) {
         super(props);
         this.isAlive = false;
@@ -70,3 +70,5 @@ export class LoadingWindow extends React.Component {
         )
     }
 }
+
+export default LoadingWindow;

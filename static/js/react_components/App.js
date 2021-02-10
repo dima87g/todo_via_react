@@ -1,23 +1,22 @@
-import {registry} from "../main";
-import axios from "axios";
 import React from "react";
-import {connect} from "react-redux";
+import axios from "axios";
 import {store} from "../redux/store";
-import {showCookiesAlertWindow} from "../todo_functions";
-import {showConfirmWindow, showShadowModal, showInfoWindow} from "../redux/actions";
+import {showShadowModal, showInfoWindow, showCookiesAlertWindow} from "../redux/actions";
 import {Login} from "./Login";
-import {LoadingWindow} from "./LoadingWindow";
+import LoadingWindow from "./windows/LoadingWindow";
+import CookiesWindow from "./windows/CookiesWindow";
+import ConfirmWindow from "./windows/ConfirmWindow";
+import InfoWindow from "./windows/InfoWindow";
+import ShadowModal from "./windows/ShadowModal";
 
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.confirmWindowFunction = null;
         this.authCheck = this.authCheck.bind(this);
-        this.showConfirmWindow = this.showConfirmWindow.bind(this);
-        this.confirmWindowClick = this.confirmWindowClick.bind(this);
         this.knockKnock = this.knockKnock.bind(this);
         this.login = React.createRef();
         this.loadingWindow = React.createRef();
+        console.log(this.loadingWindow);
     }
 
     componentDidMount() {
@@ -30,48 +29,17 @@ class App extends React.Component {
                 this.login.current.createTaskList();
                 this.login.current.hideLoginWindow();
             } else {
-                showCookiesAlertWindow();
+                store.dispatch(showCookiesAlertWindow(true));
                 store.dispatch(showShadowModal(true));
             }
         }
         this.knockKnock('/auth_check', responseHandler);
     }
 
-    showInfoWindow(message) {
-        store.dispatch(showInfoWindow(true, message));
-
-        let timer = setTimeout(() => {
-            store.dispatch(showInfoWindow(false, ''));
-            timer = clearTimeout(timer);
-        }, 3000);
-    }
-
-    showConfirmWindow(message, func) {
-        this.showShadowModal();
-        this.confirmWindowFunction = func;
-        store.dispatch(showConfirmWindow(true, message));
-    }
-
-    confirmWindowClick(e) {
-        if (e.target.value === 'ok') {
-            this.hideShadowModal();
-            this.confirmWindowFunction()
-        } else {
-            this.hideShadowModal();
-        }
-        this.confirmWindowFunction = null;
-        store.dispatch(showConfirmWindow(false, ''));
-    }
-
-    showShadowModal() {
-        store.dispatch(showShadowModal(true));
-    }
-
-    hideShadowModal() {
-        store.dispatch(showShadowModal(false));
-    }
-
     knockKnock(path, func, sendData) {
+        // console.log(this.loadingWindow);
+        // console.log(this.loadingWindow.current);
+        //TODO make refactor on knockKnock, maybe it may need to some changes
         const req = axios.default;
         this.loadingWindow.current.showWindow();
         req.post(path, sendData)
@@ -86,8 +54,8 @@ class App extends React.Component {
                 console.log(error);
                 console.log(error.response);
                 if (error.response.status === 403) {
-                    this.showShadowModal();
-                    this.showInfoWindow(error.response.data['error_message']);
+                    store.dispatch(showShadowModal(true));
+                    store.dispatch(showInfoWindow(true, error.response.data['error_message']));
                 }
                 else if (error.response.status) {
                     func(error.response);
@@ -97,79 +65,17 @@ class App extends React.Component {
     }
 
     render() {
-        let shadowStyle;
-        let confirmWindowStyle;
-        let infoWindowStyle;
-
-        if (this.props.SHADOW_MODAL_IS_VISIBLE) {
-            shadowStyle = 'shadow_main shadow_visible';
-        } else {
-            shadowStyle = 'shadow_main shadow_hidden';
-        }
-
-        if (this.props.CONFIRM_WINDOW_IS_VISIBLE) {
-            confirmWindowStyle = 'confirm_window confirm_window_visible';
-        } else {
-            confirmWindowStyle = 'confirm_window confirm_window_hidden';
-        }
-
-        if (this.props.INFO_WINDOW_IS_VISIBLE) {
-            infoWindowStyle = 'info_window info_window_visible';
-        } else {
-            infoWindowStyle = 'info_window';
-        }
-
         return (
             <div className={'app'} id={'app'}>
                 <Login ref={this.login} app={this}/>
-                <div id={"confirm_window"} className={confirmWindowStyle}>
-                    <p id={"confirm_window_message"}
-                       className={'confirm_window_message'}>
-                        {this.props.CONFIRM_WINDOW_MESSAGE}
-                    </p>
-                    <button type={"button"}
-                            className={"confirm_window_buttons"}
-                            value={"ok"}
-                            onClick={this.confirmWindowClick}>
-                        OK
-                    </button>
-                    <button type={"button"}
-                            className={"confirm_window_buttons"}
-                            value={'cancel'}
-                            onClick={this.confirmWindowClick}>
-                        {localisation['confirm_window']['cancel_button']}
-                    </button>
-                </div>
-                <div id={'info_window'} className={infoWindowStyle}>
-                    <p className="info_window_message" id="info_window_message">
-                        {this.props.INFO_WINDOW_MESSAGE}
-                    </p>
-                </div>
+                <ConfirmWindow/>
+                <InfoWindow/>
                 <LoadingWindow ref={this.loadingWindow}/>
-                <div id={'shadow'}
-                     className={shadowStyle}
-                />
-                <div className={"cookies_alert_window"} id={"cookies_alert_window"}>
-                    <p className={"cookies_alert_window_text"} id={"cookies_alert_window_text"}/>
-                    <button type={"button"}
-                            className={"cookies_alert_confirm_button"}
-                            id={"cookies_alert_confirm_button"}>
-                        OK
-                    </button>
-                </div>
+                <ShadowModal/>
+                <CookiesWindow/>
             </div>
         )
     }
 }
 
-function mapStateToProps(state) {
-    return {
-        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
-        CONFIRM_WINDOW_IS_VISIBLE: state.CONFIRM_WINDOW_IS_VISIBLE,
-        CONFIRM_WINDOW_MESSAGE: state.CONFIRM_WINDOW_MESSAGE,
-        INFO_WINDOW_IS_VISIBLE: state.INFO_WINDOW_IS_VISIBLE,
-        INFO_WINDOW_MESSAGE: state.INFO_WINDOW_MESSAGE,
-    }
-}
-
-export default connect(mapStateToProps)(App);
+export default App;

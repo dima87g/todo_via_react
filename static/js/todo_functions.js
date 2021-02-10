@@ -6,23 +6,6 @@ export function removeChildren(element) {
     }
 }
 
-export function showCookiesAlertWindow() {
-    let cookiesAlertWindow = document.getElementById('cookies_alert_window');
-    let cookiesAlertWindowText = document.getElementById('cookies_alert_window_text');
-    let cookiesAlertWindowConfirmButton = document.getElementById('cookies_alert_confirm_button');
-
-    cookiesAlertWindowText.appendChild(document.createTextNode(localisation['cookie_window']['cookie_message']));
-
-    cookiesAlertWindowConfirmButton.onclick = function() {
-        cookiesAlertWindow.style.opacity = '0';
-
-        setTimeout(function() {
-            cookiesAlertWindow.style.display = 'none';
-        }, 500);
-    }
-    cookiesAlertWindow.style.display = 'block';
-}
-
 export function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
     "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"

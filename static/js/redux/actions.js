@@ -1,3 +1,10 @@
+export function showCookiesAlertWindow(value) {
+    return {
+        type: 'COOKIES_WINDOW_IS_VISIBLE',
+        value,
+    }
+}
+
 export function showShadowModal(value) {
     return {
         type: 'SHADOW_MODAL_IS_VISIBLE',
@@ -5,11 +12,12 @@ export function showShadowModal(value) {
     }
 }
 
-export function showConfirmWindow(value, message) {
+export function showConfirmWindow(value, message, func) {
     return {
         type: 'CONFIRM_WINDOW_IS_VISIBLE',
         value,
         message,
+        func,
     }
 }
 

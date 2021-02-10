@@ -738,6 +738,14 @@ html, body {
     transition: opacity 0.5s;
 }
 
+.cookies_alert_window_opacity {
+    opacity: 0;
+}
+
+.cookies_alert_window_showed {
+    display: block;
+}
+
 .cookies_alert_window_text {
     text-align: center;
     color: white;

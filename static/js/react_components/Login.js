@@ -3,6 +3,8 @@ import {isInternetExplorer, removeChildren} from "../todo_functions";
 import {TaskList} from "./TaskList";
 import React from "react";
 import Header from "./Header";
+import {showConfirmWindow, showCookiesAlertWindow, showInfoWindow, showShadowModal} from "../redux/actions";
+import {store} from "../redux/store";
 
 export class Login extends React.Component {
     constructor(props) {
@@ -22,6 +24,7 @@ export class Login extends React.Component {
             listSelectMenu: [],
         }
         this.listSelectMenu = null;
+        // this.authCheck = this.authCheck.bind(this);
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
         this.login = this.login.bind(this);
@@ -33,6 +36,7 @@ export class Login extends React.Component {
         this.listChange = this.listChange.bind(this);
         this.createNewListWindow = this.createNewListWindow.bind(this);
         this.createNewList = this.createNewList.bind(this);
+        //TODO maybe it will be better to use HTML forms selectors, instead of refs????
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
         this.changePasswordFormInfo = React.createRef();
@@ -40,11 +44,25 @@ export class Login extends React.Component {
 
     componentDidMount() {
         registry.login = this;
+        // this.authCheck();
     }
 
     componentWillUnmount() {
         registry.login = null;
     }
+
+    // authCheck() {
+    //     const responseHandler = (response) => {
+    //         if (response.status === 200 && response.data['ok'] === true) {
+    //             this.createTaskList();
+    //             this.hideLoginWindow();
+    //         } else {
+    //             store.dispatch(showCookiesAlertWindow(true));
+    //             store.dispatch(showShadowModal(true));
+    //         }
+    //     }
+    //     this.app.knockKnock('/auth_check', responseHandler);
+    // }
 
     switchLogin(e) {
         if (e.target.value === 'register') {
@@ -80,7 +98,7 @@ export class Login extends React.Component {
         document.forms['login_form'].reset();
         document.forms['register_form'].reset();
         removeChildren(this.loginFormInfo.current);
-        this.app.hideShadowModal();
+        store.dispatch(showShadowModal(false));
 
         this.setState({
             authMenuShowed: false,
@@ -90,7 +108,7 @@ export class Login extends React.Component {
     }
 
     showLoginWindow() {
-        this.app.showShadowModal();
+        store.dispatch(showShadowModal(true));
 
         this.setState({
             authMenuShowed: true,
@@ -142,8 +160,7 @@ export class Login extends React.Component {
         }
         let message = localisation['confirm_window']['log_out_confirm_message'];
 
-        this.app.showConfirmWindow(message, confirmFunction);
-
+        store.dispatch(showConfirmWindow(true, message, confirmFunction));
     }
 
     forceLogOut() {
@@ -213,15 +230,14 @@ export class Login extends React.Component {
                 this.forceLogOut();
             } else if (response.status === 401) {
                 this.forceLogOut();
-                this.app.showInfoWindow('Authorisation problem!');
+                store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
 
         const confirmFunction = () => {
             this.app.knockKnock('/user_delete', responseHandler);
         }
-
-        this.app.showConfirmWindow(message, confirmFunction);
+        store.dispatch(showConfirmWindow(true, message, confirmFunction));
     }
 
     changePasswordWindow() {
@@ -262,11 +278,11 @@ export class Login extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 this.changePasswordWindow();
-                this.app.showInfoWindow('Password is changed!');
+                store.dispatch(showInfoWindow(true, 'Password is changed!'));
             } else if (response.status === 401) {
                 this.changePasswordWindow();
                 this.forceLogOut();
-                this.app.showInfoWindow('Authorisation problem!');
+                store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             } else {
                 this.changePasswordFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
             }
@@ -309,7 +325,7 @@ export class Login extends React.Component {
                 });
             } else if (response.status === 401) {
                 this.forceLogOut();
-                this.app.showInfoWindow('Authorisation problem!');
+                store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
         this.app.knockKnock('/load_tasks', responseHandler, sendData);
@@ -345,7 +361,7 @@ export class Login extends React.Component {
 
     createNewListWindow() {
         if (this.state.createNewListWindowShowed === false) {
-            this.app.showShadowModal();
+            store.dispatch(showShadowModal(true));
             this.setState({
                 authMenuShowed: true,
                 createNewListWindowShowed: true,
@@ -355,7 +371,7 @@ export class Login extends React.Component {
             });
         } else {
             document.forms["create_new_list_form"].reset();
-            this.app.hideShadowModal();
+            store.dispatch(showShadowModal(false));
             this.setState({
 
                 authMenuShowed: false,
@@ -390,7 +406,7 @@ export class Login extends React.Component {
 
     deleteList(listToDeleteId, listToDeleteName) {
         if (listToDeleteName === 'main') {
-            this.app.showInfoWindow(localisation['delete_list']['cannot_delete_main_info']);
+            store.dispatch(showInfoWindow(true, localisation['delete_list']['cannot_delete_main_info']));
         } else {
             let sendData = {'listId': listToDeleteId, 'listName': listToDeleteName}
             let message = localisation['confirm_window']['delete_list_confirm_message'] + ' ' + listToDeleteName + ' ?'
@@ -416,7 +432,7 @@ export class Login extends React.Component {
             const confirmFunction = () => {
                 this.app.knockKnock('/delete_list', responseHandler, sendData);
             }
-            this.app.showConfirmWindow(message, confirmFunction);
+            store.dispatch(showConfirmWindow(true, message, confirmFunction));
         }
     }
 
