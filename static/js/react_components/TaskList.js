@@ -1,13 +1,14 @@
+import React from "react";
 import {registry} from "../main";
 import {store} from "../redux/store";
-import {showInfoWindow} from "../redux/actions";
+import {moveTask, removeTask, showInfoWindow} from "../redux/actions";
 import {findPosition, swap} from "../todo_functions";
 import {Task} from "../todo_classes";
-import {TaskReact} from "./TaskReact";
-import React from "react";
+import TaskReact from "./TaskReact";
+import {connect} from "react-redux";
 
 
-export class TaskList extends React.Component {
+class TaskList extends React.Component {
     constructor(props) {
         super(props)
         this.app = this.props.app;
@@ -17,18 +18,6 @@ export class TaskList extends React.Component {
 
         this.state = {
             linearTasksList: this.rootTasksList,
-            movingTasks: {
-                moving: false,
-                taskMovingUpId: null,
-                taskMovingDownId: null,
-                activeMovingTaskId: null,
-            },
-            removingTask: {
-                removing: false,
-                removingTaskId: null,
-                removingTaskPosition: null,
-                removingTaskHeight: null,
-            },
         }
         this.addTask = this.addTask.bind(this);
         // this.addSubtask = this.addSubtask.bind(this);
@@ -40,8 +29,8 @@ export class TaskList extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        if (this.props.tasksFromServer !== nextProps.tasksFromServer && nextProps.tasksFromServer) {
-            this.tasksFromServer = nextProps.tasksFromServer;
+        if (this.props.TASKS_FROM_SERVER !== nextProps.TASKS_FROM_SERVER && nextProps.TASKS_FROM_SERVER) {
+            this.tasksFromServer = nextProps.TASKS_FROM_SERVER;
             this.tasksTree = new Map();
             this.rootTasksList = [];
 
@@ -108,6 +97,7 @@ export class TaskList extends React.Component {
      * @param taskMoveDirection
      */
     moveTask(task, taskMoveDirection) {
+        //TODO test, what happens if there is only one task in list while moving
         let taskList;
         let currentTask = task.taskInst;
         let currentTaskIndex;
@@ -129,7 +119,6 @@ export class TaskList extends React.Component {
         currentTaskIndex = findPosition(taskList, currentTask);
 
         if (taskMoveDirection === 'UP') {
-            console.log('up');
             if (currentTaskIndex > 0 && currentTaskIndex !== -1) {
                 taskToSwapIndex = currentTaskIndex - 1;
                 taskToSwap = taskList[taskToSwapIndex]
@@ -139,7 +128,6 @@ export class TaskList extends React.Component {
                 taskMovingDownId = taskToSwapId;
             }
         } else if (taskMoveDirection === 'DOWN') {
-            console.log('down');
             if (currentTaskIndex < taskList.length - 1 && currentTaskIndex !== -1) {
                 taskToSwapIndex = currentTaskIndex + 1;
                 taskToSwap = taskList[taskToSwapIndex];
@@ -163,31 +151,13 @@ export class TaskList extends React.Component {
                 currentTask.position = taskToSwapPosition;
                 taskToSwap.position = currentTaskPosition;
 
-                this.setState({
-                    movingTasks: {
-                        moving: true,
-                        taskMovingUpId: taskMovingUpId,
-                        taskMovingDownId: taskMovingDownId,
-                        activeMovingTaskId: currentTaskId,
-                    },
-                })
-                console.log(this.state);
+                this.props.dispatch(moveTask(true, taskMovingUpId, taskMovingDownId, currentTaskId));
                 setTimeout(()=>{
                     this.setState({
                         linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
-                        movingTasks: {
-                            moving: false,
-                            taskMovingUpId: null,
-                            taskMovingDownId: null,
-                            activeMovingTaskId: null,
-                        },
                     });
-                    console.log(this.state);
+                    this.props.dispatch(moveTask(false, null, null, null));
                 }, 300);
-
-                // this.setState({
-                //     linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
-                // });
             }
         }
         this.app.knockKnock('/change_position', responseHandler, sendData);
@@ -202,7 +172,7 @@ export class TaskList extends React.Component {
      */
     addTask(taskText) {
         let sendData = {
-            'listId': this.props.listId,
+            'listId': this.props.LIST_ID,
             'taskText': taskText,
             'parentId': null
         };
@@ -278,14 +248,11 @@ export class TaskList extends React.Component {
                 //     this.rootTasksList.splice(this.rootTasksList.indexOf(task.taskInst), 1);
                 // }
 
-                this.setState({
-                    removingTask: {
-                        removing: true,
-                        removingTaskId: task.id,
-                        removingTaskPosition: task.taskInst.position,
-                        removingTaskHeight: task.taskDiv.current.offsetHeight,
-                    },
-                });
+                let removingTaskId = task.id;
+                let removingTaskPosition = task.taskInst.position;
+                let removingTaskHeight = task.taskDiv.current.offsetHeight;
+                
+                this.props.dispatch(removeTask(true, removingTaskId, removingTaskPosition, removingTaskHeight));
 
                 setTimeout(() => {
                     this.rootTasksList.splice(findPosition(this.rootTasksList, task.taskInst), 1);
@@ -294,13 +261,8 @@ export class TaskList extends React.Component {
                     this.setState({
                         // linearTasksList: this.makeLinearList(this.rootTasksList),
                         linearTasksList: this.rootTasksList,
-                        removingTask: {
-                            removing: false,
-                            removingTaskId: null,
-                            removingTaskPosition: null,
-                            removingTaskHeight: null,
-                        },
                     });
+                    this.props.dispatch(removeTask(false, null, null, null));
                 }, 500);
             } else if (answer.status === 401) {
                 registry.login.forceLogOut();
@@ -312,7 +274,7 @@ export class TaskList extends React.Component {
 
     render() {
         return (
-            <div className={'tasks'} id={'tasks'}>
+            <div className={'task_list'} id={'task_list'}>
                 {this.state.linearTasksList.map((task) =>
                     <TaskReact key={task.id.toString()}
                                app={this.app}
@@ -321,10 +283,17 @@ export class TaskList extends React.Component {
                                status={task.status}
                                taskText={task.text}
                                parentId={task.parentId}
-                               movingTasks={this.state.movingTasks}
-                               removingTask={this.state.removingTask}
                     />)}
             </div>
         )
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        LIST_ID: state.LIST_ID,
+        TASKS_FROM_SERVER: state.TASKS_FROM_SERVER,
+    }
+}
+
+export default connect(mapStateToProps)(TaskList);

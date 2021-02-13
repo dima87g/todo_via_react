@@ -1,44 +1,25 @@
 import React from "react";
 import axios from "axios";
 import {store} from "../redux/store";
-import {showShadowModal, showInfoWindow, showCookiesAlertWindow} from "../redux/actions";
-import {Login} from "./Login";
-import LoadingWindow from "./windows/LoadingWindow";
-import CookiesWindow from "./windows/CookiesWindow";
+import {showShadowModal, showInfoWindow} from "../redux/actions";
+import Header from "./Header";
 import ConfirmWindow from "./windows/ConfirmWindow";
 import InfoWindow from "./windows/InfoWindow";
+import LoadingWindow from "./windows/LoadingWindow";
 import ShadowModal from "./windows/ShadowModal";
+import CookiesWindow from "./windows/CookiesWindow";
+import Login from "./Login";
+import TaskList from "./TaskList";
+
 
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.authCheck = this.authCheck.bind(this);
         this.knockKnock = this.knockKnock.bind(this);
-        this.login = React.createRef();
         this.loadingWindow = React.createRef();
-        console.log(this.loadingWindow);
-    }
-
-    componentDidMount() {
-        this.authCheck();
-    }
-
-    authCheck() {
-        const responseHandler = (response) => {
-            if (response.status === 200 && response.data['ok'] === true) {
-                this.login.current.createTaskList();
-                this.login.current.hideLoginWindow();
-            } else {
-                store.dispatch(showCookiesAlertWindow(true));
-                store.dispatch(showShadowModal(true));
-            }
-        }
-        this.knockKnock('/auth_check', responseHandler);
     }
 
     knockKnock(path, func, sendData) {
-        // console.log(this.loadingWindow);
-        // console.log(this.loadingWindow.current);
         //TODO make refactor on knockKnock, maybe it may need to some changes
         const req = axios.default;
         this.loadingWindow.current.showWindow();
@@ -67,12 +48,14 @@ class App extends React.Component {
     render() {
         return (
             <div className={'app'} id={'app'}>
-                <Login ref={this.login} app={this}/>
+                <Header/>
                 <ConfirmWindow/>
                 <InfoWindow/>
                 <LoadingWindow ref={this.loadingWindow}/>
                 <ShadowModal/>
                 <CookiesWindow/>
+                <Login app={this}/>
+                <TaskList app={this}/>
             </div>
         )
     }

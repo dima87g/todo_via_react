@@ -1,17 +1,17 @@
 import React from "react";
 import {connect} from "react-redux";
 import {showCookiesAlertWindow} from "../../redux/actions";
-import {store} from "../../redux/store";
 
 class CookiesWindow extends React.Component {
     constructor(props) {
         super(props);
+        this.closeCookiesWindow = this.closeCookiesWindow.bind(this);
     }
 
     closeCookiesWindow() {
-        store.dispatch(showCookiesAlertWindow('hiding'));
+        this.props.dispatch(showCookiesAlertWindow('hiding'));
         setTimeout(() => {
-            store.dispatch(showCookiesAlertWindow(false));
+            this.props.dispatch(showCookiesAlertWindow(false));
         }, 500);
     }
 

@@ -28,3 +28,41 @@ export function showInfoWindow(value, message) {
         message,
     }
 }
+
+export function createList(userName, listId, listSelectMenu, tasksFromServer) {
+    //TODO Need to rename and refactor this function
+    return {
+        type: 'CREATE_LIST',
+        userName,
+        listId,
+        listSelectMenu,
+        tasksFromServer,
+    }
+}
+
+export function moveTask(moving, taskMovingUpId, taskMovingDownId, movingTaskId) {
+    return {
+        type: 'MOVING_TASK',
+        moving,
+        taskMovingUpId,
+        taskMovingDownId,
+        movingTaskId,
+    }
+}
+
+export function removeTask(removing, removingTaskId, removingTaskPosition, removingTaskHeight) {
+    return {
+        type: 'REMOVING_TASK',
+        removing,
+        removingTaskId,
+        removingTaskPosition,
+        removingTaskHeight,
+    }
+}
+
+export function test(value) {
+    return {
+        type: 'TEST',
+        value,
+    }
+}

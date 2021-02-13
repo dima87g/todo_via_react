@@ -6,10 +6,27 @@ let initialState = {
     INFO_WINDOW_IS_VISIBLE: false,
     INFO_WINDOW_MESSAGE: '',
     COOKIES_WINDOW_IS_VISIBLE: false,
+    USER_NAME: '',
+    LIST_ID: null,
+    LIST_SELECT_MENU: [],
+    TASKS_FROM_SERVER: [],
+    TASK_IS_MOVING: false,
+    TASK_MOVING_UP_ID: null,
+    TASK_MOVING_DOWN_ID: null,
+    MOVING_TASK_ID: null,
+    TASK_IS_REMOVING: false,
+    REMOVING_TASK_ID: null,
+    REMOVING_TASK_POSITION: null,
+    REMOVING_TASK_HEIGHT: null,
 }
 
 export function reducer(state = initialState, action) {
     switch (action.type) {
+        case 'TEST':
+            return {
+                ...state,
+                VALUE: action.value,
+            }
         case 'COOKIES_WINDOW_IS_VISIBLE':
             return {
                 ...state,
@@ -32,6 +49,30 @@ export function reducer(state = initialState, action) {
                 ...state,
                 INFO_WINDOW_IS_VISIBLE: action.value,
                 INFO_WINDOW_MESSAGE: action.message,
+            }
+        case 'CREATE_LIST':
+            return {
+                ...state,
+                USER_NAME: action.userName,
+                LIST_ID: action.listId,
+                LIST_SELECT_MENU: action.listSelectMenu,
+                TASKS_FROM_SERVER: action.tasksFromServer,
+            }
+        case 'MOVING_TASK':
+            return  {
+                ...state,
+                TASK_IS_MOVING: action.moving,
+                TASK_MOVING_UP_ID: action.taskMovingUpId,
+                TASK_MOVING_DOWN_ID: action.taskMovingDownId,
+                MOVING_TASK_ID: action.movingTaskId,
+            }
+        case 'REMOVING_TASK':
+            return {
+                ...state,
+                TASK_IS_REMOVING: action.removing,
+                REMOVING_TASK_ID: action.removingTaskId,
+                REMOVING_TASK_POSITION: action.removingTaskPosition,
+                REMOVING_TASK_HEIGHT: action.removingTaskHeight,
             }
         default:
             return state;

@@ -1,7 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
 import {showShadowModal} from "../../redux/actions";
-import {store} from "../../redux/store";
 
 class ShadowModal extends React.Component {
     constructor(props) {
@@ -9,7 +8,9 @@ class ShadowModal extends React.Component {
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.CONFIRM_WINDOW_IS_VISIBLE) {
-            store.dispatch(showShadowModal(true));
+            this.props.dispatch(showShadowModal(true));
+        } else if (!this.props.CONFIRM_WINDOW_IS_VISIBLE) {
+            this.props.dispatch(showShadowModal(false));
         }
     }
 

@@ -1,8 +1,8 @@
 import {registry} from "../main";
 import React from "react";
+import {connect} from "react-redux";
 import HeaderMenu from "./HeaderMenu";
 import TaskInput from "./TaskInput";
-import {connect} from "react-redux";
 
 class Header extends React.Component {
     constructor(props) {
@@ -36,7 +36,7 @@ class Header extends React.Component {
                     <p id={"user_name_field"}
                        className={"user_name_field"}
                        ref={this.userNameField}>
-                        {"User: " + this.props.userName}
+                        {"User: " + this.props.USER_NAME}
                     </p>
                     <a href={localisation['language_change']['link']} className={'language_switch_button'}>
                         <img
@@ -45,17 +45,14 @@ class Header extends React.Component {
                         />
                     </a>
                     <div className={'list_select_menu_div'}>
-                        {/*{console.log(this.currentListId)}*/}
-                        {/*{console.log(this.props.currentListId ? this.props.currentListId.toString() : null)}*/}
                         <select
                             className={'list_select_menu'}
-                            value={this.props.currentListId ? this.props.currentListId.toString() : '0'}
+                            value={this.props.LIST_ID ? this.props.LIST_ID.toString() : '0'}
                             onChange={this.listChange}
                             disabled={listSelectMenuDisabled}
                             ref={this.listSelectMenu}
                         >
-                            {this.props.listSelectMenu.map((value, index) => {
-                                let currentSelectedList;
+                            {this.props.LIST_SELECT_MENU.map((value, index) => {
                                 // TODO object keys are always of string type !!!
                                 //  Need to make the listsDict structure from the server
                                 //  so that id is a numeric type without parseInt function!!!
@@ -83,6 +80,9 @@ class Header extends React.Component {
 function mapStateToProps(state) {
     return {
         SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
+        USER_NAME: state.USER_NAME,
+        LIST_ID: state.LIST_ID,
+        LIST_SELECT_MENU: state.LIST_SELECT_MENU,
     }
 }
 

@@ -2,7 +2,7 @@ import {registry} from "../main";
 import React from "react";
 import {connect} from "react-redux";
 
-export class HeaderMenu extends React.Component {
+class HeaderMenu extends React.Component {
     constructor(props) {
         super(props)
         this.state = {

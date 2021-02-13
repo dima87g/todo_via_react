@@ -22,10 +22,8 @@ html, body {
     position: relative;
     /*max-width: 1366px;*/
     margin: 0 auto;
-}
-
-.main {
-    overflow: auto;
+    /*overflow: auto;*/
+    border-top: 1px solid;
 }
 
 .header {
@@ -181,12 +179,7 @@ html, body {
 }
 
 .list_select_menu {
-    display: inline-block;
     margin-right: 10px;
-}
-
-.delete_list_button {
-    display: inline-block;
 }
 
 /*Styles for show/hide auth menu animation*/
@@ -329,11 +322,6 @@ html, body {
     font-size: 16px;
 }
 
-.tasks {
-    width: 95vw;
-    margin: 0 auto;
-}
-
 .input {
     /*margin-top: 4vh;*/
 }
@@ -378,7 +366,10 @@ html, body {
 }
 
 .task_list {
+    width: 95vw;
     margin-top: 30vh;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .task {
@@ -659,7 +650,6 @@ html, body {
     top: 20vw;
     left: 50%;
     margin-left: -100px;
-    /*z-index: 1;*/
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.5s;
@@ -668,7 +658,7 @@ html, body {
 .confirm_window_visible {
     visibility: visible;
     opacity: 1;
-    z-index: 2;
+    z-index: 1000;
 }
 
 .confirm_window_hidden {
@@ -696,7 +686,7 @@ html, body {
     background-color: aqua;
     left: 50%;
     margin-left: -100px;
-    z-index: 2;
+    z-index: 1000;
     visibility: hidden;
 }
 
@@ -718,7 +708,7 @@ html, body {
 .shadow_visible {
     visibility: visible;
     opacity: 0.5;
-    z-index: 1;
+    z-index: 1000;
 }
 
 .shadow_hidden {

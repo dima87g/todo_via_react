@@ -1,10 +1,13 @@
+import React from "react";
 import {store} from "../redux/store";
+import {connect} from "react-redux";
 import {showInfoWindow, showShadowModal} from "../redux/actions";
 import {isInternetExplorer} from "../todo_functions";
 import {registry} from "../main";
-import React from "react";
 
-export class TaskReact extends React.Component {
+
+
+class TaskReact extends React.Component {
     constructor(props) {
         super(props);
         this.app = this.props.app;
@@ -177,15 +180,15 @@ export class TaskReact extends React.Component {
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
 
-        if (this.props.movingTasks.moving === true || this.props.removingTask.removing === true) {
+        if (this.props.TASK_IS_MOVING === true || this.props.TASK_IS_REMOVING === true) {
             taskMoveButtonDisabled = true;
-            if (this.props.movingTasks.moving === true) {
-                if (this.props.movingTasks.activeMovingTaskId === this.id) {
+            if (this.props.TASK_IS_MOVING === true) {
+                if (this.props.MOVING_TASK_ID === this.id) {
                     taskStyle = 'task active_moving_task';
                 } else {
                     taskStyle = 'task';
                 }
-                if (this.props.movingTasks.taskMovingDownId === this.id) {
+                if (this.props.TASK_MOVING_DOWN_ID === this.id) {
                     let taskMovingUp = this.taskDiv.current.nextElementSibling;
                     let taskMovingDownHeight = this.taskDiv.current.offsetHeight;
                     let taskMovingUpHeight = taskMovingUp.offsetHeight;
@@ -199,16 +202,16 @@ export class TaskReact extends React.Component {
                         taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
                     }
                 }
-            } else if (this.props.removingTask.removing === true) {
-                if (this.props.removingTask.removingTaskId === this.id) {
+            } else if (this.props.TASK_IS_REMOVING === true) {
+                if (this.props.REMOVING_TASK_ID === this.id) {
                     taskStyle = 'task remove_task';
-                } else if (this.props.removingTask.removingTaskPosition < this.taskInst.position) {
+                } else if (this.props.REMOVING_TASK_POSITION < this.taskInst.position) {
                     taskStyle = 'task';
                     this.taskDiv.current.style.transitionDuration = '0.5s';
                     if (isInternetExplorer()) {
-                        this.taskDiv.current.style.transform = 'translateY(-' + this.props.removingTask.removingTaskHeight + 'px) translateY(-10px)';
+                        this.taskDiv.current.style.transform = 'translateY(-' + this.props.REMOVING_TASK_HEIGHT + 'px) translateY(-10px)';
                     } else {
-                        this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.removingTask.removingTaskHeight + 'px - 10px))';
+                        this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.REMOVING_TASK_HEIGHT + 'px - 10px))';
                     }
                 } else {
                     taskStyle = 'task';
@@ -341,3 +344,18 @@ export class TaskReact extends React.Component {
         )
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        TASK_IS_MOVING: state.TASK_IS_MOVING,
+        TASK_MOVING_UP_ID: state.TASK_MOVING_UP_ID,
+        TASK_MOVING_DOWN_ID: state.TASK_MOVING_DOWN_ID,
+        MOVING_TASK_ID: state.MOVING_TASK_ID,
+        TASK_IS_REMOVING: state.TASK_IS_REMOVING,
+        REMOVING_TASK_ID: state.REMOVING_TASK_ID,
+        REMOVING_TASK_POSITION: state.REMOVING_TASK_POSITION,
+        REMOVING_TASK_HEIGHT: state.REMOVING_TASK_HEIGHT,
+    }
+}
+
+export default connect(mapStateToProps)(TaskReact);
