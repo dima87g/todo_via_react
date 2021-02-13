@@ -1,8 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
 import {registry} from "../main";
-import {TaskList} from "./TaskList";
-import Header from "./Header";
 import {createList, showConfirmWindow, showCookiesAlertWindow, showInfoWindow, showShadowModal} from "../redux/actions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
 

@@ -1,6 +1,6 @@
-import {registry} from "../main";
 import React from "react";
 import {connect} from "react-redux";
+import {registry} from "../main";
 import HeaderMenu from "./HeaderMenu";
 import TaskInput from "./TaskInput";
 

@@ -1,11 +1,11 @@
 import React from "react";
+import {connect} from "react-redux";
 import {registry} from "../main";
-import {store} from "../redux/store";
 import {moveTask, removeTask, showInfoWindow} from "../redux/actions";
 import {findPosition, swap} from "../todo_functions";
 import {Task} from "../todo_classes";
 import TaskReact from "./TaskReact";
-import {connect} from "react-redux";
+
 
 
 class TaskList extends React.Component {
@@ -192,9 +192,9 @@ class TaskList extends React.Component {
                 })
             } else if (response.status === 401) {
                 registry.login.forceLogOut();
-                store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
+                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             } else {
-                store.dispatch(showInfoWindow(true, 'Some problem!'));
+                this.props.dispatch(showInfoWindow(true, 'Some problem!'));
             }
         }
         this.app.knockKnock('/save_task', responseHandler, sendData);
@@ -223,7 +223,7 @@ class TaskList extends React.Component {
     //             })
     //         } else if (answer.status === 401) {
     //             registry.login.forceLogOut();
-    //             store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
+    //             this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
     //         }
     //     }
     //     this.app.knockKnock('/save_task', add, sendData);
@@ -266,7 +266,7 @@ class TaskList extends React.Component {
                 }, 500);
             } else if (answer.status === 401) {
                 registry.login.forceLogOut();
-                store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
+                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
         this.app.knockKnock('/delete_task', responseHandler, sendData);

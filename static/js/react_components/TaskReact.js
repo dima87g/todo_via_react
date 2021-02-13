@@ -1,9 +1,8 @@
 import React from "react";
-import {store} from "../redux/store";
 import {connect} from "react-redux";
+import {registry} from "../main";
 import {showInfoWindow, showShadowModal} from "../redux/actions";
 import {isInternetExplorer} from "../todo_functions";
-import {registry} from "../main";
 
 
 
@@ -59,7 +58,7 @@ class TaskReact extends React.Component {
                 });
             } else if (answer.status === 401) {
                 registry.login.forceLogOut();
-                store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
+                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
         this.app.knockKnock('/finish_task', responseHandler, sendData);
@@ -73,7 +72,7 @@ class TaskReact extends React.Component {
 
     showSubtaskField() {
         if (this.state.addSubtaskDivShowed === false) {
-            store.dispatch(showShadowModal(true));
+            this.props.dispatch(showShadowModal(true));
             this.setState({
                 taskTextShowed: false,
                 addSubtaskDivShowed: true,
@@ -82,7 +81,7 @@ class TaskReact extends React.Component {
                 removeTaskButtonDisabled: true,
             });
         } else {
-            store.dispatch(showShadowModal(false));
+            this.props.dispatch(showShadowModal(false));
             this.setState({
                 taskTextShowed: true,
                 addSubtaskDivShowed: false,
@@ -114,7 +113,7 @@ class TaskReact extends React.Component {
 
     showEditTaskField() {
         if (this.state.editTaskDivShowed === false) {
-            store.dispatch(showShadowModal(true));
+            this.props.dispatch(showShadowModal(true));
             this.setState({
                 taskTextShowed: false,
                 editTaskDivShowed: true,
@@ -138,12 +137,12 @@ class TaskReact extends React.Component {
                     } else if (response.status === 401) {
                         //TODO make sense about replace all info messages from application to knockKnock function
                         registry.login.forceLogOut();
-                        store.dispatch(showInfoWindow(true, 'Authorisation problem!'));
+                        this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
                     }
                 }
                 this.app.knockKnock('/save_edit_task', responseHandler, sendData);
             }
-            store.dispatch(showShadowModal(false));
+            this.props.dispatch(showShadowModal(false));
             this.setState({
                 taskTextShowed: true,
                 editTaskDivShowed: false,

@@ -1,7 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
 import {showConfirmWindow} from "../../redux/actions";
-import {store} from "../../redux/store";
 
 class ConfirmWindow extends React.Component {
     constructor(props) {
@@ -13,7 +12,7 @@ class ConfirmWindow extends React.Component {
         if (e.target.value === 'ok') {
             this.props.CONFIRM_WINDOW_FUNCTION();
         }
-        store.dispatch(showConfirmWindow(false, '', null));
+        this.props.dispatch(showConfirmWindow(false, '', null));
     }
 
     render() {

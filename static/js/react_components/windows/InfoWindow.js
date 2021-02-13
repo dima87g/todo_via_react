@@ -1,5 +1,4 @@
 import React from "react";
-import {store} from "../../redux/store";
 import {connect} from "react-redux";
 import {showInfoWindow} from "../../redux/actions";
 
@@ -12,7 +11,7 @@ class InfoWindow extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.INFO_WINDOW_IS_VISIBLE) {
             setTimeout(() => {
-                store.dispatch(showInfoWindow(false, ''));
+                this.props.dispatch(showInfoWindow(false, ''));
             }, 3000);
         }
     }
