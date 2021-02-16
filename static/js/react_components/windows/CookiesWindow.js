@@ -45,7 +45,7 @@ class CookiesWindow extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        COOKIES_WINDOW_IS_VISIBLE: state.COOKIES_WINDOW_IS_VISIBLE,
+        COOKIES_WINDOW_IS_VISIBLE: state.app.COOKIES_WINDOW_IS_VISIBLE,
     }
 }
 

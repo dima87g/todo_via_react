@@ -1,6 +1,13 @@
 import {createStore} from "@reduxjs/toolkit";
-import {reducer} from "./reducer";
+import {combineReducers} from "redux";
+import {appReducer} from "./reducers/appReducer";
+import {loginReducer} from "./reducers/loginReducer";
 
-const store = createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+const mainReducer = combineReducers({
+    app: appReducer,
+    login: loginReducer
+})
+
+const store = createStore(mainReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
 export {store}

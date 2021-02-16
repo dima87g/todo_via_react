@@ -1,3 +1,6 @@
+import {loginReducer} from "./loginReducer";
+import {combineReducers} from "redux";
+
 let initialState = {
     SHADOW_MODAL_IS_VISIBLE: false,
     CONFIRM_WINDOW_IS_VISIBLE: false,
@@ -18,9 +21,10 @@ let initialState = {
     REMOVING_TASK_ID: null,
     REMOVING_TASK_POSITION: null,
     REMOVING_TASK_HEIGHT: null,
+    HEADER_MENU_IS_SHOWING: false,
 }
 
-export function reducer(state = initialState, action) {
+export function appReducer(state = initialState, action) {
     switch (action.type) {
         case 'TEST':
             return {
@@ -74,7 +78,22 @@ export function reducer(state = initialState, action) {
                 REMOVING_TASK_POSITION: action.removingTaskPosition,
                 REMOVING_TASK_HEIGHT: action.removingTaskHeight,
             }
+        case 'SHOW_HEADER_MENU':
+            return {
+                ...state,
+                HEADER_MENU_IS_SHOWING: true,
+            }
+        case 'HIDE_HEADER_MENU':
+            return {
+                ...state,
+                HEADER_MENU_IS_SHOWING: false,
+            }
         default:
             return state;
     }
 }
+
+// export const mainReducer = combineReducers({
+//     app: appReducer,
+//     login: loginReducer
+// })

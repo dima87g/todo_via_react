@@ -53,9 +53,9 @@ class ConfirmWindow extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        CONFIRM_WINDOW_IS_VISIBLE: state.CONFIRM_WINDOW_IS_VISIBLE,
-        CONFIRM_WINDOW_MESSAGE: state.CONFIRM_WINDOW_MESSAGE,
-        CONFIRM_WINDOW_FUNCTION: state.CONFIRM_WINDOW_FUNCTION,
+        CONFIRM_WINDOW_IS_VISIBLE: state.app.CONFIRM_WINDOW_IS_VISIBLE,
+        CONFIRM_WINDOW_MESSAGE: state.app.CONFIRM_WINDOW_MESSAGE,
+        CONFIRM_WINDOW_FUNCTION: state.app.CONFIRM_WINDOW_FUNCTION,
     }
 }
 

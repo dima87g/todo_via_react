@@ -7,10 +7,12 @@ class ShadowModal extends React.Component {
         super(props);
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.CONFIRM_WINDOW_IS_VISIBLE) {
-            this.props.dispatch(showShadowModal(true));
-        } else if (!this.props.CONFIRM_WINDOW_IS_VISIBLE) {
-            this.props.dispatch(showShadowModal(false));
+        if (this.props !== prevProps) {
+            if (this.props.CONFIRM_WINDOW_IS_VISIBLE || this.props.AUTH_MENU_IS_VISIBLE) {
+                this.props.dispatch(showShadowModal(true));
+            } else if (!this.props.CONFIRM_WINDOW_IS_VISIBLE) {
+                this.props.dispatch(showShadowModal(false));
+            }
         }
     }
 
@@ -29,11 +31,12 @@ class ShadowModal extends React.Component {
     }
 }
 
-function mapToStateProps(state) {
+function mapStateToProps(state) {
     return {
-        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
-        CONFIRM_WINDOW_IS_VISIBLE: state.CONFIRM_WINDOW_IS_VISIBLE,
+        SHADOW_MODAL_IS_VISIBLE: state.app.SHADOW_MODAL_IS_VISIBLE,
+        CONFIRM_WINDOW_IS_VISIBLE: state.app.CONFIRM_WINDOW_IS_VISIBLE,
+        AUTH_MENU_IS_VISIBLE: state.login.AUTH_MENU_IS_VISIBLE,
     }
 }
 
-export default connect(mapToStateProps)(ShadowModal);
+export default connect(mapStateToProps)(ShadowModal);

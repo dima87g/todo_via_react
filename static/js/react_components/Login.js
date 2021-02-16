@@ -1,7 +1,14 @@
 import React from "react";
 import {connect} from "react-redux";
 import {registry} from "../main";
-import {createList, showConfirmWindow, showCookiesAlertWindow, showInfoWindow, showShadowModal} from "../redux/actions";
+import {
+    createList,
+    hideAuthMenu, showAuthMenu,
+    showConfirmWindow,
+    showCookiesAlertWindow,
+    showInfoWindow,
+    showShadowModal
+} from "../redux/actions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
 
 class Login extends React.Component {
@@ -10,7 +17,6 @@ class Login extends React.Component {
         this.app = this.props.app;
         this.username = null,
         this.state = {
-            authMenuShowed: true,
             loginWindowShowed: true,
             loginWindowSwitchButtonDisabled: false,
             registerWindowShowed: false,
@@ -95,8 +101,8 @@ class Login extends React.Component {
         removeChildren(this.loginFormInfo.current);
         this.props.dispatch(showShadowModal(false));
 
+        this.props.dispatch(hideAuthMenu());
         this.setState({
-            authMenuShowed: false,
             loginWindowShowed: false,
             registerWindowShowed: false,
         })
@@ -104,9 +110,8 @@ class Login extends React.Component {
 
     showLoginWindow() {
         this.props.dispatch(showShadowModal(true));
-
+        this.props.dispatch(showAuthMenu());
         this.setState({
-            authMenuShowed: true,
             loginWindowShowed: true,
         })
     }
@@ -314,7 +319,7 @@ class Login extends React.Component {
     listChange(e) {
         let selectedListId = e.target.value;
 
-        if (selectedListId !== this.state.currentListId && selectedListId !== '0') {
+        if (selectedListId !== this.props.LIST_ID && selectedListId !== '0') {
             let sendData = {'listId': selectedListId};
 
             const responseHandler = (response) => {
@@ -337,8 +342,8 @@ class Login extends React.Component {
     createNewListWindow() {
         if (this.state.createNewListWindowShowed === false) {
             this.props.dispatch(showShadowModal(true));
+            this.props.dispatch(showAuthMenu());
             this.setState({
-                authMenuShowed: true,
                 createNewListWindowShowed: true,
                 loginWindowShowed: false,
                 registerWindowShowed: false,
@@ -348,9 +353,8 @@ class Login extends React.Component {
             document.forms["create_new_list_form"].reset();
 
             this.props.dispatch(showShadowModal(false));
-
+            this.props.dispatch(showAuthMenu());
             this.setState({
-                authMenuShowed: false,
                 createNewListWindowShowed: false,
             });
         }
@@ -415,7 +419,7 @@ class Login extends React.Component {
         let createNewListWindowCancelButtonDisabled;
         let createNewListWindowSubmitButtonDisabled;
 
-        if (this.state.authMenuShowed) {
+        if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
         } else {
             authMenuStyle = 'auth_menu auth_menu_hidden';
@@ -657,7 +661,10 @@ class Login extends React.Component {
 }
 
 function mapStateToProps(state) {
-
+    return {
+        LIST_ID: state.app.LIST_ID,
+        AUTH_MENU_IS_VISIBLE: state.login.AUTH_MENU_IS_VISIBLE,
+    }
 }
 
-export default connect()(Login);
+export default connect(mapStateToProps)(Login);

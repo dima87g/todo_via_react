@@ -79,10 +79,10 @@ class Header extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
-        USER_NAME: state.USER_NAME,
-        LIST_ID: state.LIST_ID,
-        LIST_SELECT_MENU: state.LIST_SELECT_MENU,
+        SHADOW_MODAL_IS_VISIBLE: state.app.SHADOW_MODAL_IS_VISIBLE,
+        USER_NAME: state.app.USER_NAME,
+        LIST_ID: state.app.LIST_ID,
+        LIST_SELECT_MENU: state.app.LIST_SELECT_MENU,
     }
 }
 

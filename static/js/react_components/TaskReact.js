@@ -346,14 +346,14 @@ class TaskReact extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        TASK_IS_MOVING: state.TASK_IS_MOVING,
-        TASK_MOVING_UP_ID: state.TASK_MOVING_UP_ID,
-        TASK_MOVING_DOWN_ID: state.TASK_MOVING_DOWN_ID,
-        MOVING_TASK_ID: state.MOVING_TASK_ID,
+        TASK_IS_MOVING: state.app.TASK_IS_MOVING,
+        TASK_MOVING_UP_ID: state.app.TASK_MOVING_UP_ID,
+        TASK_MOVING_DOWN_ID: state.app.TASK_MOVING_DOWN_ID,
+        MOVING_TASK_ID: state.app.MOVING_TASK_ID,
         TASK_IS_REMOVING: state.TASK_IS_REMOVING,
-        REMOVING_TASK_ID: state.REMOVING_TASK_ID,
-        REMOVING_TASK_POSITION: state.REMOVING_TASK_POSITION,
-        REMOVING_TASK_HEIGHT: state.REMOVING_TASK_HEIGHT,
+        REMOVING_TASK_ID: state.app.REMOVING_TASK_ID,
+        REMOVING_TASK_POSITION: state.app.REMOVING_TASK_POSITION,
+        REMOVING_TASK_HEIGHT: state.app.REMOVING_TASK_HEIGHT,
     }
 }
 

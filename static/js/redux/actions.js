@@ -60,6 +60,30 @@ export function removeTask(removing, removingTaskId, removingTaskPosition, remov
     }
 }
 
+export function showHeaderMenu() {
+    return {
+        type: 'SHOW_HEADER_MENU',
+    }
+}
+
+export function hideHeaderMenu() {
+    return {
+        type: 'HIDE_HEADER_MENU',
+    }
+}
+
+export function showAuthMenu() {
+    return {
+        type: 'SHOW_AUTH_MENU',
+    }
+}
+
+export function hideAuthMenu() {
+    return {
+        type: 'HIDE_AUTH_MENU',
+    }
+}
+
 export function test(value) {
     return {
         type: 'TEST',
