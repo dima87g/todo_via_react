@@ -1,4 +1,3 @@
-import {registry} from "../main";
 import React from "react";
 import {connect} from "react-redux";
 
@@ -14,7 +13,7 @@ export class TaskInput extends React.Component{
         let taskText = e.target['task_input_field'].value;
 
         if (taskText) {
-            registry.taskList.addTask(taskText);
+            this.taskList.current.addTask(taskText);
         }
         e.target.reset();
     }
@@ -57,10 +56,10 @@ export class TaskInput extends React.Component{
     }
 }
 
-function mapToStateProps(state) {
+function mapStateToProps(state) {
     return {
-        SHADOW_MODAL_IS_VISIBLE: state.SHADOW_MODAL_IS_VISIBLE,
+        SHADOW_MODAL_IS_VISIBLE: state.app.SHADOW_MODAL_IS_VISIBLE,
     }
 }
 
-export default connect(mapToStateProps)(TaskInput);
+export default connect(mapStateToProps)(TaskInput);

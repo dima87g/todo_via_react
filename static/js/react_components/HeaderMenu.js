@@ -1,4 +1,3 @@
-import {registry} from "../main";
 import React from "react";
 import {connect} from "react-redux";
 import {hideHeaderMenu, showHeaderMenu} from "../redux/actions";

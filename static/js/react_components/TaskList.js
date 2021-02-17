@@ -1,6 +1,5 @@
 import React from "react";
 import {connect} from "react-redux";
-import {registry} from "../main";
 import {moveTask, removeTask, showInfoWindow} from "../redux/actions";
 import {findPosition, swap} from "../todo_functions";
 import {Task} from "../todo_classes";
@@ -23,10 +22,6 @@ class TaskList extends React.Component {
         this.addTask = this.addTask.bind(this);
         // this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
-    }
-
-    componentDidMount() {
-        registry.taskList = this;
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -70,10 +65,6 @@ class TaskList extends React.Component {
             });
         }
         return true;
-    }
-
-    componentWillUnmount() {
-        registry.taskList = null;
     }
 
     // makeLinearList(tasksList) {
@@ -280,6 +271,7 @@ class TaskList extends React.Component {
                     <TaskReact key={task.id.toString()}
                                app={this.app}
                                login={this.login}
+                               taskList={this}
                                taskInst={task}
                                taskId={task.id}
                                status={task.status}
@@ -298,4 +290,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(TaskList);
+export default connect(mapStateToProps, null, null, {forwardRef: true})(TaskList);

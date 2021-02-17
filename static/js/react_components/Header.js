@@ -7,6 +7,7 @@ class Header extends React.Component {
     constructor(props) {
         super(props);
         this.login = this.props.login;
+        this.taskList = this.props.taskList;
         this.deleteList = this.deleteList.bind(this);
         this.listChange = this.listChange.bind(this);
         this.userNameField = React.createRef();
@@ -72,7 +73,7 @@ class Header extends React.Component {
                     </div>
                     <HeaderMenu login={this.login}/>
                 </div>
-                <TaskInput/>
+                <TaskInput taskList={this.taskList}/>
             </div>
         )
     }

@@ -1,6 +1,5 @@
 import React from "react";
 import {connect} from "react-redux";
-import {registry} from "../main";
 import {hideTaskEditField, showInfoWindow, showShadowModal, showTaskEditField} from "../redux/actions";
 import {isInternetExplorer} from "../todo_functions";
 
@@ -10,6 +9,7 @@ class TaskReact extends React.Component {
     constructor(props) {
         super(props);
         this.app = this.props.app;
+        this.taskList = this.props.taskList;
         this.taskInst = this.props.taskInst;
         this.id = this.props.taskId;
         this.state = {
@@ -65,7 +65,7 @@ class TaskReact extends React.Component {
 
     removeTask() {
         if (this.state.status === true) {
-            registry.taskList.removeTask(this);
+            this.taskList.removeTask(this);
         }
     }
 
@@ -99,7 +99,7 @@ class TaskReact extends React.Component {
 
             this.showSubtaskField();
 
-            registry.taskList.addSubtask(this.id, subtaskText);
+            this.taskList.addSubtask(this.id, subtaskText);
 
         }
     }
@@ -159,8 +159,7 @@ class TaskReact extends React.Component {
     moveTask(e) {
         let taskMoveDirection = e.currentTarget.value;
 
-        registry.taskList.moveTask(this, taskMoveDirection);
-
+        this.taskList.moveTask(this, taskMoveDirection);
     }
 
     render() {
@@ -350,7 +349,7 @@ function mapStateToProps(state) {
         TASK_MOVING_UP_ID: state.app.TASK_MOVING_UP_ID,
         TASK_MOVING_DOWN_ID: state.app.TASK_MOVING_DOWN_ID,
         MOVING_TASK_ID: state.app.MOVING_TASK_ID,
-        TASK_IS_REMOVING: state.TASK_IS_REMOVING,
+        TASK_IS_REMOVING: state.app.TASK_IS_REMOVING,
         REMOVING_TASK_ID: state.app.REMOVING_TASK_ID,
         REMOVING_TASK_POSITION: state.app.REMOVING_TASK_POSITION,
         REMOVING_TASK_HEIGHT: state.app.REMOVING_TASK_HEIGHT,
