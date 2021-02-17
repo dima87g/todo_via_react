@@ -17,6 +17,7 @@ class App extends React.Component {
         super(props);
         this.knockKnock = this.knockKnock.bind(this);
         this.loadingWindow = React.createRef();
+        this.login = React.createRef();
     }
 
     knockKnock(path, func, sendData) {
@@ -48,13 +49,13 @@ class App extends React.Component {
     render() {
         return (
             <div className={'app'} id={'app'}>
-                <Header/>
+                <Header login={this.login}/>
                 <ConfirmWindow/>
                 <InfoWindow/>
                 <LoadingWindow ref={this.loadingWindow}/>
                 <CookiesWindow/>
-                <Login app={this}/>
-                <TaskList app={this}/>
+                <Login app={this} ref={this.login}/>
+                <TaskList app={this} login={this.login}/>
                 <ShadowModal/>
             </div>
         )

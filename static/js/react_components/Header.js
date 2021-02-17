@@ -7,20 +7,22 @@ import TaskInput from "./TaskInput";
 class Header extends React.Component {
     constructor(props) {
         super(props);
+        this.login = this.props.login;
         this.deleteList = this.deleteList.bind(this);
+        this.listChange = this.listChange.bind(this);
         this.userNameField = React.createRef();
         this.listSelectMenu = React.createRef();
     }
 
     listChange(e) {
-        registry.login.listChange(e);
+        this.login.current.listChange(e);
     }
 
     deleteList() {
         let listToDeleteId = this.listSelectMenu.current.value;
         let listToDeleteName =  this.listSelectMenu.current.options[this.listSelectMenu.current.selectedIndex].innerText
 
-        registry.login.deleteList(listToDeleteId, listToDeleteName);
+        this.login.current.deleteList(listToDeleteId, listToDeleteName);
     }
 
     render() {
@@ -69,7 +71,7 @@ class Header extends React.Component {
                             {localisation['buttons']['delete_list']}
                         </button>
                     </div>
-                    <HeaderMenu/>
+                    <HeaderMenu login={this.login}/>
                 </div>
                 <TaskInput/>
             </div>

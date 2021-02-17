@@ -12,6 +12,7 @@ class TaskList extends React.Component {
     constructor(props) {
         super(props)
         this.app = this.props.app;
+        this.login = this.props.login;
         this.tasksFromServer = [];
         this.tasksTree = new Map();
         this.rootTasksList = [];
@@ -191,7 +192,7 @@ class TaskList extends React.Component {
                     linearTasksList: this.rootTasksList,
                 })
             } else if (response.status === 401) {
-                registry.login.forceLogOut();
+                this.login.current.forceLogOut();
                 this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             } else {
                 this.props.dispatch(showInfoWindow(true, 'Some problem!'));
@@ -222,7 +223,7 @@ class TaskList extends React.Component {
     //                 linearTasksList : this.makeLinearList(this.rootTasksList),
     //             })
     //         } else if (answer.status === 401) {
-    //             registry.login.forceLogOut();
+    //             this.login.current.forceLogOut();
     //             this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
     //         }
     //     }
@@ -265,7 +266,7 @@ class TaskList extends React.Component {
                     this.props.dispatch(removeTask(false, null, null, null));
                 }, 500);
             } else if (answer.status === 401) {
-                registry.login.forceLogOut();
+                this.login.current.forceLogOut();
                 this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
@@ -278,6 +279,7 @@ class TaskList extends React.Component {
                 {this.state.linearTasksList.map((task) =>
                     <TaskReact key={task.id.toString()}
                                app={this.app}
+                               login={this.login}
                                taskInst={task}
                                taskId={task.id}
                                status={task.status}

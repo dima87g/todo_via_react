@@ -44,14 +44,9 @@ class Login extends React.Component {
     }
 
     componentDidMount() {
-        registry.login = this;
         this.authCheck();
     }
-
-    componentWillUnmount() {
-        registry.login = null;
-    }
-
+    
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
@@ -667,4 +662,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(Login);
+export default connect(mapStateToProps, null, null, {forwardRef: true})(Login);

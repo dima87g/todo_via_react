@@ -6,6 +6,7 @@ import {hideHeaderMenu, showHeaderMenu} from "../redux/actions";
 class HeaderMenu extends React.Component {
     constructor(props) {
         super(props)
+        this.login = this.props.login;
         this.state = {
             menuShowed: false,
             userLogOutButtonDisabled: true,
@@ -68,7 +69,7 @@ class HeaderMenu extends React.Component {
         //     changePasswordButtonDisabled: true,
         // });
         this.props.dispatch(hideHeaderMenu());
-        registry.login.logOut();
+        this.login.current.logOut();
     }
 
     userDelete() {
@@ -79,7 +80,7 @@ class HeaderMenu extends React.Component {
         //     changePasswordButtonDisabled: true,
         // });
         this.props.dispatch(hideHeaderMenu());
-        registry.login.userDelete();
+        this.login.current.userDelete();
     }
 
     changePassword() {
@@ -90,7 +91,7 @@ class HeaderMenu extends React.Component {
         //     changePasswordButtonDisabled: true,
         // });
         this.props.dispatch(hideHeaderMenu());
-        registry.login.changePasswordWindow();
+        this.login.current.changePasswordWindow();
     }
 
     render() {

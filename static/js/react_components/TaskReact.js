@@ -57,7 +57,7 @@ class TaskReact extends React.Component {
                     status: taskStatus
                 });
             } else if (answer.status === 401) {
-                registry.login.forceLogOut();
+                this.login.current.forceLogOut();
                 this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
@@ -136,7 +136,7 @@ class TaskReact extends React.Component {
                         })
                     } else if (response.status === 401) {
                         //TODO make sense about replace all info messages from application to knockKnock function
-                        registry.login.forceLogOut();
+                        this.login.current.forceLogOut();
                         this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
                     }
                 }

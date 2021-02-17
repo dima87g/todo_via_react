@@ -10,7 +10,6 @@ import {store} from "./redux/store";
 import {Provider} from "react-redux";
 
 export const registry = {
-    login: null,
     taskList: null,
 }
 
