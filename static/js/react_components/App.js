@@ -46,17 +46,16 @@ class App extends React.Component {
     }
 
     render() {
-        //TODO Move shadowModal to the bottom. Why i wont do it already?.....
         return (
             <div className={'app'} id={'app'}>
                 <Header/>
                 <ConfirmWindow/>
                 <InfoWindow/>
                 <LoadingWindow ref={this.loadingWindow}/>
-                <ShadowModal/>
                 <CookiesWindow/>
                 <Login app={this}/>
                 <TaskList app={this}/>
+                <ShadowModal/>
             </div>
         )
     }
