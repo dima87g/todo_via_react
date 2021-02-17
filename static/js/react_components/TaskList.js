@@ -89,7 +89,6 @@ class TaskList extends React.Component {
      * @param taskMoveDirection
      */
     moveTask(task, taskMoveDirection) {
-        //TODO test, what happens if there is only one task in list while moving
         let taskList;
         let currentTask = task.taskInst;
         let currentTaskIndex;
