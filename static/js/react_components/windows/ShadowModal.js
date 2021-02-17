@@ -23,8 +23,10 @@ class ShadowModal extends React.Component {
 
         if (this.props.SHADOW_MODAL_IS_VISIBLE) {
             shadowStyle = 'shadow_main shadow_visible';
+            document.body.classList.add('body_under_modal');
         } else {
             shadowStyle = 'shadow_main shadow_hidden';
+            document.body.classList.remove('body_under_modal');
         }
 
         return (

@@ -8,6 +8,10 @@ html, body {
     font-size: 18px;
 }
 
+.body_under_modal {
+    overflow: hidden;
+}
+
 .root {
     /*position: relative;*/
     /*margin-top: 15vh;*/
