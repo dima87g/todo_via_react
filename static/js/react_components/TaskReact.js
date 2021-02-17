@@ -1,7 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import {registry} from "../main";
-import {showInfoWindow, showShadowModal} from "../redux/actions";
+import {hideTaskEditField, showInfoWindow, showShadowModal, showTaskEditField} from "../redux/actions";
 import {isInternetExplorer} from "../todo_functions";
 
 
@@ -23,7 +23,6 @@ class TaskReact extends React.Component {
             addSubtaskButtonShowed: false,
             addSubtaskButtonDisabled: true,
             editTaskDivShowed: false,
-            saveEditButtonDisabled: true,
         }
         this.finishTask = this.finishTask.bind(this);
         this.removeTask = this.removeTask.bind(this);
@@ -112,12 +111,11 @@ class TaskReact extends React.Component {
     }
 
     showEditTaskField() {
-        if (this.state.editTaskDivShowed === false) {
-            this.props.dispatch(showShadowModal(true));
+        if (this.props.TASK_EDIT_FIELD_IS_SHOWING === false) {
+            this.props.dispatch(showTaskEditField());
             this.setState({
                 taskTextShowed: false,
                 editTaskDivShowed: true,
-                saveEditButtonDisabled: false,
                 removeTaskButtonShowed: false,
                 removeTaskButtonDisabled: true,
             });
@@ -142,11 +140,10 @@ class TaskReact extends React.Component {
                 }
                 this.app.knockKnock('/save_edit_task', responseHandler, sendData);
             }
-            this.props.dispatch(showShadowModal(false));
+            this.props.dispatch(hideTaskEditField());
             this.setState({
                 taskTextShowed: true,
                 editTaskDivShowed: false,
-                saveEditButtonDisabled: true,
                 removeTaskButtonShowed: true,
                 removeTaskButtonDisabled: false,
             });
@@ -178,6 +175,7 @@ class TaskReact extends React.Component {
         let editTaskDivStyle;
         let editTaskTextFieldStyle;
         let saveEditButtonStyle;
+        let saveEditButtonDisabled;
 
         if (this.props.TASK_IS_MOVING === true || this.props.TASK_IS_REMOVING === true) {
             taskMoveButtonDisabled = true;
@@ -246,10 +244,12 @@ class TaskReact extends React.Component {
             editTaskDivStyle = 'edit_task_div';
             editTaskTextFieldStyle = 'edit_task_text_field';
             saveEditButtonStyle = 'save_edit_button';
+            saveEditButtonDisabled = false;
         } else {
             editTaskDivStyle = 'edit_task_div edit_task_div_hidden';
             editTaskTextFieldStyle = 'edit_task_text_field edit_task_text_field_hidden';
             saveEditButtonStyle = 'save_edit_button save_edit_button_hidden';
+            saveEditButtonDisabled = true;
         }
 
         if (this.state.taskTextShowed) {
@@ -322,7 +322,7 @@ class TaskReact extends React.Component {
                         <button className={saveEditButtonStyle}
                                 type={'button'}
                                 onClick={this.showEditTaskField}
-                                disabled={this.state.saveEditButtonDisabled}>
+                                disabled={saveEditButtonDisabled}>
                             <img src='/static/icons/edit.svg' alt='+'/>
                         </button>
                     </div>
@@ -354,6 +354,7 @@ function mapStateToProps(state) {
         REMOVING_TASK_ID: state.app.REMOVING_TASK_ID,
         REMOVING_TASK_POSITION: state.app.REMOVING_TASK_POSITION,
         REMOVING_TASK_HEIGHT: state.app.REMOVING_TASK_HEIGHT,
+        TASK_EDIT_FIELD_IS_SHOWING: state.app.TASK_EDIT_FIELD_IS_SHOWING,
     }
 }
 

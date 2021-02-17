@@ -22,6 +22,7 @@ let initialState = {
     REMOVING_TASK_POSITION: null,
     REMOVING_TASK_HEIGHT: null,
     HEADER_MENU_IS_SHOWING: false,
+    TASK_EDIT_FIELD_IS_SHOWING: false,
 }
 
 export function appReducer(state = initialState, action) {
@@ -87,6 +88,16 @@ export function appReducer(state = initialState, action) {
             return {
                 ...state,
                 HEADER_MENU_IS_SHOWING: false,
+            }
+        case 'SHOW_TASK_EDIT_FIELD':
+            return {
+                ...state,
+                TASK_EDIT_FIELD_IS_SHOWING: true,
+            }
+        case 'HIDE_TASK_EDIT_FIELD':
+            return {
+                ...state,
+                TASK_EDIT_FIELD_IS_SHOWING: false,
             }
         default:
             return state;

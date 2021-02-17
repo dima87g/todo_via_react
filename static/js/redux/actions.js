@@ -84,6 +84,18 @@ export function hideAuthMenu() {
     }
 }
 
+export function showTaskEditField() {
+    return {
+        type: 'SHOW_TASK_EDIT_FIELD',
+    }
+}
+
+export function hideTaskEditField() {
+    return {
+        type: 'HIDE_TASK_EDIT_FIELD',
+    }
+}
+
 export function test(value) {
     return {
         type: 'TEST',
