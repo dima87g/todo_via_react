@@ -656,7 +656,7 @@ class Login extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        LIST_ID: state.app.LIST_ID,
+        LIST_ID: state.login.LIST_ID,
         AUTH_MENU_IS_VISIBLE: state.login.AUTH_MENU_IS_VISIBLE,
     }
 }

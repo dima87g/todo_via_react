@@ -284,8 +284,8 @@ class TaskList extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        LIST_ID: state.app.LIST_ID,
-        TASKS_FROM_SERVER: state.app.TASKS_FROM_SERVER,
+        LIST_ID: state.login.LIST_ID,
+        TASKS_FROM_SERVER: state.login.TASKS_FROM_SERVER,
     }
 }
 
