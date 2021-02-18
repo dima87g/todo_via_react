@@ -10,7 +10,6 @@ class Header extends React.Component {
         this.taskList = this.props.taskList;
         this.deleteList = this.deleteList.bind(this);
         this.listChange = this.listChange.bind(this);
-        this.userNameField = React.createRef();
         this.listSelectMenu = React.createRef();
     }
 
@@ -35,9 +34,7 @@ class Header extends React.Component {
         return(
             <div id={"header"} className={"header"}>
                 <div id={"header_login_section"} className={"header_login_section"}>
-                    <p id={"user_name_field"}
-                       className={"user_name_field"}
-                       ref={this.userNameField}>
+                    <p id={"user_name_field"} className={"user_name_field"}>
                         {"User: " + this.props.USER_NAME}
                     </p>
                     <a href={localisation['language_change']['link']} className={'language_switch_button'}>
