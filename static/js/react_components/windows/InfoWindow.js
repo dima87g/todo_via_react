@@ -5,7 +5,6 @@ import {showInfoWindow} from "../../redux/actions";
 class InfoWindow extends React.Component {
     constructor(props) {
         super(props);
-
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
