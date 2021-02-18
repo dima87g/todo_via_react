@@ -32,11 +32,11 @@ class InfoWindow extends React.Component {
     }
 }
 
-function mapToStateProps(state) {
+function mapStateToProps(state) {
     return {
-        INFO_WINDOW_IS_VISIBLE: state.INFO_WINDOW_IS_VISIBLE,
-        INFO_WINDOW_MESSAGE: state.INFO_WINDOW_MESSAGE,
+        INFO_WINDOW_IS_VISIBLE: state.app.INFO_WINDOW_IS_VISIBLE,
+        INFO_WINDOW_MESSAGE: state.app.INFO_WINDOW_MESSAGE,
     }
 }
 
-export default connect(mapToStateProps)(InfoWindow);
+export default connect(mapStateToProps)(InfoWindow);
