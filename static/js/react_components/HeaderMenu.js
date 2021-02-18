@@ -6,12 +6,6 @@ class HeaderMenu extends React.Component {
     constructor(props) {
         super(props)
         this.login = this.props.login;
-        this.state = {
-            menuShowed: false,
-            userLogOutButtonDisabled: true,
-            userDeleteButtonDisabled: true,
-            changePasswordButtonDisabled: true,
-        }
         this.showHeaderMenu = this.showHeaderMenu.bind(this);
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
@@ -42,53 +36,23 @@ class HeaderMenu extends React.Component {
 
     showHeaderMenu() {
         if (this.props.HEADER_MENU_IS_SHOWING) {
-            // this.setState({
-            //     menuShowed: false,
-            //     userLogOutButtonDisabled: true,
-            //     userDeleteButtonDisabled: true,
-            //     changePasswordButtonDisabled: true,
-            // });
             this.props.dispatch(hideHeaderMenu());
         } else {
-            // this.setState({
-            //     menuShowed: true,
-            //     userLogOutButtonDisabled: false,
-            //     userDeleteButtonDisabled: false,
-            //     changePasswordButtonDisabled: false,
-            // });
             this.props.dispatch(showHeaderMenu());
         }
     }
 
     logOut() {
-        // this.setState({
-        //     menuShowed: false,
-        //     userLogOutButtonDisabled: true,
-        //     userDeleteButtonDisabled: true,
-        //     changePasswordButtonDisabled: true,
-        // });
         this.props.dispatch(hideHeaderMenu());
         this.login.current.logOut();
     }
 
     userDelete() {
-        // this.setState({
-        //     menuShowed: false,
-        //     userLogOutButtonDisabled: true,
-        //     userDeleteButtonDisabled: true,
-        //     changePasswordButtonDisabled: true,
-        // });
         this.props.dispatch(hideHeaderMenu());
         this.login.current.userDelete();
     }
 
     changePassword() {
-        // this.setState({
-        //     menuShowed: false,
-        //     userLogOutButtonDisabled: true,
-        //     userDeleteButtonDisabled: true,
-        //     changePasswordButtonDisabled: true,
-        // });
         this.props.dispatch(hideHeaderMenu());
         this.login.current.changePasswordWindow();
     }
