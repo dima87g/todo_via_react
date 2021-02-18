@@ -4,6 +4,7 @@ import {connect} from "react-redux";
 export class TaskInput extends React.Component{
     constructor(props) {
         super(props);
+        this.taskList = this.props.taskList;
         this.addTask = this.addTask.bind(this);
     }
 
