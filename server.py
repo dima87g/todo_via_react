@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify, make_response, g
+from flask import Flask, render_template, request, jsonify, make_response, \
+    g, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from alchemy_sql import make_session, User, List, Task
 import hashlib
@@ -134,23 +135,9 @@ def teardown_appcontext(err):
 
 @app.route("/")
 def main():
-    local = configparser.ConfigParser()
     user_language = request.accept_languages[0][0]
 
-    if user_language == 'ru':
-        local.read('localisation/localisation_ru.ini')
-        response = make_response(render_template("index.html",
-                                                 data=config_to_dict(local)))
-        response.set_cookie('lang', 'ru')
-
-        return response
-    else:
-        local.read('localisation/localisation_en.ini')
-        response = make_response(render_template('index.html',
-                                                 data=config_to_dict(local)))
-        response.set_cookie('lang', 'en')
-
-        return response
+    return redirect(url_for('change_language', lang=user_language))
 
 
 @app.route('/<lang>', methods=['GET', 'POST'])
@@ -170,6 +157,11 @@ def change_language(lang):
                                                  data=config_to_dict(local)))
         response.set_cookie('lang', 'en')
 
+        return response
+    else:
+        local.read('localisation/localisation_en.ini')
+        response = make_response(render_template('index.html',
+                                                 data=config_to_dict(local)))
         return response
 
 
