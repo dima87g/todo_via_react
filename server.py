@@ -59,10 +59,9 @@ def dev_check():
                 response = make_response(
                     {
                         "ok": False,
-                        "error_message": "Sorry, this app is working only for "
-                                         "developers now. Will be worked soon;)"
-                    },
-                    403
+                        "error_message": "Sorry, this app is working only "
+                        "for developers now. Will be worked soon;)"
+                    }, 403
                 )
 
                 return response
@@ -188,7 +187,11 @@ def user_register():
         user_text_id = create_text_id()
         hashed_password = generate_password_hash(user_password)
 
-        new_user = User(user_text_id=user_text_id, user_name=user_name, hashed_password=hashed_password)
+        new_user = User(
+            user_text_id=user_text_id,
+            user_name=user_name,
+            hashed_password=hashed_password
+        )
 
         session.add(new_user)
 
