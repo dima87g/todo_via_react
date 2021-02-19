@@ -171,17 +171,15 @@ def change_language(lang):
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
     """
-    request: json = {userName: 'str', password: 'str'}
+    request: json = {newUserName: 'str', password: 'str'}
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
      'error_message': 'str' or None}
     """
 
-    connection = None
-    cur = None
+    session = None
 
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
+        session = make_session()
 
         data = request.json
         user_name = data["newUserName"]
@@ -190,29 +188,59 @@ def user_register():
         user_text_id = create_text_id()
         hashed_password = generate_password_hash(user_password)
 
-        cur.execute('INSERT INTO users (user_text_id, user_name, '
-                    'hashed_password) VALUES (%s, %s, %s)', 
-                    (user_text_id, user_name, hashed_password,))
+        new_user = User(user_text_id=user_text_id, user_name=user_name, hashed_password=hashed_password)
 
-        new_user_id = cur.lastrowid
+        session.add(new_user)
 
-        cur.execute('INSERT INTO lists (user_id, name) VALUES (%s, %s)',
-                    (new_user_id, 'main'))
+        session.commit()
 
-        connection.commit()
+        new_user_id = new_user.id
 
-        return jsonify({'ok': True, 'error_code': None, 'error_message': None})
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+        new_list = List(user_id=new_user_id, name='main')
+
+        session.add(new_list)
+
+        session.commit()
+
+        response = make_response(
+            {
+                'ok': True
+            }, 200
+        )
+        return response
+    except sqlalchemy.exc.IntegrityError as error:
+        session.rollback()
+        debug_print(error.__dict__)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': 1062,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': None,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': None,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
