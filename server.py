@@ -146,6 +146,7 @@ def change_language(lang):
 
     if lang == 'ru':
         local.read('localisation/localisation_ru.ini')
+
         response = make_response(render_template('index.html',
                                                  data=config_to_dict(local)))
         response.set_cookie('lang', 'ru')
@@ -153,6 +154,7 @@ def change_language(lang):
         return response
     elif lang == 'en':
         local.read('localisation/localisation_en.ini')
+
         response = make_response(render_template('index.html',
                                                  data=config_to_dict(local)))
         response.set_cookie('lang', 'en')
@@ -160,6 +162,7 @@ def change_language(lang):
         return response
     else:
         local.read('localisation/localisation_en.ini')
+
         response = make_response(render_template('index.html',
                                                  data=config_to_dict(local)))
         return response
@@ -188,8 +191,8 @@ def user_register():
         hashed_password = generate_password_hash(user_password)
 
         cur.execute('INSERT INTO users (user_text_id, user_name, '
-                    'hashed_password) VALUES (%s, %s, %s)'
-                    , (user_text_id, user_name, hashed_password,))
+                    'hashed_password) VALUES (%s, %s, %s)', 
+                    (user_text_id, user_name, hashed_password,))
 
         new_user_id = cur.lastrowid
 
@@ -1191,7 +1194,7 @@ def check_cookies(user_text_id: str, sign: str):
     return True
 
 
-def config_to_dict(config_file):
+def config_to_dict(config_file) = > dict:
     out_dict = {}
 
     for section in config_file.sections():
