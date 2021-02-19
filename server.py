@@ -248,6 +248,11 @@ def user_register():
 
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
+    """
+    request: json = {oldPassword: "str", newPassword: "str"}
+    response: json = {"ok": bool, "error_code": "int" or None,
+                    "error_message": "str" or None}
+    """
     session = None
 
     try:
