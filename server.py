@@ -261,17 +261,6 @@ def change_password():
 
         user = query.first()
 
-        if not user:
-            response = make_response(
-                {
-                    "ok": False,
-                    "error_code": 401,
-                    "error_message": "Disconnect"
-                }, 401
-            )
-
-            return response
-
         hashed_password = user.hashed_password
 
         if not check_password_hash(hashed_password, old_password):
