@@ -1194,7 +1194,7 @@ def check_cookies(user_text_id: str, sign: str):
     return True
 
 
-def config_to_dict(config_file) = > dict:
+def config_to_dict(config_file) -> dict:
     out_dict = {}
 
     for section in config_file.sections():
