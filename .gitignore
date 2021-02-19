@@ -11,3 +11,8 @@ package-lock.json
 /static/bundle.js.map
 /test_daemon.py
 /static/bundle.js.LICENSE.txt
+static/builds/dev/bundle.js
+static/builds/dev/bundle.js.map
+static/builds/prod/bundle.js
+static/builds/prod/bundle.js.LICENSE.txt
+static/builds/prod/bundle.js.map
