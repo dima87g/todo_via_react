@@ -39,7 +39,7 @@ connection_pool = mysql.connector.pooling.MySQLConnectionPool(
     database=db_config['database']
 )
 
-routes_to_check = ["/create_list", "/delete_list"]
+routes_to_check = ["/create_list", "/delete_list", "/change_password"]
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
 # print("Connection Pool Size - ", connection_pool.pool_size)
@@ -245,12 +245,10 @@ def user_register():
 
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
-    connection = None
-    cur = None
+    session = None
 
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
+        session = make_session()
 
         data = request.json
         old_password = data['oldPassword']
@@ -259,67 +257,73 @@ def change_password():
         user_text_id = request.cookies.get('id')
         sign = request.cookies.get('sign')
 
-        if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify(
+        query = session.query(User).filter(User.user_text_id == user_text_id)
+
+        user = query.first()
+
+        if not user:
+            response = make_response(
                 {
-                    "ok": False, "error_code": 401,
+                    "ok": False,
+                    "error_code": 401,
                     "error_message": "Disconnect"
-                }), 401)
-            response.delete_cookie("id")
-            response.delete_cookie("sign")
+                }, 401
+            )
 
             return response
 
-        cur.execute('SELECT hashed_password FROM users WHERE user_text_id = '
-                    '%s', (user_text_id,))
-
-        rows = cur.fetchall()
-
-        if not rows:
-            response = make_response(jsonify(
-                {
-                    "ok": False, "error_code": 401,
-                    "error_message": "Disconnect"
-                }), 401)
-            return response
-
-        hashed_password = rows[0][0]
+        hashed_password = user.hashed_password
 
         if not check_password_hash(hashed_password, old_password):
-            response = make_response(jsonify(
+            response = make_response(
                 {
-                    "ok": False, "error_code": 401,
+                    "ok": False,
+                    "error_code": None,
                     "error_message": "Your password are incorrect!"
-                }), 401)
+                }, 200
+            )
 
             return response
 
         new_hashed_password = generate_password_hash(new_password)
 
-        cur.execute('UPDATE users SET hashed_password = %s WHERE '
-                    'user_text_id = %s',
-                    (new_hashed_password, user_text_id))
+        user.hashed_password = new_hashed_password
 
-        connection.commit()
+        session.commit()
 
-        response = make_response(jsonify({
-            "ok": True
-        }), 200)
+        response = make_response(
+            {
+                "ok": True
+            }, 200
+        )
+
         response.set_cookie("id", user_text_id)
         response.set_cookie("sign", sign)
 
         return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': None,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': None,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route('/user_login', methods=['GET', 'POST'])
