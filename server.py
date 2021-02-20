@@ -49,6 +49,7 @@ routes_to_check = [
     "/delete_task",
     "/finish_task",
     "/change_position",
+    "/load_tasks",
 ]
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
@@ -970,119 +971,123 @@ def auth_check():
 
 @app.route("/load_tasks", methods=["GET", "POST"])
 def load_tasks():
-    connection = None
-    cur = None
-    # TODO Check if list id exists even user auth is correct
+    """
+    request: cookies: "id", "sign"
+    response: json = {"ok": "bool", "error_code": "int" or None,
+                    "error_message": "str" or None}
+    """
+    session = None
+
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
+        tasks = []
+
+        session = make_session()
 
         data = request.json
 
-        tasks = []
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
 
-        if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify(
-                {
-                    "ok": False, "error_code": 401,
-                    "error_message": "Disconnect"
-                }), 401)
-            response.delete_cookie("id")
-            response.delete_cookie("sign")
+        query = session.query(User).filter(User.user_text_id == user_text_id)
 
-            return response
+        user = query.first()
 
-        cur.execute('SELECT id, user_name FROM users WHERE user_text_id = %s',
-                    (user_text_id,))
+        user_id = user.id
+        user_name = user.user_name
 
-        rows = cur.fetchall()
+        query = session.query(List).filter(List.user_id == user_id)
 
-        if not rows:
-            response = make_response(jsonify(
-                {
-                    "ok": False, "error_code": 401,
-                    "error_message": "Disconnect"
-                }), 401)
-            response.delete_cookie("id")
-            response.delete_cookie("sign")
-
-            return response
-
-        user_id = rows[0][0]
-        user_name = rows[0][1]
-
-        cur.execute('SELECT id, name FROM lists WHERE user_id = %s',
-                    (user_id,))
-
-        rows = cur.fetchall()
+        current_user_lists = query.all()
 
         lists_dict = {}
 
-        for list_info in rows:
-            lists_dict[list_info[0]] = list_info[1]
+        for list_info in current_user_lists:
+            lists_dict[list_info.id] = list_info.name
 
         if data["listId"]:
-            list_id = data["listId"]
+            current_list_id = data["listId"]
         else:
-            cur.execute(
-                'SELECT id FROM lists WHERE user_id = %s AND name = %s',
-                (user_id, 'main',))
+            query = session.query(List).filter(List.user_id == user_id, List.name == "main")
 
-            rows = cur.fetchall()
+            current_list = query.first()
 
-            if not rows:
-                response = make_response(jsonify(
+            if not current_list:
+                response = make_response(
                     {
-                        "ok": False, "error_code": 401,
+                        "ok": False,
+                        "error_code": 401,
                         "error_message": "Disconnect"
-                    }), 401)
+                    }, 401
+                )
                 response.delete_cookie("id")
                 response.delete_cookie("sign")
 
                 return response
 
-            list_id = rows[0][0]
+            current_list_id = current_list.id
 
-        cur.execute('SELECT * from tasks WHERE user_id = %s AND list_id = %s',
-                    (user_id, list_id,))
+        query = session.query(Task).filter(Task.user_id == user_id, Task.list_id == current_list_id)
 
-        for task in cur:
-            tasks.append({"task_id": task[0],
-                          "task_text": task[2],
-                          "task_status": bool(task[3]),
-                          "parent_id": task[4],
-                          "task_position": task[5]})
+        current_tasks = query.all()
 
-        response = make_response(jsonify(
+        for task in current_tasks:
+            tasks.append(
+                {
+                    "task_id": task.id,
+                    "task_text": task.text,
+                    "task_status": bool(task.status),
+                    "parent_id": task.parent_id,
+                    "task_position": task.task_position
+                }
+            )
+
+        response = make_response(
             {
                 "ok": True,
                 "user_name": user_name,
-                "list_id": list_id,
+                "list_id": current_list_id,
                 "lists_dict": lists_dict,
                 "tasks": tasks
-            }), 200)
-
-        response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config["MAX_AGE"])
-                            )
-        response.set_cookie("sign", sign,
-                            max_age=int(cookies_config["MAX_AGE"])
-                            )
+            }, 200
+        )
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config["MAX_AGE"])
+        )
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config["MAX_AGE"])
+        )
 
         return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print("Error except in function 'load_tasks'")
+        debug_print(error.args)
+
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print("Error except in function 'load_tasks'")
+        debug_print(error.args)
+
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route("/create_list", methods=["POST"])
