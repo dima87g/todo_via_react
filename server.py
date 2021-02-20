@@ -155,6 +155,8 @@ def auth_check():
         return response
 
     except Exception as error:
+        debug_print(error.args)
+        
         return jsonify(
             {
                 "ok": False,
