@@ -144,7 +144,7 @@ def change_language(lang):
     local = configparser.ConfigParser()
 
     if lang == 'ru':
-        local.read('localisation/localisation_ru.ini')
+        local.read(os.path.dirname(__file__) + '/localisation/localisation_ru.ini')
 
         response = make_response(render_template('index.html',
                                                  data=config_to_dict(local)))
@@ -152,7 +152,7 @@ def change_language(lang):
 
         return response
     elif lang == 'en':
-        local.read('localisation/localisation_en.ini')
+        local.read(os.path.dirname(__file__) + '/localisation/localisation_en.ini')
 
         response = make_response(render_template('index.html',
                                                  data=config_to_dict(local)))
