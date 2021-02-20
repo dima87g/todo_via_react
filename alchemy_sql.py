@@ -54,7 +54,7 @@ class Task(Base):
     id = Column(BIGINT, nullable=False, primary_key=True, unique=True)
     user_id = Column(BIGINT, nullable=False)
     text = Column(VARCHAR(255), nullable=False)
-    status = Column(INT, nullable=False)
+    status = Column(INT, nullable=False, default=0)
     parent_id = Column(BIGINT, ForeignKey("tasks.id", ondelete="CASCADE"),
                        nullable=True)
     task_position = Column(BIGINT, nullable=True)
