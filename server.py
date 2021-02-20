@@ -326,49 +326,49 @@ def change_password():
 @app.route('/user_login', methods=['GET', 'POST'])
 def user_login():
     """
-    request: json = {"userName": 'str', "password": "str"}
-    response: json = {"ok": bool, "error_code": "int" or None,
+    request: json = {userName: "str", password: "str"}
+    response: json = {"ok": "bool", "error_code": "int" or None,
                     "error_message": "str" or None}
     """
-
-    connection = None
-    cur = None
+    session = None
 
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
+        session = make_session()
 
         data = request.json
         user_name = data['userName']
         user_password = data["password"]
 
-        cur.execute('SELECT user_text_id, user_name, hashed_password FROM '
-                    'users WHERE user_name = %s', (user_name,))
+        query = session.query(User).filter(User.user_name == user_name)
 
-        rows = cur.fetchall()
+        user = query.first()
 
-        if not rows:
+        if not user:
             response = make_response(
                 jsonify(
                     {
-                        'ok': False,
-                        'error_message': 'Username or Password are incorrect!'
+                        "ok": False,
+                        "error_code": 401,
+                        "error_message": "Username or Password are incorrect!"
                     }
-                ), 401)
+                ), 401
+            )
             return response
 
-        user_text_id = rows[0][0]
-        user_name = rows[0][1]
-        hashed_password = rows[0][2]
+        user_text_id = user.user_text_id
+        user_name = user.user_name
+        hashed_password = user.hashed_password
 
         if not check_password_hash(hashed_password, user_password):
             response = make_response(
                 jsonify(
                     {
-                        'ok': False,
-                        'error_message': 'Username or password are incorrect!'
+                        "ok": False,
+                        "error_code": 401,
+                        "error_message": "Username or password are incorrect!"
                     }
-                ), 401)
+                ), 401
+            )
 
             return response
 
@@ -377,32 +377,45 @@ def user_login():
         sign.update(user_text_id.encode())
         sign = sign.hexdigest()
 
-        response = make_response(jsonify(
+        response = make_response(
             {
                 "ok": True,
                 "user_name": user_name
-            }), 200)
-        response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
-        response.set_cookie("sign", sign,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
+            }, 200
+        )
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        )
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+        )
         if user_name == "dima87g":
             response = make_dev(response)
 
         return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": 'Contact admin for log checking...'
+            }
+        )
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": 'Contact admin for log checking...'
+            }
+        )
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route("/user_delete", methods=["GET", "POST"])
