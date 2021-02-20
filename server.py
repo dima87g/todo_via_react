@@ -4,8 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from alchemy_sql import make_session, User, List, Task
 import hashlib
 import random
-import mysql.connector
-from mysql.connector import pooling
 import sqlalchemy.exc
 import configparser
 import os
@@ -18,26 +16,12 @@ app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.config['JSON_AS_ASCII'] = False
 
-# Read configs from 'server_config.ini'
 config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/server_config.ini')
-db_config = config['data_base']
 security_config = config['security']
 cookies_config = config['cookies']
 
 static_salt = security_config['static_salt']
-
-# Pool connection add
-connection_pool = mysql.connector.pooling.MySQLConnectionPool(
-    pool_name=db_config['pool_name'],
-    pool_size=int(db_config['pool_size']),
-    pool_reset_session=bool(db_config['pool_reset_session']),
-    host=db_config['host'],
-    port=db_config['port'],
-    user=db_config['user'],
-    password=db_config['password'],
-    database=db_config['database']
-)
 
 routes_to_check = [
     "/create_list",
@@ -116,9 +100,7 @@ def before_request():
                 )
 
                 return response
-        except mysql.connector.Error as error:
-            return jsonify({'ok': False, 'error_code': error.errno,
-                            'error_message': error.msg})
+
         except sqlalchemy.exc.SQLAlchemyError as error:
             return jsonify(
                 {
@@ -156,7 +138,7 @@ def auth_check():
 
     except Exception as error:
         debug_print(error.args)
-        
+
         return jsonify(
             {
                 "ok": False,
@@ -1091,9 +1073,6 @@ def create_list():
 
         return response
 
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
     except sqlalchemy.exc.SQLAlchemyError as error:
         return jsonify(
             {
