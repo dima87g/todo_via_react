@@ -260,6 +260,10 @@ class TaskList extends React.Component {
             } else if (answer.status === 401) {
                 this.login.current.forceLogOut();
                 this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
+            } else if (answer.status === 204) {
+                this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']));
+            } else {
+                this.props.dispatch(showInfoWindow(true, 'Some problem!'));
             }
         }
         this.app.knockKnock('/delete_task', responseHandler, sendData);
