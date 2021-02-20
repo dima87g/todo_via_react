@@ -704,6 +704,8 @@ def delete_task():
 
         session.delete(task_to_delete)
 
+        session.commit()
+
         response = make_response(
             {
                 "ok": True
