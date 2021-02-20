@@ -184,6 +184,8 @@ class TaskList extends React.Component {
             } else if (response.status === 401) {
                 this.login.current.forceLogOut();
                 this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
+            } else if (response.status === 204) {
+                this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']))
             } else {
                 this.props.dispatch(showInfoWindow(true, 'Some problem!'));
             }
