@@ -46,6 +46,7 @@ routes_to_check = [
     "/user_delete",
     "/save_task",
     "/save_edit_task",
+    "/delete_task",
 ]
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
@@ -663,85 +664,86 @@ def save_edit_task():
 @app.route("/delete_task", methods=["POST"])
 def delete_task():
     """
-    request: 'taskId' = 'int'
+    request: json = {taskId = "int"}
     response:
-    if OK = True: json =  {'ok': True}
-    if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
-    'error_message': 'str' or None}
+    if OK = True: json =  {"ok": "bool"}
+    if OK = False : json = {"ok": "bool", "error_code": "int" or None,
+                            "error_message": "str" or None}
     """
-
-    connection = None
-    cur = None
+    session = None
 
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
-
-        data = request.json
-        task_id = data['taskId']
+        session = make_session()
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
+        data = request.json
+        task_to_delete_id = data['taskId']
 
-        if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify(
-                {
-                    "ok": False, "error_code": 401,
-                    "error_message": "Disconnect"
-                }), 200)
-            response.delete_cookie("id")
-            response.delete_cookie("sign")
+        query = session.query(User).filter(User.user_text_id == user_text_id)
 
-            return response
+        user = query.first()
 
-        cur.execute("SELECT id FROM users where user_text_id = %s",
-                    (user_text_id,))
+        user_id = user.id
 
-        rows = cur.fetchall()
-        user_id = rows[0][0]
+        query = session.query(Task).filter(Task.id == task_to_delete_id, Task.user_id == user_id)
 
-        cur.execute("SELECT * FROM tasks WHERE id = %s AND user_id = %s",
-                    (task_id, user_id))
+        task_to_delete = query.first()
 
-        rows = cur.fetchall()
-
-        if not rows:
-            response = make_response(jsonify(
+        if not task_to_delete:
+            response = make_response(
                 {
                     "ok": False,
                     "error_code": None,
                     "error_message": "Task is not exists!"
-                }), 200)
+                }, 204
+            )
 
             return response
 
-        cur.execute('DELETE FROM tasks WHERE id = %s and user_id = %s',
-                    (task_id, user_id,))
+        session.delete(task_to_delete)
 
-        connection.commit()
-
-        response = make_response(jsonify(
+        response = make_response(
             {
                 "ok": True
-            }), 200)
-        response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
-        response.set_cookie("sign", sign,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
+            }, 200
+        )
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        )
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+        )
+
         return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print(error.args)
+
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print(error.args)
+
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route("/finish_task", methods=["GET", "POST"])
