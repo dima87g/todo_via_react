@@ -585,6 +585,13 @@ def save_task():
 
 @app.route('/save_edit_task', methods=['GET', 'POST'])
 def save_edit_task():
+    """
+    request: json = {taskId = "int", taskText = "str"}
+    response:
+    if OK = True: json = {"ok": "bool"}
+    if OK = False : json = {"ok": "bool", "error_code": "int" or None,
+                            "error_message": "str" or None}
+    """
     connection = None
     cur = None
 
