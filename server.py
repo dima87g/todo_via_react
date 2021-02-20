@@ -39,7 +39,7 @@ connection_pool = mysql.connector.pooling.MySQLConnectionPool(
     database=db_config['database']
 )
 
-routes_to_check = ["/create_list", "/delete_list", "/change_password"]
+routes_to_check = ["/create_list", "/delete_list", "/change_password", "/user_delete"]
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
 # print("Connection Pool Size - ", connection_pool.pool_size)
@@ -422,57 +422,59 @@ def user_login():
 def user_delete():
     """
     request: cookies: "id", "sign"
-    response: json = {'ok': 'bool', 'error_code': 'int' or None,
-    'error_message': 'str' or None}
+    response: json = {"ok": "bool", "error_code": "int" or None,
+                    "error_message": "str" or None}
     """
-    connection = None
-    cur = None
+    session = None
 
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
+        session = make_session()
 
         user_text_id = request.cookies.get("id")
-        sign = request.cookies.get("sign")
 
-        if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify(
-                {
-                    "ok": False, "error_code": 401,
-                    "error_message": "Disconnect"
-                }), 401)
-            response.delete_cookie("id")
-            response.delete_cookie("sign")
+        query = session.query(User).filter(User.user_text_id == user_text_id)
 
-            return response
+        user_to_delete = query.first()
 
-        cur.execute("DELETE FROM users WHERE user_text_id = %s",
-                    (user_text_id,))
+        session.delete(user_to_delete)
 
-        connection.commit()
+        session.commit()
 
-        response = make_response(jsonify(
+        response = make_response(
             {
                 "ok": True,
                 "error_code": None,
                 "error_message": None
-            }), 200)
+            }, 200
+        )
 
         response.delete_cookie("id")
         response.delete_cookie("sign")
 
         return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print(error)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route("/save_task", methods=["GET", "POST"])
