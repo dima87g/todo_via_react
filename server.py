@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, make_response, \
-    g, redirect, url_for
+    redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from alchemy_sql import make_session, User, List, Task
 import hashlib
@@ -134,16 +134,6 @@ def before_request():
                 session.close()
 
 
-@app.teardown_appcontext
-def teardown_appcontext(err):
-    if hasattr(g, "cur"):
-        print(g.cur)
-        g.cur.close()
-    if hasattr(g, "connection"):
-        print(g.connection)
-        g.connection.close()
-
-
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
     try:
@@ -172,7 +162,7 @@ def auth_check():
                 "error_message": "Contact admin for log checking..."
             }
         )
-    
+
 
 @app.route("/")
 def main():
