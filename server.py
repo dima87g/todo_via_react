@@ -39,7 +39,13 @@ connection_pool = mysql.connector.pooling.MySQLConnectionPool(
     database=db_config['database']
 )
 
-routes_to_check = ["/create_list", "/delete_list", "/change_password", "/user_delete"]
+routes_to_check = [
+    "/create_list",
+    "/delete_list",
+    "/change_password",
+    "/user_delete",
+    "/save_task",
+]
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
 # print("Connection Pool Size - ", connection_pool.pool_size)
@@ -480,102 +486,101 @@ def user_delete():
 @app.route("/save_task", methods=["GET", "POST"])
 def save_task():
     """
-    request: json = {'taskText' = 'str', 'parentId' = 'int'}
+    request: json = {taskText = "str", parentId = "int"}
     response:
-    if OK = True: json = {'ok': 'bool', 'task_id' = 'int'}
-    if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
-    'error_message': 'str' or None}
+    if OK = True: json = {"ok": "bool", "task_id" = "int"}
+    if OK = False : json = {"ok": "bool", "error_code": "int" or None,
+                            "error_message": "str" or None}
     """
-
-    connection = None
-    cur = None
+    session = None
 
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
+        session = make_session()
 
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
         data = request.json
         list_id = data["listId"]
         task_text = data['taskText']
         parent_id = data['parentId']
 
         if parent_id:
-            return make_response({"ok": False}, 403)
-
-        user_text_id = request.cookies.get("id")
-        sign = request.cookies.get("sign")
-
-        if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify(
+            return make_response(
                 {
-                    "ok": False,
-                    "error_code": 401,
-                    "error_message": "Disconnect"
-                }), 401)
-            response.delete_cookie("id")
-            response.delete_cookie("sign")
+                    "ok": False
+                }, 403
+            )
 
-            return response
+        query = session.query(User).filter(User.user_text_id == user_text_id)
 
-        cur.execute("SELECT id FROM users WHERE user_text_id = %s",
-                    (user_text_id,))
+        user = query.first()
+        user_id = user.id
 
-        rows = cur.fetchall()
-        user_id = rows[0][0]
+        query = session.query(List).filter(List.id == list_id, List.user_id == user_id)
 
-        cur.execute("SELECT * FROM lists WHERE id = %s AND user_id = %s",
-                    (list_id, user_id))
+        current_list = query.first()
 
-        rows = cur.fetchall()
-
-        if not rows:
-            response = make_response(jsonify(
+        if not current_list:
+            response = make_response(
                 {
                     "ok": False,
                     "error_code": None,
                     "error_message": "List is not exists!"
-                }
-            ), 200)
+                }, 204
+            )
 
             return response
 
-        cur.execute('INSERT INTO tasks (user_id, text, status, parent_id, '
-                    'list_id) '
-                    'VALUES ( '
-                    '%s, %s, %s, %s, %s)', (user_id, task_text, 0, parent_id,
-                                            list_id))
+        new_task = Task(user_id=user_id, text=task_text, parent_id=parent_id, list_id=list_id)
 
-        task_id = cur.lastrowid
+        session.add(new_task)
 
-        cur.execute('UPDATE tasks SET task_position = %s WHERE id = %s',
-                    (task_id, task_id))
+        session.commit()
 
-        connection.commit()
+        new_task.task_position = new_task.id
+        task_id = new_task.id
 
-        response = make_response(jsonify(
+        session.commit()
+
+        response = make_response(
             {
                 "ok": True,
                 "task_id": task_id
-            }), 200)
-        response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
-        response.set_cookie("sign", sign,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
+            }, 200
+        )
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        )
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+        )
         return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     except Exception as error:
-        print(error)
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print(error.args)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route('/save_edit_task', methods=['GET', 'POST'])
