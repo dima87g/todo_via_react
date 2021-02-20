@@ -48,6 +48,7 @@ routes_to_check = [
     "/save_edit_task",
     "/delete_task",
     "/finish_task",
+    "/change_position",
 ]
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
@@ -828,79 +829,86 @@ def finish_task():
 @app.route("/change_position", methods=["POST"])
 def change_position():
     """
-    request: json = {"currentTaskId": "int", "currentTaskPosition": "int,
-    "taskToSwapID: "int", "taskToSwapPosition: "int"}
+    request: json = {currentTaskId: "int", currentTaskPosition: "int",
+                    taskToSwapID: "int", taskToSwapPosition: "int"}
     response:
-    if OK = True: json =  {'ok': True}
-    if OK = False : json = {'ok': 'bool', 'error_code': 'int' or None,
-    'error_message': 'str' or None}
+    if OK = True: json =  {"ok": "bool"}
+    if OK = False : json = {"ok": "bool", "error_code": "int" or None,
+                            "error_message": "str" or None}
     """
-
-    connection = None
-    cur = None
+    session = None
 
     try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
+        session = make_session()
 
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
         data = request.json
-
         current_task_id = data["currentTaskId"]
         current_task_position = data["currentTaskPosition"]
         task_to_swap_id = data["taskToSwapId"]
         task_to_swap_position = data["taskToSwapPosition"]
 
-        user_text_id = request.cookies.get("id")
-        sign = request.cookies.get("sign")
+        query = session.query(User).filter(User.user_text_id == user_text_id)
 
-        if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify(
-                {
-                    "ok": False, "error_code": 401,
-                    "error_message": "Disconnect"
-                }), 401)
-            response.delete_cookie("id")
-            response.delete_cookie("sign")
+        user = query.first()
 
-            return response
+        user_id = user.id
 
-        cur.execute("SELECT id FROM users WHERE user_text_id = %s",
-                    (user_text_id,))
+        query = session.query(Task).filter(Task.id == current_task_id, Task.user_id == user_id)
 
-        rows = cur.fetchall()
-        user_id = rows[0][0]
+        current_task = query.first()
 
-        cur.execute('UPDATE tasks SET task_position = %s WHERE id = %s and '
-                    'user_id = %s',
-                    (task_to_swap_position, current_task_id, user_id,))
-        cur.execute('UPDATE tasks SET task_position = %s WHERE id = %s AND '
-                    'user_id = %s',
-                    (current_task_position, task_to_swap_id, user_id,))
+        query = session.query(Task).filter(Task.id == task_to_swap_id, Task.user_id == user_id)
 
-        connection.commit()
+        task_to_swap = query.first()
 
-        response = make_response(jsonify(
+        current_task.task_position = task_to_swap_position
+        task_to_swap.task_position = current_task_position
+
+        session.commit()
+
+        response = make_response(
             {
                 "ok": True
-            }), 200)
-        response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
-        response.set_cookie("sign", sign,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
+            }, 200
+        )
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        )
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+        )
+
         return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
+
+    except sqlalchemy.exc.SQLAlchemyError as error:
+        session.rollback()
+        debug_print(error.args)
+
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
+        session.rollback()
+        debug_print(error.args)
+
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+
     finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
+        if session is not None:
+            session.close()
 
 
 @app.route("/auth_check", methods=["GET", "POST"])
