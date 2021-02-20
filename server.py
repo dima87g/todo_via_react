@@ -50,6 +50,7 @@ routes_to_check = [
     "/finish_task",
     "/change_position",
     "/load_tasks",
+    "/auth_check",
 ]
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
@@ -142,6 +143,36 @@ def teardown_appcontext(err):
         print(g.connection)
         g.connection.close()
 
+
+@app.route("/auth_check", methods=["GET", "POST"])
+def auth_check():
+    try:
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        response = make_response(
+            {
+                "ok": True
+            }, 200
+        )
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        )
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+        )
+
+        return response
+
+    except Exception as error:
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    
 
 @app.route("/")
 def main():
@@ -910,63 +941,6 @@ def change_position():
     finally:
         if session is not None:
             session.close()
-
-
-@app.route("/auth_check", methods=["GET", "POST"])
-def auth_check():
-    connection = None
-    cur = None
-
-    try:
-        connection = connection_pool.get_connection()
-        cur = connection.cursor()
-
-        user_text_id = request.cookies.get("id")
-        sign = request.cookies.get("sign")
-
-        if not check_cookies(user_text_id, sign):
-            response = make_response(jsonify(
-                {
-                    "ok": False
-                }), 200)
-            return response
-
-        cur.execute("SELECT * FROM users WHERE user_text_id = %s",
-                    (user_text_id,))
-
-        rows = cur.fetchall()
-
-        if not rows:
-            response = make_response(jsonify(
-                {
-                    "ok": False
-                }
-            ), 200)
-
-            return response
-
-        response = make_response(jsonify(
-            {
-                "ok": True
-            }), 200)
-        response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
-        response.set_cookie("sign", sign,
-                            max_age=int(cookies_config['MAX_AGE'])
-                            )
-        return response
-    except mysql.connector.Error as error:
-        return jsonify({'ok': False, 'error_code': error.errno,
-                        'error_message': error.msg})
-    except Exception as error:
-        return jsonify({'ok': False, 'error_code': None,
-                        'error_message': error.args[0]})
-    finally:
-        if cur is not None:
-            cur.close()
-        if connection is not None:
-            connection.close()
 
 
 @app.route("/load_tasks", methods=["GET", "POST"])
