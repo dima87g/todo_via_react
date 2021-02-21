@@ -9,6 +9,7 @@ class TaskReact extends React.Component {
     constructor(props) {
         super(props);
         this.app = this.props.app;
+        this.login = this.props.login;
         this.taskList = this.props.taskList;
         this.taskInst = this.props.taskInst;
         this.id = this.props.taskId;
