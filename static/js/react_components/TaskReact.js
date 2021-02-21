@@ -56,9 +56,6 @@ class TaskReact extends React.Component {
                 this.setState({
                     status: taskStatus
                 });
-            } else if (answer.status === 401) {
-                this.login.current.forceLogOut();
-                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
         this.app.knockKnock('/finish_task', responseHandler, sendData);
