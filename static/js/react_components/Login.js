@@ -49,11 +49,9 @@ class Login extends React.Component {
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
+                this.props.dispatch(showCookiesAlertWindow(false));
                 this.createTaskList();
                 this.hideLoginWindow();
-            } else {
-                this.props.dispatch(showCookiesAlertWindow(true));
-                this.props.dispatch(showShadowModal(true));
             }
         }
         this.app.knockKnock('/auth_check', responseHandler);
@@ -93,7 +91,6 @@ class Login extends React.Component {
         document.forms['login_form'].reset();
         document.forms['register_form'].reset();
         removeChildren(this.loginFormInfo.current);
-        this.props.dispatch(showShadowModal(false));
 
         this.props.dispatch(hideAuthMenu());
         this.setState({
