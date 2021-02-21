@@ -8,7 +8,7 @@ let initialState = {
     CONFIRM_WINDOW_FUNCTION: null,
     INFO_WINDOW_IS_VISIBLE: false,
     INFO_WINDOW_MESSAGE: '',
-    COOKIES_WINDOW_IS_VISIBLE: false,
+    COOKIES_WINDOW_IS_VISIBLE: true,
     TASK_IS_MOVING: false,
     TASK_MOVING_UP_ID: null,
     TASK_MOVING_DOWN_ID: null,
