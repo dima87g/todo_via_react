@@ -2,7 +2,7 @@ import {loginReducer} from "./loginReducer";
 import {combineReducers} from "redux";
 
 let initialState = {
-    SHADOW_MODAL_IS_VISIBLE: false,
+    SHADOW_MODAL_IS_VISIBLE: true,
     CONFIRM_WINDOW_IS_VISIBLE: false,
     CONFIRM_WINDOW_MESSAGE: '',
     CONFIRM_WINDOW_FUNCTION: null,
