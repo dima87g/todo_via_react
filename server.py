@@ -72,16 +72,27 @@ def before_request():
             sign = request.cookies.get("sign")
 
             if not check_cookies(user_text_id, sign):
-                response = make_response(
-                    {
-                        "ok": False,
-                        "error_code": 401,
-                        "error_message": "Disconnect"
+                if request.path == "/auth_check":
+                    response = make_response(
+                        {
+                            "ok": False,
+                            "error_code": 401,
+                            "error_message": None
+                        }, 200
+                    )
 
-                    }, 401
-                )
+                    return response
 
-                return response
+                else:
+                    response = make_response(
+                        {
+                            "ok": False,
+                            "error_code": 401,
+                            "error_message": "Disconnect"
+                        }, 401
+                    )
+
+                    return response
 
             session = make_session()
 
