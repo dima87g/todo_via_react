@@ -181,13 +181,8 @@ class TaskList extends React.Component {
                     // linearTasksList: this.makeLinearList(this.rootTasksList),
                     linearTasksList: this.rootTasksList,
                 })
-            } else if (response.status === 401) {
-                this.login.current.forceLogOut();
-                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             } else if (response.status === 204) {
                 this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']))
-            } else {
-                this.props.dispatch(showInfoWindow(true, 'Some problem!'));
             }
         }
         this.app.knockKnock('/save_task', responseHandler, sendData);
@@ -257,13 +252,8 @@ class TaskList extends React.Component {
                     });
                     this.props.dispatch(removeTask(false, null, null, null));
                 }, 500);
-            } else if (answer.status === 401) {
-                this.login.current.forceLogOut();
-                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             } else if (answer.status === 204) {
-                this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']));
-            } else {
-                this.props.dispatch(showInfoWindow(true, 'Some problem!'));
+                this.props.dispatch(showInfoWindow(true, localisation['error_messages']['task_is_not_exists']));
             }
         }
         this.app.knockKnock('/delete_task', responseHandler, sendData);
