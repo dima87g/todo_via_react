@@ -104,6 +104,10 @@ class Login extends React.Component {
         this.props.dispatch(showAuthMenu());
         this.setState({
             loginWindowShowed: true,
+            registerWindowShowed: false,
+            registerWindowSwitchButtonDisabled: true,
+            changePasswordWindowShowed: false,
+            createNewListWindowShowed: false,
         })
     }
 
@@ -207,11 +211,8 @@ class Login extends React.Component {
         let message = localisation['delete_user']['confirm_message'];
 
         const responseHandler = (response) => {
-            if (response.status === 200) {
+            if (response.status === 200 && response.data['ok'] === true) {
                 this.forceLogOut();
-            } else if (response.status === 401) {
-                this.forceLogOut();
-                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
 
@@ -259,13 +260,9 @@ class Login extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 this.changePasswordWindow();
-                this.props.dispatch(showInfoWindow(true, 'Password is changed!'));
-            } else if (response.status === 401) {
-                this.changePasswordWindow();
-                this.forceLogOut();
-                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
-            } else {
-                this.changePasswordFormInfo.current.appendChild(document.createTextNode(response.data['error_message']));
+                this.props.dispatch(showInfoWindow(true, localisation['change_password_window']['success']));
+            } else if (response.status === 200 && response.data['ok'] === false) {
+                this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['incorrect_password']));
             }
         }
 
@@ -299,9 +296,6 @@ class Login extends React.Component {
                 this.listSelectMenu = Object.entries(listsDict);
 
                 this.props.dispatch(createList(this.userName, currentListId, this.listSelectMenu, tasksFromServer));
-            } else if (response.status === 401) {
-                this.forceLogOut();
-                this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
             }
         }
         this.app.knockKnock('/load_tasks', responseHandler, sendData);
