@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import {store} from "../redux/store";
+import {connect} from "react-redux";
 import {showShadowModal, showInfoWindow} from "../redux/actions";
 import Header from "./Header";
 import ConfirmWindow from "./windows/ConfirmWindow";
@@ -36,7 +37,13 @@ class App extends React.Component {
                 this.loadingWindow.current.hideWindow();
                 console.log(error);
                 console.log(error.response);
-                if (error.response.status === 403) {
+                if (error.response.status === 401 && error.config.url === '/user_login') {
+                    func(error.response);
+                } else if (error.response.status === 401 && error.config.url !== '/auth_check') {
+                    console.log(error.config.url);
+                    this.login.current.forceLogOut();
+                    this.props.dispatch(showInfoWindow(true, localisation['error_messages']['authorisation_error']));
+                } else if (error.response.status === 403) {
                     store.dispatch(showShadowModal(true));
                     store.dispatch(showInfoWindow(true, error.response.data['error_message']));
                 }
@@ -63,4 +70,4 @@ class App extends React.Component {
     }
 }
 
-export default App;
+export default connect()(App);
