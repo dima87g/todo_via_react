@@ -51,8 +51,8 @@ class TaskReact extends React.Component {
             'taskId': this.id,
             'status': taskStatus
         };
-        const responseHandler = (answer) => {
-            if (answer.status === 200) {
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
                 this.setState({
                     status: taskStatus
                 });
@@ -130,10 +130,6 @@ class TaskReact extends React.Component {
                         this.setState({
                             taskTextValue: this.editTaskField.current.value,
                         })
-                    } else if (response.status === 401) {
-                        //TODO make sense about replace all info messages from application to knockKnock function
-                        this.login.current.forceLogOut();
-                        this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
                     }
                 }
                 this.app.knockKnock('/save_edit_task', responseHandler, sendData);
