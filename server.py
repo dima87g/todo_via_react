@@ -23,6 +23,11 @@ cookies_config = config['cookies']
 
 static_salt = security_config['static_salt']
 
+developers = [
+    "dima87g",
+    "test",
+]
+
 routes_to_check = [
     "/create_list",
     "/delete_list",
@@ -37,6 +42,7 @@ routes_to_check = [
     "/auth_check",
 ]
 
+
 # print("Connection Pool Name - ", connection_pool.pool_name)
 # print("Connection Pool Size - ", connection_pool.pool_size)
 
@@ -44,23 +50,25 @@ routes_to_check = [
 @app.before_request
 def dev_check():
     access_mode = config["access"]["access_mode"]
-    if request.path == "/auth_check" or request.path == "/user_login" or \
-            request.path == "/user_register":
-        if access_mode == "developer":
+    if access_mode == "developer":
+        debug_print("dev")
+        data = request.json
+        if request.path == "/auth_check" or request.path == "/user_register" \
+                or request.path == "/user_login" and data['userName']:
+            if data['userName'] not in developers:
+                dev_cookie = request.cookies.get("developer")
+                dev_cookie_sign = request.cookies.get("developer_sign")
 
-            dev_cookie = request.cookies.get("developer")
-            dev_cookie_sign = request.cookies.get("developer_sign")
+                if not check_cookies(dev_cookie, dev_cookie_sign):
+                    response = make_response(
+                        {
+                            "ok": False,
+                            "error_message": "Sorry, this app is working only "
+                                             "for developers now. Will be worked soon;)"
+                        }, 403
+                    )
 
-            if not check_cookies(dev_cookie, dev_cookie_sign):
-                response = make_response(
-                    {
-                        "ok": False,
-                        "error_message": "Sorry, this app is working only "
-                        "for developers now. Will be worked soon;)"
-                    }, 403
-                )
-
-                return response
+                    return response
 
 
 @app.before_request
@@ -416,7 +424,7 @@ def user_login():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
-        if user_name == "dima87g":
+        if user_name in developers:
             response = make_dev(response)
 
         return response
@@ -1216,8 +1224,8 @@ def make_dev(response):
     dev_cookie_sign.update(dev_cookie.encode())
     dev_cookie_sign = dev_cookie_sign.hexdigest()
 
-    response.set_cookie("developer", dev_cookie, max_age=60*60*24*7)
-    response.set_cookie("developer_sign", dev_cookie_sign, max_age=60*60*24*7)
+    response.set_cookie("developer", dev_cookie, max_age=60 * 60 * 24 * 7)
+    response.set_cookie("developer_sign", dev_cookie_sign, max_age=60 * 60 * 24 * 7)
 
     return response
 
