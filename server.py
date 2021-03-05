@@ -42,6 +42,11 @@ routes_to_check = [
     "/auth_check",
 ]
 
+routes_to_dev_check = [
+    "/auth_check",
+    "/user_register",
+]
+
 
 # print("Connection Pool Name - ", connection_pool.pool_name)
 # print("Connection Pool Size - ", connection_pool.pool_size)
@@ -53,22 +58,23 @@ def dev_check():
     if access_mode == "developer":
         debug_print("dev")
         data = request.json
-        if request.path == "/auth_check" or request.path == "/user_register" \
-                or request.path == "/user_login" and data['userName']:
-            if data['userName'] not in developers:
-                dev_cookie = request.cookies.get("developer")
-                dev_cookie_sign = request.cookies.get("developer_sign")
+        if request.path in routes_to_dev_check or \
+                (request.path == "/user_login" and
+                 data is not None and data["userName"] and data["userName"]
+                 not in developers):
+            dev_cookie = request.cookies.get("developer")
+            dev_cookie_sign = request.cookies.get("developer_sign")
 
-                if not check_cookies(dev_cookie, dev_cookie_sign):
-                    response = make_response(
-                        {
-                            "ok": False,
-                            "error_message": "Sorry, this app is working only "
-                                             "for developers now. Will be worked soon;)"
-                        }, 403
-                    )
+            if not check_cookies(dev_cookie, dev_cookie_sign):
+                response = make_response(
+                    {
+                        "ok": False,
+                        "error_message": "Sorry, this app is working only "
+                                         "for developers now. Will be worked soon;)"
+                    }, 403
+                )
 
-                    return response
+                return response
 
 
 @app.before_request
