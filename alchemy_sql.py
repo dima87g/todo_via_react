@@ -1,7 +1,7 @@
 import os
 import configparser
 from sqlalchemy import Column, INT, BIGINT, VARCHAR, create_engine, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 config = configparser.ConfigParser()
