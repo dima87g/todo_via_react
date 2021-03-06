@@ -1,12 +1,19 @@
+import os
+import configparser
 from sqlalchemy import Column, INT, BIGINT, VARCHAR, create_engine, ForeignKey
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
+
+config = configparser.ConfigParser()
+config.read(os.path.dirname(__file__) + "/server_config.ini")
+db_config = config["data_base"]
 
 Base = declarative_base()
 
 engine = create_engine(
     "mysql+mysqlconnector://todo_list:12345@localhost/todo",
-    echo=False
+    echo=False,
+    pool_size=int(db_config["pool_size"])
 )
 
 Session = sessionmaker(bind=engine)
