@@ -8,12 +8,19 @@ config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + "/server_config.ini")
 db_config = config["data_base"]
 
+user = db_config["user"]
+password = db_config["password"]
+database = db_config["database"]
+host = db_config["host"]
+port = db_config["port"]
+
 Base = declarative_base()
 
 engine = create_engine(
-    "mysql+mysqlconnector://todo_list:12345@localhost/todo",
+    f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}",
     echo=False,
-    pool_size=int(db_config["pool_size"])
+    pool_size=int(db_config["pool_size"]),
+    pool_recycle=int(db_config["pool_recycle"])
 )
 
 Session = sessionmaker(bind=engine)
