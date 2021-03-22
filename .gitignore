@@ -16,3 +16,4 @@ static/builds/dev/bundle.js.map
 static/builds/prod/bundle.js
 static/builds/prod/bundle.js.LICENSE.txt
 static/builds/prod/bundle.js.map
+error_log.txt
