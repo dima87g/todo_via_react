@@ -598,11 +598,11 @@ html, body {
 }
 
 .edit_task_text_field {
+    resize: none;
     width: 75%;
-    height: 50%;
     transform: scale(1);
     font-size: 14px;
-    border-radius: 20px;
+    border-radius: 10px;
     left: 0;
     opacity: 1;
     outline: none;
@@ -613,22 +613,8 @@ html, body {
 }
 
 .edit_task_text_field_hidden {
-    transform: scale(0);
-    width: 0;
+    opacity: 0;
 }
-
-/*.save_edit_button {*/
-/*    width: 48px;*/
-/*    height: 48px;*/
-/*    transform: scale(1);*/
-/*    border-radius: 50%;*/
-/*    border: none;*/
-/*    outline: none;*/
-/*    box-shadow: 1px 1px 3px;*/
-/*    visibility: inherit;*/
-/*    transition: opacity 0.5s,*/
-/*                transform 0.5s 0.2s;*/
-/*}*/
 
 .save_edit_button:active {
     box-shadow: inset 1px 1px 1px;

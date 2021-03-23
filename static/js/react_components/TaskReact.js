@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import {connect} from "react-redux";
 import {hideTaskEditField, showInfoWindow, showShadowModal, showTaskEditField} from "../redux/actions";
 import {isInternetExplorer} from "../todo_functions";
@@ -28,7 +28,7 @@ class TaskReact extends React.Component {
         this.finishTask = this.finishTask.bind(this);
         this.removeTask = this.removeTask.bind(this);
         this.showEditTaskField = this.showEditTaskField.bind(this);
-        this.saveEdit = this.saveEdit.bind(this);
+        this.taskEditKeydown = this.taskEditKeydown.bind(this);
         this.showSubtaskField = this.showSubtaskField.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
         this.addSubtaskByEnterKey = this.addSubtaskByEnterKey.bind(this);
@@ -144,9 +144,12 @@ class TaskReact extends React.Component {
         }
     }
 
-    saveEdit(e) {
+    taskEditKeydown(e) {
         if (e.keyCode === 13) {
             this.showEditTaskField();
+        } else {
+            this.editTaskField.current.style.height = '14px';
+            this.editTaskField.current.style.height = this.editTaskField.current.scrollHeight + 'px';
         }
     }
 
@@ -238,6 +241,7 @@ class TaskReact extends React.Component {
             editTaskTextFieldStyle = 'edit_task_text_field';
             saveEditButtonStyle = 'save_edit_button';
             saveEditButtonDisabled = false;
+            this.editTaskField.current.style.height = this.editTaskField.current.scrollHeight + 'px';
         } else {
             editTaskDivStyle = 'edit_task_div edit_task_div_hidden';
             editTaskTextFieldStyle = 'edit_task_text_field edit_task_text_field_hidden';
@@ -309,8 +313,9 @@ class TaskReact extends React.Component {
                         <textarea
                             className={editTaskTextFieldStyle}
                             maxLength={255}
+                            rows={1}
                             ref={this.editTaskField}
-                            onKeyDown={this.saveEdit}
+                            onKeyDown={this.taskEditKeydown}
                         />
                         <button className={saveEditButtonStyle}
                                 type={'button'}
