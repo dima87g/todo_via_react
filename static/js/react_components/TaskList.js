@@ -260,6 +260,18 @@ class TaskList extends React.Component {
     }
 
     render() {
+        const LetStart = () => {
+            if (this.rootTasksList.length === 0) {
+                return (
+                    <div id={'let_start_div'} className={'let_start_div'}>
+                        <img id={'let_start_image'} className={'let_start_image'} src={'static/favicon.ico'} alt={'let`s start!'}/>
+                        <p id={'let_start_paragraph'} className={'let_start_paragraph'}>{localisation['start_window']['let_start']}</p>
+                    </div>
+                )
+            } else {
+                return null;
+            }
+        }
         return (
             <div className={'task_list'} id={'task_list'}>
                 {this.state.linearTasksList.map((task) =>
@@ -273,6 +285,7 @@ class TaskList extends React.Component {
                                taskText={task.text}
                                parentId={task.parentId}
                     />)}
+                <LetStart/>
             </div>
         )
     }

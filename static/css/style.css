@@ -154,10 +154,6 @@ html, body {
     transform-origin: 1px;
 }
 
-.burger_button_clicked {
-
-}
-
 .burger_button_clicked > :nth-child(1) {
     transform: rotate(45deg)
                 translateX(5px)
@@ -326,10 +322,6 @@ html, body {
     font-size: 16px;
 }
 
-.input {
-    /*margin-top: 4vh;*/
-}
-
 .task_input {
     margin-top: 4vh;
 }
@@ -376,6 +368,20 @@ html, body {
     margin-right: auto;
 }
 
+.let_start_div {
+    text-align: center;
+}
+
+.let_start_image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+let_start_paragraph {
+    font-size: 14px;
+}
+
 .task {
     position: relative;
     display: flex;
@@ -396,20 +402,6 @@ html, body {
 
 .active_moving_task {
     z-index: 1;
-}
-
-.task_moving_up {
-    /*transition: transform 1s;*/
-    /*transform: translateY(calc(-100% - 10px));*/
-}
-
-.task_moving_down {
-    /*transition: transform 1s;*/
-    /*transform: translateY(calc(100% + 10px));*/
-}
-
-.move_task_buttons {
-
 }
 
 .task_div_content {
