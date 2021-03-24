@@ -66,6 +66,9 @@ class TaskReact extends React.Component {
             this.taskList.removeTask(this);
         }
     }
+    forceRemoveTask() {
+        this.taskList.removeTask(this);
+    }
 
     showSubtaskField() {
         if (this.state.addSubtaskDivShowed === false) {
@@ -119,10 +122,15 @@ class TaskReact extends React.Component {
             });
             this.editTaskField.current.value = this.state.taskTextValue;
         } else {
-            if (this.editTaskField.current.value !== this.state.taskTextValue) {
+            if (this.editTaskField.current.value === '') {
+                this.setState({
+                    taskTextValue: '',
+                });
+                this.forceRemoveTask();
+            } else if (this.editTaskField.current.value !== this.state.taskTextValue) {
                 let sendData = {
                     'taskId': this.props.taskId,
-                    'taskText': this.editTaskField.current.value
+                    'taskText': this.editTaskField.current.value,
                 };
 
                 const responseHandler = (response) => {
@@ -146,6 +154,7 @@ class TaskReact extends React.Component {
 
     taskEditKeydown(e) {
         if (e.keyCode === 13) {
+            e.preventDefault();
             this.showEditTaskField();
         } else {
             this.editTaskField.current.style.height = '14px';
