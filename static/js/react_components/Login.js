@@ -338,7 +338,7 @@ class Login extends React.Component {
             document.forms["create_new_list_form"].reset();
 
             this.props.dispatch(showShadowModal(false));
-            this.props.dispatch(showAuthMenu());
+            this.props.dispatch(hideAuthMenu());
             this.setState({
                 createNewListWindowShowed: false,
             });
