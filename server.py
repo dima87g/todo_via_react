@@ -8,13 +8,15 @@ import sqlalchemy.exc
 import configparser
 import os
 import sys
-import traceback
+import logger_man
 
 # TODO try resolve code duplicate in functions
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.config['JSON_AS_ASCII'] = False
+
+logger = logger_man.LoggerMan()
 
 config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/server_config.ini')
@@ -73,7 +75,6 @@ def dev_check():
                                          "for developers now. Will be worked soon;)"
                     }, 403
                 )
-
                 return response
 
 
@@ -94,9 +95,7 @@ def before_request():
                             "error_message": None
                         }, 200
                     )
-
                     return response
-
                 else:
                     response = make_response(
                         {
@@ -105,7 +104,6 @@ def before_request():
                             "error_message": "Disconnect"
                         }, 401
                     )
-
                     return response
 
             session = make_session()
@@ -123,19 +121,30 @@ def before_request():
                         "error_message": "Not Authorized!"
                     }, 401
                 )
-
                 return response
 
-        except sqlalchemy.exc.SQLAlchemyError as error:
+        except sqlalchemy.exc.SQLAlchemyError:
+            session.rollback()
+            exception = sys.exc_info()
+            logger.log(exception)
             return jsonify(
                 {
                     "ok": False,
-                    "error": error
+                    "error_code": None,
+                    "error_message": "Contact admin for log checking..."
                 }
             )
-        except Exception as error:
-            return jsonify({'ok': False, 'error_code': None,
-                            'error_message': error.args[0]})
+        except BaseException:
+            session.rollback()
+            exception = sys.exc_info()
+            logger.log(exception)
+            return jsonify(
+                {
+                    "ok": False,
+                    "error_code": None,
+                    "error_message": "Contact admin for log checking..."
+                }
+            )
         finally:
             if session is not None:
                 session.close()
@@ -158,12 +167,10 @@ def auth_check():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
-
         return response
-
-    except Exception as error:
-        debug_print(error.args)
-
+    except BaseException:
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -176,7 +183,6 @@ def auth_check():
 @app.route("/")
 def main():
     user_language = request.accept_languages[0][0]
-
     return redirect(url_for('change_language', lang=user_language))
 
 
@@ -187,29 +193,41 @@ def change_language(lang):
     if lang == 'ru':
         local.read(os.path.dirname(__file__) + '/localisation/localisation_ru.ini')
 
-        response = make_response(render_template('index.html',
-                                                 data=config_to_dict(local)))
+        response = make_response(
+            render_template(
+                'index.html',
+                data=config_to_dict(local)
+            )
+        )
         response.set_cookie('lang', 'ru')
-
         return response
     elif lang == 'en':
         local.read(os.path.dirname(__file__) + '/localisation/localisation_en.ini')
 
-        response = make_response(render_template('index.html',
-                                                 data=config_to_dict(local)))
+        response = make_response(
+            render_template(
+                'index.html',
+                data=config_to_dict(local)
+            )
+        )
         response.set_cookie('lang', 'en')
-
         return response
     else:
         local.read('localisation/localisation_en.ini')
 
-        response = make_response(render_template('index.html',
-                                                 data=config_to_dict(local)))
+        response = make_response(
+            render_template(
+                'index.html',
+                data=config_to_dict(local)
+            )
+        )
         return response
 
 
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
+    # TODO Make check if user is exists and return correct response from view
+    #  function, not via error exception
     """
     request: json = {newUserName: 'str', password: 'str'}
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
@@ -262,9 +280,10 @@ def user_register():
                 'error_message': 'Contact admin for log checking...'
             }
         )
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 'ok': False,
@@ -272,9 +291,10 @@ def user_register():
                 'error_message': 'Contact admin for log checking...'
             }
         )
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 'ok': False,
@@ -320,7 +340,6 @@ def change_password():
                     "error_message": "Your password are incorrect!"
                 }, 200
             )
-
             return response
 
         new_hashed_password = generate_password_hash(new_password)
@@ -335,13 +354,17 @@ def change_password():
             }, 200
         )
 
-        response.set_cookie("id", user_text_id)
-        response.set_cookie("sign", sign)
-
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        )
+        response.set_cookie(
+            "sign", signmax_age=int(cookies_config['MAX_AGE'])
+        )
         return response
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 'ok': False,
@@ -349,9 +372,10 @@ def change_password():
                 'error_message': 'Contact admin for log checking...'
             }
         )
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 'ok': False,
@@ -410,9 +434,7 @@ def user_login():
                     }
                 ), 401
             )
-
             return response
-
         sign = hashlib.sha256()
         sign.update(static_salt.encode())
         sign.update(user_text_id.encode())
@@ -430,13 +452,14 @@ def user_login():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
+
         if user_name in developers:
             response = make_dev(response)
-
         return response
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -444,9 +467,10 @@ def user_login():
                 "error_message": 'Contact admin for log checking...'
             }
         )
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -491,11 +515,11 @@ def user_delete():
 
         response.delete_cookie("id")
         response.delete_cookie("sign")
-
         return response
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -503,9 +527,10 @@ def user_delete():
                 "error_message": "Contact admin for log checking..."
             }
         )
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -546,12 +571,16 @@ def save_task():
                 }, 403
             )
 
-        query = session.query(User).filter(User.user_text_id == user_text_id)
+        query = session.query(User).filter(
+            User.user_text_id == user_text_id
+        )
 
         user = query.first()
         user_id = user.id
 
-        query = session.query(List).filter(List.id == list_id, List.user_id == user_id)
+        query = session.query(List).filter(
+            List.id == list_id, List.user_id == user_id
+        )
 
         current_list = query.first()
 
@@ -563,10 +592,14 @@ def save_task():
                     "error_message": "List is not exists!"
                 }, 204
             )
-
             return response
 
-        new_task = Task(user_id=user_id, text=task_text, parent_id=parent_id, list_id=list_id)
+        new_task = Task(
+            user_id=user_id,
+            text=task_text,
+            parent_id=parent_id,
+            list_id=list_id
+        )
 
         session.add(new_task)
 
@@ -590,10 +623,10 @@ def save_task():
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
         return response
-
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -601,10 +634,10 @@ def save_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -612,7 +645,6 @@ def save_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
     finally:
         if session is not None:
             session.close()
@@ -643,7 +675,10 @@ def save_edit_task():
         user = query.first()
         user_id = user.id
 
-        query = session.query(Task).filter(Task.id == task_id, Task.user_id == user_id)
+        query = session.query(Task).filter(
+            Task.id == task_id,
+            Task.user_id == user_id
+        )
 
         task_to_update = query.first()
 
@@ -662,13 +697,11 @@ def save_edit_task():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
-
         return response
-
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -676,11 +709,10 @@ def save_edit_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -688,7 +720,6 @@ def save_edit_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
     finally:
         if session is not None:
             session.close()
@@ -719,7 +750,10 @@ def delete_task():
 
         user_id = user.id
 
-        query = session.query(Task).filter(Task.id == task_to_delete_id, Task.user_id == user_id)
+        query = session.query(Task).filter(
+            Task.id == task_to_delete_id,
+            Task.user_id == user_id
+        )
 
         task_to_delete = query.first()
 
@@ -731,7 +765,6 @@ def delete_task():
                     "error_message": "Task is not exists!"
                 }, 204
             )
-
             return response
 
         session.delete(task_to_delete)
@@ -749,13 +782,11 @@ def delete_task():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
-
         return response
-
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError :
         session.rollback()
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -763,11 +794,10 @@ def delete_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -775,7 +805,6 @@ def delete_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
     finally:
         if session is not None:
             session.close()
@@ -807,7 +836,10 @@ def finish_task():
 
         user_id = user.id
 
-        query = session.query(Task).filter(Task.id == task_id, Task.user_id == user_id)
+        query = session.query(Task).filter(
+            Task.id == task_id,
+            Task.user_id == user_id
+        )
 
         task = query.first()
 
@@ -826,13 +858,11 @@ def finish_task():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
-
         return response
-
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -840,10 +870,10 @@ def finish_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
     except Exception as error:
         session.rollback()
-        debug_print(error.args)
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -851,7 +881,6 @@ def finish_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
     finally:
         if session is not None:
             session.close()
@@ -886,11 +915,17 @@ def change_position():
 
         user_id = user.id
 
-        query = session.query(Task).filter(Task.id == current_task_id, Task.user_id == user_id)
+        query = session.query(Task).filter(
+            Task.id == current_task_id,
+            Task.user_id == user_id
+        )
 
         current_task = query.first()
 
-        query = session.query(Task).filter(Task.id == task_to_swap_id, Task.user_id == user_id)
+        query = session.query(Task).filter(
+            Task.id == task_to_swap_id,
+            Task.user_id == user_id
+        )
 
         task_to_swap = query.first()
 
@@ -910,13 +945,11 @@ def change_position():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
-
         return response
-
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -924,11 +957,10 @@ def change_position():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -936,7 +968,6 @@ def change_position():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
     finally:
         if session is not None:
             session.close()
@@ -980,7 +1011,10 @@ def load_tasks():
         if data["listId"]:
             current_list_id = data["listId"]
         else:
-            query = session.query(List).filter(List.user_id == user_id, List.name == "main")
+            query = session.query(List).filter(
+                List.user_id == user_id,
+                List.name == "main"
+            )
 
             current_list = query.first()
 
@@ -994,12 +1028,13 @@ def load_tasks():
                 )
                 response.delete_cookie("id")
                 response.delete_cookie("sign")
-
                 return response
-
             current_list_id = current_list.id
 
-        query = session.query(Task).filter(Task.user_id == user_id, Task.list_id == current_list_id)
+        query = session.query(Task).filter(
+            Task.user_id == user_id,
+            Task.list_id == current_list_id
+        )
 
         current_tasks = query.all()
 
@@ -1029,14 +1064,11 @@ def load_tasks():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config["MAX_AGE"])
         )
-
         return response
-
-    except sqlalchemy.exc.SQLAlchemyError as error:
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
-        debug_print("Error except in function 'load_tasks'")
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -1044,12 +1076,10 @@ def load_tasks():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
-    except Exception as error:
+    except Exception:
         session.rollback()
-        debug_print("Error except in function 'load_tasks'")
-        debug_print(error.args)
-
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
@@ -1057,7 +1087,6 @@ def load_tasks():
                 "error_message": "Contact admin for log checking..."
             }
         )
-
     finally:
         if session is not None:
             session.close()
@@ -1072,7 +1101,6 @@ def create_list():
     session = None
 
     try:
-
         user_text_id = request.cookies.get("id")
 
         session = make_session()
@@ -1095,22 +1123,27 @@ def create_list():
                 "new_list_id": new_list.id
             }, 200
         )
-
         return response
-
-    except sqlalchemy.exc.SQLAlchemyError as error:
-        return jsonify(
-            {
-                "ok": False,
-                "Error": error
-            }
-        )
-    except Exception as error:
+    except sqlalchemy.exc.SQLAlchemyError:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
                 "error_code": None,
-                "error_message": error.args[0]
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    except Exception:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
             }
         )
     finally:
@@ -1138,15 +1171,19 @@ def delete_list():
 
         user = query.first()
 
-        query = session.query(List).filter(List.user_id == user.id, List.id ==
-                                           list_id)
+        query = session.query(List).filter(
+            List.user_id == user.id,
+            List.id == list_id
+        )
 
         list_to_delete = query.first()
 
         session.delete(list_to_delete)
 
-        query = session.query(List).filter(List.user_id == user.id,
-                                           List.name == "main")
+        query = session.query(List).filter(
+            List.user_id == user.id,
+            List.name == "main"
+        )
 
         main_list = query.first()
 
@@ -1157,8 +1194,10 @@ def delete_list():
         for row in user_lists:
             lists_dict[row.id] = row.name
 
-        query = session.query(Task).filter(Task.user_id == user.id,
-                                           Task.list_id == main_list.id)
+        query = session.query(Task).filter(
+            Task.user_id == user.id,
+            Task.list_id == main_list.id
+        )
 
         rows = query.all()
 
@@ -1185,27 +1224,33 @@ def delete_list():
             }
         )
 
-        response.set_cookie("id", user_text_id,
-                            max_age=int(cookies_config["MAX_AGE"]))
-        response.set_cookie("sign", sign,
-                            max_age=int(cookies_config["MAX_AGE"]))
-
-        return response
-    except sqlalchemy.exc.SQLAlchemyError as error:
-        tb = sys.exc_info()
-        traceback.print_exception(*tb)
-        return jsonify(
-            {
-                "ok": False,
-                "Error": error.args
-            }
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config["MAX_AGE"])
         )
-    except Exception as error:
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config["MAX_AGE"])
+        )
+        return response
+    except sqlalchemy.exc.SQLAlchemyError:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
         return jsonify(
             {
                 "ok": False,
                 "error_code": None,
-                "error_message": error.args[0]
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    except Exception:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
             }
         )
     finally:
