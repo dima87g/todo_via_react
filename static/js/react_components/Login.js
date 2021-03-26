@@ -9,7 +9,7 @@ import {
     showShadowModal
 } from "../redux/actions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
-import SettingsMenu from "./SettingsMenu";
+import SettingsMenu from "./windows/SettingsMenuWindow";
 
 class Login extends React.Component {
     constructor(props) {
@@ -643,7 +643,6 @@ class Login extends React.Component {
                        </button>
                     </form>
                 </div>
-                <SettingsMenu/>
             </div>
         )
     }
