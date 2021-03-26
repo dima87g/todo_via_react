@@ -12,23 +12,26 @@ class SettingsMenu extends React.Component {
         let settingsMenuWindowStyle;
 
         if (this.props.SETTINGS_MENU_IS_VISIBLE) {
-            if (isInternetExplorer()) {
-                settingsMenuWindowStyle = 'settings_menu_window_ie settings_menu_window_visible';
-            } else {
-                settingsMenuWindowStyle = 'settings_menu_window settings_menu_window_visible';
-            }
-        } else {
-            if (isInternetExplorer()) {
-                settingsMenuWindowStyle = 'settings_menu_window_ie settings_menu_window_hidden';
-            } else {
-                settingsMenuWindowStyle = 'settings_menu_window settings_menu_window_hidden'
-            }
+
         }
         return (
-            <div className={settingsMenuWindowStyle}>
-                <button type={'button'} className={'settings_menu_window_close_button'}>
-                    X
-                </button>
+            <div className={'settings_window'}>
+                <div className={'settings_window_header'}>
+                    <button className={'exit_button'} type={'button'}>X</button>
+                    <p className={'settings_window_title'}>Settings</p>
+                </div>
+                <div className={'settings_window_buttons_div'}>
+                    <label className={'settings_window_checkbox_label'}>
+                        <input type={'checkbox'} className={'settings_window_checkbox'} onClick={checkbox}/>
+                        Move checked tasks to bottom
+                    </label>
+                    <button type={'button'} className={'settings_window_buttons'}>button1</button>
+                    <button type={'button'} className={'settings_window_buttons'}>button2</button>
+                    <button type={'button'} className={'settings_window_buttons'}>button3</button>
+                </div>
+                <div className={'settings_window_footer'}>
+                    <p className={'copyright'}>copyright</p>
+                </div>
             </div>
         )
     }
