@@ -723,6 +723,84 @@ let_start_paragraph {
     display: block;
 }
 
+/* Temporal styles for settings menu window */
+.exit_button {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    top: 5px;
+    right: 5px;
+    border-radius: 50%;
+    outline: none;
+}
+
+.settings_window_header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.settings_window_title {
+    text-align: center;
+    margin-top: 5px;
+
+}
+
+.settings_window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.settings_window_buttons_div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.settings_window_buttons_div > * {
+    margin-bottom: 20px;
+}
+
+.settings_window_checkbox {
+    margin-right: 5px;
+}
+
+.settings_window_checkbox_label {
+    width: 150px;
+    text-align: center;
+}
+
+.settings_window_buttons {
+    width: 100px;
+    height: 20px;
+    border-radius: 20px;
+    outline: none;
+}
+
+.settings_window_title {
+    text-align: center;
+}
+
+.settings_window_buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.settings_window_footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.copyright {
+    text-align: center;
+}
+/* Temporal styles for settings menu window */
+
 .cookies_alert_window_text {
     text-align: center;
     color: white;
