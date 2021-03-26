@@ -1,9 +1,9 @@
 import React from "react";
 import {connect} from "react-redux";
-import {isInternetExplorer} from "../todo_functions";
+import {isInternetExplorer} from "../../todo_functions";
 
 
-class SettingsMenu extends React.Component {
+class SettingsMenuWindow extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -43,4 +43,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(SettingsMenu);
+export default connect(mapStateToProps)(SettingsMenuWindow);
