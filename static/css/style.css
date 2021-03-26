@@ -223,7 +223,8 @@ html, body {
 }
 
 /*Styles for show/hide login & register windows animation*/
-.login_window, .register_window, .change_password_window, .create_new_list_window {
+.login_window, .register_window, .change_password_window, .create_new_list_window,
+.settings_menu_window {
     position: absolute;
     height: 70%;
     width: 70%;
@@ -233,7 +234,8 @@ html, body {
     transition: opacity 0.5s;
 }
 
-.login_window_ie, .register_window_ie, .change_password_window_ie, .create_new_list_window_ie {
+.login_window_ie, .register_window_ie, .change_password_window_ie, .create_new_list_window_ie,
+.settings_menu_window_ie {
     position: absolute;
     height: 70%;
     width: 70%;
@@ -245,12 +247,14 @@ html, body {
     top: 15%;
 }
 
-.login_window_visible, .register_window_visible, .change_password_window_visible, .create_new_list_window_visible {
+.login_window_visible, .register_window_visible, .change_password_window_visible, .create_new_list_window_visible,
+.settings_menu_window_visible {
     visibility: visible;
     opacity: 1;
 }
 
-.login_window_hidden, .register_window_hidden, .change_password_window_hidden, .create_new_list_window_hidden {
+.login_window_hidden, .register_window_hidden, .change_password_window_hidden, .create_new_list_window_hidden,
+.settings_menu_window_hidden {
     visibility: hidden;
     transition: opacity 0.5s,
                 visibility 0s 0.5s;
@@ -308,7 +312,8 @@ html, body {
     word-break: break-word;
 }
 
-.change_password_window_cancel_button, .create_new_list_window_cancel_button {
+.change_password_window_cancel_button, .create_new_list_window_cancel_button,
+.settings_menu_window_close_button {
     display: block;
     position: relative;
     width: 25px;

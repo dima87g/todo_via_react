@@ -9,6 +9,7 @@ import {
     showShadowModal
 } from "../redux/actions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
+import SettingsMenu from "./SettingsMenu";
 
 class Login extends React.Component {
     constructor(props) {
@@ -22,6 +23,7 @@ class Login extends React.Component {
             registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
             createNewListWindowShowed: false,
+            settingsMenuWindowShowed: false,
         }
         this.listSelectMenu = null;
         this.authCheck = this.authCheck.bind(this);
@@ -403,6 +405,7 @@ class Login extends React.Component {
         let createNewListWindowStyle;
         let createNewListWindowCancelButtonDisabled;
         let createNewListWindowSubmitButtonDisabled;
+        let settingsMenuWindowStyle;
 
         if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -640,6 +643,7 @@ class Login extends React.Component {
                        </button>
                     </form>
                 </div>
+                <SettingsMenu/>
             </div>
         )
     }

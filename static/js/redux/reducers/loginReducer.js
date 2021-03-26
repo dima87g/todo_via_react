@@ -2,6 +2,7 @@
 
 let initialState = {
     AUTH_MENU_IS_VISIBLE: true,
+    SETTINGS_MENU_IS_VISIBLE: false,
     USER_NAME: '',
     LIST_ID: null,
     LIST_SELECT_MENU: [],
@@ -19,6 +20,16 @@ export function loginReducer(state = initialState, action) {
             return {
                 ...state,
                 AUTH_MENU_IS_VISIBLE: false,
+            }
+        case 'SHOW_SETTINGS_MENU':
+            return {
+                ...state,
+                SETTINGS_MENU_IS_VISIBLE: true,
+            }
+        case 'HIDE_SETTINGS_MENU':
+            return {
+                ...state,
+                SETTINGS_MENU_IS_VISIBLE: false,
             }
         case 'CREATE_LIST':
             return {
