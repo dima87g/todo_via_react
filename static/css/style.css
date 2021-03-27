@@ -107,7 +107,8 @@ html, body {
 }
 
 .header_menu_list_buttons {
-    width: 60px;
+    width: 100px;
+    border-radius: 20px;
     margin-bottom: 5px;
     transform: translateX(40px);
     /*transition: transform 0.5s;*/
