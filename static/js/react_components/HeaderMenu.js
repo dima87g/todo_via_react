@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideHeaderMenu, showHeaderMenu} from "../redux/actions";
+import {hideHeaderMenu, showHeaderMenu, showSettingsMenu} from "../redux/actions";
 
 class HeaderMenu extends React.Component {
     constructor(props) {
@@ -10,6 +10,7 @@ class HeaderMenu extends React.Component {
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
         this.changePassword = this.changePassword.bind(this);
+        this.openSettingsMenu = this.openSettingsMenu.bind(this);
     }
 
     componentDidMount() {
@@ -57,6 +58,11 @@ class HeaderMenu extends React.Component {
         this.login.current.changePasswordWindow();
     }
 
+    openSettingsMenu() {
+        this.props.dispatch(hideHeaderMenu());
+        this.props.dispatch(showSettingsMenu());
+    }
+
     render() {
         let headerMenuListStyle;
         let headerMenuListButtonsStyle;
@@ -99,11 +105,11 @@ class HeaderMenu extends React.Component {
                            disabled={headerMenuListButtonsDisabled}
                            onClick={this.changePassword}/>
                     <input type="button"
-                           id={"user_delete_button"}
+                           id={'settings_window_button'}
                            className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['delete_user']}
+                           value={localisation['buttons']['settings']}
                            disabled={headerMenuListButtonsDisabled}
-                           onClick={this.userDelete}/>
+                           onClick={this.openSettingsMenu}/>
                 </div>
                 <div id={'burger_button'}
                     className={burgerButtonStyle}

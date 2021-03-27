@@ -724,6 +724,23 @@ let_start_paragraph {
 }
 
 /* Temporal styles for settings menu window */
+.settings_window {
+    position: fixed;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    z-index: 2;
+}
+
+.settings_window_hidden {
+    visibility: hidden;
+}
+
 .exit_button {
     position: absolute;
     width: 25px;
@@ -744,14 +761,6 @@ let_start_paragraph {
     text-align: center;
     margin-top: 5px;
 
-}
-
-.settings_window {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
 }
 
 .settings_window_buttons_div {
@@ -775,19 +784,13 @@ let_start_paragraph {
 
 .settings_window_buttons {
     width: 100px;
-    height: 20px;
+    height: 40px;
     border-radius: 20px;
     outline: none;
 }
 
 .settings_window_title {
     text-align: center;
-}
-
-.settings_window_buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .settings_window_footer {
