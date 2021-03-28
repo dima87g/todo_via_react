@@ -8,10 +8,8 @@ class HeaderMenu extends React.Component {
         this.login = this.props.login;
         this.listSelectMenu = this.props.listSelectMenu;
         this.showHeaderMenu = this.showHeaderMenu.bind(this);
-        this.logOut = this.logOut.bind(this);
-        this.userDelete = this.userDelete.bind(this);
-        this.deleteList = this.deleteList.bind(this);
         this.openSettingsMenu = this.openSettingsMenu.bind(this);
+        this.deleteList = this.deleteList.bind(this);
     }
 
     componentDidMount() {
@@ -44,14 +42,9 @@ class HeaderMenu extends React.Component {
         }
     }
 
-    logOut() {
+    openSettingsMenu() {
         this.props.dispatch(hideHeaderMenu());
-        this.login.current.logOut();
-    }
-
-    userDelete() {
-        this.props.dispatch(hideHeaderMenu());
-        this.login.current.userDelete();
+        this.props.dispatch(showSettingsMenu());
     }
 
     deleteList() {
@@ -60,11 +53,6 @@ class HeaderMenu extends React.Component {
         let listToDeleteName =  this.listSelectMenu.current.options[this.listSelectMenu.current.selectedIndex].innerText
 
         this.login.current.deleteList(listToDeleteId, listToDeleteName);
-    }
-
-    openSettingsMenu() {
-        this.props.dispatch(hideHeaderMenu());
-        this.props.dispatch(showSettingsMenu());
     }
 
     render() {
