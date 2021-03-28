@@ -210,7 +210,7 @@ class Login extends React.Component {
     }
 
     userDelete() {
-        let message = localisation['delete_user']['confirm_message'];
+        let message = localisation['confirm_window']['delete_user_confirm_message'];
 
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
@@ -405,7 +405,6 @@ class Login extends React.Component {
         let createNewListWindowStyle;
         let createNewListWindowCancelButtonDisabled;
         let createNewListWindowSubmitButtonDisabled;
-        let settingsMenuWindowStyle;
 
         if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
