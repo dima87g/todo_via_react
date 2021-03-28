@@ -9,6 +9,7 @@ class HeaderMenu extends React.Component {
         this.listSelectMenu = this.props.listSelectMenu;
         this.showHeaderMenu = this.showHeaderMenu.bind(this);
         this.openSettingsMenu = this.openSettingsMenu.bind(this);
+        this.createNewList = this.createNewList.bind(this);
         this.deleteList = this.deleteList.bind(this);
     }
 
@@ -45,6 +46,11 @@ class HeaderMenu extends React.Component {
     openSettingsMenu() {
         this.props.dispatch(hideHeaderMenu());
         this.props.dispatch(showSettingsMenu());
+    }
+
+    createNewList() {
+        this.props.dispatch(hideHeaderMenu());
+        this.login.current.createNewListWindow();
     }
 
     deleteList() {
@@ -91,7 +97,14 @@ class HeaderMenu extends React.Component {
                            disabled={headerMenuListButtonsDisabled}
                            onClick={this.openSettingsMenu}/>
                     <input type="button"
-                           id={"change_password_button"}
+                           id={"create_new_list_button"}
+                           className={headerMenuListButtonsStyle}
+                           value={localisation['buttons']['create_list']}
+                           disabled={headerMenuListButtonsDisabled}
+                           onClick={this.createNewList}
+                    />
+                    <input type="button"
+                           id={"delete_list_button"}
                            className={headerMenuListButtonsStyle}
                            value={localisation['buttons']['delete_list']}
                            disabled={headerMenuListButtonsDisabled}

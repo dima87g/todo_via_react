@@ -306,7 +306,7 @@ class Login extends React.Component {
     listChange(e) {
         let selectedListId = e.target.value;
 
-        if (selectedListId !== this.props.LIST_ID && selectedListId !== '0') {
+        if (selectedListId !== this.props.LIST_ID) {
             let sendData = {'listId': selectedListId};
 
             const responseHandler = (response) => {
@@ -321,8 +321,6 @@ class Login extends React.Component {
                 }
             }
             this.app.knockKnock('/load_tasks', responseHandler, sendData);
-        } else if (selectedListId === '0') {
-            this.createNewListWindow();
         }
     }
 

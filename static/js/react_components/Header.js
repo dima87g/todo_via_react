@@ -47,7 +47,6 @@ class Header extends React.Component {
                                 //  so that id is a numeric type without parseInt function!!!
                                 return <option key={index} value={value[0]}>{value[1]}</option>
                             })}
-                            <option value={0}>{localisation['list_select_menu']['add_list']}</option>
                         </select>
                     </div>
                     <HeaderMenu
