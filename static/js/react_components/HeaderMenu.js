@@ -6,10 +6,11 @@ class HeaderMenu extends React.Component {
     constructor(props) {
         super(props)
         this.login = this.props.login;
+        this.listSelectMenu = this.props.listSelectMenu;
         this.showHeaderMenu = this.showHeaderMenu.bind(this);
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
-        this.changePassword = this.changePassword.bind(this);
+        this.deleteList = this.deleteList.bind(this);
         this.openSettingsMenu = this.openSettingsMenu.bind(this);
     }
 
@@ -53,9 +54,12 @@ class HeaderMenu extends React.Component {
         this.login.current.userDelete();
     }
 
-    changePassword() {
+    deleteList() {
         this.props.dispatch(hideHeaderMenu());
-        this.login.current.changePasswordWindow();
+        let listToDeleteId = this.listSelectMenu.current.value;
+        let listToDeleteName =  this.listSelectMenu.current.options[this.listSelectMenu.current.selectedIndex].innerText
+
+        this.login.current.deleteList(listToDeleteId, listToDeleteName);
     }
 
     openSettingsMenu() {
@@ -93,23 +97,18 @@ class HeaderMenu extends React.Component {
             <div id={'header_menu'} className={'header_menu'}>
                 <div id={'header_menu_list'} className={headerMenuListStyle}>
                     <input type="button"
-                           id={"user_logout_button"}
-                           className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['logout']}
-                           disabled={headerMenuListButtonsDisabled}
-                           onClick={this.logOut}/>
-                    <input type="button"
-                           id={"change_password_button"}
-                           className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['change_password']}
-                           disabled={headerMenuListButtonsDisabled}
-                           onClick={this.changePassword}/>
-                    <input type="button"
                            id={'settings_window_button'}
                            className={headerMenuListButtonsStyle}
                            value={localisation['buttons']['settings']}
                            disabled={headerMenuListButtonsDisabled}
                            onClick={this.openSettingsMenu}/>
+                    <input type="button"
+                           id={"change_password_button"}
+                           className={headerMenuListButtonsStyle}
+                           value={localisation['buttons']['delete_list']}
+                           disabled={headerMenuListButtonsDisabled}
+                           onClick={this.deleteList}
+                    />
                 </div>
                 <div id={'burger_button'}
                     className={burgerButtonStyle}
