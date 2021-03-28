@@ -1,6 +1,5 @@
 import React from "react";
 import {connect} from "react-redux";
-import {isInternetExplorer} from "../../todo_functions";
 import {hideHeaderMenu, hideSettingsMenu} from "../../redux/actions";
 
 
@@ -9,11 +8,23 @@ class SettingsMenuWindow extends React.Component {
         super(props);
         this.login = this.props.login;
         this.closeSettingsMenu = this.closeSettingsMenu.bind(this);
+        this.changePassword = this.changePassword.bind(this);
+        this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
     }
 
     closeSettingsMenu() {
         this.props.dispatch(hideSettingsMenu());
+    }
+
+    changePassword() {
+        this.props.dispatch(hideSettingsMenu());
+        this.login.current.changePasswordWindow();
+    }
+
+    logOut() {
+        this.props.dispatch(hideSettingsMenu());
+        this.login.current.logOut();
     }
 
     userDelete() {
@@ -40,14 +51,29 @@ class SettingsMenuWindow extends React.Component {
                         <input type={'checkbox'} className={'settings_window_checkbox'}/>
                         {localisation['settings_window']['to_bottom_checkbox']}
                     </label>
-                    <button type={'button'} className={'settings_window_buttons'}>button1</button>
-                    <button type={'button'} className={'settings_window_buttons'}>button2</button>
-                    <button type={'button'} className={'settings_window_buttons'} onClick={this.userDelete}>
-                        {localisation['buttons']['delete_user']}
-                    </button>
+                    <input
+                        type={'button'}
+                        className={'settings_window_buttons'}
+                        value={localisation['buttons']['change_password']}
+                        onClick={this.changePassword}
+                    />
+                    <input
+                        type={'button'}
+                        className={'settings_window_buttons'}
+                        value={localisation['buttons']['logout']}
+                        onClick={this.logOut}
+                    />
+                    <input
+                        type={'button'}
+                        className={'settings_window_buttons'}
+                        onClick={this.userDelete}
+                        value={localisation['buttons']['delete_user']}
+                    />
                 </div>
                 <div className={'settings_window_footer'}>
-                    <p className={'copyright'}>copyright</p>
+                    <p className={'copyright'}>
+                        ToDoList ver. 2.0.5 &copy; Dmitriy Ostreykovskiy 2020-2021
+                    </p>
                 </div>
             </div>
         )
