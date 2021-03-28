@@ -631,7 +631,6 @@ let_start_paragraph {
 .confirm_window {
     position: fixed;
     width: 200px;
-    height: 100px;
     text-align: center;
     background-color: #b7e6e6d1;
     border-radius: 20px;
