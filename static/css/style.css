@@ -785,6 +785,7 @@ let_start_paragraph {
 .settings_window_buttons {
     width: 100px;
     height: 40px;
+    white-space: normal;
     border-radius: 20px;
     outline: none;
 }
