@@ -8,7 +8,6 @@ class Header extends React.Component {
         super(props);
         this.login = this.props.login;
         this.taskList = this.props.taskList;
-        this.deleteList = this.deleteList.bind(this);
         this.listChange = this.listChange.bind(this);
         this.listSelectMenu = React.createRef();
     }
@@ -17,19 +16,10 @@ class Header extends React.Component {
         this.login.current.listChange(e);
     }
 
-    deleteList() {
-        let listToDeleteId = this.listSelectMenu.current.value;
-        let listToDeleteName =  this.listSelectMenu.current.options[this.listSelectMenu.current.selectedIndex].innerText
-
-        this.login.current.deleteList(listToDeleteId, listToDeleteName);
-    }
-
     render() {
         let listSelectMenuDisabled;
-        let deleteListButtonDisabled;
 
         listSelectMenuDisabled = !!this.props.SHADOW_MODAL_IS_VISIBLE;
-        deleteListButtonDisabled = !!this.props.SHADOW_MODAL_IS_VISIBLE;
 
         return(
             <div id={"header"} className={"header"}>
@@ -59,16 +49,11 @@ class Header extends React.Component {
                             })}
                             <option value={0}>{localisation['list_select_menu']['add_list']}</option>
                         </select>
-                        <button
-                            className={'delete_list_button'}
-                            type={'button'}
-                            onClick={this.deleteList}
-                            disabled={deleteListButtonDisabled}
-                        >
-                            {localisation['buttons']['delete_list']}
-                        </button>
                     </div>
-                    <HeaderMenu login={this.login}/>
+                    <HeaderMenu
+                        login={this.login}
+                        listSelectMenu={this.listSelectMenu}
+                    />
                 </div>
                 <TaskInput taskList={this.taskList}/>
             </div>
