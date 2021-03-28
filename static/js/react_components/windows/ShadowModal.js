@@ -8,7 +8,8 @@ class ShadowModal extends React.Component {
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props !== prevProps) {
-            if (this.props.CONFIRM_WINDOW_IS_VISIBLE || this.props.AUTH_MENU_IS_VISIBLE || this.props.TASK_EDIT_FIELD_IS_SHOWING) {
+            if (this.props.CONFIRM_WINDOW_IS_VISIBLE || this.props.AUTH_MENU_IS_VISIBLE ||
+                this.props.TASK_EDIT_FIELD_IS_SHOWING || this.props.SETTINGS_MENU_IS_VISIBLE) {
                 if (this.props.SHADOW_MODAL_IS_VISIBLE === false) {
                     this.props.dispatch(showShadowModal(true));
                 }
@@ -40,6 +41,7 @@ function mapStateToProps(state) {
         SHADOW_MODAL_IS_VISIBLE: state.app.SHADOW_MODAL_IS_VISIBLE,
         CONFIRM_WINDOW_IS_VISIBLE: state.app.CONFIRM_WINDOW_IS_VISIBLE,
         AUTH_MENU_IS_VISIBLE: state.login.AUTH_MENU_IS_VISIBLE,
+        SETTINGS_MENU_IS_VISIBLE: state.app.SETTINGS_MENU_IS_VISIBLE,
         TASK_EDIT_FIELD_IS_SHOWING: state.app.TASK_EDIT_FIELD_IS_SHOWING,
     }
 }
