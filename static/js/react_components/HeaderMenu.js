@@ -26,7 +26,7 @@ class HeaderMenu extends React.Component {
         document.addEventListener(
             'click',
             (e) => {
-                let menu = document.getElementById('header_menu');
+                let menu = document.getElementById('header_menu_div');
                 let target = e.target;
                 if (this.props.HEADER_MENU_IS_SHOWING === true && target instanceof Node && !menu.contains(target)) {
                     this.showHeaderMenu();
@@ -62,9 +62,9 @@ class HeaderMenu extends React.Component {
     }
 
     render() {
-        let headerMenuListStyle;
-        let headerMenuListButtonsStyle;
-        let headerMenuListButtonsDisabled;
+        let headerMenuStyle;
+        let headerMenuButtonsStyle;
+        let headerMenuButtonsDisabled;
         let burgerButtonStyle;
         let menuButtonFunction;
 
@@ -75,41 +75,41 @@ class HeaderMenu extends React.Component {
         }
 
         if (this.props.HEADER_MENU_IS_SHOWING === false) {
-            headerMenuListButtonsDisabled = true;
-            headerMenuListStyle = 'header_menu_list';
-            headerMenuListButtonsStyle = 'header_menu_list_buttons';
+            headerMenuButtonsDisabled = true;
+            headerMenuStyle = 'header_menu';
+            headerMenuButtonsStyle = 'header_menu_buttons';
             burgerButtonStyle = 'burger_button';
         } else {
-            headerMenuListButtonsDisabled = false;
-            headerMenuListStyle = 'header_menu_list header_menu_list_visible';
-            headerMenuListButtonsStyle = 'header_menu_list_buttons' +
-                ' header_menu_list_buttons_visible';
+            headerMenuButtonsDisabled = false;
+            headerMenuStyle = 'header_menu header_menu_visible';
+            headerMenuButtonsStyle = 'header_menu_buttons' +
+                ' header_menu_buttons_visible';
             burgerButtonStyle = 'burger_button burger_button_clicked'
         }
 
         return(
-            <div id={'header_menu'} className={'header_menu'}>
-                <div id={'header_menu_list'} className={headerMenuListStyle}>
+            <div id={'header_menu_div'}>
+                <div id={'header_menu'} className={headerMenuStyle}>
                     <button type={'button'}
                            id={'delete_list_button'}
-                           className={headerMenuListButtonsStyle}
-                           disabled={headerMenuListButtonsDisabled}
+                           className={headerMenuButtonsStyle}
+                           disabled={headerMenuButtonsDisabled}
                            onClick={this.deleteList}
                    >
                        <img src='/static/icons/delete_list.png' alt={localisation['buttons']['delete_list']}/>
                    </button>
                     <button type={'button'}
                            id={'create_list_button'}
-                           className={headerMenuListButtonsStyle}
-                           disabled={headerMenuListButtonsDisabled}
+                           className={headerMenuButtonsStyle}
+                           disabled={headerMenuButtonsDisabled}
                            onClick={this.createNewList}
                    >
                        <img src='/static/icons/create_list.png' alt={localisation['buttons']['create_list']}/>
                    </button>
                    <button type={'button'}
                            id={'settings_window_button'}
-                           className={headerMenuListButtonsStyle}
-                           disabled={headerMenuListButtonsDisabled}
+                           className={headerMenuButtonsStyle}
+                           disabled={headerMenuButtonsDisabled}
                            onClick={this.openSettingsMenu}
                    >
                        <img src='/static/icons/settings_icon.png' alt={localisation['buttons']['settings']}/>
