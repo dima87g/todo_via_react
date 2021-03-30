@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideHeaderMenu, hideSettingsMenu} from "../../redux/actions";
+import {hideSettingsMenu} from "../../redux/actions";
 
 
 class SettingsMenuWindow extends React.Component {
@@ -28,7 +28,7 @@ class SettingsMenuWindow extends React.Component {
     }
 
     userDelete() {
-        this.props.dispatch(hideHeaderMenu());
+        this.props.dispatch(hideSettingsMenu());
         this.login.current.userDelete();
     }
 
