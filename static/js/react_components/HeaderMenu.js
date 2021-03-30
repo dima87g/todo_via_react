@@ -90,26 +90,30 @@ class HeaderMenu extends React.Component {
         return(
             <div id={'header_menu'} className={'header_menu'}>
                 <div id={'header_menu_list'} className={headerMenuListStyle}>
-                    <input type="button"
-                           id={'settings_window_button'}
+                    <button type={'button'}
+                           id={'delete_list_button'}
                            className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['settings']}
-                           disabled={headerMenuListButtonsDisabled}
-                           onClick={this.openSettingsMenu}/>
-                    <input type="button"
-                           id={"create_new_list_button"}
-                           className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['create_list']}
-                           disabled={headerMenuListButtonsDisabled}
-                           onClick={this.createNewList}
-                    />
-                    <input type="button"
-                           id={"delete_list_button"}
-                           className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['delete_list']}
                            disabled={headerMenuListButtonsDisabled}
                            onClick={this.deleteList}
-                    />
+                   >
+                       <img src='/static/icons/delete_list.png' alt={localisation['buttons']['delete_list']}/>
+                   </button>
+                    <button type={'button'}
+                           id={'create_list_button'}
+                           className={headerMenuListButtonsStyle}
+                           disabled={headerMenuListButtonsDisabled}
+                           onClick={this.createNewList}
+                   >
+                       <img src='/static/icons/create_list.png' alt={localisation['buttons']['create_list']}/>
+                   </button>
+                   <button type={'button'}
+                           id={'settings_window_button'}
+                           className={headerMenuListButtonsStyle}
+                           disabled={headerMenuListButtonsDisabled}
+                           onClick={this.openSettingsMenu}
+                   >
+                       <img src='/static/icons/settings_icon.png' alt={localisation['buttons']['settings']}/>
+                   </button>
                 </div>
                 <div id={'burger_button'}
                     className={burgerButtonStyle}
