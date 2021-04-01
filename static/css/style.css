@@ -630,7 +630,7 @@ html, body {
 /*Styles for show/hide subtask and task edit fields animation*/
 
 /*Styles for show/hide confirm window animation*/
-.confirm_window {
+.confirm_window, .info_window {
     position: fixed;
     width: 200px;
     text-align: center;
@@ -644,7 +644,7 @@ html, body {
     transition: opacity 0.5s;
 }
 
-.confirm_window_visible {
+.confirm_window_visible, .info_window_visible {
     visibility: visible;
     opacity: 1;
     z-index: 1000;
@@ -664,7 +664,7 @@ html, body {
     margin: 5px 5px;
 }
 
-.info_window, .loading_window {
+.loading_window {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -673,14 +673,11 @@ html, body {
     height: 100px;
     top: 20vw;
     background-color: aqua;
+    border-radius: 20px;
     left: 50%;
     margin-left: -100px;
     z-index: 1000;
     visibility: hidden;
-}
-
-.info_window_visible {
-    visibility: visible;
 }
 
 /*Styles for show/hide shadow animation*/
