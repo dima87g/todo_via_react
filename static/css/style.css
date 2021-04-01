@@ -324,7 +324,14 @@ html, body {
 }
 
 .task_input {
-    margin-top: 4vh;
+    height: 90px;
+    border-top: solid 1px;
+    border-radius: 0 0 30% 30%;
+    background-color: rgba(255, 255 , 255 , 0.8);
+}
+
+.task_input_form {
+    margin-top: 25px;
 }
 
 .task_input > form {

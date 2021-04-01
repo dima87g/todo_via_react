@@ -35,7 +35,7 @@ export class TaskInput extends React.Component{
         }
         return(
             <div className="task_input">
-                <form onSubmit={taskInputSubmitFunction}>
+                <form className={'task_input_form'} onSubmit={taskInputSubmitFunction}>
                     <label htmlFor={'task_input_field'}/>
                         <input
                             type={'text'}
