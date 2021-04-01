@@ -371,7 +371,7 @@ class Login extends React.Component {
             this.props.dispatch(showInfoWindow(true, localisation['delete_list']['cannot_delete_main_info']));
         } else {
             let sendData = {'listId': listToDeleteId, 'listName': listToDeleteName}
-            let message = localisation['confirm_window']['delete_list_confirm_message'] + ' ' + listToDeleteName + ' ?'
+            let message = localisation['confirm_window']['delete_list_confirm_message'] + ' \'' + listToDeleteName + '\' ?'
 
             let responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
