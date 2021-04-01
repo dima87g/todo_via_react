@@ -117,6 +117,8 @@ class TaskList extends React.Component {
                 taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
                 taskMovingUpId = currentTaskId;
                 taskMovingDownId = taskToSwapId;
+            } else {
+                return;
             }
         } else if (taskMoveDirection === 'DOWN') {
             if (currentTaskIndex < taskList.length - 1 && currentTaskIndex !== -1) {
@@ -126,9 +128,9 @@ class TaskList extends React.Component {
                 taskToSwapPosition = taskToSwap.position ? taskToSwap.position: taskToSwapId;
                 taskMovingUpId = taskToSwapId;
                 taskMovingDownId = currentTaskId;
+            } else {
+                return;
             }
-        } else {
-            return;
         }
         let sendData = {
             'currentTaskId': currentTaskId,
