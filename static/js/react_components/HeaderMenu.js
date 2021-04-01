@@ -1,15 +1,16 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideHeaderMenu, showHeaderMenu} from "../redux/actions";
+import {hideHeaderMenu, showHeaderMenu, showSettingsMenu} from "../redux/actions";
 
 class HeaderMenu extends React.Component {
     constructor(props) {
         super(props)
         this.login = this.props.login;
+        this.listSelectMenu = this.props.listSelectMenu;
         this.showHeaderMenu = this.showHeaderMenu.bind(this);
-        this.logOut = this.logOut.bind(this);
-        this.userDelete = this.userDelete.bind(this);
-        this.changePassword = this.changePassword.bind(this);
+        this.openSettingsMenu = this.openSettingsMenu.bind(this);
+        this.createNewList = this.createNewList.bind(this);
+        this.deleteList = this.deleteList.bind(this);
     }
 
     componentDidMount() {
@@ -25,7 +26,7 @@ class HeaderMenu extends React.Component {
         document.addEventListener(
             'click',
             (e) => {
-                let menu = document.getElementById('header_menu');
+                let menu = document.getElementById('header_menu_div');
                 let target = e.target;
                 if (this.props.HEADER_MENU_IS_SHOWING === true && target instanceof Node && !menu.contains(target)) {
                     this.showHeaderMenu();
@@ -42,25 +43,28 @@ class HeaderMenu extends React.Component {
         }
     }
 
-    logOut() {
+    openSettingsMenu() {
         this.props.dispatch(hideHeaderMenu());
-        this.login.current.logOut();
+        this.props.dispatch(showSettingsMenu());
     }
 
-    userDelete() {
+    createNewList() {
         this.props.dispatch(hideHeaderMenu());
-        this.login.current.userDelete();
+        this.login.current.createNewListWindow();
     }
 
-    changePassword() {
+    deleteList() {
         this.props.dispatch(hideHeaderMenu());
-        this.login.current.changePasswordWindow();
+        let listToDeleteId = this.listSelectMenu.current.value;
+        let listToDeleteName =  this.listSelectMenu.current.options[this.listSelectMenu.current.selectedIndex].innerText
+
+        this.login.current.deleteList(listToDeleteId, listToDeleteName);
     }
 
     render() {
-        let headerMenuListStyle;
-        let headerMenuListButtonsStyle;
-        let headerMenuListButtonsDisabled;
+        let headerMenuStyle;
+        let headerMenuButtonsStyle;
+        let headerMenuButtonsDisabled;
         let burgerButtonStyle;
         let menuButtonFunction;
 
@@ -71,39 +75,45 @@ class HeaderMenu extends React.Component {
         }
 
         if (this.props.HEADER_MENU_IS_SHOWING === false) {
-            headerMenuListButtonsDisabled = true;
-            headerMenuListStyle = 'header_menu_list';
-            headerMenuListButtonsStyle = 'header_menu_list_buttons';
+            headerMenuButtonsDisabled = true;
+            headerMenuStyle = 'header_menu';
+            headerMenuButtonsStyle = 'header_menu_buttons';
             burgerButtonStyle = 'burger_button';
         } else {
-            headerMenuListButtonsDisabled = false;
-            headerMenuListStyle = 'header_menu_list header_menu_list_visible';
-            headerMenuListButtonsStyle = 'header_menu_list_buttons' +
-                ' header_menu_list_buttons_visible';
+            headerMenuButtonsDisabled = false;
+            headerMenuStyle = 'header_menu header_menu_visible';
+            headerMenuButtonsStyle = 'header_menu_buttons' +
+                ' header_menu_buttons_visible';
             burgerButtonStyle = 'burger_button burger_button_clicked'
         }
 
         return(
-            <div id={'header_menu'} className={'header_menu'}>
-                <div id={'header_menu_list'} className={headerMenuListStyle}>
-                    <input type="button"
-                           id={"user_logout_button"}
-                           className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['logout']}
-                           disabled={headerMenuListButtonsDisabled}
-                           onClick={this.logOut}/>
-                    <input type="button"
-                           id={"change_password_button"}
-                           className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['change_password']}
-                           disabled={headerMenuListButtonsDisabled}
-                           onClick={this.changePassword}/>
-                    <input type="button"
-                           id={"user_delete_button"}
-                           className={headerMenuListButtonsStyle}
-                           value={localisation['buttons']['delete_user']}
-                           disabled={headerMenuListButtonsDisabled}
-                           onClick={this.userDelete}/>
+            <div id={'header_menu_div'}>
+                <div id={'header_menu'} className={headerMenuStyle}>
+                    <button type={'button'}
+                           id={'delete_list_button'}
+                           className={headerMenuButtonsStyle}
+                           disabled={headerMenuButtonsDisabled}
+                           onClick={this.deleteList}
+                   >
+                       <img src='/static/icons/delete_list.svg' alt={localisation['buttons']['delete_list']}/>
+                   </button>
+                    <button type={'button'}
+                           id={'create_list_button'}
+                           className={headerMenuButtonsStyle}
+                           disabled={headerMenuButtonsDisabled}
+                           onClick={this.createNewList}
+                   >
+                       <img src='/static/icons/create_list.svg' alt={localisation['buttons']['create_list']}/>
+                   </button>
+                   <button type={'button'}
+                           id={'settings_window_button'}
+                           className={headerMenuButtonsStyle}
+                           disabled={headerMenuButtonsDisabled}
+                           onClick={this.openSettingsMenu}
+                   >
+                       <img src='/static/icons/settings_icon.svg' alt={localisation['buttons']['settings']}/>
+                   </button>
                 </div>
                 <div id={'burger_button'}
                     className={burgerButtonStyle}

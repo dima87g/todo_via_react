@@ -9,6 +9,7 @@ import {
     showShadowModal
 } from "../redux/actions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
+import SettingsMenu from "./windows/SettingsMenuWindow";
 
 class Login extends React.Component {
     constructor(props) {
@@ -22,6 +23,7 @@ class Login extends React.Component {
             registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
             createNewListWindowShowed: false,
+            settingsMenuWindowShowed: false,
         }
         this.listSelectMenu = null;
         this.authCheck = this.authCheck.bind(this);
@@ -208,7 +210,7 @@ class Login extends React.Component {
     }
 
     userDelete() {
-        let message = localisation['delete_user']['confirm_message'];
+        let message = localisation['confirm_window']['delete_user_confirm_message'];
 
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
@@ -304,7 +306,7 @@ class Login extends React.Component {
     listChange(e) {
         let selectedListId = e.target.value;
 
-        if (selectedListId !== this.props.LIST_ID && selectedListId !== '0') {
+        if (selectedListId !== this.props.LIST_ID) {
             let sendData = {'listId': selectedListId};
 
             const responseHandler = (response) => {
@@ -319,8 +321,6 @@ class Login extends React.Component {
                 }
             }
             this.app.knockKnock('/load_tasks', responseHandler, sendData);
-        } else if (selectedListId === '0') {
-            this.createNewListWindow();
         }
     }
 

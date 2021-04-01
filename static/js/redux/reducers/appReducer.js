@@ -2,6 +2,7 @@ import {loginReducer} from "./loginReducer";
 import {combineReducers} from "redux";
 
 let initialState = {
+    SETTINGS_MENU_IS_VISIBLE: false,
     SHADOW_MODAL_IS_VISIBLE: true,
     CONFIRM_WINDOW_IS_VISIBLE: false,
     CONFIRM_WINDOW_MESSAGE: '',
@@ -40,6 +41,16 @@ export function appReducer(state = initialState, action) {
                 CONFIRM_WINDOW_MESSAGE: action.message,
                 CONFIRM_WINDOW_FUNCTION: action.func,
             };
+        case 'SHOW_SETTINGS_MENU':
+            return {
+                ...state,
+                SETTINGS_MENU_IS_VISIBLE: true,
+            }
+        case 'HIDE_SETTINGS_MENU':
+            return {
+                ...state,
+                SETTINGS_MENU_IS_VISIBLE: false,
+            }
         case 'SHADOW_MODAL_IS_VISIBLE':
             return {
                 ...state,

@@ -44,7 +44,8 @@ html, body {
     width: 100vw;
     min-height: 15vh;
     outline: blue solid 1px;
-    background-color: aliceblue;
+    /*background-color: aliceblue;*/
+    background-color: #DCE3FF;
 }
 
 .language_switch_button {
@@ -78,56 +79,56 @@ html, body {
     position: absolute;
     top: 0;
     right: 0;
-    width: 50%;
-    height: 100%;
-    /*opacity: 0;*/
-}
-
-.header_menu_list {
-    position: absolute;
-    top: 0;
-    right: 0;
     width: 0;
     height: 100%;
     opacity: 0;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
     border: none;
     border-radius: 50px 0 0 50px;
     transition: 0.5s;
-    background-color: aquamarine;
+    background-color: white;
 }
 
-.header_menu_list_visible {
+.header_menu_visible {
     width: 100%;
     opacity: 1;
 }
 
-.header_menu_list_buttons {
-    width: 60px;
-    margin-bottom: 5px;
+.header_menu_buttons {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    /*margin-bottom: 5px;*/
     transform: translateX(40px);
+    background-color: white;
     /*transition: transform 0.5s;*/
 }
 
-.header_menu_list_buttons_visible {
+.header_menu_buttons > img {
+    width: 40px;
+    height: 40px;
+}
+
+.header_menu_buttons_visible {
     transform: translateX(10px);
 }
 
-.header_menu_list_buttons:nth-child(1) {
+.header_menu_buttons:nth-child(1) {
     /*transition: transform 0.4s 0.1s;*/
     transition: transform 0.1s;
 }
 
-.header_menu_list_buttons:nth-child(2) {
+.header_menu_buttons:nth-child(2) {
     /*transition: transform 0.3s 0.2s;*/
     transition: transform 0.3s;
 }
 
-.header_menu_list_buttons:nth-child(3) {
+.header_menu_buttons:nth-child(3) {
     /*transition: transform 0.2s 0.3s;*/
     transition: transform 0.5s;
     margin-bottom: 0;
@@ -171,23 +172,18 @@ html, body {
                 translateY(5px);
 }
 /*Styles for show/hide header_menu animation*/
-
 .list_select_menu_div {
     display: block;
     position: absolute;
     bottom: 0;
+    right: 0;
 }
-
-.list_select_menu {
-    margin-right: 10px;
-}
-
 /*Styles for show/hide auth menu animation*/
 .auth_menu {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: absolute;
+    position: fixed;
     top: 15vh;
     width: 100vw;
     height: 400px;
@@ -223,7 +219,8 @@ html, body {
 }
 
 /*Styles for show/hide login & register windows animation*/
-.login_window, .register_window, .change_password_window, .create_new_list_window {
+.login_window, .register_window, .change_password_window, .create_new_list_window,
+.settings_menu_window {
     position: absolute;
     height: 70%;
     width: 70%;
@@ -233,7 +230,8 @@ html, body {
     transition: opacity 0.5s;
 }
 
-.login_window_ie, .register_window_ie, .change_password_window_ie, .create_new_list_window_ie {
+.login_window_ie, .register_window_ie, .change_password_window_ie, .create_new_list_window_ie,
+.settings_menu_window_ie {
     position: absolute;
     height: 70%;
     width: 70%;
@@ -245,12 +243,14 @@ html, body {
     top: 15%;
 }
 
-.login_window_visible, .register_window_visible, .change_password_window_visible, .create_new_list_window_visible {
+.login_window_visible, .register_window_visible, .change_password_window_visible, .create_new_list_window_visible,
+.settings_menu_window_visible {
     visibility: visible;
     opacity: 1;
 }
 
-.login_window_hidden, .register_window_hidden, .change_password_window_hidden, .create_new_list_window_hidden {
+.login_window_hidden, .register_window_hidden, .change_password_window_hidden, .create_new_list_window_hidden,
+.settings_menu_window_hidden {
     visibility: hidden;
     transition: opacity 0.5s,
                 visibility 0s 0.5s;
@@ -308,7 +308,8 @@ html, body {
     word-break: break-word;
 }
 
-.change_password_window_cancel_button, .create_new_list_window_cancel_button {
+.change_password_window_cancel_button, .create_new_list_window_cancel_button,
+.settings_menu_window_close_button {
     display: block;
     position: relative;
     width: 25px;
@@ -378,7 +379,7 @@ html, body {
     border-radius: 50%;
 }
 
-let_start_paragraph {
+.let_start_paragraph {
     font-size: 14px;
 }
 
@@ -625,7 +626,6 @@ let_start_paragraph {
 .confirm_window {
     position: fixed;
     width: 200px;
-    height: 100px;
     text-align: center;
     background-color: #b7e6e6d1;
     border-radius: 20px;
@@ -717,6 +717,88 @@ let_start_paragraph {
 .cookies_alert_window_showed {
     display: block;
 }
+
+/* Temporal styles for settings menu window */
+.settings_window {
+    position: fixed;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    z-index: 2;
+}
+
+.settings_window_hidden {
+    visibility: hidden;
+}
+
+.exit_button {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    top: 5px;
+    right: 5px;
+    border-radius: 50%;
+    outline: none;
+}
+
+.settings_window_header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.settings_window_title {
+    text-align: center;
+    margin-top: 5px;
+
+}
+
+.settings_window_buttons_div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.settings_window_buttons_div > * {
+    margin-bottom: 20px;
+}
+
+.settings_window_checkbox {
+    margin-right: 5px;
+}
+
+.settings_window_checkbox_label {
+    width: 150px;
+    text-align: center;
+}
+
+.settings_window_buttons {
+    width: 100px;
+    height: 40px;
+    white-space: normal;
+    border-radius: 20px;
+    outline: none;
+}
+
+.settings_window_title {
+    text-align: center;
+}
+
+.settings_window_footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.copyright {
+    text-align: center;
+}
+/* Temporal styles for settings menu window */
 
 .cookies_alert_window_text {
     text-align: center;

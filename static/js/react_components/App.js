@@ -11,6 +11,7 @@ import ShadowModal from "./windows/ShadowModal";
 import CookiesWindow from "./windows/CookiesWindow";
 import Login from "./Login";
 import TaskList from "./TaskList";
+import SettingsMenuWindow from "./windows/SettingsMenuWindow";
 
 
 class App extends React.Component {
@@ -64,6 +65,7 @@ class App extends React.Component {
                 <CookiesWindow/>
                 <Login app={this} ref={this.login}/>
                 <TaskList app={this} login={this.login} ref={this.taskList}/>
+                <SettingsMenuWindow login={this.login}/>
                 <ShadowModal/>
             </div>
         )
