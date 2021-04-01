@@ -96,7 +96,7 @@ class HeaderMenu extends React.Component {
                            disabled={headerMenuButtonsDisabled}
                            onClick={this.deleteList}
                    >
-                       <img src='/static/icons/delete_list.png' alt={localisation['buttons']['delete_list']}/>
+                       <img src='/static/icons/delete_list.svg' alt={localisation['buttons']['delete_list']}/>
                    </button>
                     <button type={'button'}
                            id={'create_list_button'}
@@ -104,7 +104,7 @@ class HeaderMenu extends React.Component {
                            disabled={headerMenuButtonsDisabled}
                            onClick={this.createNewList}
                    >
-                       <img src='/static/icons/create_list.png' alt={localisation['buttons']['create_list']}/>
+                       <img src='/static/icons/create_list.svg' alt={localisation['buttons']['create_list']}/>
                    </button>
                    <button type={'button'}
                            id={'settings_window_button'}
@@ -112,7 +112,7 @@ class HeaderMenu extends React.Component {
                            disabled={headerMenuButtonsDisabled}
                            onClick={this.openSettingsMenu}
                    >
-                       <img src='/static/icons/settings_icon.png' alt={localisation['buttons']['settings']}/>
+                       <img src='/static/icons/settings_icon.svg' alt={localisation['buttons']['settings']}/>
                    </button>
                 </div>
                 <div id={'burger_button'}
