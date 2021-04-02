@@ -14,10 +14,11 @@ export function getCookie(name) {
 }
 
 export function swap(arr, currentTaskIndex, taskToSwapIndex) {
-    let buff = arr[currentTaskIndex];
-    arr[currentTaskIndex] = arr[taskToSwapIndex];
-    arr[taskToSwapIndex] = buff;
-    return arr;
+    const newArr = [...arr];
+    let buff = newArr[currentTaskIndex];
+    newArr[currentTaskIndex] = newArr[taskToSwapIndex];
+    newArr[taskToSwapIndex] = buff;
+    return newArr;
 }
 
 export function isInternetExplorer() {
