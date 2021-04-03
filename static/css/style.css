@@ -21,12 +21,13 @@ html, body {
 }
 
 .app {
+    height: 100vh;
     /*position: relative;*/
     /*margin-top: 15vh;*/
     position: relative;
     /*max-width: 1366px;*/
     margin: 0 auto;
-    /*overflow: auto;*/
+    overflow: scroll;
     border-top: 1px solid;
 }
 
