@@ -20,6 +20,7 @@ let initialState = {
     REMOVING_TASK_HEIGHT: null,
     HEADER_MENU_IS_SHOWING: false,
     TASK_EDIT_FIELD_IS_SHOWING: false,
+    MOVE_TASK_TO_TOP_BY_UP_BUTTON: false,
 }
 
 export function appReducer(state = initialState, action) {
@@ -97,6 +98,11 @@ export function appReducer(state = initialState, action) {
             return {
                 ...state,
                 TASK_EDIT_FIELD_IS_SHOWING: false,
+            }
+        case 'MOVE_TASK_TO_TOP_BY_UP_BUTTON':
+            return {
+                ...state,
+                MOVE_TASK_TO_TOP_BY_UP_BUTTON: action.value,
             }
         default:
             return state;

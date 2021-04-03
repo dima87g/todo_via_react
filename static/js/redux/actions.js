@@ -108,6 +108,13 @@ export function hideTaskEditField() {
     }
 }
 
+export function moveTaskToTopByUpButton(value) {
+    return {
+        type: 'MOVE_TASK_TO_TOP_BY_UP_BUTTON',
+        value,
+    }
+}
+
 export function test(value) {
     return {
         type: 'TEST',
