@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideSettingsMenu} from "../../redux/actions";
+import {hideSettingsMenu, moveTaskToTopByUpButton} from "../../redux/actions";
 
 
 class SettingsMenuWindow extends React.Component {
@@ -8,6 +8,7 @@ class SettingsMenuWindow extends React.Component {
         super(props);
         this.login = this.props.login;
         this.closeSettingsMenu = this.closeSettingsMenu.bind(this);
+        this.moveToTopCheckbox = this.moveToTopCheckbox.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
@@ -15,6 +16,14 @@ class SettingsMenuWindow extends React.Component {
 
     closeSettingsMenu() {
         this.props.dispatch(hideSettingsMenu());
+    }
+
+    moveToTopCheckbox(e) {
+        if (e.target.checked) {
+            this.props.dispatch(moveTaskToTopByUpButton(true));
+        } else {
+            this.props.dispatch(moveTaskToTopByUpButton(false));
+        }
     }
 
     changePassword() {
@@ -50,6 +59,10 @@ class SettingsMenuWindow extends React.Component {
                     <label className={'settings_window_checkbox_label'}>
                         <input type={'checkbox'} className={'settings_window_checkbox'}/>
                         {localisation['settings_window']['to_bottom_checkbox']}
+                    </label>
+                    <label className={'settings_window_checkbox_label'}>
+                        <input type={'checkbox'} className={'settings_window_checkbox'} onChange={this.moveToTopCheckbox}/>
+                        {localisation['settings_window']['task_to_top_by_up_button']}
                     </label>
                     <input
                         type={'button'}
