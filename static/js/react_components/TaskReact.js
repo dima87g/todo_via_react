@@ -33,6 +33,7 @@ class TaskReact extends React.Component {
         this.addSubtask = this.addSubtask.bind(this);
         this.addSubtaskByEnterKey = this.addSubtaskByEnterKey.bind(this);
         this.moveTask = this.moveTask.bind(this);
+        this.moveToTop = this.moveToTop.bind(this);
         this.taskDiv = React.createRef();
         this.addSubtaskField = React.createRef();
         this.editTaskField = React.createRef();
@@ -168,8 +169,13 @@ class TaskReact extends React.Component {
         this.taskList.moveTask(this, taskMoveDirection);
     }
 
+    moveToTop() {
+        this.taskList.moveToTop(this);
+    }
+
     render() {
         let taskMoveButtonDisabled;
+        let taskUpMoveButtonFunction;
         let taskStyle;
         let addSubtaskDivStyle;
         let showSubtaskDivButtonStyle;
@@ -270,6 +276,12 @@ class TaskReact extends React.Component {
             removeTaskButtonStyle = 'remove_task_button remove_task_button_hidden';
         }
 
+        if (this.props.MOVE_TASK_TO_TOP_BY_UP_BUTTON) {
+            taskUpMoveButtonFunction = this.moveToTop;
+        } else {
+            taskUpMoveButtonFunction = this.moveTask;
+        }
+
         return (
             <div className={taskStyle}
                  ref={this.taskDiv}
@@ -278,7 +290,8 @@ class TaskReact extends React.Component {
                         type={'button'}
                         value={'UP'}
                         disabled={taskMoveButtonDisabled}
-                        onClick={this.moveTask}>
+                        onClick={taskUpMoveButtonFunction}
+                >
                     <i className="fas fa-angle-double-up"/>
                     <i className="fas fa-angle-double-up"/>
                     <i className="fas fa-angle-double-up"/>
@@ -362,6 +375,7 @@ function mapStateToProps(state) {
         REMOVING_TASK_POSITION: state.app.REMOVING_TASK_POSITION,
         REMOVING_TASK_HEIGHT: state.app.REMOVING_TASK_HEIGHT,
         TASK_EDIT_FIELD_IS_SHOWING: state.app.TASK_EDIT_FIELD_IS_SHOWING,
+        MOVE_TASK_TO_TOP_BY_UP_BUTTON: state.app.MOVE_TASK_TO_TOP_BY_UP_BUTTON
     }
 }
 

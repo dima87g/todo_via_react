@@ -1,7 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import {moveTask, removeTask, showInfoWindow} from "../redux/actions";
-import {findPosition, swap} from "../todo_functions";
+import {findIndex, swap} from "../todo_functions";
 import {Task} from "../todo_classes";
 import TaskReact from "./TaskReact";
 
@@ -11,17 +11,19 @@ class TaskList extends React.Component {
     constructor(props) {
         super(props)
         this.app = this.props.app;
+        this.appRef = this.props.appRef;
         this.login = this.props.login;
         this.tasksFromServer = [];
         this.tasksTree = new Map();
         this.rootTasksList = [];
 
         this.state = {
-            linearTasksList: this.rootTasksList,
+            linearTaskList: this.rootTasksList,
         }
         this.addTask = this.addTask.bind(this);
         // this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
+        this.taskListRef = React.createRef();
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -61,18 +63,34 @@ class TaskList extends React.Component {
                 }
             }
             this.setState({
-                linearTasksList: this.rootTasksList,
+                linearTaskList: this.rootTasksList,
             });
         }
         return true;
     }
 
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        if (prevState.linearTaskList !== this.state.linearTaskList) {
+            // return this.taskListRef.current.scrollHeight - this.appRef.current.scrollTop;
+            return this.appRef.current.scrollTop;
+        }
+        return null;
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (snapshot) {
+            // console.log(this.taskListRef.current.scrollHeight - snapshot);
+            // this.appRef.current.scrollTop = this.taskListRef.current.scrollHeight - snapshot;
+            this.appRef.current.scrollTop = snapshot;
+        }
+    }
+
     // makeLinearList(tasksList) {
-    //     let linearTasksList = [];
+    //     let linearTaskList = [];
     //
     //     function recursionWalk(tasksList) {
     //         for (let task of tasksList) {
-    //             linearTasksList.push(task);
+    //             linearTaskList.push(task);
     //             if (task.subtasks.length > 0) {
     //                 recursionWalk(task.subtasks);
     //             }
@@ -80,7 +98,7 @@ class TaskList extends React.Component {
     //     }
     //     recursionWalk(tasksList);
     //
-    //     return linearTasksList;
+    //     return linearTaskList;
     // }
 
     /**
@@ -104,10 +122,10 @@ class TaskList extends React.Component {
         if (currentTask.parentId) {
             taskList = this.tasksTree.get(currentTask.parentId).subtasks;
         } else {
-            taskList = this.rootTasksList;
+            taskList = this.state.linearTaskList;
         }
 
-        currentTaskIndex = findPosition(taskList, currentTask);
+        currentTaskIndex = findIndex(taskList, currentTask);
 
         if (taskMoveDirection === 'UP') {
             if (currentTaskIndex > 0 && currentTaskIndex !== -1) {
@@ -147,13 +165,45 @@ class TaskList extends React.Component {
                 this.props.dispatch(moveTask(true, taskMovingUpId, taskMovingDownId, currentTaskId));
                 setTimeout(()=>{
                     this.setState({
-                        linearTasksList: swap(taskList, currentTaskIndex, taskToSwapIndex),
+                        linearTaskList: swap(taskList, currentTaskIndex, taskToSwapIndex),
                     });
                     this.props.dispatch(moveTask(false, null, null, null));
                 }, 300);
             }
         }
         this.app.knockKnock('/change_position', responseHandler, sendData);
+    }
+
+    moveToTop(task) {
+        let taskList = this.state.linearTaskList;
+        let currentTask = task.taskInst;
+        let currentTaskId = currentTask.id;
+        let currentTaskPosition = currentTask.position ? currentTask.position : currentTaskId;
+        let currentTaskIndex = findIndex(taskList, currentTask);
+
+        if (taskList.length > 1 && currentTaskIndex > 0) {
+            let taskToSwap = taskList[0];
+            let taskToSwapId = taskToSwap.id;
+            let taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
+
+            let sendData = {
+                'currentTaskId': currentTaskId,
+                'currentTaskPosition': currentTaskPosition,
+                'taskToSwapId': taskToSwapId,
+                'taskToSwapPosition': taskToSwapPosition,
+            }
+            const responseHandler = (response) => {
+                if (response.status === 200 && response.data['ok'] === true) {
+                    currentTask.position = taskToSwapPosition;
+                    taskToSwap.position = currentTaskPosition;
+
+                    this.setState({
+                        linearTaskList: swap(taskList, currentTaskIndex, 0),
+                    });
+                }
+            }
+            this.app.knockKnock('/change_position', responseHandler, sendData);
+        }
     }
 
     /**
@@ -180,8 +230,8 @@ class TaskList extends React.Component {
                 this.rootTasksList.push(newTask);
 
                 this.setState({
-                    // linearTasksList: this.makeLinearList(this.rootTasksList),
-                    linearTasksList: this.rootTasksList,
+                    // linearTaskList: this.makeLinearList(this.rootTasksList),
+                    linearTaskList: this.rootTasksList,
                 })
             } else if (response.status === 204) {
                 this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']))
@@ -209,7 +259,7 @@ class TaskList extends React.Component {
     //             this.tasksTree.get(subtaskParentId).subtasks.push(newTask);
     //
     //             this.setState({
-    //                 linearTasksList : this.makeLinearList(this.rootTasksList),
+    //                 linearTaskList : this.makeLinearList(this.rootTasksList),
     //             })
     //         } else if (answer.status === 401) {
     //             this.login.current.forceLogOut();
@@ -241,16 +291,16 @@ class TaskList extends React.Component {
                 let removingTaskId = task.id;
                 let removingTaskPosition = task.taskInst.position;
                 let removingTaskHeight = task.taskDiv.current.offsetHeight;
-                
+
                 this.props.dispatch(removeTask(true, removingTaskId, removingTaskPosition, removingTaskHeight));
 
                 setTimeout(() => {
-                    this.rootTasksList.splice(findPosition(this.rootTasksList, task.taskInst), 1);
+                    this.rootTasksList.splice(findIndex(this.rootTasksList, task.taskInst), 1);
                     this.tasksTree.delete(task.id);
 
                     this.setState({
-                        // linearTasksList: this.makeLinearList(this.rootTasksList),
-                        linearTasksList: this.rootTasksList,
+                        // linearTaskList: this.makeLinearList(this.rootTasksList),
+                        linearTaskList: this.rootTasksList,
                     });
                     this.props.dispatch(removeTask(false, null, null, null));
                 }, 500);
@@ -275,8 +325,8 @@ class TaskList extends React.Component {
             }
         }
         return (
-            <div className={'task_list'} id={'task_list'}>
-                {this.state.linearTasksList.map((task) =>
+            <div className={'task_list'} id={'task_list'} ref={this.taskListRef}>
+                {this.state.linearTaskList.map((task) =>
                     <TaskReact key={task.id.toString()}
                                app={this.app}
                                login={this.login}
