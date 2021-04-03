@@ -18,6 +18,7 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.knockKnock = this.knockKnock.bind(this);
+        this.appRef = React.createRef();
         this.loadingWindow = React.createRef();
         this.login = React.createRef();
         this.taskList = React.createRef();
@@ -57,14 +58,14 @@ class App extends React.Component {
 
     render() {
         return (
-            <div className={'app'} id={'app'}>
+            <div className={'app'} id={'app'} ref={this.appRef}>
                 <Header login={this.login} taskList={this.taskList}/>
                 <ConfirmWindow/>
                 <InfoWindow/>
                 <LoadingWindow ref={this.loadingWindow}/>
                 <CookiesWindow/>
                 <Login app={this} ref={this.login}/>
-                <TaskList app={this} login={this.login} ref={this.taskList}/>
+                <TaskList app={this} appRef={this.appRef} login={this.login} ref={this.taskList}/>
                 <SettingsMenuWindow login={this.login}/>
                 <ShadowModal/>
             </div>
