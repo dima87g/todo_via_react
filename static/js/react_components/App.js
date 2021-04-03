@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import {store} from "../redux/store";
 import {connect} from "react-redux";
-import {showShadowModal, showInfoWindow} from "../redux/actions";
+import {showShadowModal, showInfoWindow, hideHeaderMenu} from "../redux/actions";
 import Header from "./Header";
 import ConfirmWindow from "./windows/ConfirmWindow";
 import InfoWindow from "./windows/InfoWindow";
@@ -22,6 +22,14 @@ class App extends React.Component {
         this.loadingWindow = React.createRef();
         this.login = React.createRef();
         this.taskList = React.createRef();
+    }
+
+    componentDidMount() {
+        this.appRef.current.addEventListener('scroll', () => {
+            if (this.props.HEADER_MENU_IS_SHOWING) {
+                this.props.dispatch(hideHeaderMenu());
+            }
+        })
     }
 
     knockKnock(path, func, sendData) {
@@ -73,4 +81,10 @@ class App extends React.Component {
     }
 }
 
-export default connect()(App);
+function mapStateToProps(state) {
+    return {
+        HEADER_MENU_IS_SHOWING: state.app.HEADER_MENU_IS_SHOWING,
+    }
+}
+
+export default connect(mapStateToProps)(App);

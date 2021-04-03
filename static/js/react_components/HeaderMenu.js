@@ -15,15 +15,6 @@ class HeaderMenu extends React.Component {
 
     componentDidMount() {
         document.addEventListener(
-            'scroll',
-            (e) => {
-                if (this.props.HEADER_MENU_IS_SHOWING === true) {
-                    this.showHeaderMenu();
-                }
-            }
-        );
-
-        document.addEventListener(
             'click',
             (e) => {
                 let menu = document.getElementById('header_menu_div');
