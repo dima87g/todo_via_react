@@ -21,6 +21,13 @@ export function swap(arr, currentTaskIndex, taskToSwapIndex) {
     return newArr;
 }
 
+export function moveToStart(arr, currentTaskIndex) {
+    const newArr = [...arr];
+    let taskToMove = newArr.splice(currentTaskIndex, 1);
+    newArr.unshift(taskToMove[0]);
+    return newArr;
+}
+
 export function isInternetExplorer() {
     return window.navigator.userAgent.indexOf('MSIE ') > -1 || window.navigator.userAgent.indexOf('Trident/') > -1;
 }
