@@ -1,6 +1,6 @@
 import os
 import configparser
-from sqlalchemy import Column, INT, BIGINT, VARCHAR, create_engine, ForeignKey, Sequence
+from sqlalchemy import Column, INT, BIGINT, VARCHAR, FLOAT, create_engine, ForeignKey
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -72,7 +72,7 @@ class Task(Base):
     status = Column(INT, nullable=False, default=0)
     parent_id = Column(BIGINT, ForeignKey("tasks.id", ondelete="CASCADE"),
                        nullable=True)
-    task_position = Column(BIGINT, nullable=True)
+    task_position = Column(FLOAT, nullable=True)
     list_id = Column(BIGINT, ForeignKey("lists.id", ondelete="CASCADE"),
                      nullable=False)
 
@@ -86,33 +86,33 @@ class Task(Base):
                    self.task_position, self.list_id)
 
 
-if __name__ == "__main__":
-    Base.metadata.drop_all(engine)
-
-    Base.metadata.create_all(engine)
-
-    session = make_session()
-
-    test_user = User(
-        id=1,
-        user_text_id="jNDATAMOEE6AZwQCQiW1WWzaJttZoSMHZIBSyyAdEHjdlaptWoiDjl0bUSxjFbfA",
-        user_name="test",
-        hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
-    )
-
-    test_user_list = List(
-        id=1,
-        user_id=1,
-        name="main"
-    )
-
-    session.add(test_user)
-
-    session.commit()
-
-    session.add(test_user_list)
-
-    session.commit()
+# if __name__ == "__main__":
+#     Base.metadata.drop_all(engine)
+#
+#     Base.metadata.create_all(engine)
+#
+#     session = make_session()
+#
+#     test_user = User(
+#         id=1,
+#         user_text_id="jNDATAMOEE6AZwQCQiW1WWzaJttZoSMHZIBSyyAdEHjdlaptWoiDjl0bUSxjFbfA",
+#         user_name="test",
+#         hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
+#     )
+#
+#     test_user_list = List(
+#         id=1,
+#         user_id=1,
+#         name="main"
+#     )
+#
+#     session.add(test_user)
+#
+#     session.commit()
+#
+#     session.add(test_user_list)
+#
+#     session.commit()
 
     # dima = User(user_text_id="dimaTextId", user_name="dima",
     #             hashed_password="dimaHashedPassword")
