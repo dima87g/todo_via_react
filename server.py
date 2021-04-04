@@ -607,13 +607,15 @@ def save_task():
 
         new_task.task_position = new_task.id
         task_id = new_task.id
+        task_position = new_task.task_position
 
         session.commit()
 
         response = make_response(
             {
                 "ok": True,
-                "task_id": task_id
+                "task_id": task_id,
+                "task_position": task_position
             }, 200
         )
         response.set_cookie(
@@ -906,8 +908,6 @@ def change_position():
         data = request.json
         current_task_id = data["currentTaskId"]
         current_task_position = data["currentTaskPosition"]
-        task_to_swap_id = data["taskToSwapId"]
-        task_to_swap_position = data["taskToSwapPosition"]
 
         query = session.query(User).filter(User.user_text_id == user_text_id)
 
@@ -922,15 +922,7 @@ def change_position():
 
         current_task = query.first()
 
-        query = session.query(Task).filter(
-            Task.id == task_to_swap_id,
-            Task.user_id == user_id
-        )
-
-        task_to_swap = query.first()
-
-        current_task.task_position = task_to_swap_position
-        task_to_swap.task_position = current_task_position
+        current_task.task_position = current_task_position
 
         session.commit()
 
