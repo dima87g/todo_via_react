@@ -1,7 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import {moveTask, removeTask, showInfoWindow} from "../redux/actions";
-import {findIndex, swap} from "../todo_functions";
+import {findIndex, moveToStart, swap} from "../todo_functions";
 import {Task} from "../todo_classes";
 import TaskReact from "./TaskReact";
 
@@ -111,7 +111,7 @@ class TaskList extends React.Component {
         let currentTask = task.taskInst;
         let currentTaskIndex;
         let currentTaskId = currentTask.id
-        let currentTaskPosition = currentTask.position ? currentTask.position : currentTaskId;
+        let newCurrentTaskPosition;
         let taskToSwap;
         let taskToSwapIndex;
         let taskToSwapId;
@@ -127,40 +127,53 @@ class TaskList extends React.Component {
 
         currentTaskIndex = findIndex(taskList, currentTask);
 
-        if (taskMoveDirection === 'UP') {
-            if (currentTaskIndex > 0 && currentTaskIndex !== -1) {
+        if (taskMoveDirection === 'UP' && currentTaskIndex > 0) {
                 taskToSwapIndex = currentTaskIndex - 1;
                 taskToSwap = taskList[taskToSwapIndex]
                 taskToSwapId = taskToSwap.id;
                 taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
                 taskMovingUpId = currentTaskId;
                 taskMovingDownId = taskToSwapId;
+            if (currentTaskIndex > 1) {
+                let upperTaskIndex = currentTaskIndex - 2;
+                let upperTask = taskList[upperTaskIndex];
+                let upperTaskId = upperTask.id;
+                let upperTaskPosition = upperTask.position ? upperTask.position : upperTaskId;
+                newCurrentTaskPosition = (taskToSwapPosition + upperTaskPosition) / 2;
+            } else if (currentTaskIndex === 1) {
+                newCurrentTaskPosition = taskToSwapPosition / 2;
             } else {
                 return;
             }
-        } else if (taskMoveDirection === 'DOWN') {
-            if (currentTaskIndex < taskList.length - 1 && currentTaskIndex !== -1) {
+        } else if (taskMoveDirection === 'DOWN' && currentTaskIndex < taskList.length - 1) {
                 taskToSwapIndex = currentTaskIndex + 1;
                 taskToSwap = taskList[taskToSwapIndex];
                 taskToSwapId = taskToSwap.id;
                 taskToSwapPosition = taskToSwap.position ? taskToSwap.position: taskToSwapId;
                 taskMovingUpId = taskToSwapId;
                 taskMovingDownId = currentTaskId;
+            if (currentTaskIndex < taskList.length - 2) {
+                let lowerTaskIndex = currentTaskIndex + 2;
+                let lowerTask = taskList[lowerTaskIndex];
+                let lowerTaskId = lowerTask.id;
+                let lowerTaskPosition = lowerTask.position ? lowerTask.position : lowerTaskId;
+                newCurrentTaskPosition = (taskToSwapPosition + lowerTaskPosition) * 2;
+            } else if (currentTaskIndex === taskList.length - 2) {
+                newCurrentTaskPosition = taskToSwapPosition * 2;
             } else {
                 return;
             }
+        } else {
+            return;
         }
         let sendData = {
             'currentTaskId': currentTaskId,
-            'currentTaskPosition': currentTaskPosition,
-            'taskToSwapId': taskToSwapId,
-            'taskToSwapPosition': taskToSwapPosition,
+            'currentTaskPosition': newCurrentTaskPosition,
         }
 
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                currentTask.position = taskToSwapPosition;
-                taskToSwap.position = currentTaskPosition;
+                currentTask.position = newCurrentTaskPosition;
 
                 this.props.dispatch(moveTask(true, taskMovingUpId, taskMovingDownId, currentTaskId));
                 setTimeout(()=>{
@@ -178,27 +191,24 @@ class TaskList extends React.Component {
         let taskList = this.state.linearTaskList;
         let currentTask = task.taskInst;
         let currentTaskId = currentTask.id;
-        let currentTaskPosition = currentTask.position ? currentTask.position : currentTaskId;
         let currentTaskIndex = findIndex(taskList, currentTask);
 
         if (taskList.length > 1 && currentTaskIndex > 0) {
             let taskToSwap = taskList[0];
             let taskToSwapId = taskToSwap.id;
             let taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
+            let newCurrentTaskPosition = taskToSwapPosition / 2
 
             let sendData = {
                 'currentTaskId': currentTaskId,
-                'currentTaskPosition': currentTaskPosition,
-                'taskToSwapId': taskToSwapId,
-                'taskToSwapPosition': taskToSwapPosition,
+                'currentTaskPosition': newCurrentTaskPosition,
             }
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
-                    currentTask.position = taskToSwapPosition;
-                    taskToSwap.position = currentTaskPosition;
+                    currentTask.position = newCurrentTaskPosition;
 
                     this.setState({
-                        linearTaskList: swap(taskList, currentTaskIndex, 0),
+                        linearTaskList: moveToStart(taskList, currentTaskIndex),
                     });
                 }
             }
@@ -223,7 +233,7 @@ class TaskList extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 let taskId = response.data['task_id'];
-                let taskPosition = taskId;
+                let taskPosition = response.data['task_position'];
                 let newTask = new Task(taskId, taskText, taskPosition);
 
                 this.tasksTree.set(newTask.id, newTask);
