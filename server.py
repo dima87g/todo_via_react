@@ -58,7 +58,6 @@ routes_to_dev_check = [
 def dev_check():
     access_mode = config["access"]["access_mode"]
     if access_mode == "developer":
-        debug_print("dev")
         data = request.json
         if request.path in routes_to_dev_check or \
                 (request.path == "/user_login" and
@@ -182,46 +181,48 @@ def auth_check():
 
 @app.route("/")
 def main():
-    user_language = request.accept_languages[0][0]
+    user_language = request.cookies.get('lang')
+
+    if not user_language:
+        user_language = request.accept_languages[0][0]
     return redirect(url_for('change_language', lang=user_language))
 
 
-@app.route('/<lang>', methods=['GET', 'POST'])
+@app.route("/<lang>", methods=["GET", "POST"])
 def change_language(lang):
-    local = configparser.ConfigParser()
+    try:
+        local = configparser.ConfigParser()
 
-    if lang == 'ru':
-        local.read(os.path.dirname(__file__) + '/localisation/localisation_ru.ini')
-
-        response = make_response(
-            render_template(
-                'index.html',
-                data=config_to_dict(local)
-            )
-        )
-        response.set_cookie('lang', 'ru')
-        return response
-    elif lang == 'en':
-        local.read(os.path.dirname(__file__) + '/localisation/localisation_en.ini')
+        if lang == "ru" or lang == "ru-RU":
+            local.read(os.path.join(os.path.dirname(__file__), "localisation/localisation_ru.ini"))
+            cookie_lang = "ru"
+        elif lang == "en" or lang == "en-US":
+            local.read(os.path.join(os.path.dirname(__file__), "localisation/localisation_en.ini"))
+            cookie_lang = "en"
+        else:
+            local.read(os.path.join(os.path.dirname(__file__), "localisation/localisation_en.ini"))
+            cookie_lang = "en"
 
         response = make_response(
             render_template(
-                'index.html',
+                "index.html",
                 data=config_to_dict(local)
             )
         )
-        response.set_cookie('lang', 'en')
-        return response
-    else:
-        local.read('localisation/localisation_en.ini')
-
-        response = make_response(
-            render_template(
-                'index.html',
-                data=config_to_dict(local)
-            )
+        response.set_cookie(
+            "lang", cookie_lang, max_age=int(cookies_config["MAX_AGE"])
         )
         return response
+    except Exception:
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': None,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
 
 
 @app.route('/user_register', methods=['GET', 'POST'])
