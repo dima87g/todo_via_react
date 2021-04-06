@@ -562,8 +562,9 @@ def save_task():
         sign = request.cookies.get("sign")
         data = request.json
         list_id = data["listId"]
-        task_text = data['taskText']
-        parent_id = data['parentId']
+        task_text = data["taskText"]
+        parent_id = data["parentId"]
+        task_position = data["taskPosition"]
 
         if parent_id:
             return make_response(
@@ -599,18 +600,15 @@ def save_task():
             user_id=user_id,
             text=task_text,
             parent_id=parent_id,
-            list_id=list_id
+            list_id=list_id,
+            task_position=task_position,
         )
 
         session.add(new_task)
 
         session.commit()
 
-        new_task.task_position = new_task.id
         task_id = new_task.id
-        task_position = new_task.task_position
-
-        session.commit()
 
         response = make_response(
             {

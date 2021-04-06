@@ -224,10 +224,18 @@ class TaskList extends React.Component {
      * 'error_message': 'string' or null}
      */
     addTask(taskText) {
+        let taskPosition;
+
+        if (this.state.linearTaskList.length === 0) {
+            taskPosition = 1;
+        } else {
+            taskPosition = this.state.linearTaskList[this.state.linearTaskList.length - 1].position + 1;
+        }
         let sendData = {
             'listId': this.props.LIST_ID,
             'taskText': taskText,
-            'parentId': null
+            'parentId': null,
+            'taskPosition': taskPosition,
         };
 
         const responseHandler = (response) => {
