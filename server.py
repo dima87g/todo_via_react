@@ -59,7 +59,7 @@ def dev_check():
     access_mode = config["access"]["access_mode"]
     if access_mode == "developer":
         data = request.json
-        if request.path in routes_to_dev_check or \
+        if (request.path in routes_to_dev_check and data is not None and data["userName"] not in developers) or \
                 (request.path == "/user_login" and
                  data is not None and data["userName"] and data["userName"]
                  not in developers):
@@ -241,7 +241,7 @@ def user_register():
         session = make_session()
 
         data = request.json
-        user_name = data["newUserName"]
+        user_name = data["userName"]
         user_password = data["password"]
 
         user_text_id = create_text_id()
@@ -270,6 +270,8 @@ def user_register():
                 'ok': True
             }, 200
         )
+        if user_name in developers:
+            response = make_dev(response)
         return response
     except sqlalchemy.exc.IntegrityError as error:
         session.rollback()

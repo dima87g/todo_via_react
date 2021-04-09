@@ -202,7 +202,7 @@ class Login extends React.Component {
             this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_agreement_check_warning']));
         } else if (userName && password && confirmPassword && agreementCheckbox.checked) {
             if (password === confirmPassword) {
-                const sendData = {'newUserName': userName, 'password': password};
+                const sendData = {'userName': userName, 'password': password};
 
                 this.app.knockKnock('/user_register', responseHandler, sendData);
             }
