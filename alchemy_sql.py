@@ -18,7 +18,7 @@ port = db_config["port"]
 Base = declarative_base()
 
 engine = create_engine(
-    f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}",
+    f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}",
     echo=False,
     pool_size=int(db_config["pool_size"]),
     pool_recycle=int(db_config["pool_recycle"])
@@ -94,28 +94,28 @@ if __name__ == "__main__":
 
     Base.metadata.create_all(engine)
 
-    session = make_session()
-
-    test_user = User(
-        id=1,
-        user_text_id="jNDATAMOEE6AZwQCQiW1WWzaJttZoSMHZIBSyyAdEHjdlaptWoiDjl0bUSxjFbfA",
-        user_name="test",
-        hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
-    )
-
-    test_user_list = List(
-        id=1,
-        user_id=1,
-        name="main"
-    )
-
-    session.add(test_user)
-
-    session.commit()
-
-    session.add(test_user_list)
-
-    session.commit()
+    # session = make_session()
+    #
+    # test_user = User(
+    #     id=1,
+    #     user_text_id="jNDATAMOEE6AZwQCQiW1WWzaJttZoSMHZIBSyyAdEHjdlaptWoiDjl0bUSxjFbfA",
+    #     user_name="test",
+    #     hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
+    # )
+    #
+    # test_user_list = List(
+    #     id=1,
+    #     user_id=1,
+    #     name="main"
+    # )
+    #
+    # session.add(test_user)
+    #
+    # session.commit()
+    #
+    # session.add(test_user_list)
+    #
+    # session.commit()
 
     # dima = User(user_text_id="dimaTextId", user_name="dima",
     #             hashed_password="dimaHashedPassword")
