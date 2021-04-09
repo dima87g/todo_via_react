@@ -275,7 +275,6 @@ def user_register():
         return response
     except sqlalchemy.exc.IntegrityError as error:
         session.rollback()
-        debug_print(error.__dict__)
         return jsonify(
             {
                 'ok': False,
