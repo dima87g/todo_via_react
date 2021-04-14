@@ -309,87 +309,6 @@ def user_register():
             session.close()
 
 
-@app.route('/change_password', methods=['GET', 'POST'])
-def change_password():
-    """
-    request: json = {oldPassword: "str", newPassword: "str"}
-    response: json = {"ok": bool, "error_code": "int" or None,
-                    "error_message": "str" or None}
-    """
-    session = None
-
-    try:
-        session = make_session()
-
-        data = request.json
-        old_password = data['oldPassword']
-        new_password = data['newPassword']
-
-        user_text_id = request.cookies.get('id')
-        sign = request.cookies.get('sign')
-
-        query = session.query(User).filter(User.user_text_id == user_text_id)
-
-        user = query.first()
-
-        hashed_password = user.hashed_password
-
-        if not check_password_hash(hashed_password, old_password):
-            response = make_response(
-                {
-                    "ok": False,
-                    "error_code": None,
-                    "error_message": "Your password are incorrect!"
-                }, 200
-            )
-            return response
-
-        new_hashed_password = generate_password_hash(new_password)
-
-        user.hashed_password = new_hashed_password
-
-        session.commit()
-
-        response = make_response(
-            {
-                "ok": True
-            }, 200
-        )
-
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", signmax_age=int(cookies_config['MAX_AGE'])
-        )
-        return response
-    except sqlalchemy.exc.SQLAlchemyError:
-        session.rollback()
-        exception = sys.exc_info()
-        logger.log(exception)
-        return jsonify(
-            {
-                'ok': False,
-                'error_code': None,
-                'error_message': 'Contact admin for log checking...'
-            }
-        )
-    except Exception:
-        session.rollback()
-        exception = sys.exc_info()
-        logger.log(exception)
-        return jsonify(
-            {
-                'ok': False,
-                'error_code': None,
-                'error_message': 'Contact admin for log checking...'
-            }
-        )
-    finally:
-        if session is not None:
-            session.close()
-
-
 @app.route('/user_login', methods=['GET', 'POST'])
 def user_login():
     """
@@ -478,6 +397,87 @@ def user_login():
                 "ok": False,
                 "error_code": None,
                 "error_message": 'Contact admin for log checking...'
+            }
+        )
+    finally:
+        if session is not None:
+            session.close()
+
+
+@app.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    """
+    request: json = {oldPassword: "str", newPassword: "str"}
+    response: json = {"ok": bool, "error_code": "int" or None,
+                    "error_message": "str" or None}
+    """
+    session = None
+
+    try:
+        session = make_session()
+
+        data = request.json
+        old_password = data['oldPassword']
+        new_password = data['newPassword']
+
+        user_text_id = request.cookies.get('id')
+        sign = request.cookies.get('sign')
+
+        query = session.query(User).filter(User.user_text_id == user_text_id)
+
+        user = query.first()
+
+        hashed_password = user.hashed_password
+
+        if not check_password_hash(hashed_password, old_password):
+            response = make_response(
+                {
+                    "ok": False,
+                    "error_code": None,
+                    "error_message": "Your password are incorrect!"
+                }, 200
+            )
+            return response
+
+        new_hashed_password = generate_password_hash(new_password)
+
+        user.hashed_password = new_hashed_password
+
+        session.commit()
+
+        response = make_response(
+            {
+                "ok": True
+            }, 200
+        )
+
+        response.set_cookie(
+            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        )
+        response.set_cookie(
+            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+        )
+        return response
+    except sqlalchemy.exc.SQLAlchemyError:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': None,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
+    except Exception:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': None,
+                'error_message': 'Contact admin for log checking...'
             }
         )
     finally:
