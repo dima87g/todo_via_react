@@ -755,29 +755,24 @@ def delete_task():
         query = session.query(Task).filter(
             Task.id == task_to_delete_id,
             Task.user_id == user_id
-        )
-
-        task_to_delete = query.first()
-
-        if not task_to_delete:
-            response = make_response(
-                {
-                    "ok": False,
-                    "error_code": None,
-                    "error_message": "Task is not exists!"
-                }, 204
-            )
-            return response
-
-        session.delete(task_to_delete)
+        ).delete()
 
         session.commit()
 
-        response = make_response(
-            {
-                "ok": True
-            }, 200
-        )
+        if query == 0:
+            response = make_response(
+                {
+                    "ok": False,
+                    "del_result": query,
+                }, 200
+            )
+        else:
+            response = make_response(
+                {
+                    "ok": True,
+                    "del_result": query,
+                }, 200
+            )
         response.set_cookie(
             "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
         )
