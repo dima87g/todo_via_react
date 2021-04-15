@@ -730,7 +730,11 @@ def save_edit_task():
 @app.route("/delete_task", methods=["POST"])
 def delete_task():
     """
-    request: json = {taskId = "int"}
+    request: json = {
+                listId: "int",
+                taskId: "int",
+                taskPosition: "int"
+            }
     response:
     if OK = True: json =  {"ok": "bool"}
     if OK = False : json = {"ok": "bool", "error_code": "int" or None,
@@ -744,7 +748,9 @@ def delete_task():
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
         data = request.json
-        task_to_delete_id = data['taskId']
+        list_id = data["listId"]
+        task_to_delete_id = data["taskId"]
+        task_to_delete_position = data["taskPosition"]
 
         query = session.query(User).filter(User.user_text_id == user_text_id)
 
@@ -756,6 +762,13 @@ def delete_task():
             Task.id == task_to_delete_id,
             Task.user_id == user_id
         ).delete()
+
+        session.query(Task).filter(
+            Task.list_id == list_id,
+            Task.task_position > task_to_delete_position
+        ).update(
+            {Task.task_position: Task.task_position - 1}
+        )
 
         session.commit()
 

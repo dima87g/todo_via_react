@@ -288,24 +288,30 @@ class TaskList extends React.Component {
     // }
 
     /**
-     * POST: {taskId: 'number'}
+     * POST: json = {
+     *          listId: 'number',
+     *          taskId: 'number',
+     *          taskPosition: 'number'
+     *      }
      * GET:
-     * if OK = true: json = {'ok': true}
-     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-     * 'error_message': 'string' or null}
-     * @param task
+     * if OK = true: json = {'ok': true, 'del_result': 1}
+     * if OK = false: json = {
+     *                      'ok': 'boolean',
+     *                      'del_result': 0,
+     *                      'error_code': 'number' or null,
+     *                      'error_message': 'string' or null
+     *                      }
+     * @param task {TaskReact} Task instance of React.Component
      */
     removeTask(task) {
-        let sendData = {'taskId': task.id}
+        const sendData = {
+            'listId': this.props.LIST_ID,
+            'taskId': task.id,
+            'taskPosition': task.taskInst.position
+        }
+        let taskList = [...this.state.linearTaskList];
         const responseHandler = (answer) => {
             if (answer.status === 200 && answer.data['ok'] === true) {
-                // if (this.tasksTree.has(task.taskInst.parentId)) {
-                //     let childrenList = this.tasksTree.get(task.taskInst.parentId).subtasks;
-                //     childrenList.splice(childrenList.indexOf(task.taskInst), 1);
-                // } else {
-                //     this.rootTasksList.splice(this.rootTasksList.indexOf(task.taskInst), 1);
-                // }
-
                 let removingTaskId = task.id;
                 let removingTaskPosition = task.taskInst.position;
                 let removingTaskHeight = task.taskDiv.current.offsetHeight;
@@ -313,12 +319,18 @@ class TaskList extends React.Component {
                 this.props.dispatch(removeTask(true, removingTaskId, removingTaskPosition, removingTaskHeight));
 
                 setTimeout(() => {
-                    this.rootTasksList.splice(findIndex(this.rootTasksList, task.taskInst), 1);
+                    taskList.splice(findIndex(taskList, task.taskInst), 1);
+
                     this.tasksTree.delete(task.id);
 
+                    for (let task of taskList) {
+                        if (task.position > removingTaskPosition) {
+                            task.position -= 1;
+                        }
+                    }
+
                     this.setState({
-                        // linearTaskList: this.makeLinearList(this.rootTasksList),
-                        linearTaskList: this.rootTasksList,
+                        linearTaskList: taskList,
                     });
                     this.props.dispatch(removeTask(false, null, null, null));
                 }, 500);
