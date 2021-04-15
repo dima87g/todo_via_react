@@ -1,6 +1,6 @@
 import unittest
 from server import app
-from alchemy_sql import Base, engine
+from alchemy_sql import Base, User, engine, make_session
 
 app.testing = True
 
@@ -27,6 +27,60 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(response.status, "200 OK")
 
 
+class RegisterTests(unittest.TestCase):
+    def setUp(self) -> None:
+        Base.metadata.create_all(engine)
+
+    def tearDown(self) -> None:
+        Base.metadata.drop_all(engine)
+
+    def test_user_register_success(self):
+        with app.test_client() as client:
+            response = client.post(
+                "/user_register",
+                json={
+                    "userName": "test",
+                    "password": "Trcbjyt1"
+                },
+                follow_redirects=True
+            )
+        data = response.json
+        session = make_session()
+        query = session.query(User).filter(User.user_name == "test")
+        user = query.first()
+        user_name = user.user_name
+        session.close()
+        self.assertEqual(data["ok"], True)
+        self.assertEqual(user_name, "test")
+
+    def test_user_register_integrity_error(self):
+        with app.test_client() as client:
+            client.post(
+                "/user_register",
+                json={
+                    "userName": "test",
+                    "password": "12345"
+                },
+                follow_redirects=True
+            )
+            response = client.post(
+                "/user_register",
+                json={
+                    "userName": "test",
+                    "password": "12345"
+                },
+                follow_redirects=True
+            )
+        data = response.json
+
+        expect = {
+            "error_code": 1062,
+            "error_message": "Contact admin for log checking...",
+            "ok": False
+        }
+        self.assertEqual(data, expect)
+
+
 class ApiTesting(unittest.TestCase):
     def setUp(self) -> None:
         Base.metadata.create_all(engine)
@@ -34,46 +88,6 @@ class ApiTesting(unittest.TestCase):
     def tearDown(self) -> None:
         Base.metadata.drop_all(engine)
 
-    # def test_user_register_success(self):
-    #     with app.test_client() as client:
-    #         response = client.post(
-    #             "/user_register",
-    #             json={
-    #                 "userName": "test",
-    #                 "password": "Trcbjyt1"
-    #             },
-    #             follow_redirects=True
-    #         )
-    #         data = response.json
-    #     self.assertEqual(data["ok"], True)
-    #
-    # def test_user_register_integrity_error(self):
-    #     with app.test_client() as client:
-    #         client.post(
-    #             "/user_register",
-    #             json={
-    #                 "userName": "test",
-    #                 "password": "12345"
-    #             },
-    #             follow_redirects=True
-    #         )
-    #
-    #         response = client.post(
-    #             "/user_register",
-    #             json={
-    #                 "userName": "test",
-    #                 "password": "12345"
-    #             },
-    #             follow_redirects=True
-    #         )
-    #         data = response.json
-    #
-    #         expect = {
-    #             "error_code": 1062,
-    #             "error_message": "Contact admin for log checking...",
-    #             "ok": False
-    #         }
-    #         self.assertEqual(data, expect)
     #
     # def test_user_Login_success(self):
     #     with app.test_client() as client:
