@@ -5,18 +5,26 @@ from alchemy_sql import Base, engine
 app.testing = True
 
 
-# class MyTestCase(unittest.TestCase):
-#     def test_main_lang_ru(self):
-#         with app.test_client() as client:
-#             client.set_cookie("localhost", "lang", "ru")
-#             response = client.get("/", follow_redirects=True)
-#         self.assertEqual(response.status, "200 OK")
-#
-#     def test_main_lang_en(self):
-#         with app.test_client() as client:
-#             client.set_cookie("localhost", "lang", "en")
-#             response = client.get("/", follow_redirects=True)
-#         self.assertEqual(response.status, "200 OK")
+class MyTestCase(unittest.TestCase):
+    def test_main_lang_ru(self):
+        with app.test_client() as client:
+            client.set_cookie("localhost", "lang", "ru")
+            response = client.get("/", follow_redirects=True)
+        self.assertEqual(response.status, "200 OK")
+
+    def test_main_lang_en(self):
+        with app.test_client() as client:
+            client.set_cookie("localhost", "lang", "en")
+            response = client.get("/", follow_redirects=True)
+        self.assertEqual(response.status, "200 OK")
+
+    def test_main_lang_default(self):
+        with app.test_client() as client:
+            response = client.get(
+                "/",
+                follow_redirects=True
+            )
+        self.assertEqual(response.status, "200 OK")
 
 
 class ApiTesting(unittest.TestCase):
