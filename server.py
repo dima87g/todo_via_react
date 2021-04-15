@@ -184,7 +184,9 @@ def main():
     user_language = request.cookies.get('lang')
 
     if not user_language:
-        user_language = request.accept_languages[0][0]
+        user_language = request.accept_languages.best
+    if not user_language:
+        user_language = "default"
     return redirect(url_for('change_language', lang=user_language))
 
 
