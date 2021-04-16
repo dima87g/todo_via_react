@@ -305,11 +305,11 @@ class TaskReact extends React.Component {
                             onClick={this.finishTask}>
                         <img src="/static/icons/check.svg" alt="V"/>
                     </button>
-                    <button className={showSubtaskDivButtonStyle}
-                            onClick={this.showSubtaskField}
-                            disabled={true}>
-                        +
-                    </button>
+                    {/*<button className={showSubtaskDivButtonStyle}*/}
+                    {/*        onClick={this.showSubtaskField}*/}
+                    {/*        disabled={true}>*/}
+                    {/*    +*/}
+                    {/*</button>*/}
                     <p className={taskTextStyle}
                        onClick={this.showEditTaskField}>{this.state.taskTextValue}</p>
                     <button className={removeTaskButtonStyle}
@@ -318,19 +318,19 @@ class TaskReact extends React.Component {
                             disabled={this.state.removeTaskButtonDisabled}>
                         <img src="/static/icons/delete.svg" alt=""/>
                     </button>
-                    <div className={addSubtaskDivStyle}>
-                        <input className={addSubtaskTextFieldStyle}
-                               type={"text"}
-                               maxLength={255}
-                               onKeyDown={this.addSubtaskByEnterKey}
-                               ref={this.addSubtaskField}/>
-                        <button className={addSubtaskButtonStyle}
-                                type={'button'}
-                                disabled={this.state.addSubtaskButtonDisabled}
-                                onClick={this.addSubtask}>
-                            <img src="/static/icons/add_sub.svg" alt="+"/>
-                        </button>
-                    </div>
+                    {/*<div className={addSubtaskDivStyle}>*/}
+                    {/*    <input className={addSubtaskTextFieldStyle}*/}
+                    {/*           type={"text"}*/}
+                    {/*           maxLength={255}*/}
+                    {/*           onKeyDown={this.addSubtaskByEnterKey}*/}
+                    {/*           ref={this.addSubtaskField}/>*/}
+                    {/*    <button className={addSubtaskButtonStyle}*/}
+                    {/*            type={'button'}*/}
+                    {/*            disabled={this.state.addSubtaskButtonDisabled}*/}
+                    {/*            onClick={this.addSubtask}>*/}
+                    {/*        <img src="/static/icons/add_sub.svg" alt="+"/>*/}
+                    {/*    </button>*/}
+                    {/*</div>*/}
                     <div className={editTaskDivStyle}>
                         <textarea
                             className={editTaskTextFieldStyle}
