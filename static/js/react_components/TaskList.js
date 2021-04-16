@@ -21,7 +21,6 @@ class TaskList extends React.Component {
             linearTaskList: this.rootTasksList,
         }
         this.addTask = this.addTask.bind(this);
-        // this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
         this.taskListRef = React.createRef();
     }
@@ -84,22 +83,6 @@ class TaskList extends React.Component {
             this.appRef.current.scrollTop = snapshot;
         }
     }
-
-    // makeLinearList(tasksList) {
-    //     let linearTaskList = [];
-    //
-    //     function recursionWalk(tasksList) {
-    //         for (let task of tasksList) {
-    //             linearTaskList.push(task);
-    //             if (task.subtasks.length > 0) {
-    //                 recursionWalk(task.subtasks);
-    //             }
-    //         }
-    //     }
-    //     recursionWalk(tasksList);
-    //
-    //     return linearTaskList;
-    // }
 
     /**
      * POST: json = {
@@ -268,35 +251,6 @@ class TaskList extends React.Component {
         }
         this.app.knockKnock('/save_task', responseHandler, sendData);
     }
-
-    /**
-     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
-     * GET:
-     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
-     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-     * 'error_message': 'string' or null}
-     */
-    // addSubtask(subtaskParentId, subtaskText) {
-    //     let sendData = {'taskText': subtaskText, 'parentId': subtaskParentId}
-    //
-    //     const add = (answer) => {
-    //         if (answer.status === 200) {
-    //             let taskId = answer.data['task_id'];
-    //             let newTask = new Task(taskId, subtaskText, subtaskParentId);
-    //
-    //             this.tasksTree.set(taskId, newTask);
-    //             this.tasksTree.get(subtaskParentId).subtasks.push(newTask);
-    //
-    //             this.setState({
-    //                 linearTaskList : this.makeLinearList(this.rootTasksList),
-    //             })
-    //         } else if (answer.status === 401) {
-    //             this.login.current.forceLogOut();
-    //             this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
-    //         }
-    //     }
-    //     this.app.knockKnock('/save_task', add, sendData);
-    // }
 
     /**
      * POST: json = {
