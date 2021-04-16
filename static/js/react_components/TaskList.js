@@ -245,13 +245,13 @@ class TaskList extends React.Component {
                 let taskId = response.data['task_id'];
                 let taskPosition = response.data['task_position'];
                 let newTask = new Task(taskId, taskText, taskPosition);
+                let taskList = [...this.state.linearTaskList]
 
                 this.tasksTree.set(newTask.id, newTask);
-                this.rootTasksList.push(newTask);
+                taskList.push(newTask);
 
                 this.setState({
-                    // linearTaskList: this.makeLinearList(this.rootTasksList),
-                    linearTaskList: this.rootTasksList,
+                    linearTaskList: taskList,
                 })
             } else if (response.status === 204) {
                 this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']))
@@ -345,7 +345,7 @@ class TaskList extends React.Component {
 
     render() {
         const LetStart = () => {
-            if (this.rootTasksList.length === 0) {
+            if (this.state.linearTaskList.length === 0) {
                 return (
                     <div id={'let_start_div'} className={'let_start_div'}>
                         <img id={'let_start_image'} className={'let_start_image'} src={'static/favicon.ico'} alt={'let`s start!'}/>
