@@ -102,78 +102,71 @@ class TaskList extends React.Component {
     // }
 
     /**
-     *
-     * @param task
-     * @param taskMoveDirection
+     * POST: json = {
+     *     listId: 'number',
+     *     currentTaskId: 'number',
+     *     currentTaskOldPosition: 'number',
+     *     currentTaskNewPosition: 'number'
+     * }
+     * RESPONSE:
+     * if OK === true: json = {
+     *     'ok': 'boolean'
+     * }
+     * if OK === false: json = {
+     *     'ok': 'boolean'
+     * }
+     * @param task {TaskReact} Task instance of React.Component
+     * @param taskMoveDirection {string}
      */
     moveTask(task, taskMoveDirection) {
         let taskList;
         let currentTask = task.taskInst;
+        let currentTaskId = currentTask.id;
+        let currentTaskOldPosition = currentTask.position;
         let currentTaskIndex;
-        let currentTaskId = currentTask.id
-        let newCurrentTaskPosition;
+        let currentTaskNewPosition;
         let taskToSwap;
         let taskToSwapIndex;
         let taskToSwapId;
-        let taskToSwapPosition;
         let taskMovingUpId;
         let taskMovingDownId;
 
         if (currentTask.parentId) {
             taskList = this.tasksTree.get(currentTask.parentId).subtasks;
         } else {
-            taskList = this.state.linearTaskList;
+            taskList = [...this.state.linearTaskList];
         }
 
         currentTaskIndex = findIndex(taskList, currentTask);
 
         if (taskMoveDirection === 'UP' && currentTaskIndex > 0) {
-                taskToSwapIndex = currentTaskIndex - 1;
-                taskToSwap = taskList[taskToSwapIndex]
-                taskToSwapId = taskToSwap.id;
-                taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
-                taskMovingUpId = currentTaskId;
-                taskMovingDownId = taskToSwapId;
-            if (currentTaskIndex > 1) {
-                let upperTaskIndex = currentTaskIndex - 2;
-                let upperTask = taskList[upperTaskIndex];
-                let upperTaskId = upperTask.id;
-                let upperTaskPosition = upperTask.position ? upperTask.position : upperTaskId;
-                newCurrentTaskPosition = (taskToSwapPosition + upperTaskPosition) / 2;
-            } else if (currentTaskIndex === 1) {
-                newCurrentTaskPosition = taskToSwapPosition / 2;
-            } else {
-                return;
-            }
+            taskToSwapIndex = currentTaskIndex - 1;
+            taskToSwap = taskList[taskToSwapIndex]
+            taskToSwapId = taskToSwap.id;
+            currentTaskNewPosition = taskToSwap.position;
+            taskMovingUpId = currentTaskId;
+            taskMovingDownId = taskToSwapId;
         } else if (taskMoveDirection === 'DOWN' && currentTaskIndex < taskList.length - 1) {
-                taskToSwapIndex = currentTaskIndex + 1;
-                taskToSwap = taskList[taskToSwapIndex];
-                taskToSwapId = taskToSwap.id;
-                taskToSwapPosition = taskToSwap.position ? taskToSwap.position: taskToSwapId;
-                taskMovingUpId = taskToSwapId;
-                taskMovingDownId = currentTaskId;
-            if (currentTaskIndex < taskList.length - 2) {
-                let lowerTaskIndex = currentTaskIndex + 2;
-                let lowerTask = taskList[lowerTaskIndex];
-                let lowerTaskId = lowerTask.id;
-                let lowerTaskPosition = lowerTask.position ? lowerTask.position : lowerTaskId;
-                newCurrentTaskPosition = (taskToSwapPosition + lowerTaskPosition) * 2;
-            } else if (currentTaskIndex === taskList.length - 2) {
-                newCurrentTaskPosition = taskToSwapPosition * 2;
-            } else {
-                return;
-            }
+            taskToSwapIndex = currentTaskIndex + 1;
+            taskToSwap = taskList[taskToSwapIndex];
+            taskToSwapId = taskToSwap.id;
+            currentTaskNewPosition = taskToSwap.position;
+            taskMovingUpId = taskToSwapId;
+            taskMovingDownId = currentTaskId;
         } else {
             return;
         }
         let sendData = {
+            'listId': this.props.LIST_ID,
             'currentTaskId': currentTaskId,
-            'currentTaskPosition': newCurrentTaskPosition,
+            'currentTaskOldPosition': currentTaskOldPosition,
+            'currentTaskNewPosition': currentTaskNewPosition
         }
 
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                currentTask.position = newCurrentTaskPosition;
+                currentTask.position = currentTaskNewPosition;
+                taskToSwap.position = currentTaskOldPosition;
 
                 this.props.dispatch(moveTask(true, taskMovingUpId, taskMovingDownId, currentTaskId));
                 setTimeout(()=>{
@@ -187,6 +180,15 @@ class TaskList extends React.Component {
         this.app.knockKnock('/change_position', responseHandler, sendData);
     }
 
+    /**
+     * POST: json = {
+     *
+     * }
+     * RESPONSE: json = {
+     *
+     * }
+     * @param task {TaskReact} Task instance of React.Component
+     */
     moveToTop(task) {
         let taskList = this.state.linearTaskList;
         let currentTask = task.taskInst;
