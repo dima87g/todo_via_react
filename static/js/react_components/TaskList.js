@@ -219,9 +219,18 @@ class TaskList extends React.Component {
     }
 
     /**
-     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
-     * GET:
-     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+     * POST: json = {
+     *          listId: 'number',
+     *          taskText: 'string',
+     *          parentId: 'number',
+     *          taskPosition: 'number'
+     * }
+     * RESPONSE:
+     * if OK = true: json = {
+     *                  ok: true,
+     *                  task_id: 'number',
+     *                  task_position: 'number'
+     *              }
      * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
      * 'error_message': 'string' or null}
      */
