@@ -899,8 +899,12 @@ def finish_task():
 @app.route("/change_position", methods=["POST"])
 def change_position():
     """
-    request: json = {currentTaskId: "int", currentTaskPosition: "int",
-                    taskToSwapID: "int", taskToSwapPosition: "int"}
+    request: json = {
+                listId: "int,
+                currentTaskId: "int",
+                currentTaskOldPosition: "int",
+                currentTaskNewPosition: "int"
+            }
     response:
     if OK = True: json =  {"ok": "bool"}
     if OK = False : json = {"ok": "bool", "error_code": "int" or None,
@@ -914,23 +918,44 @@ def change_position():
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
         data = request.json
+        list_id = data["listId"]
         current_task_id = data["currentTaskId"]
-        current_task_position = data["currentTaskPosition"]
-
-        query = session.query(User).filter(User.user_text_id == user_text_id)
-
-        user = query.first()
-
-        user_id = user.id
+        current_task_old_position = data["currentTaskOldPosition"]
+        current_task_new_position = data["currentTaskNewPosition"]
 
         query = session.query(Task).filter(
             Task.id == current_task_id,
-            Task.user_id == user_id
+            Task.list_id == list_id
         )
 
         current_task = query.first()
 
-        current_task.task_position = current_task_position
+        current_task.task_position = 0
+
+        if current_task_old_position - current_task_new_position > 0:
+            session.query(Task).filter(
+                Task.list_id == list_id,
+                Task.task_position >= current_task_new_position,
+                Task.task_position < current_task_old_position
+            ).update(
+                {Task.task_position: Task.task_position + 1}
+            )
+        elif current_task_old_position - current_task_new_position < 0:
+            session.query(Task).filter(
+                Task.list_id == list_id,
+                Task.task_position > current_task_old_position,
+                Task.task_position <= current_task_new_position
+            ).update(
+                {Task.task_position: Task.task_position - 1}
+            )
+        else:
+            return jsonify(
+                {
+                    "ok": False
+                }
+            )
+
+        current_task.task_position = current_task_new_position
 
         session.commit()
 
