@@ -955,7 +955,7 @@ def change_position():
         elif current_task_old_position - current_task_new_position < 0:
             session.execute(
                 "UPDATE tasks SET task_position = task_position - 1 WHERE list_id = :list_id AND "
-                "task_position > :old_position AND task_position <= :new_position",
+                "task_position > :old_position AND task_position <= :new_position ORDER BY task_position",
                 {
                     "list_id": list_id,
                     "new_position": current_task_new_position,
