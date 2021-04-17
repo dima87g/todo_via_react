@@ -930,23 +930,37 @@ def change_position():
 
         current_task = query.first()
 
-        current_task.task_position = 0
+        if current_task.task_position == current_task_new_position:
+            return jsonify(
+                {
+                    "ok": True
+                }
+            )
+
+        current_task.task_position = None
+
+        session.flush()
 
         if current_task_old_position - current_task_new_position > 0:
-            session.query(Task).filter(
-                Task.list_id == list_id,
-                Task.task_position >= current_task_new_position,
-                Task.task_position < current_task_old_position
-            ).update(
-                {Task.task_position: Task.task_position + 1}
+            session.execute(
+                "UPDATE tasks SET task_position = task_position + 1 WHERE list_id = :list_id AND "
+                "task_position >= :new_position AND task_position < :old_position ORDER BY task_position DESC",
+                {
+                    "list_id": list_id,
+                    "new_position": current_task_new_position,
+                    "old_position": current_task_old_position
+                }
             )
+
         elif current_task_old_position - current_task_new_position < 0:
-            session.query(Task).filter(
-                Task.list_id == list_id,
-                Task.task_position > current_task_old_position,
-                Task.task_position <= current_task_new_position
-            ).update(
-                {Task.task_position: Task.task_position - 1}
+            session.execute(
+                "UPDATE tasks SET task_position = task_position - 1 WHERE list_id = :list_id AND "
+                "task_position > :old_position AND task_position <= :new_position",
+                {
+                    "list_id": list_id,
+                    "new_position": current_task_new_position,
+                    "old_position": current_task_old_position
+                }
             )
         else:
             return jsonify(
