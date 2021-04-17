@@ -21,7 +21,6 @@ class TaskList extends React.Component {
             linearTaskList: this.rootTasksList,
         }
         this.addTask = this.addTask.bind(this);
-        // this.addSubtask = this.addSubtask.bind(this);
         this.removeTask = this.removeTask.bind(this);
         this.taskListRef = React.createRef();
     }
@@ -85,95 +84,72 @@ class TaskList extends React.Component {
         }
     }
 
-    // makeLinearList(tasksList) {
-    //     let linearTaskList = [];
-    //
-    //     function recursionWalk(tasksList) {
-    //         for (let task of tasksList) {
-    //             linearTaskList.push(task);
-    //             if (task.subtasks.length > 0) {
-    //                 recursionWalk(task.subtasks);
-    //             }
-    //         }
-    //     }
-    //     recursionWalk(tasksList);
-    //
-    //     return linearTaskList;
-    // }
-
     /**
-     *
-     * @param task
-     * @param taskMoveDirection
+     * POST: json = {
+     *     listId: 'number',
+     *     currentTaskId: 'number',
+     *     currentTaskOldPosition: 'number',
+     *     currentTaskNewPosition: 'number'
+     * }
+     * RESPONSE:
+     * if OK === true: json = {
+     *     'ok': 'boolean'
+     * }
+     * if OK === false: json = {
+     *     'ok': 'boolean'
+     * }
+     * @param task {TaskReact} Task instance of React.Component
+     * @param taskMoveDirection {string}
      */
     moveTask(task, taskMoveDirection) {
         let taskList;
         let currentTask = task.taskInst;
+        let currentTaskId = currentTask.id;
+        let currentTaskOldPosition = currentTask.position;
         let currentTaskIndex;
-        let currentTaskId = currentTask.id
-        let newCurrentTaskPosition;
+        let currentTaskNewPosition;
         let taskToSwap;
         let taskToSwapIndex;
         let taskToSwapId;
-        let taskToSwapPosition;
         let taskMovingUpId;
         let taskMovingDownId;
 
         if (currentTask.parentId) {
             taskList = this.tasksTree.get(currentTask.parentId).subtasks;
         } else {
-            taskList = this.state.linearTaskList;
+            taskList = [...this.state.linearTaskList];
         }
 
         currentTaskIndex = findIndex(taskList, currentTask);
 
         if (taskMoveDirection === 'UP' && currentTaskIndex > 0) {
-                taskToSwapIndex = currentTaskIndex - 1;
-                taskToSwap = taskList[taskToSwapIndex]
-                taskToSwapId = taskToSwap.id;
-                taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
-                taskMovingUpId = currentTaskId;
-                taskMovingDownId = taskToSwapId;
-            if (currentTaskIndex > 1) {
-                let upperTaskIndex = currentTaskIndex - 2;
-                let upperTask = taskList[upperTaskIndex];
-                let upperTaskId = upperTask.id;
-                let upperTaskPosition = upperTask.position ? upperTask.position : upperTaskId;
-                newCurrentTaskPosition = (taskToSwapPosition + upperTaskPosition) / 2;
-            } else if (currentTaskIndex === 1) {
-                newCurrentTaskPosition = taskToSwapPosition / 2;
-            } else {
-                return;
-            }
+            taskToSwapIndex = currentTaskIndex - 1;
+            taskToSwap = taskList[taskToSwapIndex]
+            taskToSwapId = taskToSwap.id;
+            currentTaskNewPosition = taskToSwap.position;
+            taskMovingUpId = currentTaskId;
+            taskMovingDownId = taskToSwapId;
         } else if (taskMoveDirection === 'DOWN' && currentTaskIndex < taskList.length - 1) {
-                taskToSwapIndex = currentTaskIndex + 1;
-                taskToSwap = taskList[taskToSwapIndex];
-                taskToSwapId = taskToSwap.id;
-                taskToSwapPosition = taskToSwap.position ? taskToSwap.position: taskToSwapId;
-                taskMovingUpId = taskToSwapId;
-                taskMovingDownId = currentTaskId;
-            if (currentTaskIndex < taskList.length - 2) {
-                let lowerTaskIndex = currentTaskIndex + 2;
-                let lowerTask = taskList[lowerTaskIndex];
-                let lowerTaskId = lowerTask.id;
-                let lowerTaskPosition = lowerTask.position ? lowerTask.position : lowerTaskId;
-                newCurrentTaskPosition = (taskToSwapPosition + lowerTaskPosition) * 2;
-            } else if (currentTaskIndex === taskList.length - 2) {
-                newCurrentTaskPosition = taskToSwapPosition * 2;
-            } else {
-                return;
-            }
+            taskToSwapIndex = currentTaskIndex + 1;
+            taskToSwap = taskList[taskToSwapIndex];
+            taskToSwapId = taskToSwap.id;
+            currentTaskNewPosition = taskToSwap.position;
+            taskMovingUpId = taskToSwapId;
+            taskMovingDownId = currentTaskId;
         } else {
             return;
         }
         let sendData = {
+            'listId': this.props.LIST_ID,
             'currentTaskId': currentTaskId,
-            'currentTaskPosition': newCurrentTaskPosition,
+            'currentTaskOldPosition': currentTaskOldPosition,
+            'currentTaskNewPosition': currentTaskNewPosition
         }
 
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                currentTask.position = newCurrentTaskPosition;
+                currentTask.position = currentTaskNewPosition;
+                taskToSwap.position = currentTaskOldPosition;
 
                 this.props.dispatch(moveTask(true, taskMovingUpId, taskMovingDownId, currentTaskId));
                 setTimeout(()=>{
@@ -187,25 +163,48 @@ class TaskList extends React.Component {
         this.app.knockKnock('/change_position', responseHandler, sendData);
     }
 
+    /**
+     * POST: json = {
+     *          listId: 'number',
+     *          currentTaskId: 'number,
+     *          currentTaskOldPosition: 'number',
+     *          currentTaskNewPosition: 'number'
+     * }
+     * RESPONSE:
+     * if OK === true: json = {
+     *     'ok': 'boolean'
+     * }
+     * if OK === false: json = {
+     *     'ok': 'boolean'
+     * }
+     * @param task {TaskReact} Task instance of React.Component
+     */
     moveToTop(task) {
-        let taskList = this.state.linearTaskList;
+        let taskList = [...this.state.linearTaskList];
         let currentTask = task.taskInst;
         let currentTaskId = currentTask.id;
         let currentTaskIndex = findIndex(taskList, currentTask);
 
         if (taskList.length > 1 && currentTaskIndex > 0) {
             let taskToSwap = taskList[0];
-            let taskToSwapId = taskToSwap.id;
-            let taskToSwapPosition = taskToSwap.position ? taskToSwap.position : taskToSwapId;
-            let newCurrentTaskPosition = taskToSwapPosition / 2
+            let currentTaskOldPosition = currentTask.position;
+            let currentTaskNewPosition = taskToSwap.position;
 
             let sendData = {
+                'listId': this.props.LIST_ID,
                 'currentTaskId': currentTaskId,
-                'currentTaskPosition': newCurrentTaskPosition,
+                'currentTaskOldPosition': currentTaskOldPosition,
+                'currentTaskNewPosition': currentTaskNewPosition
             }
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
-                    currentTask.position = newCurrentTaskPosition;
+
+                    for (let task of taskList) {
+                        if (task.position >= currentTaskNewPosition) {
+                            task.position += 1;
+                        }
+                    }
+                    currentTask.position = currentTaskNewPosition;
 
                     this.setState({
                         linearTaskList: moveToStart(taskList, currentTaskIndex),
@@ -217,9 +216,18 @@ class TaskList extends React.Component {
     }
 
     /**
-     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
-     * GET:
-     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
+     * POST: json = {
+     *          listId: 'number',
+     *          taskText: 'string',
+     *          parentId: 'number',
+     *          taskPosition: 'number'
+     * }
+     * RESPONSE:
+     * if OK = true: json = {
+     *                  ok: true,
+     *                  task_id: 'number',
+     *                  task_position: 'number'
+     *              }
      * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
      * 'error_message': 'string' or null}
      */
@@ -243,13 +251,13 @@ class TaskList extends React.Component {
                 let taskId = response.data['task_id'];
                 let taskPosition = response.data['task_position'];
                 let newTask = new Task(taskId, taskText, taskPosition);
+                let taskList = [...this.state.linearTaskList]
 
                 this.tasksTree.set(newTask.id, newTask);
-                this.rootTasksList.push(newTask);
+                taskList.push(newTask);
 
                 this.setState({
-                    // linearTaskList: this.makeLinearList(this.rootTasksList),
-                    linearTaskList: this.rootTasksList,
+                    linearTaskList: taskList,
                 })
             } else if (response.status === 204) {
                 this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']))
@@ -257,35 +265,6 @@ class TaskList extends React.Component {
         }
         this.app.knockKnock('/save_task', responseHandler, sendData);
     }
-
-    /**
-     * POST: json = {'taskText': 'string', 'parentId' = 'number'}
-     * GET:
-     * if OK = true: json = {'ok': 'boolean', 'task_id': 'number'}
-     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-     * 'error_message': 'string' or null}
-     */
-    // addSubtask(subtaskParentId, subtaskText) {
-    //     let sendData = {'taskText': subtaskText, 'parentId': subtaskParentId}
-    //
-    //     const add = (answer) => {
-    //         if (answer.status === 200) {
-    //             let taskId = answer.data['task_id'];
-    //             let newTask = new Task(taskId, subtaskText, subtaskParentId);
-    //
-    //             this.tasksTree.set(taskId, newTask);
-    //             this.tasksTree.get(subtaskParentId).subtasks.push(newTask);
-    //
-    //             this.setState({
-    //                 linearTaskList : this.makeLinearList(this.rootTasksList),
-    //             })
-    //         } else if (answer.status === 401) {
-    //             this.login.current.forceLogOut();
-    //             this.props.dispatch(showInfoWindow(true, 'Authorisation problem!'));
-    //         }
-    //     }
-    //     this.app.knockKnock('/save_task', add, sendData);
-    // }
 
     /**
      * POST: json = {
@@ -343,7 +322,7 @@ class TaskList extends React.Component {
 
     render() {
         const LetStart = () => {
-            if (this.rootTasksList.length === 0) {
+            if (this.state.linearTaskList.length === 0) {
                 return (
                     <div id={'let_start_div'} className={'let_start_div'}>
                         <img id={'let_start_image'} className={'let_start_image'} src={'static/favicon.ico'} alt={'let`s start!'}/>
