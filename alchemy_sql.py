@@ -72,9 +72,9 @@ class Task(Base):
     status = Column(INT, nullable=False, default=0)
     parent_id = Column(BIGINT, ForeignKey("tasks.id", ondelete="CASCADE"),
                        nullable=True)
-    task_position = Column(BIGINT)
     list_id = Column(BIGINT, ForeignKey("lists.id", ondelete="CASCADE"),
                      nullable=False)
+    task_position = Column(BIGINT)
 
     # children = relationship("Task", back_populates="")
     # list = relationship("List")
