@@ -19,7 +19,8 @@ module.exports = (env, argv) => {
       rules: [
         {
           test: /\.m?js$/,
-          exclude: /node_modules/,
+            include: path.resolve(__dirname, 'static/js'),
+            exclude: /node_modules/,
           use: {
             loader: "babel-loader",
             options: {
