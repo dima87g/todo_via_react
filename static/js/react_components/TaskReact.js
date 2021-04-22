@@ -39,6 +39,19 @@ class TaskReact extends React.Component {
         this.editTaskField = React.createRef();
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.status !== this.props.status) {
+            this.setState({
+                status: this.props.status,
+            });
+        }
+        if (this.state.taskTextValue !== this.props.taskText) {
+            this.setState({
+                taskTextValue: this.props.taskText,
+            });
+        }
+    }
+
     /**
      * POST: json = {'task_id': 'number', 'status': 'boolean'}
      * GET:
@@ -67,6 +80,7 @@ class TaskReact extends React.Component {
             this.taskList.removeTask(this);
         }
     }
+
     forceRemoveTask() {
         this.taskList.removeTask(this);
     }

@@ -324,6 +324,24 @@ class Login extends React.Component {
         }
     }
 
+    listRefresh() {
+        const sendData = {
+            'listId': this.props.LIST_ID
+        }
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                let tasksFromServer = response.data['tasks'];
+                let currentListId = response.data['list_id'];
+                let listsDict = response.data['lists_dict'];
+
+                this.listSelectMenu = Object.entries(listsDict);
+
+                this.props.dispatch(createList(this.userName, currentListId, this.listSelectMenu, tasksFromServer));
+            }
+        }
+        this.app.knockKnock('/load_tasks', responseHandler, sendData);
+    }
+
     createNewListWindow() {
         if (this.state.createNewListWindowShowed === false) {
             this.props.dispatch(showShadowModal(true));

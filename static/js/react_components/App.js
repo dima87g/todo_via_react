@@ -17,6 +17,7 @@ import SettingsMenuWindow from "./windows/SettingsMenuWindow";
 class App extends React.Component {
     constructor(props) {
         super(props);
+        this.networkError = false;
         this.knockKnock = this.knockKnock.bind(this);
         this.appRef = React.createRef();
         this.loadingWindow = React.createRef();
@@ -35,33 +36,46 @@ class App extends React.Component {
     knockKnock(path, func, sendData) {
         //TODO make refactor on knockKnock, maybe it may need to some changes
         const req = axios.default;
-        this.loadingWindow.current.showWindow();
-        req.post(path, sendData)
+        if (this.networkError === true) {
+            this.networkError = false;
+            this.login.current.listRefresh();
+            this.props.dispatch(showInfoWindow(true, 'There were network error. Refreshing data.'));
+        } else {
+            this.loadingWindow.current.showWindow();
+            req.post(path, sendData, {timeout: 1000})
             .then((response) => {
                 this.loadingWindow.current.hideWindow();
                 if (response.headers['content-type'] === 'application/json') {
                     func(response);
+                    this.networkError = false;
                 }
             })
             .catch((error) => {
                 this.loadingWindow.current.hideWindow();
                 console.log(error);
-                console.log(error.response);
-                if (error.response.status === 401 && error.config.url === '/user_login') {
-                    func(error.response);
-                } else if (error.response.status === 401 && error.config.url !== '/auth_check') {
-                    console.log(error.config.url);
-                    this.login.current.forceLogOut();
-                    this.props.dispatch(showInfoWindow(true, localisation['error_messages']['authorisation_error']));
-                } else if (error.response.status === 403) {
-                    store.dispatch(showShadowModal(true));
-                    store.dispatch(showInfoWindow(true, error.response.data['error_message']));
+                if (error.request) {
+                    if (error.code === 'ECONNABORTED') {
+                        this.networkError = true;
+                    }
+                } else if (error.response) {
+                    console.log(error.response);
+                    if (error.response.status === 401 && error.config.url === '/user_login') {
+                        func(error.response);
+                    } else if (error.response.status === 401 && error.config.url !== '/auth_check') {
+                        console.log(error.config.url);
+                        this.login.current.forceLogOut();
+                        this.props.dispatch(showInfoWindow(true, localisation['error_messages']['authorisation_error']));
+                    } else if (error.response.status === 403) {
+                        store.dispatch(showShadowModal(true));
+                        store.dispatch(showInfoWindow(true, error.response.data['error_message']));
+                    }
+                    else if (error.response.status) {
+                        func(error.response);
+                    }
                 }
-                else if (error.response.status) {
-                    func(error.response);
-                }
-                // func(error.response);
+                console.log(error.config);
             })
+        }
     }
 
     render() {
