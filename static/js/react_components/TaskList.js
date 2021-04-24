@@ -20,6 +20,7 @@ class TaskList extends React.Component {
         this.state = {
             linearTaskList: this.rootTasksList,
         }
+        this.finishTask = this.finishTask.bind(this);
         this.addTask = this.addTask.bind(this);
         this.removeTask = this.removeTask.bind(this);
         this.taskListRef = React.createRef();
@@ -82,6 +83,31 @@ class TaskList extends React.Component {
             // this.appRef.current.scrollTop = this.taskListRef.current.scrollHeight - snapshot;
             this.appRef.current.scrollTop = snapshot;
         }
+    }
+
+    /**
+     * POST: json = {'task_id': 'number', 'status': 'boolean'}
+     * GET:
+     * if OK = true: json = {'ok': true}
+     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
+     * 'error_message': 'string' or null}
+     */
+    finishTask(task) {
+        let taskStatus = task.taskInst.status === false;
+        const sendData = {
+            'taskId': task.id,
+            'status': taskStatus
+        }
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                task.taskInst.status = taskStatus
+                let taskList = [...this.state.linearTaskList];
+                this.setState({
+                    linearTaskList: taskList
+                });
+            }
+        }
+        this.app.knockKnock('/finish_task', responseHandler, sendData);
     }
 
     /**

@@ -15,7 +15,7 @@ class Login extends React.Component {
     constructor(props) {
         super(props);
         this.app = this.props.app;
-        this.username = null,
+        this.username = null;
         this.state = {
             loginWindowShowed: true,
             loginWindowSwitchButtonDisabled: false,

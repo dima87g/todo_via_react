@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from "react";
+import React from "react";
 import {connect} from "react-redux";
-import {hideTaskEditField, showInfoWindow, showShadowModal, showTaskEditField} from "../redux/actions";
+import {hideTaskEditField, showShadowModal, showTaskEditField} from "../redux/actions";
 import {isInternetExplorer} from "../todo_functions";
 
 
@@ -14,7 +14,6 @@ class TaskReact extends React.Component {
         this.taskInst = this.props.taskInst;
         this.id = this.props.taskId;
         this.state = {
-            status: this.props.status,
             taskTextValue: this.props.taskText,
             taskTextShowed: true,
             subtaskDivShowed: false,
@@ -40,43 +39,21 @@ class TaskReact extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.state.status !== this.props.status) {
-            this.setState({
-                status: this.props.status,
-            });
-        }
-        if (this.state.taskTextValue !== this.props.taskText) {
+        if (this.taskInst !== this.props.taskInst) {
+            this.taskInst = this.props.taskInst;
+            this.id = this.props.taskId;
             this.setState({
                 taskTextValue: this.props.taskText,
             });
         }
     }
 
-    /**
-     * POST: json = {'task_id': 'number', 'status': 'boolean'}
-     * GET:
-     * if OK = true: json = {'ok': true}
-     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-     * 'error_message': 'string' or null}
-     */
     finishTask() {
-        let taskStatus = this.state.status === false;
-        let sendData = {
-            'taskId': this.id,
-            'status': taskStatus
-        };
-        const responseHandler = (response) => {
-            if (response.status === 200 && response.data['ok'] === true) {
-                this.setState({
-                    status: taskStatus
-                });
-            }
-        }
-        this.app.knockKnock('/finish_task', responseHandler, sendData);
+        this.taskList.finishTask(this);
     }
 
     removeTask() {
-        if (this.state.status === true) {
+        if (this.props.status === true) {
             this.taskList.removeTask(this);
         }
     }
@@ -313,7 +290,7 @@ class TaskReact extends React.Component {
                     <i className="fas fa-angle-double-up"/>
                     <i className="fas fa-angle-double-up"/>
                 </button>
-                <div className={this.state.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
+                <div className={this.props.status === false ? 'task_div_content' : 'task_div_content finished_task'}>
                     <button className={'task_finish_button'}
                             type={'button'}
                             onClick={this.finishTask}>

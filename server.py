@@ -9,7 +9,6 @@ import configparser
 import os
 import sys
 import logger_man
-import time
 
 # TODO try resolve code duplicate in functions
 
@@ -665,7 +664,6 @@ def save_edit_task():
     session = None
 
     try:
-        time.sleep(2)
         session = make_session()
 
         user_text_id = request.cookies.get('id')
@@ -834,7 +832,6 @@ def finish_task():
     session = None
 
     try:
-        time.sleep(2)
         session = make_session()
 
         user_text_id = request.cookies.get("id")
@@ -916,7 +913,6 @@ def change_position():
     session = None
 
     try:
-        time.sleep(2)
         session = make_session()
 
         user_text_id = request.cookies.get("id")

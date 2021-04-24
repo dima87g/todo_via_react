@@ -34,8 +34,7 @@ class App extends React.Component {
     }
 
     knockKnock(path, func, sendData) {
-        //TODO make refactor on knockKnock, maybe it may need to some changes
-        const req = axios.default;
+        const req = axios.create();
         if (this.networkError === true) {
             this.networkError = false;
             this.login.current.listRefresh();
