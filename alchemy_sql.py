@@ -1,6 +1,6 @@
 import os
 import configparser
-from sqlalchemy import Column, INT, BIGINT, VARCHAR, Index, create_engine, ForeignKey
+from sqlalchemy import Column, INT, BIGINT, VARCHAR, BOOLEAN, Index, create_engine, ForeignKey
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -85,8 +85,25 @@ class Task(Base):
                    self.user_id, self.text, self.status, self.parent_id,
                    self.task_position, self.list_id)
 
+class Setting(Base):
+    __tablename__ = 'settings'
+
+    id = Column(BIGINT, nullable=False, primary_key=True, unique=True)
+    user_id = Column(BIGINT, nullable=False)
+    setting_name = Column(VARCHAR(255), nullable=False)
+    string_val = Column(VARCHAR(255), nullable=True)
+    int_val = Column(BIGINT, nullable=True)
+    bool_val = Column(BOOLEAN, nullable=True)
+
+    def __repr__(self):
+        return "<Task(user_id = '%s', setting_name = '%s', string_val = '%s', int_val " \
+               "= '%s', bool_val = '%s')>" % (
+                   self.user_id, self.setting_name, self.string_val, self.int_val,
+                   self.bool_val)
+
 
 Index("task_position", Task.list_id, Task.task_position, unique=True)
+Index("user_settings", Setting.user_id, Setting.setting_name, unique=True)
 
 # Code above is for development purpose
 if __name__ == "__main__":
