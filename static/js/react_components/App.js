@@ -38,7 +38,7 @@ class App extends React.Component {
         if (this.networkError === true) {
             this.networkError = false;
             this.login.current.listRefresh();
-            this.props.dispatch(showInfoWindow(true, 'There were network error. Refreshing data.'));
+            this.props.dispatch(showInfoWindow(true, localisation['error_messages']['network_error']));
         } else {
             this.loadingWindow.current.showWindow();
             req.post(path, sendData, {timeout: 1000})
@@ -54,6 +54,7 @@ class App extends React.Component {
                 console.log(error);
                 if (error.request) {
                     if (error.code === 'ECONNABORTED') {
+                        this.props.dispatch(showInfoWindow(true, localisation['error_messages']['timeout_error']))
                         this.networkError = true;
                     }
                 } else if (error.response) {
