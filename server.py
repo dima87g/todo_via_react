@@ -1444,6 +1444,16 @@ def create_text_id():
     return "".join(salt)
 
 
+def renew_cookies(response, user_text_id, sign):
+    response.set_cookie(
+        "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+    )
+    response.set_cookie(
+        "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+    )
+    return response
+
+
 def make_dev(response):
     dev_cookie = create_text_id()
     dev_cookie_sign = hashlib.sha256()
