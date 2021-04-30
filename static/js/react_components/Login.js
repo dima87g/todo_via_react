@@ -9,7 +9,7 @@ import {
     showShadowModal
 } from "../redux/actions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
-import SettingsMenu from "./windows/SettingsMenuWindow";
+import {moveTaskToTopByUpButton} from "../redux/settingsActions";
 
 class Login extends React.Component {
     constructor(props) {
@@ -52,11 +52,46 @@ class Login extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 this.props.dispatch(showCookiesAlertWindow(false));
+                this.getSettings();
                 this.createTaskList();
                 this.hideLoginWindow();
             }
         }
         this.app.knockKnock('/auth_check', responseHandler);
+    }
+
+    /**
+     * POST
+     *
+     * RESPONSE: json = {
+     *     ok: boolean,
+     *     settings: list = [
+     *         {
+     *             'setting_id': number,
+     *             'string_value': string,
+     *             'int_value': number,
+     *             'bool_value': boolean
+     *         }
+     *     ]
+     * }
+     */
+    getSettings() {
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                let settingsList = response.data['settings'];
+                for (let setting of settingsList) {
+                    let settingName = setting['setting_name'];
+                    let stringValue = setting['string_value'];
+                    let intValue = setting['int_value'];
+                    let boolValue = setting['bool_value'];
+                    switch (settingName) {
+                        case 'Move to top by up button':
+                            this.props.dispatch(moveTaskToTopByUpButton(boolValue));
+                    }
+                }
+            }
+        }
+        this.app.knockKnock('/load_settings', responseHandler, null);
     }
 
     switchLogin(e) {
@@ -125,6 +160,7 @@ class Login extends React.Component {
             const data = {'userName': userName, 'password': password}
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
+                    this.getSettings();
                     this.createTaskList();
                     this.hideLoginWindow();
                 } else if (response.status === 401) {
