@@ -1,11 +1,13 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideSettingsMenu, moveTaskToTopByUpButton} from "../../redux/actions";
+import {hideSettingsMenu} from "../../redux/actions";
+import {moveTaskToTopByUpButton} from "../../redux/settingsActions"
 
 
 class SettingsMenuWindow extends React.Component {
     constructor(props) {
         super(props);
+        this.app = this.props.app;
         this.login = this.props.login;
         this.closeSettingsMenu = this.closeSettingsMenu.bind(this);
         this.moveToTopCheckbox = this.moveToTopCheckbox.bind(this);
@@ -18,12 +20,33 @@ class SettingsMenuWindow extends React.Component {
         this.props.dispatch(hideSettingsMenu());
     }
 
+    /**
+     * POST: json = {
+     *     settingName: 'string',
+     *     stringVal: null,
+     *     intVal: null,
+     *     boolVal: 'boolean'
+     * }
+     *
+     * RESPONSE: json = {
+     *     ok: 'boolean'
+     * }
+     * @param e {Event} checkbox click event
+     */
     moveToTopCheckbox(e) {
-        if (e.target.checked) {
-            this.props.dispatch(moveTaskToTopByUpButton(true));
-        } else {
-            this.props.dispatch(moveTaskToTopByUpButton(false));
+        let boxIsChecked = e.target.checked;
+        const sendData = {
+            'settingName': 'Move to top by up button',
+            'stringVal': null,
+            'intVal': null,
+            'boolVal': boxIsChecked
         }
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                this.props.dispatch(moveTaskToTopByUpButton(boxIsChecked));
+            }
+        }
+        this.app.knockKnock('/change_setting', responseHandler, sendData);
     }
 
     changePassword() {
@@ -43,11 +66,17 @@ class SettingsMenuWindow extends React.Component {
 
     render() {
         let settingsMenuWindowStyle;
+        let moveTaskToTopCheckboxChecked;
 
         if (this.props.SETTINGS_MENU_IS_VISIBLE) {
             settingsMenuWindowStyle = 'settings_window';
         } else {
             settingsMenuWindowStyle = 'settings_window settings_window_hidden';
+        }
+        if(this.props.MOVE_TASK_TO_TOP_BY_UP_BUTTON) {
+            moveTaskToTopCheckboxChecked = true;
+        } else {
+            moveTaskToTopCheckboxChecked = false;
         }
         return (
             <div className={settingsMenuWindowStyle}>
@@ -61,7 +90,10 @@ class SettingsMenuWindow extends React.Component {
                         {localisation['settings_window']['to_bottom_checkbox']}
                     </label>
                     <label className={'settings_window_checkbox_label'}>
-                        <input type={'checkbox'} className={'settings_window_checkbox'} onChange={this.moveToTopCheckbox}/>
+                        <input type={'checkbox'}
+                               className={'settings_window_checkbox'}
+                               checked={moveTaskToTopCheckboxChecked}
+                               onChange={this.moveToTopCheckbox}/>
                         {localisation['settings_window']['task_to_top_by_up_button']}
                     </label>
                     <input
@@ -96,6 +128,7 @@ class SettingsMenuWindow extends React.Component {
 function mapStateToProps(state) {
     return {
         SETTINGS_MENU_IS_VISIBLE: state.app.SETTINGS_MENU_IS_VISIBLE,
+        MOVE_TASK_TO_TOP_BY_UP_BUTTON: state.settings.MOVE_TASK_TO_TOP_BY_UP_BUTTON,
     }
 }
 
