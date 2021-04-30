@@ -1,7 +1,7 @@
 import os
 import configparser
 from sqlalchemy import Column, INT, BIGINT, VARCHAR, BOOLEAN, Index, create_engine, ForeignKey
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 config = configparser.ConfigParser()
@@ -39,8 +39,6 @@ class User(Base):
     user_name = Column(VARCHAR(128), nullable=False, unique=True)
     hashed_password = Column(VARCHAR(255), nullable=False)
 
-    # lists = relationship("List")
-
     def __repr__(self):
         return "<User(user_text_id = '%s', user_name = '%s', " \
                "hashed_password ='%s')>" % (self.user_text_id, self.user_name,
@@ -54,9 +52,6 @@ class List(Base):
     user_id = Column(BIGINT, ForeignKey("users.id", ondelete="CASCADE"),
                      nullable=False)
     name = Column(VARCHAR(255), nullable=False)
-
-    # user = relationship("User")
-    # tasks = relationship("Task")
 
     def __repr__(self):
         return "<List(user_id = '%s', name = '%s')>" % \
@@ -76,34 +71,44 @@ class Task(Base):
                      nullable=False)
     task_position = Column(BIGINT)
 
-    # children = relationship("Task", back_populates="")
-    # list = relationship("List")
-
     def __repr__(self):
         return "<Task(user_id = '%s', text = '%s', status = '%s', parent_id " \
                "= '%s', task_position = '%s', list_id = '%s')>" % (
                    self.user_id, self.text, self.status, self.parent_id,
                    self.task_position, self.list_id)
 
+
 class Setting(Base):
-    __tablename__ = 'settings'
+    __tablename__ = "settings"
 
     id = Column(BIGINT, nullable=False, primary_key=True, unique=True)
-    user_id = Column(BIGINT, nullable=False)
-    setting_name = Column(VARCHAR(255), nullable=False)
+    name = Column(VARCHAR(255), nullable=False)
+
+    def __repr__(self):
+        return "<Setting(id = '%s', name = '%s')>" % (self.id, self.name)
+
+
+class UserSetting(Base):
+    __tablename__ = 'user_settings'
+
+    id = Column(BIGINT, nullable=False, primary_key=True, unique=True)
+    user_id = Column(BIGINT, ForeignKey("users.id", ondelete="CASCADE"),
+                     nullable=False)
+    setting_id = Column(BIGINT, ForeignKey("settings.id", ondelete="CASCADE"),
+                        nullable=False)
     string_val = Column(VARCHAR(255), nullable=True)
     int_val = Column(BIGINT, nullable=True)
     bool_val = Column(BOOLEAN, nullable=True)
 
     def __repr__(self):
-        return "<Task(user_id = '%s', setting_name = '%s', string_val = '%s', int_val " \
+        return "<UserSetting(user_id = '%s', setting_id = '%s', string_val = '%s', int_val " \
                "= '%s', bool_val = '%s')>" % (
-                   self.user_id, self.setting_name, self.string_val, self.int_val,
+                   self.user_id, self.setting_id, self.string_val, self.int_val,
                    self.bool_val)
 
 
 Index("task_position", Task.list_id, Task.task_position, unique=True)
-Index("user_settings", Setting.user_id, Setting.setting_name, unique=True)
+Index("user_settings", UserSetting.user_id, UserSetting.setting_id, unique=True)
 
 # Code above is for development purpose
 if __name__ == "__main__":
