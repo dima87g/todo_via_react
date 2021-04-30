@@ -41,7 +41,7 @@ class App extends React.Component {
             this.props.dispatch(showInfoWindow(true, localisation['error_messages']['network_error']));
         } else {
             this.loadingWindow.current.showWindow();
-            req.post(path, sendData, {timeout: 1000})
+            req.post(path, sendData, {timeout: 10000})
             .then((response) => {
                 this.loadingWindow.current.hideWindow();
                 if (response.headers['content-type'] === 'application/json') {
