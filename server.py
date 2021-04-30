@@ -1315,7 +1315,6 @@ def load_settings():
             UserSetting.user_id == user_id
         )
         user_settings = query.all()
-        debug_print(user_settings)
 
         for setting_name, setting in user_settings:
             settings_list.append(
