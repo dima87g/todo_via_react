@@ -131,10 +131,39 @@ if __name__ == "__main__":
         name="main"
     )
 
+    move_up_setting = Setting(
+        name="Move to top by UP button"
+    )
+
+    setting_2 = Setting(
+        name="Setting2"
+    )
+
+    setting_3 = Setting(
+        name="setting3"
+    )
+
+    test_user_setting = UserSetting(
+        user_id=1,
+        setting_id=3,
+        bool_val=False
+    )
+
+    test_user_setting_2 = UserSetting(
+        user_id=1,
+        setting_id=1,
+        bool_val=True
+    )
+
     session.add(test_user)
+    session.add(move_up_setting)
+    session.add(setting_2)
+    session.add(setting_3)
 
     session.commit()
 
     session.add(test_user_list)
+    session.add(test_user_setting)
+    session.add(test_user_setting_2)
 
     session.commit()
