@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, make_response, \
     redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-from alchemy_sql import make_session, User, List, Task
+from alchemy_sql import make_session, User, List, Task, Setting, UserSetting
 import hashlib
 import random
 import sqlalchemy.exc
@@ -1269,6 +1269,143 @@ def delete_list():
         response.set_cookie(
             "sign", sign, max_age=int(cookies_config["MAX_AGE"])
         )
+        return response
+    except sqlalchemy.exc.SQLAlchemyError:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    except Exception:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    finally:
+        if session is not None:
+            session.close()
+
+
+@app.route("/load_settings", methods=["POST"])
+def load_settings():
+    session = None
+    try:
+        settings_list = []
+        session = make_session()
+
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        query = session.query(User).filter(User.user_text_id == user_text_id)
+        user = query.first()
+        user_id = user.id
+
+        query = session.query(Setting, UserSetting).join(Setting).filter(
+            UserSetting.user_id == user_id
+        )
+        user_settings = query.all()
+        debug_print(user_settings)
+
+        for setting_name, setting in user_settings:
+            settings_list.append(
+                {
+                    "setting_name": setting_name.name,
+                    "string_value": setting.string_val,
+                    "int_value": setting.int_val,
+                    "bool_value": setting.bool_val
+                }
+            )
+
+        response = make_response(
+            {
+                "ok": True,
+                "settings": settings_list
+            }
+        )
+        response = renew_cookies(response, user_text_id, sign)
+        return response
+    except sqlalchemy.exc.SQLAlchemyError:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    except Exception:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    finally:
+        if session is not None:
+            session.close()
+
+
+@app.route("/change_setting", methods=["POST"])
+def change_setting():
+    session = None
+    try:
+        session = make_session()
+
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        data = request.json
+        setting_name = data["settingName"]
+        string_value = data["stringVal"]
+        int_value = data["intVal"]
+        bool_value = data["boolVal"]
+
+        query = session.query(User).filter(User.user_text_id == user_text_id)
+        user = query.first()
+        query = session.query(Setting).filter(Setting.name == setting_name)
+        setting = query.first()
+        setting_id = setting.id
+
+        session.execute(
+            "INSERT INTO user_settings "
+            "(user_id, setting_id, string_val, int_val, bool_val) "
+            "VALUES (:user_id, :setting_id, :string_val, :int_val, :bool_val) "
+            "ON DUPLICATE KEY UPDATE "
+            "string_val = :string_val, "
+            "int_val = :int_val,"
+            "bool_val = :bool_val",
+            {
+                "user_id": user.id,
+                "setting_id": setting_id,
+                "string_val": string_value,
+                "int_val": int_value,
+                "bool_val": bool_value
+            }
+        )
+        session.commit()
+        response = make_response(
+            {
+                "ok": True
+            }, 200
+        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
