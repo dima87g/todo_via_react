@@ -340,6 +340,7 @@ class TaskList extends React.Component {
                     this.props.dispatch(removeTask(false, null, null, null));
                 }, 500);
             } else if (answer.status === 200 && answer.data['del_result'] === 0) {
+                this.app.networkError = true;
                 this.props.dispatch(showInfoWindow(true, localisation['error_messages']['task_is_not_exists']));
             }
         }
