@@ -1311,8 +1311,9 @@ def load_settings():
         user = query.first()
         user_id = user.id
 
-        query = session.query(Setting, UserSetting).join(Setting).filter(
-            UserSetting.user_id == user_id
+        query = session.query(Setting, UserSetting).filter(
+            UserSetting.user_id == user_id,
+            UserSetting.setting_id == Setting.id
         )
         user_settings = query.all()
 
