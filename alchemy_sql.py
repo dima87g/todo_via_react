@@ -125,9 +125,22 @@ if __name__ == "__main__":
         hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
     )
 
+    test_user_2 = User(
+        id=2,
+        user_text_id="NhjcIK5C5eiANEyWO7ntw-DwNPnMEovn4narbIdu75jZ106bVs6amesUSgn--Bp-",
+        user_name="qwerty",
+        hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
+    )
+
     test_user_list = List(
         id=1,
         user_id=1,
+        name="main"
+    )
+
+    test_user_2_list = List(
+        id=2,
+        user_id=2,
         name="main"
     )
 
@@ -155,7 +168,14 @@ if __name__ == "__main__":
         bool_val=True
     )
 
+    test_user_2_setting = UserSetting(
+        user_id=2,
+        setting_id=2,
+        bool_val=True
+    )
+
     session.add(test_user)
+    session.add(test_user_2)
     session.add(move_up_setting)
     session.add(setting_2)
     session.add(setting_3)
@@ -163,7 +183,9 @@ if __name__ == "__main__":
     session.commit()
 
     session.add(test_user_list)
+    session.add(test_user_2_list)
     session.add(test_user_setting)
     session.add(test_user_setting_2)
+    session.add(test_user_2_setting)
 
     session.commit()
