@@ -1,7 +1,14 @@
-export function showCookiesAlertWindow(value) {
+export function showCookiesAlertWindow() {
     return {
         type: 'COOKIES_WINDOW_IS_VISIBLE',
-        value,
+        value: true,
+    }
+}
+
+export function hideCookiesAlertWindow() {
+    return {
+        type: 'COOKIES_WINDOW_IS_VISIBLE',
+        value: false,
     }
 }
 
