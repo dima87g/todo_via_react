@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {showCookiesAlertWindow} from "../../redux/actions";
+import {hideCookiesAlertWindow} from "../../redux/actions";
 
 class CookiesWindow extends React.Component {
     constructor(props) {
@@ -9,21 +9,16 @@ class CookiesWindow extends React.Component {
     }
 
     closeCookiesWindow() {
-        this.props.dispatch(showCookiesAlertWindow('hiding'));
-        setTimeout(() => {
-            this.props.dispatch(showCookiesAlertWindow(false));
-        }, 500);
+        this.props.dispatch(hideCookiesAlertWindow());
     }
 
     render() {
         let cookiesAlertWindowStyle;
 
         if (this.props.COOKIES_WINDOW_IS_VISIBLE === true) {
-            cookiesAlertWindowStyle = 'cookies_alert_window cookies_alert_window_showed';
-        } else if (this.props.COOKIES_WINDOW_IS_VISIBLE === 'hiding') {
-            cookiesAlertWindowStyle = 'cookies_alert_window cookies_alert_window_showed cookies_alert_window_opacity';
-        } else {
             cookiesAlertWindowStyle = 'cookies_alert_window';
+        } else {
+            cookiesAlertWindowStyle = 'cookies_alert_window cookies_alert_window_hidden';
         }
 
         return (

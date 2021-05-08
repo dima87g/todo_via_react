@@ -705,23 +705,23 @@ html, body {
 }
 /*Styles for show/hide shadow animation*/
 
+/*Styles for show/hide cookies alert window animation*/
 .cookies_alert_window {
     position: fixed;
+    display: block;
     top: 0;
     background-color: black;
     opacity: 0.8;
     z-index: 1000;
-    display: none;
-    transition: opacity 0.5s;
+    transition: opacity 0.5s,
+                visibility 0.5s;
 }
 
-.cookies_alert_window_opacity {
+.cookies_alert_window_hidden {
+    visibility: hidden;
     opacity: 0;
 }
-
-.cookies_alert_window_showed {
-    display: block;
-}
+/*Styles for show/hide cookies alert window animation*/
 
 /* Temporal styles for settings menu window */
 .settings_window {
