@@ -2,9 +2,10 @@ import React from "react";
 import {connect} from "react-redux";
 import {
     createList,
-    hideAuthMenu, showAuthMenu,
+    hideAuthMenu,
+    hideCookiesAlertWindow,
+    showAuthMenu,
     showConfirmWindow,
-    showCookiesAlertWindow,
     showInfoWindow,
     showShadowModal
 } from "../redux/actions";
@@ -51,7 +52,7 @@ class Login extends React.Component {
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                this.props.dispatch(showCookiesAlertWindow(false));
+                this.props.dispatch(hideCookiesAlertWindow());
                 this.getSettings();
                 this.createTaskList();
                 this.hideLoginWindow();
@@ -85,7 +86,7 @@ class Login extends React.Component {
                     let intValue = setting['int_value'];
                     let boolValue = setting['bool_value'];
                     switch (settingName) {
-                        case 'Move to top by up button':
+                        case 'Move to top by UP button':
                             this.props.dispatch(moveTaskToTopByUpButton(boolValue));
                     }
                 }
@@ -183,6 +184,7 @@ class Login extends React.Component {
             this.listSelectMenu = [];
 
             this.props.dispatch(createList('', null, [], []));
+            this.props.dispatch(logOut());
 
             this.showLoginWindow();
         }
