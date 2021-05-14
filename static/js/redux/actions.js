@@ -1,3 +1,9 @@
+export function userLogOut() {
+    return {
+        type: 'USER_LOGOUT',
+    }
+}
+
 export function showCookiesAlertWindow() {
     return {
         type: 'COOKIES_WINDOW_IS_VISIBLE',
