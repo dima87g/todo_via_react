@@ -7,7 +7,8 @@ import {
     showAuthMenu,
     showConfirmWindow,
     showInfoWindow,
-    showShadowModal
+    showShadowModal,
+    userLogOut
 } from "../redux/actions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
 import {moveTaskToTopByUpButton} from "../redux/settingsActions";
@@ -184,7 +185,7 @@ class Login extends React.Component {
             this.listSelectMenu = [];
 
             this.props.dispatch(createList('', null, [], []));
-            this.props.dispatch(logOut());
+            this.props.dispatch(userLogOut());
 
             this.showLoginWindow();
         }
