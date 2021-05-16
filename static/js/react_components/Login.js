@@ -162,6 +162,7 @@ class Login extends React.Component {
             const data = {'userName': userName, 'password': password}
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
+                    this.props.dispatch(hideCookiesAlertWindow());
                     this.getSettings();
                     this.createTaskList();
                     this.hideLoginWindow();
