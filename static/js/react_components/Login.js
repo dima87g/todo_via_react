@@ -325,11 +325,26 @@ class Login extends React.Component {
         }
     }
 
-    createTaskList() {
-        let sendData = {'listId': null}
+    /**
+     * POST: json = {
+     *     listId: number
+     * }
+     *
+     * RESPONSE: json = {
+     *     ok: boolean,
+     *     user_name: string,
+     *     list_id: number,
+     *     lists_dict: Object,
+     *     tasks: Array
+     * }
+     * @param listId {number || null}
+     */
+    loadList(listId = null) {
+        const sendData = {
+            'listId': listId
+        }
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                this.userName = response.data['user_name'];
                 let tasksFromServer = response.data['tasks'];
                 let currentListId = response.data['list_id'];
                 let listsDict = response.data['lists_dict'];
@@ -340,45 +355,23 @@ class Login extends React.Component {
             }
         }
         this.app.knockKnock('/load_tasks', responseHandler, sendData);
+    }
+
+    createTaskList() {
+        this.loadList();
     }
 
     listChange(e) {
         let selectedListId = e.target.value;
 
         if (selectedListId !== this.props.LIST_ID) {
-            let sendData = {'listId': selectedListId};
-
-            const responseHandler = (response) => {
-                if (response.status === 200 && response.data['ok'] === true) {
-                    let tasksFromServer = response.data['tasks'];
-                    let currentListId = response.data['list_id'];
-                    let listsDict = response.data['lists_dict'];
-
-                    this.listSelectMenu = Object.entries(listsDict);
-
-                    this.props.dispatch(createList(this.userName, currentListId, this.listSelectMenu, tasksFromServer));
-                }
-            }
-            this.app.knockKnock('/load_tasks', responseHandler, sendData);
+            this.loadList(selectedListId);
         }
     }
 
     listRefresh() {
-        const sendData = {
-            'listId': this.props.LIST_ID
-        }
-        const responseHandler = (response) => {
-            if (response.status === 200 && response.data['ok'] === true) {
-                let tasksFromServer = response.data['tasks'];
-                let currentListId = response.data['list_id'];
-                let listsDict = response.data['lists_dict'];
-
-                this.listSelectMenu = Object.entries(listsDict);
-
-                this.props.dispatch(createList(this.userName, currentListId, this.listSelectMenu, tasksFromServer));
-            }
-        }
-        this.app.knockKnock('/load_tasks', responseHandler, sendData);
+        let listId = this.props.LIST_ID;
+        this.loadList(listId);
     }
 
     createNewListWindow() {
