@@ -37,7 +37,6 @@ class Login extends React.Component {
         this.changePasswordWindow = this.changePasswordWindow.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
-        this.listChange = this.listChange.bind(this);
         this.createNewListWindow = this.createNewListWindow.bind(this);
         this.createNewList = this.createNewList.bind(this);
         //TODO maybe it will be better to use HTML forms selectors, instead of refs????
