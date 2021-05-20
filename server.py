@@ -151,13 +151,24 @@ def before_request():
 
 @app.route("/auth_check", methods=["GET", "POST"])
 def auth_check():
+    session = None
     try:
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
 
+        session = make_session()
+
+        query = session.query(User).filter(
+            User.user_text_id == user_text_id
+        )
+
+        user = query.first()
+        user_name = user.user_name
+
         response = make_response(
             {
-                "ok": True
+                "ok": True,
+                "user_name": user_name,
             }, 200
         )
         response.set_cookie(
@@ -167,6 +178,17 @@ def auth_check():
             "sign", sign, max_age=int(cookies_config['MAX_AGE'])
         )
         return response
+    except sqlalchemy.exc.SQLAlchemyError:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
     except BaseException:
         exception = sys.exc_info()
         logger.log(exception)
