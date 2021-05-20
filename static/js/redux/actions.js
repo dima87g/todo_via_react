@@ -1,16 +1,3 @@
-export function userLogOut() {
-    return {
-        type: 'USER_LOGOUT',
-    }
-}
-
-export function showCookiesAlertWindow() {
-    return {
-        type: 'COOKIES_WINDOW_IS_VISIBLE',
-        value: true,
-    }
-}
-
 export function hideCookiesAlertWindow() {
     return {
         type: 'COOKIES_WINDOW_IS_VISIBLE',
@@ -39,17 +26,6 @@ export function showInfoWindow(value, message) {
         type: 'INFO_WINDOW_IS_VISIBLE',
         value,
         message,
-    }
-}
-
-export function createList(userName, listId, listSelectMenu, tasksFromServer) {
-    //TODO Need to rename and refactor this function
-    return {
-        type: 'CREATE_LIST',
-        userName,
-        listId,
-        listSelectMenu,
-        tasksFromServer,
     }
 }
 
@@ -85,18 +61,6 @@ export function hideHeaderMenu() {
     }
 }
 
-export function showAuthMenu() {
-    return {
-        type: 'SHOW_AUTH_MENU',
-    }
-}
-
-export function hideAuthMenu() {
-    return {
-        type: 'HIDE_AUTH_MENU',
-    }
-}
-
 export function showSettingsMenu() {
     return {
         type: 'SHOW_SETTINGS_MENU',
@@ -118,12 +82,5 @@ export function showTaskEditField() {
 export function hideTaskEditField() {
     return {
         type: 'HIDE_TASK_EDIT_FIELD',
-    }
-}
-
-export function test(value) {
-    return {
-        type: 'TEST',
-        value,
     }
 }
