@@ -1,23 +1,26 @@
 import React from "react";
 import {connect} from "react-redux";
 import {
-    createList,
-    hideAuthMenu,
     hideCookiesAlertWindow,
-    showAuthMenu,
     showConfirmWindow,
     showInfoWindow,
     showShadowModal,
-    userLogOut
 } from "../redux/actions";
+import {
+    userLogIn,
+    showAuthMenu,
+    hideAuthMenu,
+    createList,
+    userLogOut,
+} from "../redux/reducers/loginActions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
 import {moveTaskToTopByUpButton} from "../redux/settingsActions";
+
 
 class Login extends React.Component {
     constructor(props) {
         super(props);
         this.app = this.props.app;
-        this.username = null;
         this.state = {
             loginWindowShowed: true,
             loginWindowSwitchButtonDisabled: false,
@@ -52,7 +55,9 @@ class Login extends React.Component {
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
+                let userName = response.data['user_name'];
                 this.props.dispatch(hideCookiesAlertWindow());
+                this.props.dispatch(userLogIn(userName));
                 this.getSettings();
                 this.createTaskList();
                 this.hideLoginWindow();
@@ -162,6 +167,7 @@ class Login extends React.Component {
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
                     this.props.dispatch(hideCookiesAlertWindow());
+                    this.props.dispatch(userLogIn(userName));
                     this.getSettings();
                     this.createTaskList();
                     this.hideLoginWindow();
@@ -351,7 +357,7 @@ class Login extends React.Component {
 
                 this.listSelectMenu = Object.entries(listsDict);
 
-                this.props.dispatch(createList(this.userName, currentListId, this.listSelectMenu, tasksFromServer));
+                this.props.dispatch(createList(currentListId, this.listSelectMenu, tasksFromServer));
             }
         }
         this.app.knockKnock('/load_tasks', responseHandler, sendData);
@@ -410,7 +416,7 @@ class Login extends React.Component {
 
                 this.listSelectMenu.push([newListId.toString(), newListName]);
 
-                this.props.dispatch(createList(this.userName, newListId, this.listSelectMenu, []));
+                this.props.dispatch(createList(newListId, this.listSelectMenu, []));
             }
         }
         this.app.knockKnock('/create_list', responseHandler, sendData);
@@ -425,15 +431,13 @@ class Login extends React.Component {
 
             let responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
-
-                    let userName = response.data['user_name'];
                     let tasksFromServer = response.data['tasks'];
                     let currentListId = response.data['list_id'];
                     let listsDict = response.data['lists_dict'];
 
                     this.listSelectMenu = Object.entries(listsDict);
 
-                    this.props.dispatch(createList(userName, currentListId, this.listSelectMenu, tasksFromServer));
+                    this.props.dispatch(createList(currentListId, this.listSelectMenu, tasksFromServer));
                 }
             }
             const confirmFunction = () => {
@@ -697,6 +701,7 @@ class Login extends React.Component {
 
 function mapStateToProps(state) {
     return {
+        USER_NAME: state.login.USER_NAME,
         LIST_ID: state.login.LIST_ID,
         AUTH_MENU_IS_VISIBLE: state.login.AUTH_MENU_IS_VISIBLE,
     }
