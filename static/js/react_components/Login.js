@@ -190,7 +190,6 @@ class Login extends React.Component {
 
             this.listSelectMenu = [];
 
-            this.props.dispatch(createList('', null, [], []));
             this.props.dispatch(userLogOut());
 
             this.showLoginWindow();
@@ -206,7 +205,7 @@ class Login extends React.Component {
 
         this.listSelectMenu = [];
 
-        this.props.dispatch(createList('', null, [], []));
+        this.props.dispatch(userLogOut());
 
         this.showLoginWindow();
     }
