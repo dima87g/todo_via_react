@@ -1235,12 +1235,18 @@ def delete_list():
         query = session.query(List).filter(
             List.user_id == user.id,
             List.id == list_id
-        )
+        ).delete()
 
-        list_to_delete = query.first()
+        delete_result = query
 
-        session.delete(list_to_delete)
-
+        if delete_result == 0:
+            response = make_response(
+                {
+                    "ok": False,
+                    "del_result": delete_result
+                }, 200
+            )
+            return response
         query = session.query(List).filter(
             List.user_id == user.id,
             List.name == "main"

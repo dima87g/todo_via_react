@@ -437,6 +437,9 @@ class Login extends React.Component {
                     this.listSelectMenu = Object.entries(listsDict);
 
                     this.props.dispatch(createList(currentListId, this.listSelectMenu, tasksFromServer));
+                } else if (response.status === 200 && response.data['del_result'] === 0) {
+                    this.app.networkError = true;
+                    this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']));
                 }
             }
             const confirmFunction = () => {
