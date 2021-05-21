@@ -1163,27 +1163,42 @@ def create_list():
 
     try:
         user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+
+        lists_dict = {}
 
         session = make_session()
 
         query = session.query(User).filter(User.user_text_id == user_text_id)
 
         user = query.first()
+        user_id = user.id
 
         data = request.json
 
-        new_list = List(user_id=user.id, name=data["newListName"])
+        new_list = List(user_id=user_id, name=data["newListName"])
 
         session.add(new_list)
+
+        query = session.query(List).filter(
+            List.user_id == user_id
+        )
+
+        current_user_lists = query.all()
+
+        for list_info in current_user_lists:
+            lists_dict[list_info.id] = list_info.name
 
         session.commit()
 
         response = make_response(
             {
                 "ok": True,
-                "new_list_id": new_list.id
+                "new_list_id": new_list.id,
+                "lists_dict": lists_dict
             }, 200
         )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
