@@ -30,7 +30,6 @@ class Login extends React.Component {
             createNewListWindowShowed: false,
             settingsMenuWindowShowed: false,
         }
-        this.listSelectMenu = null;
         this.authCheck = this.authCheck.bind(this);
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
@@ -188,8 +187,6 @@ class Login extends React.Component {
             document.cookie = 'id=; expires=-1';
             document.cookie = 'sign=; expires=-1';
 
-            this.listSelectMenu = [];
-
             this.props.dispatch(userLogOut());
 
             this.showLoginWindow();
@@ -202,8 +199,6 @@ class Login extends React.Component {
     forceLogOut() {
         document.cookie = 'id=; expires=-1';
         document.cookie = 'sign=; expires=-1';
-
-        this.listSelectMenu = [];
 
         this.props.dispatch(userLogOut());
 
@@ -353,10 +348,9 @@ class Login extends React.Component {
                 let tasksFromServer = response.data['tasks'];
                 let currentListId = response.data['list_id'];
                 let listsDict = response.data['lists_dict'];
+                let listSelectMenu = Object.entries(listsDict);
 
-                this.listSelectMenu = Object.entries(listsDict);
-
-                this.props.dispatch(createList(currentListId, this.listSelectMenu, tasksFromServer));
+                this.props.dispatch(createList(currentListId, listSelectMenu, tasksFromServer));
             }
         }
         this.app.knockKnock('/load_tasks', responseHandler, sendData);
@@ -409,13 +403,13 @@ class Login extends React.Component {
 
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
-                let newListId = response.data['new_list_id'];
+                let newListId = response.data['new_list_id'].toString();
+                let listsDict = response.data['lists_dict'];
+                let listSelectMenu = Object.entries(listsDict);
 
                 this.createNewListWindow();
 
-                this.listSelectMenu.push([newListId.toString(), newListName]);
-
-                this.props.dispatch(createList(newListId, this.listSelectMenu, []));
+                this.props.dispatch(createList(newListId, listSelectMenu, []));
             }
         }
         this.app.knockKnock('/create_list', responseHandler, sendData);
@@ -433,10 +427,9 @@ class Login extends React.Component {
                     let tasksFromServer = response.data['tasks'];
                     let currentListId = response.data['list_id'];
                     let listsDict = response.data['lists_dict'];
+                    let listSelectMenu = Object.entries(listsDict);
 
-                    this.listSelectMenu = Object.entries(listsDict);
-
-                    this.props.dispatch(createList(currentListId, this.listSelectMenu, tasksFromServer));
+                    this.props.dispatch(createList(currentListId, listSelectMenu, tasksFromServer));
                 } else if (response.status === 200 && response.data['del_result'] === 0) {
                     this.app.networkError = true;
                     this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']));
