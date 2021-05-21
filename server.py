@@ -171,12 +171,7 @@ def auth_check():
                 "user_name": user_name,
             }, 200
         )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
@@ -389,12 +384,7 @@ def user_login():
                 "user_name": user_name
             }, 200
         )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
 
         if user_name in developers:
             response = make_dev(response)
@@ -473,12 +463,7 @@ def change_password():
             }, 200
         )
 
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
@@ -640,12 +625,7 @@ def save_task():
                 "task_position": task_position
             }, 200
         )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
@@ -715,12 +695,7 @@ def save_edit_task():
                 "ok": True
             }, 200
         )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
@@ -808,14 +783,9 @@ def delete_task():
                     "del_result": query,
                 }, 200
             )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
-    except sqlalchemy.exc.SQLAlchemyError :
+    except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
         exception = sys.exc_info()
         logger.log(exception)
@@ -884,12 +854,7 @@ def finish_task():
                 "ok": True
             }, 200
         )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
@@ -1000,12 +965,7 @@ def change_position():
                 "ok": True
             }, 200
         )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config['MAX_AGE'])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
@@ -1119,12 +1079,7 @@ def load_tasks():
                 "tasks": tasks
             }, 200
         )
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config["MAX_AGE"])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config["MAX_AGE"])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
@@ -1305,13 +1260,7 @@ def delete_list():
                 "tasks": tasks
             }
         )
-
-        response.set_cookie(
-            "id", user_text_id, max_age=int(cookies_config["MAX_AGE"])
-        )
-        response.set_cookie(
-            "sign", sign, max_age=int(cookies_config["MAX_AGE"])
-        )
+        response = renew_cookies(response, user_text_id, sign)
         return response
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
