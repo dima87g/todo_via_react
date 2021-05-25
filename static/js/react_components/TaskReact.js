@@ -168,10 +168,10 @@ class TaskReact extends React.Component {
         let taskMoveButtonDisabled;
         let taskUpMoveButtonFunction;
         let taskStyle;
-        let addSubtaskDivStyle;
-        let showSubtaskDivButtonStyle;
-        let addSubtaskTextFieldStyle;
-        let addSubtaskButtonStyle;
+        // let addSubtaskDivStyle;
+        // let showSubtaskDivButtonStyle;
+        // let addSubtaskTextFieldStyle;
+        // let addSubtaskButtonStyle;
         let taskTextStyle;
         let removeTaskButtonStyle;
         let editTaskDivStyle;
@@ -230,17 +230,17 @@ class TaskReact extends React.Component {
             taskStyle = 'task';
         }
 
-        if (this.state.addSubtaskDivShowed) {
-            addSubtaskDivStyle = 'subtask_div';
-            showSubtaskDivButtonStyle = 'show_subtask_div_button';
-            addSubtaskTextFieldStyle = 'add_subtask_text_field';
-            addSubtaskButtonStyle = 'add_subtask_button';
-        } else {
-            addSubtaskDivStyle = 'subtask_div subtask_div_hidden';
-            showSubtaskDivButtonStyle = 'show_subtask_div_button show_subtask_div_button_hidden'
-            addSubtaskTextFieldStyle = 'add_subtask_text_field add_subtask_text_field_hidden';
-            addSubtaskButtonStyle = 'add_subtask_button add_subtask_button_hidden';
-        }
+        // if (this.state.addSubtaskDivShowed) {
+        //     addSubtaskDivStyle = 'subtask_div';
+        //     showSubtaskDivButtonStyle = 'show_subtask_div_button';
+        //     addSubtaskTextFieldStyle = 'add_subtask_text_field';
+        //     addSubtaskButtonStyle = 'add_subtask_button';
+        // } else {
+        //     addSubtaskDivStyle = 'subtask_div subtask_div_hidden';
+        //     showSubtaskDivButtonStyle = 'show_subtask_div_button show_subtask_div_button_hidden'
+        //     addSubtaskTextFieldStyle = 'add_subtask_text_field add_subtask_text_field_hidden';
+        //     addSubtaskButtonStyle = 'add_subtask_button add_subtask_button_hidden';
+        // }
 
         if (this.state.editTaskDivShowed) {
             editTaskDivStyle = 'edit_task_div';
