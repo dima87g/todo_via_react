@@ -148,6 +148,10 @@ if __name__ == "__main__":
         name="Move to top by UP button"
     )
 
+    move_finished_to_bottom_setting = Setting(
+        name="Move finished to bottom"
+    )
+
     setting_2 = Setting(
         name="Setting2"
     )
@@ -177,6 +181,7 @@ if __name__ == "__main__":
     session.add(test_user)
     session.add(test_user_2)
     session.add(move_up_setting)
+    session.add(move_finished_to_bottom_setting)
     session.add(setting_2)
     session.add(setting_3)
 

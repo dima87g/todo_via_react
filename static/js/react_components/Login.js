@@ -14,7 +14,7 @@ import {
     userLogOut,
 } from "../redux/reducers/loginActions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
-import {moveTaskToTopByUpButton} from "../redux/settingsActions";
+import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/settingsActions";
 
 
 class Login extends React.Component {
@@ -92,6 +92,10 @@ class Login extends React.Component {
                     switch (settingName) {
                         case 'Move to top by UP button':
                             this.props.dispatch(moveTaskToTopByUpButton(boolValue));
+                            break;
+                        case 'Move finished to bottom':
+                            this.props.dispatch(moveFinishedToBottom(boolValue));
+                            break;
                     }
                 }
             }

@@ -1,7 +1,10 @@
 import React from "react";
 import {connect} from "react-redux";
 import {hideSettingsMenu} from "../../redux/actions";
-import {moveTaskToTopByUpButton} from "../../redux/settingsActions"
+import {
+    moveFinishedToBottom,
+    moveTaskToTopByUpButton
+} from "../../redux/settingsActions"
 
 
 class SettingsMenuWindow extends React.Component {
@@ -11,6 +14,7 @@ class SettingsMenuWindow extends React.Component {
         this.login = this.props.login;
         this.closeSettingsMenu = this.closeSettingsMenu.bind(this);
         this.moveToTopCheckbox = this.moveToTopCheckbox.bind(this);
+        this.moveFinishedToBottomCheckbox = this.moveFinishedToBottomCheckbox.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
@@ -49,6 +53,35 @@ class SettingsMenuWindow extends React.Component {
         this.app.knockKnock('/change_setting', responseHandler, sendData);
     }
 
+    /**
+     * POST: json = {
+     *     settingName: 'string',
+     *     stringVal: null,
+     *     intVal: null,
+     *     boolVal: 'boolean'
+     * }
+     *
+     * RESPONSE: json = {
+     *     ok: 'boolean'
+     * }
+     * @param e {Event} checkbox click event
+     */
+    moveFinishedToBottomCheckbox(e) {
+        let boxIsChecked = e.target.checked;
+        const sendData = {
+            'settingName': 'Move finished to bottom',
+            'stringVal': null,
+            'intVal': null,
+            'boolVal': boxIsChecked
+        }
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                this.props.dispatch(moveFinishedToBottom(boxIsChecked));
+            }
+        }
+        this.app.knockKnock('/change_setting', responseHandler, sendData);
+    }
+
     changePassword() {
         this.props.dispatch(hideSettingsMenu());
         this.login.current.changePasswordWindow();
@@ -67,17 +100,15 @@ class SettingsMenuWindow extends React.Component {
     render() {
         let settingsMenuWindowStyle;
         let moveTaskToTopCheckboxChecked;
+        let moveFinishedToBottomCheckboxChecked;
 
         if (this.props.SETTINGS_MENU_IS_VISIBLE) {
             settingsMenuWindowStyle = 'settings_window';
         } else {
             settingsMenuWindowStyle = 'settings_window settings_window_hidden';
         }
-        if(this.props.MOVE_TASK_TO_TOP_BY_UP_BUTTON) {
-            moveTaskToTopCheckboxChecked = true;
-        } else {
-            moveTaskToTopCheckboxChecked = false;
-        }
+        moveTaskToTopCheckboxChecked = !!this.props.MOVE_TASK_TO_TOP_BY_UP_BUTTON;
+        moveFinishedToBottomCheckboxChecked = !!this.props.MOVE_FINISHED_TASKS_TO_BOTTOM;
         return (
             <div className={settingsMenuWindowStyle}>
                 <div className={'settings_window_header'}>
@@ -86,7 +117,11 @@ class SettingsMenuWindow extends React.Component {
                 </div>
                 <div className={'settings_window_buttons_div'}>
                     <label className={'settings_window_checkbox_label'}>
-                        <input type={'checkbox'} className={'settings_window_checkbox'}/>
+                        <input type={'checkbox'}
+                               className={'settings_window_checkbox'}
+                               checked={moveFinishedToBottomCheckboxChecked}
+                               onChange={this.moveFinishedToBottomCheckbox}
+                        />
                         {localisation['settings_window']['to_bottom_checkbox']}
                     </label>
                     <label className={'settings_window_checkbox_label'}>
@@ -117,7 +152,7 @@ class SettingsMenuWindow extends React.Component {
                 </div>
                 <div className={'settings_window_footer'}>
                     <p className={'copyright'}>
-                        ToDoList ver. 2.0.5 &copy; Dmitriy Ostreykovskiy 2020-2021
+                        ToDoList ver. 2.0.5 &copy; Dmitriy Ostreykovsky 2020-2021
                     </p>
                 </div>
             </div>
@@ -129,6 +164,7 @@ function mapStateToProps(state) {
     return {
         SETTINGS_MENU_IS_VISIBLE: state.app.SETTINGS_MENU_IS_VISIBLE,
         MOVE_TASK_TO_TOP_BY_UP_BUTTON: state.settings.MOVE_TASK_TO_TOP_BY_UP_BUTTON,
+        MOVE_FINISHED_TASKS_TO_BOTTOM: state.settings.MOVE_FINISHED_TASKS_TO_BOTTOM,
     }
 }
 
