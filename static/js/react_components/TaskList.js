@@ -1,7 +1,17 @@
 import React from "react";
 import {connect} from "react-redux";
-import {moveTask, removeTask, showInfoWindow} from "../redux/actions";
-import {findIndex, moveToStart, swap} from "../todo_functions";
+import {
+    moveTask,
+    removeTask,
+    showInfoWindow
+} from "../redux/actions";
+import {
+    findIndex,
+    moveToStart,
+    regularSort,
+    sortByStatus,
+    swap
+} from "../todo_functions";
 import {Task} from "../todo_classes";
 import TaskReact from "./TaskReact";
 
@@ -31,19 +41,31 @@ class TaskList extends React.Component {
             this.tasksFromServer = nextProps.TASKS_FROM_SERVER;
             this.tasksTree = new Map();
             this.rootTasksList = [];
-
+            
             this.tasksFromServer.sort(function (a, b) {
-            if (a['task_position'] && b['task_position']) {
-                return a['task_position'] - b['task_position'];
-            } else if (!a['task_position'] && !b['task_position']) {
-                return a['task_id'] - b['task_id'];
-            } else if (!a['task_position']) {
-                return a['task_id'] - b['task_position'];
-            } else if (!b['task_position']) {
-                return a['task_position'] - b['task_id'];
-            }
-            return 0;
+                if (a['task_position'] && b['task_position']) {
+                    return a['task_position'] - b['task_position'];
+                } else if (!a['task_position'] && !b['task_position']) {
+                    return a['task_id'] - b['task_id'];
+                } else if (!a['task_position']) {
+                    return a['task_id'] - b['task_position'];
+                } else if (!b['task_position']) {
+                    return a['task_position'] - b['task_id'];
+                }
+                return 0;
             });
+            
+            if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM === true) {
+                this.tasksFromServer.sort(function(a, b) {
+                    if (a['task_status'] === true && b['task_status'] === false) {
+                        return 1
+                    }
+                    if (a['task_status'] === false && b['task_status'] === true) {
+                        return -1
+                    }
+                    return 0
+                });
+            }
 
             for (let task of this.tasksFromServer) {
                 let taskId = task['task_id'];
@@ -347,6 +369,21 @@ class TaskList extends React.Component {
         this.app.knockKnock('/delete_task', responseHandler, sendData);
     }
 
+    moveCheckedTasksToBottom(value) {
+        let taskList = [...this.state.linearTaskList];
+        if (value === true) {
+            console.log('to bottom sort');
+            this.setState({
+                linearTaskList: sortByStatus(taskList),
+            });
+        } else {
+            console.log('regular sort');
+            this.setState({
+                linearTaskList: regularSort(taskList),
+            });
+        }
+    }
+
     render() {
         const LetStart = () => {
             if (this.state.linearTaskList.length === 0) {
@@ -383,6 +420,7 @@ function mapStateToProps(state) {
     return {
         LIST_ID: state.login.LIST_ID,
         TASKS_FROM_SERVER: state.login.TASKS_FROM_SERVER,
+        MOVE_FINISHED_TASKS_TO_BOTTOM: state.settings.MOVE_FINISHED_TASKS_TO_BOTTOM,
     }
 }
 

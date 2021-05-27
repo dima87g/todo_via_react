@@ -88,7 +88,7 @@ class App extends React.Component {
                 <CookiesWindow/>
                 <Login app={this} ref={this.login}/>
                 <TaskList app={this} appRef={this.appRef} login={this.login} ref={this.taskList}/>
-                <SettingsMenuWindow app={this} login={this.login}/>
+                <SettingsMenuWindow app={this} login={this.login} taskList={this.taskList}/>
                 <ShadowModal/>
             </div>
         )

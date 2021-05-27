@@ -12,6 +12,7 @@ class SettingsMenuWindow extends React.Component {
         super(props);
         this.app = this.props.app;
         this.login = this.props.login;
+        this.taskListRef = this.props.taskList;
         this.closeSettingsMenu = this.closeSettingsMenu.bind(this);
         this.moveToTopCheckbox = this.moveToTopCheckbox.bind(this);
         this.moveFinishedToBottomCheckbox = this.moveFinishedToBottomCheckbox.bind(this);
@@ -77,6 +78,7 @@ class SettingsMenuWindow extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 this.props.dispatch(moveFinishedToBottom(boxIsChecked));
+                this.taskListRef.current.moveCheckedTasksToBottom(boxIsChecked);
             }
         }
         this.app.knockKnock('/change_setting', responseHandler, sendData);

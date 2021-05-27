@@ -28,6 +28,35 @@ export function moveToStart(arr, currentTaskIndex) {
     return newArr;
 }
 
+export function regularSort(arr) {
+    arr.sort(function(a, b) {
+        if (a['position'] && b['position']) {
+            return a['position'] - b['position'];
+        } else if (!a['position'] && !b['position']) {
+            return a['id'] - b['id'];
+        } else if (!a['position']) {
+            return a['id'] - b['position'];
+        } else if (!b['position']) {
+            return a['position'] - b['id'];
+        }
+        return 0;
+    });
+    return arr
+}
+
+export function sortByStatus(arr) {
+    arr.sort(function(a, b) {
+        if (a['status'] === true && b['status'] === false) {
+            return 1
+        }
+        if (a['status'] === false && b['status'] === true) {
+            return -1
+        }
+        return 0
+    })
+    return arr
+}
+
 export function isInternetExplorer() {
     return window.navigator.userAgent.indexOf('MSIE ') > -1 || window.navigator.userAgent.indexOf('Trident/') > -1;
 }
