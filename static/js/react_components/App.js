@@ -52,12 +52,7 @@ class App extends React.Component {
             .catch((error) => {
                 this.loadingWindow.current.hideWindow();
                 console.log(error);
-                if (error.request) {
-                    if (error.code === 'ECONNABORTED') {
-                        this.props.dispatch(showInfoWindow(true, localisation['error_messages']['timeout_error']))
-                        this.networkError = true;
-                    }
-                } else if (error.response) {
+                if (error.response) {
                     console.log(error.response);
                     if (error.response.status === 401 && error.config.url === '/user_login') {
                         func(error.response);
@@ -71,6 +66,11 @@ class App extends React.Component {
                     }
                     else if (error.response.status) {
                         func(error.response);
+                    }
+                } else if (error.request) {
+                    if (error.code === 'ECONNABORTED') {
+                        this.props.dispatch(showInfoWindow(true, localisation['error_messages']['timeout_error']))
+                        this.networkError = true;
                     }
                 }
                 console.log(error.config);
