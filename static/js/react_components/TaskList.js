@@ -7,6 +7,7 @@ import {
 } from "../redux/actions";
 import {
     findIndex,
+    getNewPosition,
     moveToStart,
     regularSort,
     sortByStatus,
@@ -285,7 +286,8 @@ class TaskList extends React.Component {
         if (this.state.linearTaskList.length === 0) {
             taskPosition = 1;
         } else {
-            taskPosition = this.state.linearTaskList[this.state.linearTaskList.length - 1].position + 1;
+            let taskList = [...this.state.linearTaskList];
+            taskPosition = getNewPosition(taskList);
         }
         let sendData = {
             'listId': this.props.LIST_ID,

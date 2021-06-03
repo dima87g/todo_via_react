@@ -61,6 +61,16 @@ export function isInternetExplorer() {
     return window.navigator.userAgent.indexOf('MSIE ') > -1 || window.navigator.userAgent.indexOf('Trident/') > -1;
 }
 
+export function getNewPosition(taskList) {
+    let maxPosition = 0;
+    for (let task of taskList) {
+        if (task.position > maxPosition) {
+            maxPosition = task.position;
+        }
+    }
+    return maxPosition + 1;
+}
+
 
 /**
  *
