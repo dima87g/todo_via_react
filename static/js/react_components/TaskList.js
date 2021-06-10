@@ -323,21 +323,31 @@ class TaskList extends React.Component {
      * }
      * RESPONSE:
      * if OK = true: json = {
-     *                  ok: true,
-     *                  task_id: 'number',
-     *                  task_position: 'number'
-     *              }
-     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-     * 'error_message': 'string' or null}
+     *      ok: true,
+     *      task_id: 'number',
+     *      task_position: 'number'
+     * }
+     * if OK = false: json = {
+     *      ok: 'boolean',
+     *      error_code: 'number' or null,
+     *      error_message: 'string' or null
+     * }
+     * @param taskText {string}
      */
     addTask(taskText) {
         let taskPosition;
 
-        if (this.state.linearTaskList.length === 0) {
+        if (this.state.mainTasksList.length === 0) {
             taskPosition = 1;
         } else {
-            let taskList = [...this.state.linearTaskList];
-            taskPosition = getNewPosition(taskList);
+            if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
+                let mainTasksList = [...this.state.mainTasksList];
+                let checkedTasksList = [...this.state.checkedTasksList];
+                taskPosition = getNewPosition(mainTasksList.concat(checkedTasksList));
+            } else {
+                let mainTasksList = [...this.state.mainTasksList];
+                taskPosition = getNewPosition(mainTasksList);
+            }
         }
         let sendData = {
             'listId': this.props.LIST_ID,
@@ -351,13 +361,13 @@ class TaskList extends React.Component {
                 let taskId = response.data['task_id'];
                 let taskPosition = response.data['task_position'];
                 let newTask = new Task(taskId, taskText, taskPosition);
-                let taskList = [...this.state.linearTaskList]
+                let mainTasksList = [...this.state.mainTasksList]
 
                 this.tasksTree.set(newTask.id, newTask);
-                taskList.push(newTask);
+                mainTasksList.push(newTask);
 
                 this.setState({
-                    linearTaskList: taskList,
+                    mainTasksList: mainTasksList,
                 })
             } else if (response.status === 204) {
                 this.props.dispatch(showInfoWindow(true, localisation['error_messages']['list_is_not_exists']))
