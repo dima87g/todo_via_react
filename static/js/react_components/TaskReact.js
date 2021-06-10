@@ -273,6 +273,10 @@ class TaskReact extends React.Component {
             taskUpMoveButtonFunction = this.moveTask;
         }
 
+        if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM && this.taskInst.status) {
+            taskMoveButtonDisabled = true;
+        }
+
         return (
             <div className={taskStyle}
                  ref={this.taskDiv}
@@ -366,7 +370,8 @@ function mapStateToProps(state) {
         REMOVING_TASK_POSITION: state.app.REMOVING_TASK_POSITION,
         REMOVING_TASK_HEIGHT: state.app.REMOVING_TASK_HEIGHT,
         TASK_EDIT_FIELD_IS_SHOWING: state.app.TASK_EDIT_FIELD_IS_SHOWING,
-        MOVE_TASK_TO_TOP_BY_UP_BUTTON: state.settings.MOVE_TASK_TO_TOP_BY_UP_BUTTON
+        MOVE_TASK_TO_TOP_BY_UP_BUTTON: state.settings.MOVE_TASK_TO_TOP_BY_UP_BUTTON,
+        MOVE_FINISHED_TASKS_TO_BOTTOM: state.settings.MOVE_FINISHED_TASKS_TO_BOTTOM,
     }
 }
 
