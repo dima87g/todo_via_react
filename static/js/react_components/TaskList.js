@@ -393,34 +393,61 @@ class TaskList extends React.Component {
      * @param task {TaskReact} Task instance of React.Component
      */
     removeTask(task) {
+        //TODO Need to remove duplicate code
+        const taskInstance = task.taskInst;
         const sendData = {
             'listId': this.props.LIST_ID,
             'taskId': task.id,
-            'taskPosition': task.taskInst.position
+            'taskPosition': taskInstance.position
         }
-        let taskList = [...this.state.linearTaskList];
         const responseHandler = (answer) => {
             if (answer.status === 200 && answer.data['ok'] === true) {
                 let removingTaskId = task.id;
-                let removingTaskPosition = task.taskInst.position;
+                let removingTaskPosition = taskInstance.position;
                 let removingTaskHeight = task.taskDiv.current.offsetHeight;
 
                 this.props.dispatch(removeTask(true, removingTaskId, removingTaskPosition, removingTaskHeight));
 
                 setTimeout(() => {
-                    taskList.splice(findIndex(taskList, task.taskInst), 1);
+                    let mainTasksList = [...this.state.mainTasksList];
 
-                    this.tasksTree.delete(task.id);
+                    if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
+                        let checkedTasksList = [...this.state.checkedTasksList];
 
-                    for (let task of taskList) {
-                        if (task.position > removingTaskPosition) {
-                            task.position -= 1;
+                        checkedTasksList.splice(findIndex(checkedTasksList, taskInstance), 1);
+                        this.tasksTree.delete(taskInstance.id);
+
+                        for (let task of checkedTasksList) {
+                            if (task.position > removingTaskPosition) {
+                                task.position -= 1;
+                            }
                         }
-                    }
 
-                    this.setState({
-                        linearTaskList: taskList,
-                    });
+                        for (let task of mainTasksList) {
+                            if (task.position > removingTaskPosition) {
+                                task.position -= 1;
+                            }
+                        }
+
+                        this.setState({
+                            mainTasksList: mainTasksList,
+                            checkedTasksList: checkedTasksList,
+                        });
+                    } else {
+                        mainTasksList.splice(findIndex(mainTasksList, taskInstance), 1);
+
+                        this.tasksTree.delete(taskInstance.id);
+
+                        for (let task of mainTasksList) {
+                            if (task.position > removingTaskPosition) {
+                                task.position -= 1;
+                            }
+                        }
+
+                        this.setState({
+                            mainTasksList: mainTasksList,
+                        });
+                    }
                     this.props.dispatch(removeTask(false, null, null, null));
                 }, 500);
             } else if (answer.status === 200 && answer.data['del_result'] === 0) {
