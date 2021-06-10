@@ -28,6 +28,11 @@ export function moveToStart(arr, currentTaskIndex) {
     return newArr;
 }
 
+/**
+ *
+ * @param arr {Array}
+ * @returns {Array}
+ */
 export function regularSort(arr) {
     arr.sort(function(a, b) {
         if (a['position'] && b['position']) {
