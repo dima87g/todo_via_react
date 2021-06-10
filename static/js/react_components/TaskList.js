@@ -149,10 +149,35 @@ class TaskList extends React.Component {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 task.taskInst.status = taskStatus
-                let taskList = [...this.state.linearTaskList];
-                this.setState({
-                    linearTaskList: taskList
-                });
+
+                if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
+                    let taskInst = task.taskInst;
+                    let mainTasksList = [...this.state.mainTasksList];
+                    let checkedTasksList = [...this.state.checkedTasksList];
+
+                    if (taskStatus === true) {
+                        mainTasksList.splice(findIndex(mainTasksList, taskInst), 1);
+                        checkedTasksList.push(taskInst);
+
+                        this.setState({
+                            mainTasksList: regularSort(mainTasksList),
+                            checkedTasksList: regularSort(checkedTasksList),
+                        });
+                    } else if (taskStatus === false) {
+                        mainTasksList.push(taskInst);
+                        checkedTasksList.splice(findIndex(checkedTasksList, taskInst), 1);
+
+                        this.setState({
+                            mainTasksList: regularSort(mainTasksList),
+                            checkedTasksList: regularSort(checkedTasksList),
+                        });
+                    }
+                } else {
+                    let mainTasksList = [...this.state.mainTasksList];
+                    this.setState({
+                        mainTasksList: mainTasksList,
+                    });
+                }
             }
         }
         this.app.knockKnock('/finish_task', responseHandler, sendData);
