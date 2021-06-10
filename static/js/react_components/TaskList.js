@@ -30,6 +30,8 @@ class TaskList extends React.Component {
 
         this.state = {
             linearTaskList: this.rootTasksList,
+            mainTasksList: [],
+            checkedTasksList: [],
         }
         this.finishTask = this.finishTask.bind(this);
         this.addTask = this.addTask.bind(this);
@@ -42,6 +44,8 @@ class TaskList extends React.Component {
             this.tasksFromServer = nextProps.TASKS_FROM_SERVER;
             this.tasksTree = new Map();
             this.rootTasksList = [];
+            let mainTasksList = [];
+            let checkedTasksList = [];
             
             this.tasksFromServer.sort(function (a, b) {
                 if (a['task_position'] && b['task_position']) {
@@ -55,18 +59,19 @@ class TaskList extends React.Component {
                 }
                 return 0;
             });
-            
-            if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM === true) {
-                this.tasksFromServer.sort(function(a, b) {
-                    if (a['task_status'] === true && b['task_status'] === false) {
-                        return 1
-                    }
-                    if (a['task_status'] === false && b['task_status'] === true) {
-                        return -1
-                    }
-                    return 0
-                });
-            }
+
+            // if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM === true) {
+            //     this.tasksFromServer.sort(function(a, b) {
+            //         if (a['task_status'] === true && b['task_status'] === false) {
+            //             return 1
+            //         }
+            //         if (a['task_status'] === false && b['task_status'] === true) {
+            //             return -1
+            //         }
+            //         return 0
+            //     });
+            // }
+
 
             for (let task of this.tasksFromServer) {
                 let taskId = task['task_id'];
@@ -82,11 +87,22 @@ class TaskList extends React.Component {
                 if (this.tasksTree.has(task.parentId)) {
                     this.tasksTree.get(task.parentId).subtasks.push(task);
                 } else {
-                    this.rootTasksList.push(task);
+                    if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
+                        if (task.status === true) {
+                            checkedTasksList.push(task);
+                        } else {
+                            mainTasksList.push(task);
+                        }
+                    } else {
+                        // this.rootTasksList.push(task);
+                        mainTasksList.push(task);
+                    }
                 }
             }
             this.setState({
-                linearTaskList: this.rootTasksList,
+                // linearTaskList: this.rootTasksList,
+                mainTasksList: mainTasksList,
+                checkedTasksList: checkedTasksList,
             });
         }
         return true;
@@ -397,7 +413,7 @@ class TaskList extends React.Component {
 
     render() {
         const LetStart = () => {
-            if (this.state.linearTaskList.length === 0) {
+            if (this.state.linearTaskList.length === 0 && (this.state.mainTasksList.length === 0 && this.state.checkedTasksList.length === 0)) {
                 return (
                     <div id={'let_start_div'} className={'let_start_div'}>
                         <img id={'let_start_image'} className={'let_start_image'} src={'static/favicon.ico'} alt={'let`s start!'}/>
@@ -410,7 +426,18 @@ class TaskList extends React.Component {
         }
         return (
             <div className={'task_list'} id={'task_list'} ref={this.taskListRef}>
-                {this.state.linearTaskList.map((task) =>
+                {/*{this.state.linearTaskList.map((task) =>*/}
+                {/*    <TaskReact key={task.id.toString()}*/}
+                {/*               app={this.app}*/}
+                {/*               login={this.login}*/}
+                {/*               taskList={this}*/}
+                {/*               taskInst={task}*/}
+                {/*               taskId={task.id}*/}
+                {/*               status={task.status}*/}
+                {/*               taskText={task.text}*/}
+                {/*               parentId={task.parentId}*/}
+                {/*    />)}*/}
+                {this.state.mainTasksList.map((task) =>
                     <TaskReact key={task.id.toString()}
                                app={this.app}
                                login={this.login}
@@ -420,7 +447,18 @@ class TaskList extends React.Component {
                                status={task.status}
                                taskText={task.text}
                                parentId={task.parentId}
-                    />)}
+                />)}
+                {this.state.checkedTasksList.map((task) =>
+                    <TaskReact key={task.id.toString()}
+                               app={this.app}
+                               login={this.login}
+                               taskList={this}
+                               taskInst={task}
+                               taskId={task.id}
+                               status={task.status}
+                               taskText={task.text}
+                               parentId={task.parentId}
+                />)}
                 <LetStart/>
             </div>
         )
