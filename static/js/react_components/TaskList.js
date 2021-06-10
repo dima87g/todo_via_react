@@ -432,16 +432,28 @@ class TaskList extends React.Component {
     }
 
     moveCheckedTasksToBottom(value) {
-        let taskList = [...this.state.linearTaskList];
+        let mainTasksList = [...this.state.mainTasksList];
         if (value === true) {
             console.log('to bottom sort');
+            let checkedTasksList = [];
+
+            for (let i = 0; i < mainTasksList.length; i++) {
+                if (mainTasksList[i].status === true) {
+                    checkedTasksList.push(mainTasksList[i]);
+                    mainTasksList.splice(i, 1);
+                    i--;
+                }
+            }
             this.setState({
-                linearTaskList: sortByStatus(taskList),
+                mainTasksList: mainTasksList,
+                checkedTasksList: checkedTasksList,
             });
-        } else {
+        } else if (value === false) {
             console.log('regular sort');
+            let checkedTasksList = [...this.state.checkedTasksList];
             this.setState({
-                linearTaskList: regularSort(taskList),
+                mainTasksList: regularSort(mainTasksList.concat(checkedTasksList)),
+                checkedTasksList: [],
             });
         }
     }
