@@ -109,11 +109,20 @@ class TaskList extends React.Component {
     }
 
     /**
-     * POST: json = {'task_id': 'number', 'status': 'boolean'}
-     * GET:
-     * if OK = true: json = {'ok': true}
-     * if OK = false: json = {'ok': 'boolean', 'error_code': 'number' or null,
-     * 'error_message': 'string' or null}
+     * POST: json = {
+     *      task_id: 'number',
+     *      status: 'boolean'
+     * }
+     * RESPONSE:
+     * if OK = true: json = {
+     *      ok: 'boolean'
+     * }
+     * if OK = false: json = {
+     *      ok: 'boolean',
+     *      error_code: 'number' or 'null',
+     *      error_message: 'string' or 'null'
+     * }
+     * @param task {TaskReact} Task instance of React.Component
      */
     finishTask(task) {
         let taskStatus = task.taskInst.status === false;
