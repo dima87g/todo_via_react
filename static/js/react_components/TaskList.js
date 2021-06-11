@@ -392,7 +392,6 @@ class TaskList extends React.Component {
      * @param task {TaskReact} Task instance of React.Component
      */
     removeTask(task) {
-        //TODO Need to remove duplicate code
         const taskInstance = task.taskInst;
         const sendData = {
             'listId': this.props.LIST_ID,
