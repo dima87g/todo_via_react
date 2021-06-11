@@ -30,8 +30,8 @@ export function moveToStart(arr, currentTaskIndex) {
 
 /**
  *
- * @param arr {Array}
- * @returns {Array}
+ * @param {Array} arr - Unsorted array of instances of Task class
+ * @returns {Array} Array of instances of Task class sorted by position
  */
 export function regularSort(arr) {
     arr.sort(function(a, b) {
@@ -66,6 +66,11 @@ export function isInternetExplorer() {
     return window.navigator.userAgent.indexOf('MSIE ') > -1 || window.navigator.userAgent.indexOf('Trident/') > -1;
 }
 
+/**
+ *
+ * @param {Array} taskList
+ * @returns {number}
+ */
 export function getNewPosition(taskList) {
     let maxPosition = 0;
     for (let task of taskList) {
@@ -79,9 +84,9 @@ export function getNewPosition(taskList) {
 
 /**
  *
- * @param arr
- * @param object
- * @returns {number}
+ * @param {Array} arr - Array of instances of Task class
+ * @param {Object} object - Instance of Task class
+ * @returns {number} - Index of instance of Task class in provided array
  */
 export function findIndex(arr, object) {
     for (let i = 0; i < arr.length; i++) {
