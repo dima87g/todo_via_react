@@ -202,15 +202,28 @@ class TaskReact extends React.Component {
                     }
                 }
             } else if (this.props.TASK_IS_REMOVING === true) {
+                //TODO need refactoring to avoid code duplicate
                 if (this.props.REMOVING_TASK_ID === this.id) {
                     taskStyle = 'task remove_task';
                 } else if (this.props.REMOVING_TASK_POSITION < this.taskInst.position) {
-                    taskStyle = 'task';
-                    this.taskDiv.current.style.transitionDuration = '0.5s';
-                    if (isInternetExplorer()) {
-                        this.taskDiv.current.style.transform = 'translateY(-' + this.props.REMOVING_TASK_HEIGHT + 'px) translateY(-10px)';
+                    if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM && this.taskInst.status === true) {
+                        taskStyle = 'task';
+                        this.taskDiv.current.style.transitionDuration = '0.5s';
+                        if (isInternetExplorer()) {
+                            this.taskDiv.current.style.transform = 'translateY(-' + this.props.REMOVING_TASK_HEIGHT + 'px) translateY(-10px)';
+                        } else {
+                            this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.REMOVING_TASK_HEIGHT + 'px - 10px))';
+                        }
+                    } else if (!this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
+                        taskStyle = 'task';
+                        this.taskDiv.current.style.transitionDuration = '0.5s';
+                        if (isInternetExplorer()) {
+                            this.taskDiv.current.style.transform = 'translateY(-' + this.props.REMOVING_TASK_HEIGHT + 'px) translateY(-10px)';
+                        } else {
+                            this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.REMOVING_TASK_HEIGHT + 'px - 10px))';
+                        }
                     } else {
-                        this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.REMOVING_TASK_HEIGHT + 'px - 10px))';
+                        taskStyle = 'task';
                     }
                 } else {
                     taskStyle = 'task';
