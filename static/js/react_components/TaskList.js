@@ -10,7 +10,6 @@ import {
     getNewPosition,
     moveToStart,
     regularSort,
-    sortByStatus,
     swap
 } from "../todo_functions";
 import {Task} from "../todo_classes";
