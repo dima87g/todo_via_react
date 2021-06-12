@@ -278,13 +278,14 @@ class TaskList extends React.Component {
      * @param task {TaskReact} Task instance of React.Component
      */
     moveToTop(task) {
-        let taskList = [...this.state.linearTaskList];
+        let mainTasksList = [...this.state.mainTasksList];
+        let checkedTasksList = [...this.state.checkedTasksList];
         let currentTask = task.taskInst;
         let currentTaskId = currentTask.id;
-        let currentTaskIndex = findIndex(taskList, currentTask);
+        let currentTaskIndex = findIndex(mainTasksList, currentTask);
 
-        if (taskList.length > 1 && currentTaskIndex > 0) {
-            let taskToSwap = taskList[0];
+        if (mainTasksList.length > 1 && currentTaskIndex > 0) {
+            let taskToSwap = mainTasksList[0];
             let currentTaskOldPosition = currentTask.position;
             let currentTaskNewPosition = taskToSwap.position;
 
@@ -296,8 +297,9 @@ class TaskList extends React.Component {
             }
             const responseHandler = (response) => {
                 if (response.status === 200 && response.data['ok'] === true) {
+                    let generalTasksList = mainTasksList.concat(checkedTasksList);
 
-                    for (let task of taskList) {
+                    for (let task of generalTasksList) {
                         if (task.position >= currentTaskNewPosition) {
                             task.position += 1;
                         }
@@ -305,7 +307,8 @@ class TaskList extends React.Component {
                     currentTask.position = currentTaskNewPosition;
 
                     this.setState({
-                        linearTaskList: moveToStart(taskList, currentTaskIndex),
+                        mainTasksList: moveToStart(mainTasksList, currentTaskIndex),
+                        checkedTasksList: checkedTasksList,
                     });
                 }
             }
