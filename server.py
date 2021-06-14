@@ -883,6 +883,84 @@ def finish_task():
             session.close()
 
 
+@app.route("/swap_tasks", methods=["POST"])
+def swap_tasks():
+    """
+    request: json = {
+                listId: "int"}
+    """
+    session = None
+    try:
+        session = make_session()
+
+        user_text_id = request.cookies.get("id")
+        sign = request.cookies.get("sign")
+        data = request.json
+        list_id = data["listId"]
+        current_task_id = data["currentTaskId"]
+        current_task_position = data["currentTaskPosition"]
+        task_to_swap_id = data["taskToSwapId"]
+        task_to_swap_position = data["taskToSwapPosition"]
+
+        query = session.query(Task).filter(
+            Task.id == current_task_id,
+            Task.list_id == list_id
+        )
+
+        current_task = query.first()
+
+        query = session.query(Task).filter(
+            Task.id == task_to_swap_id,
+            Task.list_id == list_id
+        )
+
+        task_to_swap = query.first()
+
+        current_task.task_position = None
+        task_to_swap.task_position = None
+
+        session.flush()
+
+        current_task.task_position = task_to_swap_position
+        task_to_swap.task_position = current_task_position
+
+        session.commit()
+
+        response = make_response(
+            {
+                "ok": True
+            }, 200
+        )
+
+        response = renew_cookies(response, user_text_id, sign)
+        return response
+    except sqlalchemy.exc.SQLAlchemyError:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    except Exception:
+        session.rollback()
+        exception = sys.exc_info()
+        logger.log(exception)
+        return jsonify(
+            {
+                "ok": False,
+                "error_code": None,
+                "error_message": "Contact admin for log checking..."
+            }
+        )
+    finally:
+        if session is not None:
+            session.close()
+
+
 @app.route("/change_position", methods=["POST"])
 def change_position():
     """
