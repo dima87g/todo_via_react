@@ -572,6 +572,21 @@ class TaskList extends React.Component {
     }
 
     render() {
+        const CheckedTasksSeparator = () => {
+            if (this.state.checkedTasksList.length > 0) {
+                return (
+                    <div id={'checked_tasks_separator_div'}
+                         className={'checked_tasks_separator_div'}>
+                        <p id={'checked_tasks_separator_paragraph'}
+                           className={'checked_tasks_separator_paragraph'}>
+                            ----------------------------------------
+                        </p>
+                    </div>
+                )
+            } else {
+                return null;
+            }
+        }
         const LetStart = () => {
             if (this.state.linearTaskList.length === 0 && (this.state.mainTasksList.length === 0 && this.state.checkedTasksList.length === 0)) {
                 return (
@@ -608,6 +623,7 @@ class TaskList extends React.Component {
                                taskText={task.text}
                                parentId={task.parentId}
                 />)}
+                <CheckedTasksSeparator/>
                 {this.state.checkedTasksList.map((task) =>
                     <TaskReact key={task.id.toString()}
                                app={this.app}

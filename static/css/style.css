@@ -377,6 +377,10 @@ html, body {
     margin-right: auto;
 }
 
+.checked_tasks_separator_paragraph {
+    text-align: center;
+}
+
 .let_start_div {
     text-align: center;
 }
