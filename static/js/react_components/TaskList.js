@@ -372,7 +372,7 @@ class TaskList extends React.Component {
         if (mainTasksList.length > 1 && currentTaskIndex > 0) {
             let taskToSwap = mainTasksList[0];
             let currentTaskOldPosition = currentTask.position;
-            let currentTaskNewPosition = taskToSwap.position;
+            let currentTaskNewPosition = 1;
 
             let sendData = {
                 'listId': this.props.LIST_ID,
@@ -385,7 +385,7 @@ class TaskList extends React.Component {
                     let generalTasksList = mainTasksList.concat(checkedTasksList);
 
                     for (let task of generalTasksList) {
-                        if (task.position >= currentTaskNewPosition) {
+                        if (task.position >= currentTaskNewPosition && task.position < currentTaskOldPosition) {
                             task.position += 1;
                         }
                     }
