@@ -31,7 +31,7 @@ class TaskReact extends React.Component {
         this.showSubtaskField = this.showSubtaskField.bind(this);
         this.addSubtask = this.addSubtask.bind(this);
         this.addSubtaskByEnterKey = this.addSubtaskByEnterKey.bind(this);
-        this.moveTask = this.moveTask.bind(this);
+        this.swapTasks  = this.swapTasks .bind(this);
         this.moveToTop = this.moveToTop.bind(this);
         this.taskDiv = React.createRef();
         this.addSubtaskField = React.createRef();
@@ -154,10 +154,10 @@ class TaskReact extends React.Component {
         }
     }
 
-    moveTask(e) {
+    swapTasks (e) {
         let taskMoveDirection = e.currentTarget.value;
 
-        this.taskList.moveTask(this, taskMoveDirection);
+        this.taskList.swapTasks (this, taskMoveDirection);
     }
 
     moveToTop() {
@@ -283,7 +283,7 @@ class TaskReact extends React.Component {
         if (this.props.MOVE_TASK_TO_TOP_BY_UP_BUTTON) {
             taskUpMoveButtonFunction = this.moveToTop;
         } else {
-            taskUpMoveButtonFunction = this.moveTask;
+            taskUpMoveButtonFunction = this.swapTasks ;
         }
 
         if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM && this.taskInst.status) {
@@ -359,7 +359,7 @@ class TaskReact extends React.Component {
                         type={'button'}
                         value={'DOWN'}
                         disabled={taskMoveButtonDisabled}
-                        onClick={this.moveTask}>
+                        onClick={this.swapTasks}>
                     <i className="fas fa-angle-double-down"/>
                     <i className="fas fa-angle-double-down"/>
                     <i className="fas fa-angle-double-down"/>
