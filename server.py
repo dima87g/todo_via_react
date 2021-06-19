@@ -760,11 +760,13 @@ def delete_task():
             Task.user_id == user_id
         ).delete()
 
-        session.query(Task).filter(
-            Task.list_id == list_id,
-            Task.task_position > task_to_delete_position
-        ).update(
-            {Task.task_position: Task.task_position - 1}
+        session.execute(
+            "UPDATE tasks SET task_position = task_position - 1 WHERE list_id = :list_id AND "
+            "task_position > :task_to_delete_position ORDER BY task_position",
+            {
+                "list_id": list_id,
+                "task_to_delete_position": task_to_delete_position
+            }
         )
 
         session.commit()
