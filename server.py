@@ -918,6 +918,17 @@ def swap_tasks():
 
         task_to_swap = query.first()
 
+        if (
+            current_task.task_position == task_to_swap_position
+            and
+            task_to_swap.task_position == current_task_position
+        ):
+            return jsonify(
+                {
+                    "ok": True
+                }, 200
+            )
+
         current_task.task_position = None
         task_to_swap.task_position = None
 
