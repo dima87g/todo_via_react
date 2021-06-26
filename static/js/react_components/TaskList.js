@@ -424,7 +424,7 @@ class TaskList extends React.Component {
     addTask(taskText) {
         let taskPosition;
 
-        if (this.state.mainTasksList.length === 0) {
+        if (this.state.mainTasksList.length === 0 && this.state.checkedTasksList.length === 0) {
             taskPosition = 1;
         } else {
             if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
