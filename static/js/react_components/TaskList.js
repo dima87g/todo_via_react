@@ -573,7 +573,7 @@ class TaskList extends React.Component {
 
     render() {
         const CheckedTasksSeparator = () => {
-            if (this.state.checkedTasksList.length > 0) {
+            if (this.state.mainTasksList.length > 0 && this.state.checkedTasksList.length > 0) {
                 return (
                     <div id={'checked_tasks_separator_div'}
                          className={'checked_tasks_separator_div'}>
