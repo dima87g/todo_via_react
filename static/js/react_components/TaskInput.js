@@ -5,18 +5,30 @@ export class TaskInput extends React.Component{
     constructor(props) {
         super(props);
         this.taskList = this.props.taskList;
+        this.state = {
+            taskText: '',
+        };
+        this.handleChange = this.handleChange.bind(this);
         this.addTask = this.addTask.bind(this);
+    }
+
+    handleChange(e) {
+        this.setState({
+            taskText: e.target.value,
+        });
     }
 
     addTask(e) {
         e.preventDefault();
 
-        let taskText = e.target['task_input_field'].value;
+        let taskText = this.state.taskText;
 
         if (taskText) {
             this.taskList.current.addTask(taskText);
         }
-        e.target.reset();
+        this.setState({
+            taskText: '',
+        });
     }
 
     render() {
@@ -43,7 +55,9 @@ export class TaskInput extends React.Component{
                             className={'task_input_field'}
                             autoComplete={'off'}
                             maxLength={255}
+                            value={this.state.taskText}
                             disabled={taskInputFieldDisabled}
+                            onChange={this.handleChange}
                         />
                         <button type={'submit'}
                                 className={'task_input_button'}
