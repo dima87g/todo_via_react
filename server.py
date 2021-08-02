@@ -290,7 +290,7 @@ def user_register():
         if user_name in developers:
             response = make_dev(response)
         return response
-    except sqlalchemy.exc.IntegrityError as error:
+    except sqlalchemy.exc.IntegrityError:
         session.rollback()
         return jsonify(
             {
