@@ -325,6 +325,7 @@ html, body {
 }
 
 .task_input {
+    position: relative;
     height: 90px;
     border-top: solid 1px;
     border-radius: 0 0 30% 30%;
@@ -813,6 +814,41 @@ html, body {
     text-align: center;
     color: white;
 }
+
+/* Styles for validation error window hide/show*/
+.validation_error_window {
+    position: absolute;
+    top: 75px;
+    left: 20vw;
+    min-width: 200px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: gray;
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0.5s,
+                opacity 0.5s;
+}
+
+.validation_error_window_hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.validation_error_info_field > p {
+    text-align: center;
+}
+
+.validation_error_window_arrow {
+    /* position: absolute; */
+    margin-left: 20px;
+    margin-top: -5px;
+    width: 25px;
+    height: 25px;
+    background-color: gray;
+    transform: rotate(45deg);
+}
+/* Styles for validation error window hide/show*/
 
 /*@media (max-width: 400px) {*/
 /*    .auth_menu {*/
