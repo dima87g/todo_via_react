@@ -581,6 +581,14 @@ def save_task():
                 }, 403
             )
 
+        if not task_text or len(task_text) > 255:
+            return make_response(
+                {
+                    "ok": False,
+                    "error_message": "Validation error"
+                }, 403
+            )
+
         query = session.query(User).filter(
             User.user_text_id == user_text_id
         )
