@@ -21,14 +21,12 @@ export class TaskInput extends React.Component{
     addTask(e) {
         e.preventDefault();
 
-        let taskText = this.state.taskText;
-
-        if (taskText) {
-            this.taskList.current.addTask(taskText);
+        if (this.state.taskText) {
+            this.taskList.current.addTask(this.state.taskText);
+            this.setState({
+                taskText: '',
+            })
         }
-        this.setState({
-            taskText: '',
-        });
     }
 
     render() {
