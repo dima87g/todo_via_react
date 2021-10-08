@@ -290,7 +290,7 @@ def user_register():
         if user_name in developers:
             response = make_dev(response)
         return response
-    except sqlalchemy.exc.IntegrityError as error:
+    except sqlalchemy.exc.IntegrityError:
         session.rollback()
         return jsonify(
             {
@@ -578,6 +578,14 @@ def save_task():
             return make_response(
                 {
                     "ok": False
+                }, 403
+            )
+
+        if not task_text or len(task_text) > 255:
+            return make_response(
+                {
+                    "ok": False,
+                    "error_message": "Validation error"
                 }, 403
             )
 
