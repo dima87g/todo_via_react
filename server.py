@@ -877,7 +877,7 @@ def finish_task():
                 "error_message": "Contact admin for log checking..."
             }
         )
-    except Exception as error:
+    except Exception:
         session.rollback()
         exception = sys.exc_info()
         logger.log(exception)
