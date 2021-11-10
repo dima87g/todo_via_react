@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideTaskEditField, showShadowModal, showTaskEditField} from "../redux/actions";
+import {hideTaskEditField, showShadowModal, showTaskEditField} from "../redux/actions/actions";
 import {isInternetExplorer} from "../todo_functions";
 
 

@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import {store} from "../redux/store";
 import {connect} from "react-redux";
-import {showShadowModal, showInfoWindow, hideHeaderMenu} from "../redux/actions";
+import {showShadowModal, showInfoWindow, hideHeaderMenu} from "../redux/actions/actions";
 import Header from "./Header";
 import ConfirmWindow from "./windows/ConfirmWindow";
 import InfoWindow from "./windows/InfoWindow";

@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideHeaderMenu, showHeaderMenu, showSettingsMenu} from "../redux/actions";
+import {hideHeaderMenu, showHeaderMenu, showSettingsMenu} from "../redux/actions/actions";
 
 class HeaderMenu extends React.Component {
     constructor(props) {

@@ -5,16 +5,16 @@ import {
     showConfirmWindow,
     showInfoWindow,
     showShadowModal,
-} from "../redux/actions";
+} from "../redux/actions/actions";
 import {
     userLogIn,
     showAuthMenu,
     hideAuthMenu,
     createList,
     userLogOut,
-} from "../redux/reducers/loginActions";
+} from "../redux/actions/loginActions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
-import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/settingsActions";
+import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/actions/settingsActions";
 
 
 class Login extends React.Component {

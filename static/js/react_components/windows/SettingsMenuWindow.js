@@ -1,10 +1,10 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideSettingsMenu} from "../../redux/actions";
+import {hideSettingsMenu} from "../../redux/actions/actions";
 import {
     moveFinishedToBottom,
     moveTaskToTopByUpButton
-} from "../../redux/settingsActions"
+} from "../../redux/actions/settingsActions"
 
 
 class SettingsMenuWindow extends React.Component {
