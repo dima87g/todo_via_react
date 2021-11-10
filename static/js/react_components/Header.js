@@ -42,9 +42,6 @@ class Header extends React.Component {
                             ref={this.listSelectMenu}
                         >
                             {this.props.LIST_SELECT_MENU.map((value, index) => {
-                                // TODO object keys are always of string type !!!
-                                //  Need to make the listsDict structure from the server
-                                //  so that id is a numeric type without parseInt function!!!
                                 return <option key={index} value={value[0]}>{value[1]}</option>
                             })}
                         </select>
