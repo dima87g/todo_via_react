@@ -547,7 +547,6 @@ class TaskList extends React.Component {
     moveCheckedTasksToBottom(value) {
         let mainTasksList = [...this.state.mainTasksList];
         if (value === true) {
-            console.log('to bottom sort');
             let checkedTasksList = [];
 
             for (let i = 0; i < mainTasksList.length; i++) {
@@ -562,7 +561,6 @@ class TaskList extends React.Component {
                 checkedTasksList: checkedTasksList,
             });
         } else if (value === false) {
-            console.log('regular sort');
             let checkedTasksList = [...this.state.checkedTasksList];
             this.setState({
                 mainTasksList: regularSort(mainTasksList.concat(checkedTasksList)),

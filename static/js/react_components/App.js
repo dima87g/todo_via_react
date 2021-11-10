@@ -51,13 +51,10 @@ class App extends React.Component {
             })
             .catch((error) => {
                 this.loadingWindow.current.hideWindow();
-                console.log(error);
                 if (error.response) {
-                    console.log(error.response);
                     if (error.response.status === 401 && error.config.url === '/user_login') {
                         func(error.response);
                     } else if (error.response.status === 401 && error.config.url !== '/auth_check') {
-                        console.log(error.config.url);
                         this.login.current.forceLogOut();
                         this.props.dispatch(showInfoWindow(true, localisation['error_messages']['authorisation_error']));
                     } else if (error.response.status === 403) {
@@ -73,7 +70,6 @@ class App extends React.Component {
                         this.networkError = true;
                     }
                 }
-                console.log(error.config);
             })
         }
     }
