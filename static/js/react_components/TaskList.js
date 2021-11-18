@@ -4,7 +4,7 @@ import {
     moveTask,
     removeTask,
     showInfoWindow
-} from "../redux/actions";
+} from "../redux/actions/actions";
 import {
     findIndex,
     getNewPosition,

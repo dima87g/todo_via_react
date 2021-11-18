@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import {store} from "../redux/store";
 import {connect} from "react-redux";
-import {showShadowModal, showInfoWindow, hideHeaderMenu} from "../redux/actions";
+import {showShadowModal, showInfoWindow, hideHeaderMenu} from "../redux/actions/actions";
 import Header from "./Header";
 import ConfirmWindow from "./windows/ConfirmWindow";
 import InfoWindow from "./windows/InfoWindow";
@@ -19,6 +19,7 @@ class App extends React.Component {
         super(props);
         this.networkError = false;
         this.knockKnock = this.knockKnock.bind(this);
+        this.setError = this.setError.bind(this);
         this.appRef = React.createRef();
         this.loadingWindow = React.createRef();
         this.login = React.createRef();
@@ -45,8 +46,8 @@ class App extends React.Component {
             .then((response) => {
                 this.loadingWindow.current.hideWindow();
                 if (response.headers['content-type'] === 'application/json') {
-                    func(response);
                     this.networkError = false;
+                    func(response);
                 }
             })
             .catch((error) => {

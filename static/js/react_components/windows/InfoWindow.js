@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {showInfoWindow} from "../../redux/actions";
+import {showInfoWindow} from "../../redux/actions/actions";
 
 class InfoWindow extends React.Component {
     constructor(props) {

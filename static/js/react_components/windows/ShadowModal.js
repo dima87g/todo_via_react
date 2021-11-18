@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {showShadowModal} from "../../redux/actions";
+import {showShadowModal} from "../../redux/actions/actions";
 
 class ShadowModal extends React.Component {
     constructor(props) {

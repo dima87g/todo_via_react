@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {hideCookiesAlertWindow} from "../../redux/actions";
+import {hideCookiesAlertWindow} from "../../redux/actions/actions";
 
 class CookiesWindow extends React.Component {
     constructor(props) {

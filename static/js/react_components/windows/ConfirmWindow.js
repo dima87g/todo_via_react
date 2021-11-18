@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {showConfirmWindow} from "../../redux/actions";
+import {showConfirmWindow} from "../../redux/actions/actions";
 
 class ConfirmWindow extends React.Component {
     constructor(props) {
