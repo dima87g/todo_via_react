@@ -23,6 +23,9 @@ config.read(os.path.dirname(__file__) + '/server_config.ini')
 security_config = config['security']
 cookies_config = config['cookies']
 
+# Made constants for config
+COOKIES_MAX_AGE = int(cookies_config["MAX_AGE"])
+
 static_salt = security_config['static_salt']
 
 developers = [
@@ -227,7 +230,7 @@ def change_language(lang):
             )
         )
         response.set_cookie(
-            "lang", cookie_lang, max_age=int(cookies_config["MAX_AGE"])
+            "lang", cookie_lang, max_age=COOKIES_MAX_AGE
         )
         return response
     except Exception:
@@ -1547,10 +1550,10 @@ def create_text_id():
 
 def renew_cookies(response, user_text_id, sign):
     response.set_cookie(
-        "id", user_text_id, max_age=int(cookies_config['MAX_AGE'])
+        "id", user_text_id, max_age=COOKIES_MAX_AGE
     )
     response.set_cookie(
-        "sign", sign, max_age=int(cookies_config['MAX_AGE'])
+        "sign", sign, max_age=COOKIES_MAX_AGE
     )
     return response
 
