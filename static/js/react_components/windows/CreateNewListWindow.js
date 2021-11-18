@@ -17,6 +17,13 @@ class CreateNewListWindow extends React.Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.inputField = React.createRef();
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!prevProps.createNewListWindowShowed && this.props.createNewListWindowShowed) {
+            this.inputField.current.focus();
+        }
     }
 
     handleCancel() {
@@ -59,7 +66,7 @@ class CreateNewListWindow extends React.Component {
         let createNewListWindowCancelButtonDisabled;
         let createNewListWindowSubmitButtonDisabled;
 
-        if (this.props.showed) {
+        if (this.props.createNewListWindowShowed) {
             createNewListWindowCancelButtonDisabled = false;
             createNewListWindowSubmitButtonDisabled = false;
 
@@ -99,7 +106,8 @@ class CreateNewListWindow extends React.Component {
                             placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}
                             autoComplete={'off'}
                             value={this.state.newListName}
-                            onChange={this.handleChange}/>
+                            onChange={this.handleChange}
+                            ref={this.inputField}/>
                     <button type={"submit"}
                             value={"create_new_list"}
                             id={"create_new_list_form_submit_button"}

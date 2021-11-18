@@ -622,7 +622,7 @@ class Login extends React.Component {
                 </div>
                 <CreateNewListWindow 
                 app={this.app}
-                showed={this.state.createNewListWindowShowed}
+                createNewListWindowShowed={this.state.createNewListWindowShowed}
                 createNewListWindowFunction={this.createNewListWindow}/>
             </div>
         )
