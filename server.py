@@ -1211,13 +1211,25 @@ def load_tasks():
 def create_list():
     """
     request: json = {"newListName": "str"}
-    response: json = {"ok": "bool",
+    response: json = {"ok": "bool", "error_code": "int" or None,
+                    "error_message": "str" or None}
     """
     session = None
 
     try:
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
+        data = request.json
+
+        new_list_name = data["newListName"]
+
+        if not new_list_name or len(new_list_name) > 255:
+            return make_response(
+                {
+                    "ok": False,
+                    "error_message": "Validation error"
+                }, 403
+            )
 
         lists_dict = {}
 
@@ -1227,8 +1239,6 @@ def create_list():
 
         user = query.first()
         user_id = user.id
-
-        data = request.json
 
         new_list = List(user_id=user_id, name=data["newListName"])
 

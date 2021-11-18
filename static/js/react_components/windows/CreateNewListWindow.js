@@ -41,24 +41,26 @@ class CreateNewListWindow extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        const sendData = {'newListName': this.state.newListName};
+        if (this.state.newListName) {
+            const sendData = {'newListName': this.state.newListName};
 
-        const responseHandler = (response) => {
-            if (response.status === 200 && response.data['ok'] === true) {
-                let newListId = response.data['new_list_id'].toString();
-                let listsDict = response.data['lists_dict'];
-                let listSelectMenu = Object.entries(listsDict);
+            const responseHandler = (response) => {
+                if (response.status === 200 && response.data['ok'] === true) {
+                    let newListId = response.data['new_list_id'].toString();
+                    let listsDict = response.data['lists_dict'];
+                    let listSelectMenu = Object.entries(listsDict);
 
-                this.setState({
-                    newListName: '',
-                });
-                
-                this.props.createNewListWindowFunction();
+                    this.setState({
+                        newListName: '',
+                    });
 
-                this.props.dispatch(createList(newListId, listSelectMenu, []));
+                    this.props.createNewListWindowFunction();
+
+                    this.props.dispatch(createList(newListId, listSelectMenu, []));
+                }
             }
+            this.app.knockKnock('/create_list', responseHandler, sendData);
         }
-        this.app.knockKnock('/create_list', responseHandler, sendData);
     }
 
     render() {
@@ -105,6 +107,7 @@ class CreateNewListWindow extends React.Component {
                             className={"create_new_list_form_list_name"}
                             placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}
                             autoComplete={'off'}
+                            maxLength={255}
                             value={this.state.newListName}
                             onChange={this.handleChange}
                             ref={this.inputField}/>
