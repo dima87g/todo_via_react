@@ -1,5 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
+import CreateNewListWindow from "./windows/CreateNewListWindow";
 import {
     hideCookiesAlertWindow,
     showConfirmWindow,
@@ -40,7 +41,6 @@ class Login extends React.Component {
         this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
         this.createNewListWindow = this.createNewListWindow.bind(this);
-        this.createNewList = this.createNewList.bind(this);
         //TODO maybe it will be better to use HTML forms selectors, instead of refs????
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
@@ -275,6 +275,8 @@ class Login extends React.Component {
                 changePasswordWindowShowed: true,
                 loginWindowShowed: false,
                 registerWindowShowed: false,
+                createNewListWindowShowed: false,
+                settingsMenuWindowShowed: false,
                 changePasswordWindowCancelButtonDisabled: false,
                 changePasswordWindowSubmitButtonDisabled: false,
             })
@@ -388,35 +390,12 @@ class Login extends React.Component {
                 changePasswordWindowShowed: false,
             });
         } else {
-            document.forms["create_new_list_form"].reset();
-
             this.props.dispatch(showShadowModal(false));
             this.props.dispatch(hideAuthMenu());
             this.setState({
                 createNewListWindowShowed: false,
             });
         }
-    }
-
-    createNewList(e) {
-        e.preventDefault();
-
-        let newListName = document.forms['create_new_list_form']['create_new_list_form_list_name'].value;
-
-        const sendData = {'newListName': newListName};
-
-        const responseHandler = (response) => {
-            if (response.status === 200 && response.data['ok'] === true) {
-                let newListId = response.data['new_list_id'].toString();
-                let listsDict = response.data['lists_dict'];
-                let listSelectMenu = Object.entries(listsDict);
-
-                this.createNewListWindow();
-
-                this.props.dispatch(createList(newListId, listSelectMenu, []));
-            }
-        }
-        this.app.knockKnock('/create_list', responseHandler, sendData);
     }
 
     deleteList(listToDeleteId, listToDeleteName) {
@@ -453,9 +432,6 @@ class Login extends React.Component {
         let changePasswordWindowStyle;
         let changePasswordWindowCancelButtonDisabled;
         let changePasswordWindowSubmitButtonDisabled;
-        let createNewListWindowStyle;
-        let createNewListWindowCancelButtonDisabled;
-        let createNewListWindowSubmitButtonDisabled;
 
         if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -516,27 +492,6 @@ class Login extends React.Component {
                     ' change_password_window_hidden';
             }
         }
-
-        if (this.state.createNewListWindowShowed) {
-            createNewListWindowCancelButtonDisabled = false;
-            createNewListWindowSubmitButtonDisabled = false;
-
-            if (isInternetExplorer()) {
-                createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_visible';
-            } else {
-                createNewListWindowStyle = 'create_new_list_window create_new_list_window_visible';
-            }
-        } else {
-            createNewListWindowCancelButtonDisabled = true;
-            createNewListWindowSubmitButtonDisabled = true;
-
-            if (isInternetExplorer()) {
-                createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_hidden';
-            } else {
-                createNewListWindowStyle = 'create_new_list_window create_new_list_window_hidden';
-            }
-        }
-
         return (
             <div id={'auth_menu'} className={authMenuStyle}>
                 <div id={'login_window'} className={loginWindowStyle}>
@@ -665,34 +620,10 @@ class Login extends React.Component {
                        id={"change_password_window_info"}
                        ref={this.changePasswordFormInfo}/>
                 </div>
-                <div id={"create_new_list_window"} className={createNewListWindowStyle}>
-                    <button
-                        type={"button"}
-                        id={"create_new_list_window_cancel_button"}
-                        className={"create_new_list_window_cancel_button"}
-                        disabled={createNewListWindowCancelButtonDisabled}
-                        onClick={this.createNewListWindow}>
-                        X
-                    </button>
-                    <p className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["label"]}</p>
-                    <form name={"create_new_list_form"} onSubmit={this.createNewList}>
-                        <label htmlFor={"create_new_list_form_list_name"}
-                               className={"auth_menu_labels"}>{localisation["create_new_list_window"]["new_list_name"]}</label>
-                        <input type={"text"}
-                               name={"create_new_list_form_list_name"}
-                               id={"create_new_list_form_list_name"}
-                               className={"create_new_list_form_list_name"}
-                               placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}
-                               autoComplete={'off'}/>
-                       <button type={"submit"}
-                               value={"create_new_list"}
-                               id={"create_new_list_form_submit_button"}
-                               className={"create_new_list_form_submit_button"}
-                               disabled={createNewListWindowSubmitButtonDisabled}>
-                           {localisation["create_new_list_window"]["new_list_button"]}
-                       </button>
-                    </form>
-                </div>
+                <CreateNewListWindow 
+                app={this.app}
+                showed={this.state.createNewListWindowShowed}
+                createNewListWindowFunction={this.createNewListWindow}/>
             </div>
         )
     }
