@@ -40,6 +40,21 @@ class CreateNewListWindow extends React.Component {
         });
     }
 
+    /**
+     * POST: json = {newListName: string}
+     * RESPONSE:
+     * if OK = true: json = {
+     *      ok: true,
+     *      new_list_id: number,
+     *      list_dict: object
+     * }
+     * if OK = false: json = {
+     *      ok: 'boolean',
+     *      error_code: number or null,
+     *      error_message: string or null
+     * }
+     */
+    //TODO made info message if field is empty
     handleSubmit(e) {
         e.preventDefault();
         if (this.state.newListName) {
