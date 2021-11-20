@@ -1,5 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
+import RegisterWindow from "./windows/RegisterWindow";
 import CreateNewListWindow from "./windows/CreateNewListWindow";
 import ChangePasswordWindow from "./windows/ChangePasswordWindow";
 import {
@@ -38,11 +39,9 @@ class Login extends React.Component {
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
         this.changePasswordWindow = this.changePasswordWindow.bind(this);
-        this.userRegister = this.userRegister.bind(this);
         this.createNewListWindow = this.createNewListWindow.bind(this);
         //TODO maybe it will be better to use HTML forms selectors, instead of refs????
         this.loginFormInfo = React.createRef();
-        this.registerFormInfo = React.createRef();
     }
 
     componentDidMount() {
@@ -108,26 +107,18 @@ class Login extends React.Component {
                 loginWindowSwitchButtonDisabled: true,
                 registerWindowShowed: true,
             });
-            setTimeout(() => {
-                this.setState({
-                    registerWindowSwitchButtonDisabled: false,
-                });
-            }, 500);
             document.forms['login_form'].reset();
             removeChildren(this.loginFormInfo.current);
         } else {
             this.setState({
                 loginWindowShowed: true,
                 registerWindowShowed: false,
-                registerWindowSwitchButtonDisabled: true,
             });
             setTimeout(() => {
                 this.setState({
                     loginWindowSwitchButtonDisabled: false,
                 });
             }, 500);
-            document.forms['register_form'].reset();
-            removeChildren(this.registerFormInfo.current);
         }
     }
 
@@ -205,49 +196,6 @@ class Login extends React.Component {
         this.props.dispatch(userLogOut());
 
         this.showLoginWindow();
-    }
-
-    /**
-     * POST: json =  {"newUserName": "string",  "password": "string"}
-     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null, 'error_message': 'string' or null}
-     */
-    userRegister(e) {
-        e.preventDefault();
-
-        removeChildren(this.registerFormInfo.current);
-
-        let userName = e.target['register_form_username'].value;
-        let password = e.target['register_form_password'].value;
-        let confirmPassword = e.target['register_form_password_confirm'].value;
-        let agreementCheckbox = e.target['agreement_checkbox'];
-
-        const responseHandler = (response) => {
-            if (response.status === 200) {
-                if (response.data['ok'] === true) {
-                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['register_confirm_pref'] + ' ' + userName + ' ' + localisation['register_window']['register_confirm_suf']));
-                } else if (response.data['error_code'] === 1062) {
-                    this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['user_exists_warning']));
-                }
-            }
-        }
-
-        if (!userName) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_user_name_warning']));
-        } else if (!password) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_password_warning']));
-        } else if (!confirmPassword) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_confirm_password_warning']));
-        } else if (password !== confirmPassword) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_match_passwords_warning']));
-        } else if (!agreementCheckbox.checked) {
-            this.registerFormInfo.current.appendChild(document.createTextNode(localisation['register_window']['no_agreement_check_warning']));
-        } else if (userName && password && confirmPassword && agreementCheckbox.checked) {
-            if (password === confirmPassword) {
-                const sendData = {'userName': userName, 'password': password};
-
-                this.app.knockKnock('/user_register', responseHandler, sendData);
-            }
-        }
     }
 
     userDelete() {
@@ -381,7 +329,6 @@ class Login extends React.Component {
     render() {
         let authMenuStyle;
         let loginWindowStyle;
-        let registerWindowStyle;
 
         if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -400,22 +347,6 @@ class Login extends React.Component {
                 loginWindowStyle = 'login_window_ie login_window_hidden';
             } else {
                 loginWindowStyle = 'login_window login_window_hidden';
-            }
-        }
-
-        if (this.state.registerWindowShowed) {
-            if (isInternetExplorer()) {
-                registerWindowStyle = 'register_window_ie' +
-                    ' register_window_visible';
-            } else {
-                registerWindowStyle = 'register_window register_window_visible';
-            }
-        } else {
-            if (isInternetExplorer()) {
-                registerWindowStyle = 'register_window_ie' +
-                    ' register_window_hidden';
-            } else {
-                registerWindowStyle = 'register_window register_window_hidden';
             }
         }
 
@@ -456,53 +387,10 @@ class Login extends React.Component {
                         {localisation['login_window']['switch_to_register_button']}
                     </button>
                 </div>
-                <div id={'register_window'} className={registerWindowStyle}>
-                    <p className={"auth_menu_forms_labels"}>{localisation['register_window']['label']}</p>
-                    <form name="register_form" onSubmit={this.userRegister}>
-                        <label htmlFor="register_form_username"
-                               className={"auth_menu_labels"}>{localisation['register_window']['user_name']}</label>
-                        <input type="text"
-                               name={"register_form_username"}
-                               id={"register_form_username"}
-                               className={"register_form_username"}
-                               placeholder={localisation['register_window']['user_name_placeholder']}
-                               autoComplete={'off'}/>
-                        <label htmlFor={"register_form_password"}
-                               className={"auth_menu_labels"}>{localisation['register_window']['password']}</label>
-                        <input type={"password"}
-                               name={"register_form_password"}
-                               id={"register_form_password"}
-                               className={"register_form_password"}
-                               placeholder={localisation['register_window']['password_placeholder']}/>
-                        <label htmlFor={"register_form_password_confirm"}
-                               className={"auth_menu_labels"}>{localisation['register_window']['password_confirm']}</label>
-                        <input type={"password"}
-                               name={"register_form_password_confirm"}
-                               id={"register_form_password_confirm"}
-                               className={"register_form_password_confirm"}
-                               placeholder={localisation['register_window']['password_confirm_placeholder']}/>
-                        <p className={"agreement"} id={"agreement"}>
-                            <input type={"checkbox"} id={"agreement_checkbox"} name={'agreement_checkbox'}/>
-                            <label htmlFor="agreement_checkbox">&nbsp;{localisation['register_window']['agreement_label']}&nbsp;
-                                <a href="/static/agreements/agreement_ru.html"
-                                   target="_blank">{localisation['register_window']['agreement_link']}</a></label></p>
-                        <button type={"submit"}
-                                id={"register_form_button"}
-                                className={"register_form_button"}>
-                            {localisation['register_window']['create_button']}
-                        </button>
-                    </form>
-                    <p className={"info_field"}
-                       ref={this.registerFormInfo}/>
-                    <button type={"button"}
-                            className={"switch_to_login_button"}
-                            id={"switch_to_login_button"}
-                            value={'login'}
-                            disabled={this.state.registerWindowSwitchButtonDisabled}
-                            onClick={this.switchLogin}>
-                        {localisation['register_window']['switch_to_login_button']}
-                    </button>
-                </div>
+                <RegisterWindow
+                    app={this.app}
+                    registerWindowShowed={this.state.registerWindowShowed}
+                    registerWindowFunction={this.switchLogin}/>
                 <ChangePasswordWindow
                     app={this.app}
                     changePasswordWindowShowed={this.state.changePasswordWindowShowed}
