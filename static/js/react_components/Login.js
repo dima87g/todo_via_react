@@ -277,7 +277,6 @@ class Login extends React.Component {
                 settingsMenuWindowShowed: false,
             })
         } else {
-            document.forms["change_password_form"].reset();
             this.hideLoginWindow();
             this.setState({
                 changePasswordWindowShowed: false,
