@@ -18,6 +18,7 @@ class CreateNewListWindow extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.inputField = React.createRef();
+        this.infoField = React.createRef();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -60,6 +61,8 @@ class CreateNewListWindow extends React.Component {
                 }
             }
             this.app.knockKnock('/create_list', responseHandler, sendData);
+        } else {
+            this.infoField.current.appendChild(document.createTextNode(localisation['create_new_list_window']['no_list_name_warning']));
         }
     }
 
@@ -119,6 +122,9 @@ class CreateNewListWindow extends React.Component {
                         {localisation["create_new_list_window"]["new_list_button"]}
                     </button>
                 </form>
+                <p className={"create_new_list_window_info"}
+                   id={"create_new_list_window_info"}
+                   ref={this.infoField}/>
             </div>
         )
     }
