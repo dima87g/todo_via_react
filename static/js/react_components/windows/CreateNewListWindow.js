@@ -4,7 +4,8 @@ import {
     createList
 } from "../../redux/actions/loginActions";
 import {
-    isInternetExplorer
+    isInternetExplorer,
+    removeChildren
 } from "../../todo_functions";
 
 class CreateNewListWindow extends React.Component {
@@ -31,6 +32,9 @@ class CreateNewListWindow extends React.Component {
         this.setState({
             newListName: '',
         });
+
+        removeChildren(this.infoField.current);
+
         this.props.createNewListWindowFunction();
     }
 
@@ -57,6 +61,9 @@ class CreateNewListWindow extends React.Component {
     //TODO made info message if field is empty
     handleSubmit(e) {
         e.preventDefault();
+
+        removeChildren(this.infoField.current);
+
         if (this.state.newListName) {
             const sendData = {'newListName': this.state.newListName};
 
