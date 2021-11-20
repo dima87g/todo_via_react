@@ -81,7 +81,6 @@ class ChangePasswordWindow extends React.Component {
                 const sendData = {'oldPassword': oldPassword, 'newPassword': newPassword};
 
                 this.app.knockKnock('change_password', responseHandler, sendData);
-                e.target.reset();
             } else {
                 this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_match_passwords_warning']));
             }
