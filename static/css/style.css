@@ -320,6 +320,7 @@ html, body {
 }
 
 .login_window_info, .register_window_info, .change_password_window_info {
+    margin-top: 10px;
     text-align: center;
     font-size: 16px;
 }
