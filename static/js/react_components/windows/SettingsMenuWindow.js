@@ -114,7 +114,9 @@ class SettingsMenuWindow extends React.Component {
         return (
             <div className={settingsMenuWindowStyle}>
                 <div className={'settings_window_header'}>
-                    <button className={'exit_button'} type={'button'} onClick={this.closeSettingsMenu}>X</button>
+                    <button className={'exit_button'} type={'button'} onClick={this.closeSettingsMenu}>
+                        <img src="/static/icons/close_button.svg" alt="X"/>
+                    </button>
                     <p className={'settings_window_title'}>{localisation['settings_window']['title']}</p>
                 </div>
                 <div className={'settings_window_buttons_div'}>
