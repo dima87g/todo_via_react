@@ -144,8 +144,7 @@ class CreateNewListWindow extends React.Component {
                         {localisation["create_new_list_window"]["new_list_button"]}
                     </button>
                 </form>
-                <p className={"create_new_list_window_info"}
-                   id={"create_new_list_window_info"}
+                <p className={"info_field"}
                    ref={this.infoField}/>
             </div>
         )

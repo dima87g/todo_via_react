@@ -445,8 +445,7 @@ class Login extends React.Component {
                             {localisation['login_window']['submit_button']}
                         </button>
                     </form>
-                    <p className="login_window_info"
-                       id="login_window_info"
+                    <p className={"info_field"}
                        ref={this.loginFormInfo}
                     />
                     <button type="button"
@@ -494,8 +493,7 @@ class Login extends React.Component {
                             {localisation['register_window']['create_button']}
                         </button>
                     </form>
-                    <p className={"register_window_info"}
-                       id={"register_window_info"}
+                    <p className={"info_field"}
                        ref={this.registerFormInfo}/>
                     <button type={"button"}
                             className={"switch_to_login_button"}

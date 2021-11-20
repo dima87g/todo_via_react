@@ -319,7 +319,7 @@ html, body {
     left: calc(100% - 25px);
 }
 
-.login_window_info, .register_window_info, .change_password_window_info {
+.info_field {
     margin-top: 10px;
     text-align: center;
     font-size: 16px;

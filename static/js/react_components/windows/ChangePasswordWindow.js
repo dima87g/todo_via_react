@@ -168,8 +168,7 @@ class ChangePasswordWindow extends React.Component {
                         {localisation['change_password_window']['change_password_button']}
                     </button>
                 </form>
-                <p className={"change_password_window_info"}
-                   id={"change_password_window_info"}
+                <p className={"info_field"}
                    ref={this.changePasswordFormInfo}/>
             </div>
         )
