@@ -1,6 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import CreateNewListWindow from "./windows/CreateNewListWindow";
+import ChangePasswordWindow from "./windows/ChangePasswordWindow";
 import {
     hideCookiesAlertWindow,
     showConfirmWindow,
@@ -16,7 +17,6 @@ import {
 } from "../redux/actions/loginActions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
 import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/actions/settingsActions";
-
 
 class Login extends React.Component {
     constructor(props) {
@@ -38,13 +38,11 @@ class Login extends React.Component {
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
         this.changePasswordWindow = this.changePasswordWindow.bind(this);
-        this.changePassword = this.changePassword.bind(this);
         this.userRegister = this.userRegister.bind(this);
         this.createNewListWindow = this.createNewListWindow.bind(this);
         //TODO maybe it will be better to use HTML forms selectors, instead of refs????
         this.loginFormInfo = React.createRef();
         this.registerFormInfo = React.createRef();
-        this.changePasswordFormInfo = React.createRef();
     }
 
     componentDidMount() {
@@ -277,57 +275,13 @@ class Login extends React.Component {
                 registerWindowShowed: false,
                 createNewListWindowShowed: false,
                 settingsMenuWindowShowed: false,
-                changePasswordWindowCancelButtonDisabled: false,
-                changePasswordWindowSubmitButtonDisabled: false,
             })
         } else {
             document.forms["change_password_form"].reset();
             this.hideLoginWindow();
             this.setState({
                 changePasswordWindowShowed: false,
-                changePasswordWindowCancelButtonDisabled: true,
-                changePasswordWindowSubmitButtonDisabled: true,
             })
-        }
-    }
-
-    /**
-     * POST: json =  {"oldPassword": "string",  "newPassword": "string"}
-     * GET: answer = json = {'ok': 'boolean', 'error_code': 'number' or null, 'error_message': 'string' or null}
-     */
-    changePassword(e) {
-        e.preventDefault();
-
-        removeChildren(this.changePasswordFormInfo.current);
-
-        let oldPassword = e.target['change_password_form_old_password'].value;
-        let newPassword = e.target['change_password_form_new_password'].value;
-        let newPasswordConfirm = e.target['change_password_form_new_password_confirm'].value;
-
-        const responseHandler = (response) => {
-            if (response.status === 200 && response.data['ok'] === true) {
-                this.changePasswordWindow();
-                this.props.dispatch(showInfoWindow(true, localisation['change_password_window']['success']));
-            } else if (response.status === 200 && response.data['ok'] === false) {
-                this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['incorrect_password']));
-            }
-        }
-
-        if (oldPassword && newPassword && newPasswordConfirm) {
-            if (newPassword === newPasswordConfirm) {
-                const sendData = {'oldPassword': oldPassword, 'newPassword': newPassword};
-
-                this.app.knockKnock('change_password', responseHandler, sendData);
-                e.target.reset();
-            } else {
-                this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_match_passwords_warning']));
-            }
-        } else if (!oldPassword) {
-            this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_old_password_warning']));
-        }else if (!newPassword) {
-            this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_warning']));
-        }else if (!newPasswordConfirm) {
-            this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_confirm_warning']));
         }
     }
 
@@ -429,9 +383,6 @@ class Login extends React.Component {
         let authMenuStyle;
         let loginWindowStyle;
         let registerWindowStyle;
-        let changePasswordWindowStyle;
-        let changePasswordWindowCancelButtonDisabled;
-        let changePasswordWindowSubmitButtonDisabled;
 
         if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -469,29 +420,6 @@ class Login extends React.Component {
             }
         }
 
-        if (this.state.changePasswordWindowShowed) {
-            changePasswordWindowCancelButtonDisabled = false;
-            changePasswordWindowSubmitButtonDisabled = false;
-
-            if (isInternetExplorer()) {
-                changePasswordWindowStyle = 'change_password_window_ie' +
-                    ' change_password_window_visible';
-            } else {
-                changePasswordWindowStyle = 'change_password_window' +
-                    ' change_password_window_visible';
-            }
-        } else {
-            changePasswordWindowCancelButtonDisabled = true;
-            changePasswordWindowSubmitButtonDisabled = true;
-
-            if (isInternetExplorer()) {
-                changePasswordWindowStyle = 'change_password_window_ie' +
-                    ' change_password_window_hidden';
-            } else {
-                changePasswordWindowStyle = 'change_password_window' +
-                    ' change_password_window_hidden';
-            }
-        }
         return (
             <div id={'auth_menu'} className={authMenuStyle}>
                 <div id={'login_window'} className={loginWindowStyle}>
@@ -578,52 +506,14 @@ class Login extends React.Component {
                         {localisation['register_window']['switch_to_login_button']}
                     </button>
                 </div>
-                <div id={"change_password_window"} className={changePasswordWindowStyle}>
-                    <button type={"button"}
-                            id={"change_password_window_cancel_button"}
-                            className={"change_password_window_cancel_button"}
-                            disabled={changePasswordWindowCancelButtonDisabled}
-                            onClick={this.changePasswordWindow}>X
-                    </button>
-                    <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
-                    <form name={"change_password_form"} onSubmit={this.changePassword}>
-                        <label htmlFor={"change_password_form_old_password"}
-                               className={"auth_menu_labels"}>{localisation['change_password_window']['old_password']}</label>
-                        <input type={"password"}
-                               name={"change_password_form_old_password"}
-                               id={"change_password_form_old_password"}
-                               className={"change_password_form_old_password"}
-                               placeholder={localisation['change_password_window']['old_password_placeholder']}/>
-                        <label htmlFor={"change_password_form_new_password"}
-                               className={"auth_menu_labels"}>{localisation['change_password_window']['new_password']}</label>
-                        <input type={"password"}
-                               name={"change_password_form_new_password"}
-                               id={"change_password_form_new_password"}
-                               className={"change_password_form_new_password"}
-                               placeholder={localisation['change_password_window']['new_password_placeholder']}/>
-                        <label htmlFor={"change_password_form_new_password_confirm"}
-                               className={"auth_menu_labels"}>{localisation['change_password_window']['new_password_confirm']}</label>
-                        <input type={"password"}
-                               name={"change_password_form_new_password_confirm"}
-                               id={"change_password_form_new_password_confirm"}
-                               className={"change_password_form_new_password_confirm"}
-                               placeholder={localisation['change_password_window']['new_password_confirm_placeholder']}/>
-                        <button type={"submit"}
-                                value={"Change password"}
-                                id={"change_password_form_submit_button"}
-                                className={"change_password_form_submit_button"}
-                                disabled={changePasswordWindowSubmitButtonDisabled}>
-                            {localisation['change_password_window']['change_password_button']}
-                        </button>
-                    </form>
-                    <p className={"change_password_window_info"}
-                       id={"change_password_window_info"}
-                       ref={this.changePasswordFormInfo}/>
-                </div>
+                <ChangePasswordWindow
+                    app={this.app}
+                    changePasswordWindowShowed={this.state.changePasswordWindowShowed}
+                    changePasswordWindowFunction={this.changePasswordWindow}/>
                 <CreateNewListWindow 
-                app={this.app}
-                createNewListWindowShowed={this.state.createNewListWindowShowed}
-                createNewListWindowFunction={this.createNewListWindow}/>
+                    app={this.app}
+                    createNewListWindowShowed={this.state.createNewListWindowShowed}
+                    createNewListWindowFunction={this.createNewListWindow}/>
             </div>
         )
     }
