@@ -3,14 +3,12 @@
   "version": "2.0.2",
   "private": true,
   "scripts": {
-    "css": "postcss ./static/css/style.css -o ./static/css/compiled/style_compiled.css",
     "build_prod": "parcel build static/js/main.js --dist-dir static/builds/prod",
     "build_dev": "parcel watch static/js/main.js --dist-dir static/builds/dev"
   },
   "devDependencies": {
     "autoprefixer": "^10.3.7",
-    "parcel": "^2.0.0-rc.0",
-    "postcss": "^8.3.9"
+    "parcel": "^2.0.0-rc.0"
   },
   "postcss": {
     "plugins": {
