@@ -18,6 +18,7 @@ import {
 } from "../redux/actions/loginActions";
 import {isInternetExplorer, removeChildren} from "../todo_functions";
 import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/actions/settingsActions";
+import LoginWindow from "./windows/LoginWindow";
 
 class Login extends React.Component {
     constructor(props) {
@@ -25,9 +26,7 @@ class Login extends React.Component {
         this.app = this.props.app;
         this.state = {
             loginWindowShowed: true,
-            loginWindowSwitchButtonDisabled: false,
             registerWindowShowed: false,
-            registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
             createNewListWindowShowed: false,
             settingsMenuWindowShowed: false,
@@ -35,13 +34,10 @@ class Login extends React.Component {
         this.authCheck = this.authCheck.bind(this);
         this.switchLogin = this.switchLogin.bind(this);
         this.hideLoginWindow = this.hideLoginWindow.bind(this);
-        this.login = this.login.bind(this);
         this.logOut = this.logOut.bind(this);
         this.userDelete = this.userDelete.bind(this);
         this.changePasswordWindow = this.changePasswordWindow.bind(this);
         this.createNewListWindow = this.createNewListWindow.bind(this);
-        //TODO maybe it will be better to use HTML forms selectors, instead of refs????
-        this.loginFormInfo = React.createRef();
     }
 
     componentDidMount() {
@@ -104,29 +100,17 @@ class Login extends React.Component {
         if (e.target.value === 'register') {
             this.setState({
                 loginWindowShowed: false,
-                loginWindowSwitchButtonDisabled: true,
                 registerWindowShowed: true,
             });
-            document.forms['login_form'].reset();
-            removeChildren(this.loginFormInfo.current);
         } else {
             this.setState({
                 loginWindowShowed: true,
                 registerWindowShowed: false,
             });
-            setTimeout(() => {
-                this.setState({
-                    loginWindowSwitchButtonDisabled: false,
-                });
-            }, 500);
         }
     }
 
     hideLoginWindow() {
-        document.forms['login_form'].reset();
-        document.forms['register_form'].reset();
-        removeChildren(this.loginFormInfo.current);
-
         this.props.dispatch(hideAuthMenu());
         this.setState({
             loginWindowShowed: false,
@@ -144,35 +128,6 @@ class Login extends React.Component {
             changePasswordWindowShowed: false,
             createNewListWindowShowed: false,
         })
-    }
-
-    login(e) {
-        e.preventDefault();
-
-        removeChildren(this.loginFormInfo.current);
-
-        const userName = e.target['login_form_username'].value;
-        const password = e.target['login_form_password'].value;
-
-        if (userName && password) {
-            const data = {'userName': userName, 'password': password}
-            const responseHandler = (response) => {
-                if (response.status === 200 && response.data['ok'] === true) {
-                    this.props.dispatch(hideCookiesAlertWindow());
-                    this.props.dispatch(userLogIn(userName));
-                    this.getSettings();
-                    this.createTaskList();
-                    this.hideLoginWindow();
-                } else if (response.status === 401) {
-                    this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['login_error_warning']));
-                }
-            }
-            this.app.knockKnock('/user_login', responseHandler, data);
-        } else if (!userName) {
-            this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_user_name_warning']));
-        } else if (!password) {
-            this.loginFormInfo.current.appendChild(document.createTextNode(localisation['login_window']['no_password_warning']));
-        }
     }
 
     logOut() {
@@ -328,7 +283,6 @@ class Login extends React.Component {
 
     render() {
         let authMenuStyle;
-        let loginWindowStyle;
 
         if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
@@ -336,57 +290,13 @@ class Login extends React.Component {
             authMenuStyle = 'auth_menu auth_menu_hidden';
         }
 
-        if (this.state.loginWindowShowed) {
-            if (isInternetExplorer()) {
-                loginWindowStyle = 'login_window_ie login_window_visible';
-            } else {
-                loginWindowStyle = 'login_window login_window_visible';
-            }
-        } else {
-            if (isInternetExplorer()) {
-                loginWindowStyle = 'login_window_ie login_window_hidden';
-            } else {
-                loginWindowStyle = 'login_window login_window_hidden';
-            }
-        }
-
         return (
             <div id={'auth_menu'} className={authMenuStyle}>
-                <div id={'login_window'} className={loginWindowStyle}>
-                    <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
-                    <form name="login_form" onSubmit={this.login}>
-                        <label htmlFor="login_form_username"
-                               className={"auth_menu_labels"}>{localisation['login_window']['user_name']}</label>
-                        <input type="text" name="login_form_username"
-                               className={"login_form_username"}
-                               id={"login_form_username"}
-                               placeholder={localisation['login_window']['user_name_placeholder']}
-                               autoComplete={'off'}/>
-                        <label htmlFor="login_form_password"
-                               className={"auth_menu_labels"}>{localisation['login_window']['password']}</label>
-                        <input type="password" name="login_form_password"
-                               className={"login_form_password"}
-                               id={"login_form_password"}
-                               placeholder={localisation['login_window']['password_placeholder']}
-                        />
-                        <button type={"submit"}
-                                className={"login_form_button"}
-                                id={"login_form_button"}>
-                            {localisation['login_window']['submit_button']}
-                        </button>
-                    </form>
-                    <p className={"info_field"}
-                       ref={this.loginFormInfo}
-                    />
-                    <button type="button"
-                            className={"switch_to_register_button"}
-                            id={"switch_to_register_button"}
-                            value={'register'}
-                            disabled={this.state.loginWindowSwitchButtonDisabled}
-                            onClick={this.switchLogin}>
-                        {localisation['login_window']['switch_to_register_button']}
-                    </button>
-                </div>
+                <LoginWindow
+                    app={this.app}
+                    login={this}
+                    loginWindowShowed={this.state.loginWindowShowed}
+                    loginWindowFunction={this.switchLogin}/>
                 <RegisterWindow
                     app={this.app}
                     registerWindowShowed={this.state.registerWindowShowed}
