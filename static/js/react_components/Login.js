@@ -1,5 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
+import LoginWindow from "./windows/LoginWindow";
 import RegisterWindow from "./windows/RegisterWindow";
 import CreateNewListWindow from "./windows/CreateNewListWindow";
 import ChangePasswordWindow from "./windows/ChangePasswordWindow";
@@ -17,7 +18,6 @@ import {
     userLogOut,
 } from "../redux/actions/loginActions";
 import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/actions/settingsActions";
-import LoginWindow from "./windows/LoginWindow";
 
 class Login extends React.Component {
     constructor(props) {
