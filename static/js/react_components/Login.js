@@ -16,7 +16,6 @@ import {
     createList,
     userLogOut,
 } from "../redux/actions/loginActions";
-import {isInternetExplorer, removeChildren} from "../todo_functions";
 import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/actions/settingsActions";
 import LoginWindow from "./windows/LoginWindow";
 
@@ -29,7 +28,6 @@ class Login extends React.Component {
             registerWindowShowed: false,
             changePasswordWindowShowed: false,
             createNewListWindowShowed: false,
-            settingsMenuWindowShowed: false,
         }
         this.authCheck = this.authCheck.bind(this);
         this.switchLogin = this.switchLogin.bind(this);
@@ -177,7 +175,6 @@ class Login extends React.Component {
                 loginWindowShowed: false,
                 registerWindowShowed: false,
                 createNewListWindowShowed: false,
-                settingsMenuWindowShowed: false,
             })
         } else {
             this.hideLoginWindow();
