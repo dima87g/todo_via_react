@@ -19,7 +19,7 @@ class ChangePasswordWindow extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.inputField = React.createRef();
-        this.changePasswordFormInfo = React.createRef();
+        this.infoField = React.createRef();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -35,7 +35,7 @@ class ChangePasswordWindow extends React.Component {
             newPasswordConfirm: '',
         });
 
-        removeChildren(this.changePasswordFormInfo.current);
+        removeChildren(this.infoField.current);
 
         this.props.changePasswordWindowFunction();
     }
@@ -53,7 +53,7 @@ class ChangePasswordWindow extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        removeChildren(this.changePasswordFormInfo.current);
+        removeChildren(this.infoField.current);
 
         let oldPassword = this.state.oldPassword;
         let newPassword = this.state.newPassword;
@@ -72,7 +72,7 @@ class ChangePasswordWindow extends React.Component {
                 this.props.changePasswordWindowFunction();
 
             } else if (response.status === 200 && response.data['ok'] === false) {
-                this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['incorrect_password']));
+                this.infoField.current.appendChild(document.createTextNode(localisation['change_password_window']['incorrect_password']));
             }
         }
 
@@ -82,14 +82,14 @@ class ChangePasswordWindow extends React.Component {
 
                 this.app.knockKnock('change_password', responseHandler, sendData);
             } else {
-                this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_match_passwords_warning']));
+                this.infoField.current.appendChild(document.createTextNode(localisation['change_password_window']['no_match_passwords_warning']));
             }
         } else if (!oldPassword) {
-            this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_old_password_warning']));
+            this.infoField.current.appendChild(document.createTextNode(localisation['change_password_window']['no_old_password_warning']));
         }else if (!newPassword) {
-            this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_warning']));
+            this.infoField.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_warning']));
         }else if (!newPasswordConfirm) {
-            this.changePasswordFormInfo.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_confirm_warning']));
+            this.infoField.current.appendChild(document.createTextNode(localisation['change_password_window']['no_new_password_confirm_warning']));
         }
     }
 
@@ -168,7 +168,7 @@ class ChangePasswordWindow extends React.Component {
                     </button>
                 </form>
                 <p className={"info_field"}
-                   ref={this.changePasswordFormInfo}/>
+                   ref={this.infoField}/>
             </div>
         )
     }
