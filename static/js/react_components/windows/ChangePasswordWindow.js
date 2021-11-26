@@ -23,7 +23,9 @@ class ChangePasswordWindow extends React.Component {
     }
 
     componentDidMount() {
-        this.focusField.current.focus();
+        if (window.innerWidth > 480) {
+            this.focusField.current.focus();
+        }
     }
 
     handleCancel() {
