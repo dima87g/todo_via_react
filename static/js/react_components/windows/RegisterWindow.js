@@ -14,8 +14,13 @@ class RegisterWindow extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSwitch = this.handleSwitch.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.focusField = React.createRef();
         this.agreementCheckbox = React.createRef();
         this.infoField = React.createRef();
+    }
+
+    componentDidMount() {
+        this.focusField.current.focus();
     }
 
     handleChange(e) {
@@ -85,24 +90,11 @@ class RegisterWindow extends React.Component {
 
     render() {
         let registerWindowStyle;
-        let registerWindowSwitchButtonDisabled;
 
-        if (this.props.registerWindowShowed) {
-            if (isInternetExplorer()) {
-                registerWindowStyle = 'register_window_ie' +
-                    ' register_window_visible';
-            } else {
-                registerWindowStyle = 'register_window register_window_visible';
-            }
-            registerWindowSwitchButtonDisabled = false;
+        if (isInternetExplorer()) {
+            registerWindowStyle = 'register_window_ie';
         } else {
-            if (isInternetExplorer()) {
-                registerWindowStyle = 'register_window_ie' +
-                    ' register_window_hidden';
-            } else {
-                registerWindowStyle = 'register_window register_window_hidden';
-            }
-            registerWindowSwitchButtonDisabled = true;
+            registerWindowStyle = 'register_window';
         }
 
         return(
@@ -114,17 +106,18 @@ class RegisterWindow extends React.Component {
                     <input type="text"
                            name={"login"}
                            id={"register_form_username"}
-                           className={"register_form_username"}
+                           className={"auth_menu_input_field"}
                            placeholder={localisation['register_window']['user_name_placeholder']}
                            autoComplete={'off'}
                            value={this.state.login}
-                           onChange={this.handleChange}/>
+                           onChange={this.handleChange}
+                           ref={this.focusField}/>
                     <label htmlFor={"register_form_password"}
                            className={"auth_menu_labels"}>{localisation['register_window']['password']}</label>
                     <input type={"password"}
                            name={"password"}
                            id={"register_form_password"}
-                           className={"register_form_password"}
+                           className={"auth_menu_input_field"}
                            placeholder={localisation['register_window']['password_placeholder']}
                            value={this.state.password}
                            onChange={this.handleChange}/>
@@ -133,7 +126,7 @@ class RegisterWindow extends React.Component {
                     <input type={"password"}
                            name={"passwordConfirm"}
                            id={"register_form_password_confirm"}
-                           className={"register_form_password_confirm"}
+                           className={"auth_menu_input_field"}
                            placeholder={localisation['register_window']['password_confirm_placeholder']}
                            value={this.state.passwordConfirm}
                            onChange={this.handleChange}/>
@@ -157,7 +150,6 @@ class RegisterWindow extends React.Component {
                         className={"switch_to_login_button"}
                         id={"switch_to_login_button"}
                         value={'login'}
-                        disabled={registerWindowSwitchButtonDisabled}
                         onClick={this.handleSwitch}>
                     {localisation['register_window']['switch_to_login_button']}
                 </button>

@@ -122,7 +122,6 @@ class Login extends React.Component {
         this.setState({
             loginWindowShowed: true,
             registerWindowShowed: false,
-            registerWindowSwitchButtonDisabled: true,
             changePasswordWindowShowed: false,
             createNewListWindowShowed: false,
         })
@@ -164,24 +163,6 @@ class Login extends React.Component {
             this.app.knockKnock('/user_delete', responseHandler);
         }
         this.props.dispatch(showConfirmWindow(true, message, confirmFunction));
-    }
-
-    changePasswordWindow() {
-        if (this.state.changePasswordWindowShowed === false) {
-            this.showLoginWindow();
-
-            this.setState({
-                changePasswordWindowShowed: true,
-                loginWindowShowed: false,
-                registerWindowShowed: false,
-                createNewListWindowShowed: false,
-            })
-        } else {
-            this.hideLoginWindow();
-            this.setState({
-                changePasswordWindowShowed: false,
-            })
-        }
     }
 
     /**
@@ -232,10 +213,28 @@ class Login extends React.Component {
         this.loadList(listId);
     }
 
+    changePasswordWindow() {
+        if (this.state.changePasswordWindowShowed === false) {
+            this.showLoginWindow();
+
+            this.setState({
+                changePasswordWindowShowed: true,
+                loginWindowShowed: false,
+                registerWindowShowed: false,
+                createNewListWindowShowed: false,
+            })
+        } else {
+            this.hideLoginWindow();
+            this.setState({
+                changePasswordWindowShowed: false,
+            })
+        }
+    }
+
     createNewListWindow() {
         if (this.state.createNewListWindowShowed === false) {
-            this.props.dispatch(showShadowModal(true));
-            this.props.dispatch(showAuthMenu());
+            this.showLoginWindow();
+
             this.setState({
                 createNewListWindowShowed: true,
                 loginWindowShowed: false,
@@ -243,8 +242,7 @@ class Login extends React.Component {
                 changePasswordWindowShowed: false,
             });
         } else {
-            this.props.dispatch(showShadowModal(false));
-            this.props.dispatch(hideAuthMenu());
+            this.hideLoginWindow();
             this.setState({
                 createNewListWindowShowed: false,
             });
@@ -280,32 +278,36 @@ class Login extends React.Component {
 
     render() {
         let authMenuStyle;
+        let renderedWindow;
 
         if (this.props.AUTH_MENU_IS_VISIBLE) {
             authMenuStyle = 'auth_menu auth_menu_visible';
         } else {
-            authMenuStyle = 'auth_menu auth_menu_hidden';
+            authMenuStyle = 'auth_menu';
+        }
+
+        if (this.state.loginWindowShowed) {
+            renderedWindow = <LoginWindow
+            app={this.app}
+            login={this}
+            loginWindowFunction={this.switchLogin}/>
+        } else if (this.state.registerWindowShowed) {
+            renderedWindow = <RegisterWindow
+            app={this.app}
+            registerWindowFunction={this.switchLogin}/>
+        } else if (this.state.changePasswordWindowShowed) {
+            renderedWindow = <ChangePasswordWindow
+            app={this.app}
+            changePasswordWindowFunction={this.changePasswordWindow}/>
+        } else if (this.state.createNewListWindowShowed) {
+            renderedWindow = <CreateNewListWindow
+            app={this.app}
+            createNewListWindowFunction={this.createNewListWindow}/>
         }
 
         return (
             <div id={'auth_menu'} className={authMenuStyle}>
-                <LoginWindow
-                    app={this.app}
-                    login={this}
-                    loginWindowShowed={this.state.loginWindowShowed}
-                    loginWindowFunction={this.switchLogin}/>
-                <RegisterWindow
-                    app={this.app}
-                    registerWindowShowed={this.state.registerWindowShowed}
-                    registerWindowFunction={this.switchLogin}/>
-                <ChangePasswordWindow
-                    app={this.app}
-                    changePasswordWindowShowed={this.state.changePasswordWindowShowed}
-                    changePasswordWindowFunction={this.changePasswordWindow}/>
-                <CreateNewListWindow 
-                    app={this.app}
-                    createNewListWindowShowed={this.state.createNewListWindowShowed}
-                    createNewListWindowFunction={this.createNewListWindow}/>
+                {renderedWindow}
             </div>
         )
     }

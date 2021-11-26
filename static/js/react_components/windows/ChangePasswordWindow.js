@@ -18,14 +18,12 @@ class ChangePasswordWindow extends React.Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.inputField = React.createRef();
+        this.focusField = React.createRef();
         this.infoField = React.createRef();
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if(!prevProps.changePasswordWindowShowed && this.props.changePasswordWindowShowed) {
-            this.inputField.current.focus();
-        }
+    componentDidMount() {
+        this.focusField.current.focus();
     }
 
     handleCancel() {
@@ -94,39 +92,19 @@ class ChangePasswordWindow extends React.Component {
     }
 
     render() {
-        let changePasswordWindowCancelButtonDisabled;
-        let changePasswordWindowSubmitButtonDisabled;
         let changePasswordWindowStyle;
 
-        if (this.props.changePasswordWindowShowed) {
-            changePasswordWindowCancelButtonDisabled = false;
-            changePasswordWindowSubmitButtonDisabled = false;
-
-            if (isInternetExplorer()) {
-                changePasswordWindowStyle = 'change_password_window_ie' +
-                    ' change_password_window_visible';
-            } else {
-                changePasswordWindowStyle = 'change_password_window' +
-                    ' change_password_window_visible';
-            }
+        if (isInternetExplorer()) {
+            changePasswordWindowStyle = 'change_password_window_ie';
         } else {
-            changePasswordWindowCancelButtonDisabled = true;
-            changePasswordWindowSubmitButtonDisabled = true;
-
-            if (isInternetExplorer()) {
-                changePasswordWindowStyle = 'change_password_window_ie' +
-                    ' change_password_window_hidden';
-            } else {
-                changePasswordWindowStyle = 'change_password_window' +
-                    ' change_password_window_hidden';
-            }
+            changePasswordWindowStyle = 'change_password_window';
         }
+
         return(
             <div id={"change_password_window"} className={changePasswordWindowStyle}>
                 <button type={"button"}
                         id={"change_password_window_cancel_button"}
                         className={"change_password_window_cancel_button"}
-                        disabled={changePasswordWindowCancelButtonDisabled}
                         onClick={this.handleCancel}>X
                 </button>
                 <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
@@ -136,17 +114,17 @@ class ChangePasswordWindow extends React.Component {
                     <input type={"password"}
                            name={"oldPassword"}
                            id={"change_password_form_old_password"}
-                           className={"change_password_form_old_password"}
+                           className={"auth_menu_input_field"}
                            placeholder={localisation['change_password_window']['old_password_placeholder']}
                            value={this.state.oldPassword}
                            onChange={this.handleChange}
-                           ref={this.inputField}/>
+                           ref={this.focusField}/>
                     <label htmlFor={"newPassword"}
                            className={"auth_menu_labels"}>{localisation['change_password_window']['new_password']}</label>
                     <input type={"password"}
                            name={"newPassword"}
                            id={"change_password_form_new_password"}
-                           className={"change_password_form_new_password"}
+                           className={"auth_menu_input_field"}
                            placeholder={localisation['change_password_window']['new_password_placeholder']}
                            value={this.state.newPassword}
                            onChange={this.handleChange}/>
@@ -155,15 +133,14 @@ class ChangePasswordWindow extends React.Component {
                     <input type={"password"}
                            name={"newPasswordConfirm"}
                            id={"change_password_form_new_password_confirm"}
-                           className={"change_password_form_new_password_confirm"}
+                           className={"auth_menu_input_field"}
                            placeholder={localisation['change_password_window']['new_password_confirm_placeholder']}
                            value={this.state.newPasswordConfirm}
                            onChange={this.handleChange}/>
                     <button type={"submit"}
                             value={"Change password"}
                             id={"change_password_form_submit_button"}
-                            className={"change_password_form_submit_button"}
-                            disabled={changePasswordWindowSubmitButtonDisabled}>
+                            className={"change_password_form_submit_button"}>
                         {localisation['change_password_window']['change_password_button']}
                     </button>
                 </form>

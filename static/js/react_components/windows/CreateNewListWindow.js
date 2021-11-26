@@ -18,14 +18,12 @@ class CreateNewListWindow extends React.Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.inputField = React.createRef();
+        this.focusField = React.createRef();
         this.infoField = React.createRef();
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!prevProps.createNewListWindowShowed && this.props.createNewListWindowShowed) {
-            this.inputField.current.focus();
-        }
+    componentDidMount() {
+        this.focusField.current.focus();
     }
 
     handleCancel() {
@@ -90,35 +88,19 @@ class CreateNewListWindow extends React.Component {
 
     render() {
         let createNewListWindowStyle;
-        let createNewListWindowCancelButtonDisabled;
-        let createNewListWindowSubmitButtonDisabled;
 
-        if (this.props.createNewListWindowShowed) {
-            createNewListWindowCancelButtonDisabled = false;
-            createNewListWindowSubmitButtonDisabled = false;
-
-            if (isInternetExplorer()) {
-                createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_visible';
-            } else {
-                createNewListWindowStyle = 'create_new_list_window create_new_list_window_visible';
-            }
+        if (isInternetExplorer()) {
+            createNewListWindowStyle = 'create_new_list_window_ie';
         } else {
-            createNewListWindowCancelButtonDisabled = true;
-            createNewListWindowSubmitButtonDisabled = true;
-
-            if (isInternetExplorer()) {
-                createNewListWindowStyle = 'create_new_list_window_ie create_new_list_window_hidden';
-            } else {
-                createNewListWindowStyle = 'create_new_list_window create_new_list_window_hidden';
-            }
+            createNewListWindowStyle = 'create_new_list_window';
         }
+
         return (
             <div id={"create_new_list_window"} className={createNewListWindowStyle}>
                 <button
                     type={"button"}
                     id={"create_new_list_window_cancel_button"}
                     className={"create_new_list_window_cancel_button"}
-                    disabled={createNewListWindowCancelButtonDisabled}
                     onClick={this.handleCancel}>
                     X
                 </button>
@@ -129,18 +111,17 @@ class CreateNewListWindow extends React.Component {
                     <input type={"text"}
                             name={"create_new_list_form_list_name"}
                             id={"create_new_list_form_list_name"}
-                            className={"create_new_list_form_list_name"}
+                            className={"auth_menu_input_field"}
                             placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}
                             autoComplete={'off'}
                             maxLength={255}
                             value={this.state.newListName}
                             onChange={this.handleChange}
-                            ref={this.inputField}/>
+                            ref={this.focusField}/>
                     <button type={"submit"}
                             value={"create_new_list"}
                             id={"create_new_list_form_submit_button"}
-                            className={"create_new_list_form_submit_button"}
-                            disabled={createNewListWindowSubmitButtonDisabled}>
+                            className={"create_new_list_form_submit_button"}>
                         {localisation["create_new_list_window"]["new_list_button"]}
                     </button>
                 </form>

@@ -19,7 +19,12 @@ class LoginWindow extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSwitch = this.handleSwitch.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.focusField = React.createRef();
         this.infoField = React.createRef();
+    }
+
+    componentDidMount() {
+        this.focusField.current.focus();
     }
 
     clearForms() {
@@ -87,22 +92,11 @@ class LoginWindow extends React.Component {
 
     render() {
         let loginWindowStyle;
-        let loginWindowSwitchButtonDisabled
 
-        if (this.props.loginWindowShowed) {
-            if (isInternetExplorer()) {
-                loginWindowStyle = 'login_window_ie login_window_visible';
-            } else {
-                loginWindowStyle = 'login_window login_window_visible';
-            }
-            loginWindowSwitchButtonDisabled = false;
+        if (isInternetExplorer()) {
+            loginWindowStyle = 'login_window_ie';
         } else {
-            if (isInternetExplorer()) {
-                loginWindowStyle = 'login_window_ie login_window_hidden';
-            } else {
-                loginWindowStyle = 'login_window login_window_hidden';
-            }
-            loginWindowSwitchButtonDisabled = true;
+            loginWindowStyle = 'login_window';
         }
 
         return(
@@ -113,17 +107,18 @@ class LoginWindow extends React.Component {
                            className={"auth_menu_labels"}>{localisation['login_window']['user_name']}</label>
                     <input type={"text"}
                            name={"login"}
-                           className={"login_form_username"}
+                           className={"auth_menu_input_field"}
                            id={"login_form_username"}
                            placeholder={localisation['login_window']['user_name_placeholder']}
                            autoComplete={'off'}
                            value={this.state.login}
-                           onChange={this.handleChange}/>
+                           onChange={this.handleChange}
+                           ref={this.focusField}/>
                     <label htmlFor="login_form_password"
                            className={"auth_menu_labels"}>{localisation['login_window']['password']}</label>
                     <input type={"password"}
                            name={"password"}
-                           className={"login_form_password"}
+                           className={"auth_menu_input_field"}
                            id={"login_form_password"}
                            placeholder={localisation['login_window']['password_placeholder']}
                            value={this.state.password}
@@ -140,7 +135,6 @@ class LoginWindow extends React.Component {
                         className={"switch_to_register_button"}
                         id={"switch_to_register_button"}
                         value={'register'}
-                        disabled={loginWindowSwitchButtonDisabled}
                         onClick={this.handleSwitch}>
                     {localisation['login_window']['switch_to_register_button']}
                 </button>
