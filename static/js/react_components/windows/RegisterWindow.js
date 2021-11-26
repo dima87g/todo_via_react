@@ -98,61 +98,64 @@ class RegisterWindow extends React.Component {
         }
 
         return(
-            <div id={'register_window'} className={registerWindowStyle}>
-                <p className={"auth_menu_forms_labels"}>{localisation['register_window']['label']}</p>
-                <form name="register_form" onSubmit={this.handleSubmit}>
-                    <label htmlFor="register_form_username"
-                           className={"auth_menu_labels"}>{localisation['register_window']['user_name']}</label>
-                    <input type="text"
-                           name={"login"}
-                           id={"register_form_username"}
-                           className={"auth_menu_input_field"}
-                           placeholder={localisation['register_window']['user_name_placeholder']}
-                           autoComplete={'off'}
-                           value={this.state.login}
-                           onChange={this.handleChange}
-                           ref={this.focusField}/>
-                    <label htmlFor={"register_form_password"}
-                           className={"auth_menu_labels"}>{localisation['register_window']['password']}</label>
-                    <input type={"password"}
-                           name={"password"}
-                           id={"register_form_password"}
-                           className={"auth_menu_input_field"}
-                           placeholder={localisation['register_window']['password_placeholder']}
-                           value={this.state.password}
-                           onChange={this.handleChange}/>
-                    <label htmlFor={"register_form_password_confirm"}
-                           className={"auth_menu_labels"}>{localisation['register_window']['password_confirm']}</label>
-                    <input type={"password"}
-                           name={"passwordConfirm"}
-                           id={"register_form_password_confirm"}
-                           className={"auth_menu_input_field"}
-                           placeholder={localisation['register_window']['password_confirm_placeholder']}
-                           value={this.state.passwordConfirm}
-                           onChange={this.handleChange}/>
-                    <p className={"agreement"} id={"agreement"}>
-                        <input type={"checkbox"}
-                               id={"agreement_checkbox"}
-                               name={'agreement_checkbox'}
-                               ref={this.agreementCheckbox}/>
-                        <label htmlFor="agreement_checkbox">&nbsp;{localisation['register_window']['agreement_label']}&nbsp;
-                            <a href="/static/agreements/agreement_ru.html"
-                               target="_blank">{localisation['register_window']['agreement_link']}</a></label></p>
-                    <button type={"submit"}
-                            id={"register_form_button"}
-                            className={"register_form_button"}>
-                        {localisation['register_window']['create_button']}
+            <div className={'auth_menu_window_container'}>
+                <div id={'register_window'} className={registerWindowStyle}>
+                    <p className={"auth_menu_forms_labels"}>{localisation['register_window']['label']}</p>
+                    <form name="register_form" onSubmit={this.handleSubmit}>
+                        <label htmlFor="register_form_username"
+                               className={"auth_menu_labels"}>{localisation['register_window']['user_name']}</label>
+                        <input type="text"
+                               name={"login"}
+                               id={"register_form_username"}
+                               className={"auth_menu_input_field"}
+                               placeholder={localisation['register_window']['user_name_placeholder']}
+                               autoComplete={'off'}
+                               value={this.state.login}
+                               onChange={this.handleChange}
+                               ref={this.focusField}/>
+                        <label htmlFor={"register_form_password"}
+                               className={"auth_menu_labels"}>{localisation['register_window']['password']}</label>
+                        <input type={"password"}
+                               name={"password"}
+                               id={"register_form_password"}
+                               className={"auth_menu_input_field"}
+                               placeholder={localisation['register_window']['password_placeholder']}
+                               value={this.state.password}
+                               onChange={this.handleChange}/>
+                        <label htmlFor={"register_form_password_confirm"}
+                               className={"auth_menu_labels"}>{localisation['register_window']['password_confirm']}</label>
+                        <input type={"password"}
+                               name={"passwordConfirm"}
+                               id={"register_form_password_confirm"}
+                               className={"auth_menu_input_field"}
+                               placeholder={localisation['register_window']['password_confirm_placeholder']}
+                               value={this.state.passwordConfirm}
+                               onChange={this.handleChange}/>
+                        <p className={"agreement"} id={"agreement"}>
+                            <input type={"checkbox"}
+                                   id={"agreement_checkbox"}
+                                   name={'agreement_checkbox'}
+                                   ref={this.agreementCheckbox}/>
+                            <label
+                                htmlFor="agreement_checkbox">&nbsp;{localisation['register_window']['agreement_label']}&nbsp;
+                                <a href="/static/agreements/agreement_ru.html"
+                                   target="_blank">{localisation['register_window']['agreement_link']}</a></label></p>
+                        <button type={"submit"}
+                                id={"register_form_button"}
+                                className={"register_form_button"}>
+                            {localisation['register_window']['create_button']}
+                        </button>
+                    </form>
+                    <p className={"info_field"}
+                       ref={this.infoField}/>
+                    <button type={"button"}
+                            className={"switch_to_login_button"}
+                            id={"switch_to_login_button"}
+                            value={'login'}
+                            onClick={this.handleSwitch}>
+                        {localisation['register_window']['switch_to_login_button']}
                     </button>
-                </form>
-                <p className={"info_field"}
-                   ref={this.infoField}/>
-                <button type={"button"}
-                        className={"switch_to_login_button"}
-                        id={"switch_to_login_button"}
-                        value={'login'}
-                        onClick={this.handleSwitch}>
-                    {localisation['register_window']['switch_to_login_button']}
-                </button>
+                </div>
             </div>
         )
     }

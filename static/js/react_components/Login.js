@@ -277,14 +277,7 @@ class Login extends React.Component {
     }
 
     render() {
-        let authMenuStyle;
         let renderedWindow;
-
-        if (this.props.AUTH_MENU_IS_VISIBLE) {
-            authMenuStyle = 'auth_menu auth_menu_visible';
-        } else {
-            authMenuStyle = 'auth_menu';
-        }
 
         if (this.state.loginWindowShowed) {
             renderedWindow = <LoginWindow
@@ -306,7 +299,7 @@ class Login extends React.Component {
         }
 
         return (
-            <div id={'auth_menu'} className={authMenuStyle}>
+            <div id={'auth_menu'}>
                 {renderedWindow}
             </div>
         )
@@ -317,7 +310,6 @@ function mapStateToProps(state) {
     return {
         USER_NAME: state.login.USER_NAME,
         LIST_ID: state.login.LIST_ID,
-        AUTH_MENU_IS_VISIBLE: state.login.AUTH_MENU_IS_VISIBLE,
     }
 }
 

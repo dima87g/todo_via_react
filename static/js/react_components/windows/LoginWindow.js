@@ -100,44 +100,46 @@ class LoginWindow extends React.Component {
         }
 
         return(
-            <div id={'login_window'} className={loginWindowStyle}>
-                <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
-                <form name="login_form" onSubmit={this.handleSubmit}>
-                    <label htmlFor="login_form_username"
-                           className={"auth_menu_labels"}>{localisation['login_window']['user_name']}</label>
-                    <input type={"text"}
-                           name={"login"}
-                           className={"auth_menu_input_field"}
-                           id={"login_form_username"}
-                           placeholder={localisation['login_window']['user_name_placeholder']}
-                           autoComplete={'off'}
-                           value={this.state.login}
-                           onChange={this.handleChange}
-                           ref={this.focusField}/>
-                    <label htmlFor="login_form_password"
-                           className={"auth_menu_labels"}>{localisation['login_window']['password']}</label>
-                    <input type={"password"}
-                           name={"password"}
-                           className={"auth_menu_input_field"}
-                           id={"login_form_password"}
-                           placeholder={localisation['login_window']['password_placeholder']}
-                           value={this.state.password}
-                           onChange={this.handleChange}/>
-                    <button type={"submit"}
-                            className={"login_form_button"}
-                            id={"login_form_button"}>
-                        {localisation['login_window']['submit_button']}
+            <div className={'auth_menu_window_container'}>
+                <div id={'login_window'} className={loginWindowStyle}>
+                    <p className="auth_menu_forms_labels">{localisation['login_window']['label']}</p>
+                    <form name="login_form" onSubmit={this.handleSubmit}>
+                        <label htmlFor="login_form_username"
+                               className={"auth_menu_labels"}>{localisation['login_window']['user_name']}</label>
+                        <input type={"text"}
+                               name={"login"}
+                               className={"auth_menu_input_field"}
+                               id={"login_form_username"}
+                               placeholder={localisation['login_window']['user_name_placeholder']}
+                               autoComplete={'off'}
+                               value={this.state.login}
+                               onChange={this.handleChange}
+                               ref={this.focusField}/>
+                        <label htmlFor="login_form_password"
+                               className={"auth_menu_labels"}>{localisation['login_window']['password']}</label>
+                        <input type={"password"}
+                               name={"password"}
+                               className={"auth_menu_input_field"}
+                               id={"login_form_password"}
+                               placeholder={localisation['login_window']['password_placeholder']}
+                               value={this.state.password}
+                               onChange={this.handleChange}/>
+                        <button type={"submit"}
+                                className={"login_form_button"}
+                                id={"login_form_button"}>
+                            {localisation['login_window']['submit_button']}
+                        </button>
+                    </form>
+                    <p className={"info_field"}
+                       ref={this.infoField}/>
+                    <button type="button"
+                            className={"switch_to_register_button"}
+                            id={"switch_to_register_button"}
+                            value={'register'}
+                            onClick={this.handleSwitch}>
+                        {localisation['login_window']['switch_to_register_button']}
                     </button>
-                </form>
-                <p className={"info_field"}
-                   ref={this.infoField}/>
-                <button type="button"
-                        className={"switch_to_register_button"}
-                        id={"switch_to_register_button"}
-                        value={'register'}
-                        onClick={this.handleSwitch}>
-                    {localisation['login_window']['switch_to_register_button']}
-                </button>
+                </div>
             </div>
         )
     }

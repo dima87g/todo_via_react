@@ -180,7 +180,7 @@ html, body {
     right: 0;
 }
 
-.auth_menu {
+.auth_menu_window_container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -188,18 +188,9 @@ html, body {
     top: 15vh;
     width: 100vw;
     height: 400px;
-    /* border: 1px solid; */
-    border-radius: 20px 20px;
     box-sizing: border-box;
-    /* background-color: cornflowerblue; */
-    opacity: 0;
     z-index: 2;
     transition: opacity 0.5s;
-}
-
-.auth_menu_visible {
-    visibility: visible;
-    opacity: 1;
 }
 
 .auth_menu_forms_labels {

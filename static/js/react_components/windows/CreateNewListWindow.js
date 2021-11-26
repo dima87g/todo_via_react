@@ -96,37 +96,39 @@ class CreateNewListWindow extends React.Component {
         }
 
         return (
-            <div id={"create_new_list_window"} className={createNewListWindowStyle}>
-                <button
-                    type={"button"}
-                    id={"create_new_list_window_cancel_button"}
-                    className={"create_new_list_window_cancel_button"}
-                    onClick={this.handleCancel}>
-                    X
-                </button>
-                <p className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["label"]}</p>
-                <form name={"create_new_list_form"} onSubmit={this.handleSubmit}>
-                    <label htmlFor={"create_new_list_form_list_name"}
-                            className={"auth_menu_labels"}>{localisation["create_new_list_window"]["new_list_name"]}</label>
-                    <input type={"text"}
-                            name={"create_new_list_form_list_name"}
-                            id={"create_new_list_form_list_name"}
-                            className={"auth_menu_input_field"}
-                            placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}
-                            autoComplete={'off'}
-                            maxLength={255}
-                            value={this.state.newListName}
-                            onChange={this.handleChange}
-                            ref={this.focusField}/>
-                    <button type={"submit"}
-                            value={"create_new_list"}
-                            id={"create_new_list_form_submit_button"}
-                            className={"create_new_list_form_submit_button"}>
-                        {localisation["create_new_list_window"]["new_list_button"]}
+            <div className={'auth_menu_window_container'}>
+                <div id={"create_new_list_window"} className={createNewListWindowStyle}>
+                    <button
+                        type={"button"}
+                        id={"create_new_list_window_cancel_button"}
+                        className={"create_new_list_window_cancel_button"}
+                        onClick={this.handleCancel}>
+                        X
                     </button>
-                </form>
-                <p className={"info_field"}
-                   ref={this.infoField}/>
+                    <p className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["label"]}</p>
+                    <form name={"create_new_list_form"} onSubmit={this.handleSubmit}>
+                        <label htmlFor={"create_new_list_form_list_name"}
+                               className={"auth_menu_labels"}>{localisation["create_new_list_window"]["new_list_name"]}</label>
+                        <input type={"text"}
+                               name={"create_new_list_form_list_name"}
+                               id={"create_new_list_form_list_name"}
+                               className={"auth_menu_input_field"}
+                               placeholder={localisation["create_new_list_window"]["new_list_name_placeholder"]}
+                               autoComplete={'off'}
+                               maxLength={255}
+                               value={this.state.newListName}
+                               onChange={this.handleChange}
+                               ref={this.focusField}/>
+                        <button type={"submit"}
+                                value={"create_new_list"}
+                                id={"create_new_list_form_submit_button"}
+                                className={"create_new_list_form_submit_button"}>
+                            {localisation["create_new_list_window"]["new_list_button"]}
+                        </button>
+                    </form>
+                    <p className={"info_field"}
+                       ref={this.infoField}/>
+                </div>
             </div>
         )
     }
