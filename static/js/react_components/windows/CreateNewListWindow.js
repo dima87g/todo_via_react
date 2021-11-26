@@ -105,9 +105,9 @@ class CreateNewListWindow extends React.Component {
                     <button
                         type={"button"}
                         id={"create_new_list_window_cancel_button"}
-                        className={"create_new_list_window_cancel_button"}
+                        className={"exit_button"}
                         onClick={this.handleCancel}>
-                        X
+                        <img src="/static/icons/close_button.svg" alt="X"/>
                     </button>
                     <p className={"auth_menu_forms_labels"}>{localisation["create_new_list_window"]["label"]}</p>
                     <form name={"create_new_list_form"} onSubmit={this.handleSubmit}>

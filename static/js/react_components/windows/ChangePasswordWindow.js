@@ -107,8 +107,9 @@ class ChangePasswordWindow extends React.Component {
                 <div id={"change_password_window"} className={changePasswordWindowStyle}>
                     <button type={"button"}
                             id={"change_password_window_cancel_button"}
-                            className={"change_password_window_cancel_button"}
-                            onClick={this.handleCancel}>X
+                            className={"exit_button"}
+                            onClick={this.handleCancel}>
+                        <img src="/static/icons/close_button.svg" alt="X"/>
                     </button>
                     <p className={"auth_menu_forms_labels"}>{localisation['change_password_window']['label']}</p>
                     <form name={"change_password_form"} onSubmit={this.handleSubmit}>
