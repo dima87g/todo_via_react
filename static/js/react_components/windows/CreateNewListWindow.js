@@ -78,6 +78,8 @@ class CreateNewListWindow extends React.Component {
                     this.props.createNewListWindowFunction();
 
                     this.props.dispatch(createList(newListId, listSelectMenu, []));
+                } else if (response.data['error_code'] === 1062) {
+                    this.infoField.current.appendChild(document.createTextNode(localisation['create_new_list_window']['list_exists_warning']));
                 }
             }
             this.app.knockKnock('/create_list', responseHandler, sendData);

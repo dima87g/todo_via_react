@@ -1267,6 +1267,15 @@ def create_list():
         )
         response = renew_cookies(response, user_text_id, sign)
         return response
+    except sqlalchemy.exc.IntegrityError:
+        session.rollback()
+        return jsonify(
+            {
+                'ok': False,
+                'error_code': 1062,
+                'error_message': 'Contact admin for log checking...'
+            }
+        )
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
         exception = sys.exc_info()

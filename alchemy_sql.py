@@ -109,6 +109,7 @@ class UserSetting(Base):
 
 Index("task_position", Task.list_id, Task.task_position, unique=True)
 Index("user_settings", UserSetting.user_id, UserSetting.setting_id, unique=True)
+Index("list_name", List.user_id, List.name, unique=True)
 
 # Code above is for development purpose
 if __name__ == "__main__":
