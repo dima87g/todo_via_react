@@ -699,6 +699,8 @@ html, body {
 
 .settings_window_header {
     position: absolute;
+    display: flex;
+    flex-direction: column;
     top: 0;
     width: 100%;
 }
