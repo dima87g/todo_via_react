@@ -39,16 +39,6 @@ export function moveTask(moving, taskMovingUpId, taskMovingDownId, movingTaskId)
     }
 }
 
-export function removeTask(removing, removingTaskId, removingTaskPosition, removingTaskHeight) {
-    return {
-        type: 'REMOVING_TASK',
-        removing,
-        removingTaskId,
-        removingTaskPosition,
-        removingTaskHeight,
-    }
-}
-
 export function showHeaderMenu() {
     return {
         type: 'SHOW_HEADER_MENU',

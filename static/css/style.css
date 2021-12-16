@@ -348,11 +348,6 @@ html, body {
     /*transition: transform 0.5s;*/
 }
 
-.remove_task {
-    transition: transform 0.5s;
-    transform: scale(0);
-}
-
 .active_moving_task {
     z-index: 1;
 }

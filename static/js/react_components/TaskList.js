@@ -488,54 +488,47 @@ class TaskList extends React.Component {
         }
         const responseHandler = (answer) => {
             if (answer.status === 200 && answer.data['ok'] === true) {
-                let removingTaskId = task.id;
                 let removingTaskPosition = taskInstance.position;
-                let removingTaskHeight = task.taskDiv.current.offsetHeight;
 
-                this.props.dispatch(removeTask(true, removingTaskId, removingTaskPosition, removingTaskHeight));
+                let mainTasksList = [...this.state.mainTasksList];
 
-                setTimeout(() => {
-                    let mainTasksList = [...this.state.mainTasksList];
+                if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
+                    let checkedTasksList = [...this.state.checkedTasksList];
 
-                    if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
-                        let checkedTasksList = [...this.state.checkedTasksList];
+                    checkedTasksList.splice(findIndex(checkedTasksList, taskInstance), 1);
+                    this.tasksTree.delete(taskInstance.id);
 
-                        checkedTasksList.splice(findIndex(checkedTasksList, taskInstance), 1);
-                        this.tasksTree.delete(taskInstance.id);
-
-                        for (let task of checkedTasksList) {
-                            if (task.position > removingTaskPosition) {
-                                task.position -= 1;
-                            }
+                    for (let task of checkedTasksList) {
+                        if (task.position > removingTaskPosition) {
+                            task.position -= 1;
                         }
-
-                        for (let task of mainTasksList) {
-                            if (task.position > removingTaskPosition) {
-                                task.position -= 1;
-                            }
-                        }
-
-                        this.setState({
-                            mainTasksList: mainTasksList,
-                            checkedTasksList: checkedTasksList,
-                        });
-                    } else {
-                        mainTasksList.splice(findIndex(mainTasksList, taskInstance), 1);
-
-                        this.tasksTree.delete(taskInstance.id);
-
-                        for (let task of mainTasksList) {
-                            if (task.position > removingTaskPosition) {
-                                task.position -= 1;
-                            }
-                        }
-
-                        this.setState({
-                            mainTasksList: mainTasksList,
-                        });
                     }
-                    this.props.dispatch(removeTask(false, null, null, null));
-                }, 500);
+
+                    for (let task of mainTasksList) {
+                        if (task.position > removingTaskPosition) {
+                            task.position -= 1;
+                        }
+                    }
+
+                    this.setState({
+                        mainTasksList: mainTasksList,
+                        checkedTasksList: checkedTasksList,
+                    });
+                } else {
+                    mainTasksList.splice(findIndex(mainTasksList, taskInstance), 1);
+
+                    this.tasksTree.delete(taskInstance.id);
+
+                    for (let task of mainTasksList) {
+                        if (task.position > removingTaskPosition) {
+                            task.position -= 1;
+                        }
+                    }
+
+                    this.setState({
+                        mainTasksList: mainTasksList,
+                    });
+                }
             } else if (answer.status === 200 && answer.data['del_result'] === 0) {
                 this.app.networkError = true;
                 this.props.dispatch(showInfoWindow(true, localisation['error_messages']['task_is_not_exists']));

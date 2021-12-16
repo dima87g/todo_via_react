@@ -67,14 +67,6 @@ export function appReducer(state = initialState, action) {
                 TASK_MOVING_DOWN_ID: action.taskMovingDownId,
                 MOVING_TASK_ID: action.movingTaskId,
             }
-        case 'REMOVING_TASK':
-            return {
-                ...state,
-                TASK_IS_REMOVING: action.removing,
-                REMOVING_TASK_ID: action.removingTaskId,
-                REMOVING_TASK_POSITION: action.removingTaskPosition,
-                REMOVING_TASK_HEIGHT: action.removingTaskHeight,
-            }
         case 'SHOW_HEADER_MENU':
             return {
                 ...state,

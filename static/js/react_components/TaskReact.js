@@ -201,33 +201,6 @@ class TaskReact extends React.Component {
                         taskMovingUp.style.transform = 'translateY(calc(-' + taskMovingDownHeight + 'px - 10px))';
                     }
                 }
-            } else if (this.props.TASK_IS_REMOVING === true) {
-                //TODO need refactoring to avoid code duplicate
-                if (this.props.REMOVING_TASK_ID === this.id) {
-                    taskStyle = 'task remove_task';
-                } else if (this.props.REMOVING_TASK_POSITION < this.taskInst.position) {
-                    if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM && this.taskInst.status === true) {
-                        taskStyle = 'task';
-                        this.taskDiv.current.style.transitionDuration = '0.5s';
-                        if (isInternetExplorer()) {
-                            this.taskDiv.current.style.transform = 'translateY(-' + this.props.REMOVING_TASK_HEIGHT + 'px) translateY(-10px)';
-                        } else {
-                            this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.REMOVING_TASK_HEIGHT + 'px - 10px))';
-                        }
-                    } else if (!this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
-                        taskStyle = 'task';
-                        this.taskDiv.current.style.transitionDuration = '0.5s';
-                        if (isInternetExplorer()) {
-                            this.taskDiv.current.style.transform = 'translateY(-' + this.props.REMOVING_TASK_HEIGHT + 'px) translateY(-10px)';
-                        } else {
-                            this.taskDiv.current.style.transform = 'translateY(calc(-' + this.props.REMOVING_TASK_HEIGHT + 'px - 10px))';
-                        }
-                    } else {
-                        taskStyle = 'task';
-                    }
-                } else {
-                    taskStyle = 'task';
-                }
             } else if (this.taskDiv.current && this.taskDiv.current.nextElementSibling) {
                 let taskMovingUp = this.taskDiv.current.nextElementSibling;
                 this.taskDiv.current.style.transitionDuration = '';
@@ -378,10 +351,6 @@ function mapStateToProps(state) {
         TASK_MOVING_UP_ID: state.app.TASK_MOVING_UP_ID,
         TASK_MOVING_DOWN_ID: state.app.TASK_MOVING_DOWN_ID,
         MOVING_TASK_ID: state.app.MOVING_TASK_ID,
-        TASK_IS_REMOVING: state.app.TASK_IS_REMOVING,
-        REMOVING_TASK_ID: state.app.REMOVING_TASK_ID,
-        REMOVING_TASK_POSITION: state.app.REMOVING_TASK_POSITION,
-        REMOVING_TASK_HEIGHT: state.app.REMOVING_TASK_HEIGHT,
         TASK_EDIT_FIELD_IS_SHOWING: state.app.TASK_EDIT_FIELD_IS_SHOWING,
         MOVE_TASK_TO_TOP_BY_UP_BUTTON: state.settings.MOVE_TASK_TO_TOP_BY_UP_BUTTON,
         MOVE_FINISHED_TASKS_TO_BOTTOM: state.settings.MOVE_FINISHED_TASKS_TO_BOTTOM,
