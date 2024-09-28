@@ -130,6 +130,7 @@ class TaskReact extends React.Component {
                         this.setState({
                             taskTextValue: this.editTaskField.current.value,
                         })
+                        this.taskInst.text = this.editTaskField.current.value;
                     }
                 }
                 this.app.knockKnock('/save_edit_task', responseHandler, sendData);
