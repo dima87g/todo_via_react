@@ -8,7 +8,8 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.3.7",
-    "parcel": "^2.0.0-rc.0"
+    "parcel": "^2.0.0-rc.0",
+    "process": "^0.11.10"
   },
   "postcss": {
     "plugins": {
@@ -24,6 +25,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.2",
     "axios": "^0.21.4",
+    "core-js": "*",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.5",
