@@ -492,7 +492,7 @@ class TaskList extends React.Component {
 
                 let mainTasksList = [...this.state.mainTasksList];
 
-                if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM) {
+                if (this.props.MOVE_FINISHED_TASKS_TO_BOTTOM && taskInstance.status === true) {
                     let checkedTasksList = [...this.state.checkedTasksList];
 
                     checkedTasksList.splice(findIndex(checkedTasksList, taskInstance), 1);
