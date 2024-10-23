@@ -36,6 +36,7 @@ class TaskReact extends React.Component {
         this.taskDiv = React.createRef();
         this.addSubtaskField = React.createRef();
         this.editTaskField = React.createRef();
+        this.sideClick = this.sideClick.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -45,6 +46,15 @@ class TaskReact extends React.Component {
             this.setState({
                 taskTextValue: this.props.taskText,
             });
+        }
+        if (this.props.TASK_EDIT_FIELD_IS_SHOWING) {
+            this.editTaskField.current.focus();
+        }
+    }
+
+    sideClick(e) {
+        if (e.target.id === 'shadow') {
+            this.showEditTaskField();
         }
     }
 
@@ -106,6 +116,7 @@ class TaskReact extends React.Component {
     showEditTaskField() {
         if (this.props.TASK_EDIT_FIELD_IS_SHOWING === false) {
             this.props.dispatch(showTaskEditField());
+            document.addEventListener('click', this.sideClick);
             this.setState({
                 taskTextShowed: false,
                 editTaskDivShowed: true,
@@ -114,6 +125,7 @@ class TaskReact extends React.Component {
             });
             this.editTaskField.current.value = this.state.taskTextValue;
         } else {
+            document.removeEventListener('click', this.sideClick);
             if (this.editTaskField.current.value === '') {
                 this.setState({
                     taskTextValue: '',
