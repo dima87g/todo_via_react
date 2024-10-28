@@ -113,85 +113,117 @@ Index("list_name", List.user_id, List.name, unique=True)
 
 # Code above is for development purpose
 if __name__ == "__main__":
-    Base.metadata.drop_all(engine)
+    pass
+    # Base.metadata.drop_all(engine)
 
-    Base.metadata.create_all(engine)
+    # Base.metadata.create_all(engine)
 
-    session = make_session()
+    # session = make_session()
 
-    test_user = User(
-        id=1,
-        user_text_id="jNDATAMOEE6AZwQCQiW1WWzaJttZoSMHZIBSyyAdEHjdlaptWoiDjl0bUSxjFbfA",
-        user_name="test",
-        hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
-    )
+    # test_user = User(
+    #     id=1,
+    #     user_text_id="jNDATAMOEE6AZwQCQiW1WWzaJttZoSMHZIBSyyAdEHjdlaptWoiDjl0bUSxjFbfA",
+    #     user_name="test",
+    #     hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
+    # )
 
-    test_user_2 = User(
-        id=2,
-        user_text_id="NhjcIK5C5eiANEyWO7ntw-DwNPnMEovn4narbIdu75jZ106bVs6amesUSgn--Bp-",
-        user_name="qwerty",
-        hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
-    )
+    # test_user_2 = User(
+    #     id=2,
+    #     user_text_id="NhjcIK5C5eiANEyWO7ntw-DwNPnMEovn4narbIdu75jZ106bVs6amesUSgn--Bp-",
+    #     user_name="qwerty",
+    #     hashed_password="pbkdf2:sha256:150000$IlDIHWhm$0da9b8158cf68227087c17750432cc409d8d1c5abb3f01c405bebe6f98a17fda"
+    # )
 
-    test_user_list = List(
-        id=1,
-        user_id=1,
-        name="main"
-    )
+    # test_user_list = List(
+    #     id=1,
+    #     user_id=1,
+    #     name="main"
+    # )
 
-    test_user_2_list = List(
-        id=2,
-        user_id=2,
-        name="main"
-    )
+    # test_user_2_list = List(
+    #     id=2,
+    #     user_id=2,
+    #     name="main"
+    # )
 
-    move_up_setting = Setting(
-        name="Move to top by UP button"
-    )
+    # move_up_setting = Setting(
+    #     name="Move to top by UP button"
+    # )
 
-    move_finished_to_bottom_setting = Setting(
-        name="Move finished to bottom"
-    )
+    # move_finished_to_bottom_setting = Setting(
+    #     name="Move finished to bottom"
+    # )
 
-    setting_2 = Setting(
-        name="Setting2"
-    )
+    # select_default_list_setting = Setting(
+    #     name="Default list"
+    # )
 
-    setting_3 = Setting(
-        name="setting3"
-    )
+    # setting_2 = Setting(
+    #     name="Setting2"
+    # )
 
-    test_user_setting = UserSetting(
-        user_id=1,
-        setting_id=3,
-        bool_val=False
-    )
+    # setting_3 = Setting(
+    #     name="setting3"
+    # )
 
-    test_user_setting_2 = UserSetting(
-        user_id=1,
-        setting_id=1,
-        bool_val=True
-    )
+    # test_user_setting = UserSetting(
+    #     user_id=1,
+    #     setting_id=4,
+    #     bool_val=False
+    # )
 
-    test_user_2_setting = UserSetting(
-        user_id=2,
-        setting_id=2,
-        bool_val=True
-    )
+    # test_user_setting_2 = UserSetting(
+    #     user_id=1,
+    #     setting_id=1,
+    #     bool_val=True
+    # )
 
-    session.add(test_user)
-    session.add(test_user_2)
-    session.add(move_up_setting)
-    session.add(move_finished_to_bottom_setting)
-    session.add(setting_2)
-    session.add(setting_3)
+    # test_user_2_setting = UserSetting(
+    #     user_id=2,
+    #     setting_id=2,
+    #     bool_val=True
+    # )
 
-    session.commit()
+    # session.add(test_user)
+    # session.add(test_user_2)
+    # session.add(move_up_setting)
+    # session.add(move_finished_to_bottom_setting)
+    # session.add(select_default_list_setting)
+    # session.add(setting_2)
+    # session.add(setting_3)
 
-    session.add(test_user_list)
-    session.add(test_user_2_list)
-    session.add(test_user_setting)
-    session.add(test_user_setting_2)
-    session.add(test_user_2_setting)
+    # session.commit()
 
-    session.commit()
+    # session.add(test_user_list)
+    # session.add(test_user_2_list)
+    # session.add(test_user_setting)
+    # session.add(test_user_setting_2)
+    # session.add(test_user_2_setting)
+
+    # query = session.query(User)
+    # for user in query.all():
+    #     id = user.id
+    #     setting = session.query(UserSetting).filter(
+    #         UserSetting.user_id == id,
+    #         UserSetting.setting_id == 3
+    #         )
+    #     setting = setting.first()
+    #     if not setting:
+    #         main_list_id = session.query(List).filter(
+    #             List.user_id == id,
+    #             List.name == "main"
+    #             )
+    #         main_list_id = main_list_id.first()
+    #         main_list_id = main_list_id.id
+    #         default_list_setting = UserSetting(
+    #             user_id = id,
+    #             setting_id = 3,
+    #             string_val = "main",
+    #             int_val = main_list_id,
+    #             bool_val = None
+    #         )
+    #         session.add(default_list_setting)
+    #         session.commit()
+
+    # session.commit()
+    # session.close()
