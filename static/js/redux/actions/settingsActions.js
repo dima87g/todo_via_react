@@ -21,3 +21,12 @@ export function moveFinishedToBottom(value) {
         value,
     }
 }
+
+
+export function setDefaultList(value, listId) {
+    return {
+        type: 'SET_DEFAULT_LIST',
+        value,
+        listId,
+    }
+}

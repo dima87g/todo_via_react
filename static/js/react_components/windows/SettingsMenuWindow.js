@@ -5,6 +5,7 @@ import {
     moveFinishedToBottom,
     moveTaskToTopByUpButton
 } from "../../redux/actions/settingsActions"
+import { setDefaultList } from "../../redux/actions/settingsActions";
 
 
 class SettingsMenuWindow extends React.Component {
@@ -14,6 +15,7 @@ class SettingsMenuWindow extends React.Component {
         this.login = this.props.login;
         this.taskListRef = this.props.taskList;
         this.closeSettingsMenu = this.closeSettingsMenu.bind(this);
+        this.selectDefaultList = this.selectDefaultList.bind(this);
         this.moveToTopCheckbox = this.moveToTopCheckbox.bind(this);
         this.moveFinishedToBottomCheckbox = this.moveFinishedToBottomCheckbox.bind(this);
         this.changePassword = this.changePassword.bind(this);
@@ -23,6 +25,33 @@ class SettingsMenuWindow extends React.Component {
 
     closeSettingsMenu() {
         this.props.dispatch(hideSettingsMenu());
+    }
+        /**
+     * POST: json = {
+     *     settingName: 'string',
+     *     stringVal: null,
+     *     intVal: null,
+     *     boolVal: 'boolean'
+     * }
+     *
+     * RESPONSE: json = {
+     *     ok: 'boolean'
+     * }
+     */
+    selectDefaultList() {
+        let currentListName = this.props.LIST_SELECT_MENU.find(item => item[0] == this.props.LIST_ID)[1];
+        const sendData = {
+            'settingName': 'Default list',
+            'stringVal': currentListName,
+            'intVal': this.props.LIST_ID,
+            'boolVal': null
+        }
+        const responseHandler = (response) => {
+            if (response.status === 200 && response.data['ok'] === true) {
+                this.props.dispatch(setDefaultList(currentListName, this.props.LIST_ID));
+            }
+        }
+        this.app.knockKnock('/change_setting', responseHandler, sendData);
     }
 
     /**
@@ -138,6 +167,12 @@ class SettingsMenuWindow extends React.Component {
                     <input
                         type={'button'}
                         className={'settings_window_buttons'}
+                        value={localisation['settings_window']['default_list']}
+                        onClick={this.selectDefaultList}
+                    />
+                    <input
+                        type={'button'}
+                        className={'settings_window_buttons'}
                         value={localisation['buttons']['change_password']}
                         onClick={this.changePassword}
                     />
@@ -169,6 +204,8 @@ function mapStateToProps(state) {
         SETTINGS_MENU_IS_VISIBLE: state.app.SETTINGS_MENU_IS_VISIBLE,
         MOVE_TASK_TO_TOP_BY_UP_BUTTON: state.settings.MOVE_TASK_TO_TOP_BY_UP_BUTTON,
         MOVE_FINISHED_TASKS_TO_BOTTOM: state.settings.MOVE_FINISHED_TASKS_TO_BOTTOM,
+        LIST_ID: state.login.LIST_ID,
+        LIST_SELECT_MENU: state.login.LIST_SELECT_MENU,
     }
 }
 

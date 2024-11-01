@@ -1134,9 +1134,30 @@ def load_tasks():
         if data["listId"]:
             current_list_id = data["listId"]
         else:
+            query = session.query(UserSetting).filter(
+                UserSetting.user_id == user_id,
+                UserSetting.setting_id == 3
+            )
+        
+            setting = query.first()
+
+            if not setting:
+                response = make_response(
+                    {
+                        "ok": False,
+                        "error_code": 401,
+                        "error_message": "Disconnect"
+                    }, 401
+                )
+                response.delete_cookie("id")
+                response.delete_cookie("sign")
+                return response
+
+            current_list_id = setting.int_val
+
             query = session.query(List).filter(
                 List.user_id == user_id,
-                List.name == "main"
+                List.id == current_list_id
             )
 
             current_list = query.first()
@@ -1152,7 +1173,6 @@ def load_tasks():
                 response.delete_cookie("id")
                 response.delete_cookie("sign")
                 return response
-            current_list_id = current_list.id
 
         query = session.query(Task).filter(
             Task.user_id == user_id,

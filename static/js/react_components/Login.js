@@ -1,5 +1,5 @@
 import React from "react";
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 import LoginWindow from "./windows/LoginWindow";
 import RegisterWindow from "./windows/RegisterWindow";
 import CreateNewListWindow from "./windows/CreateNewListWindow";
@@ -17,7 +17,7 @@ import {
     createList,
     userLogOut,
 } from "../redux/actions/loginActions";
-import {moveFinishedToBottom, moveTaskToTopByUpButton} from "../redux/actions/settingsActions";
+import { moveFinishedToBottom, moveTaskToTopByUpButton, setDefaultList } from "../redux/actions/settingsActions";
 
 class Login extends React.Component {
     constructor(props) {
@@ -41,7 +41,7 @@ class Login extends React.Component {
     componentDidMount() {
         this.authCheck();
     }
-    
+
     authCheck() {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
@@ -86,6 +86,9 @@ class Login extends React.Component {
                             break;
                         case 'Move finished to bottom':
                             this.props.dispatch(moveFinishedToBottom(boolValue));
+                            break;
+                        case 'Default list':
+                            this.props.dispatch(setDefaultList(stringValue, intValue));
                             break;
                     }
                 }
@@ -253,7 +256,7 @@ class Login extends React.Component {
         if (listToDeleteName === 'main') {
             this.props.dispatch(showInfoWindow(true, localisation['delete_list']['cannot_delete_main_info']));
         } else {
-            let sendData = {'listId': listToDeleteId, 'listName': listToDeleteName}
+            let sendData = { 'listId': listToDeleteId, 'listName': listToDeleteName }
             let message = localisation['confirm_window']['delete_list_confirm_message'] + ' \'' + listToDeleteName + '\' ?'
 
             let responseHandler = (response) => {
@@ -281,21 +284,21 @@ class Login extends React.Component {
 
         if (this.state.loginWindowShowed) {
             renderedWindow = <LoginWindow
-            app={this.app}
-            login={this}
-            loginWindowFunction={this.switchLogin}/>
+                app={this.app}
+                login={this}
+                loginWindowFunction={this.switchLogin} />
         } else if (this.state.registerWindowShowed) {
             renderedWindow = <RegisterWindow
-            app={this.app}
-            registerWindowFunction={this.switchLogin}/>
+                app={this.app}
+                registerWindowFunction={this.switchLogin} />
         } else if (this.state.changePasswordWindowShowed) {
             renderedWindow = <ChangePasswordWindow
-            app={this.app}
-            changePasswordWindowFunction={this.changePasswordWindow}/>
+                app={this.app}
+                changePasswordWindowFunction={this.changePasswordWindow} />
         } else if (this.state.createNewListWindowShowed) {
             renderedWindow = <CreateNewListWindow
-            app={this.app}
-            createNewListWindowFunction={this.createNewListWindow}/>
+                app={this.app}
+                createNewListWindowFunction={this.createNewListWindow} />
         }
 
         return (
@@ -310,7 +313,8 @@ function mapStateToProps(state) {
     return {
         USER_NAME: state.login.USER_NAME,
         LIST_ID: state.login.LIST_ID,
+        DEFAULT_LIST_ID: state.settings.DEFAULT_LIST_ID,
     }
 }
 
-export default connect(mapStateToProps, null, null, {forwardRef: true})(Login);
+export default connect(mapStateToProps, null, null, { forwardRef: true })(Login);
