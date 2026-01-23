@@ -197,6 +197,9 @@ def auth_check():
                 "error_message": "Contact admin for log checking..."
             }
         )
+    finally:
+        if session is not None:
+            session.close()
 
 
 @app.route("/")
