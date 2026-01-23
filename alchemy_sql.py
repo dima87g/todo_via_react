@@ -1,8 +1,8 @@
 import os
 import configparser
 from sqlalchemy import Column, INT, BIGINT, VARCHAR, BOOLEAN, Index, create_engine, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
+# from sqlalchemy.ext.declarative import declarative_base
 
 config = configparser.ConfigParser()
 config.read(os.path.join(os.path.dirname(__file__), "server_config.ini"))
