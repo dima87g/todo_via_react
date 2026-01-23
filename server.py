@@ -288,6 +288,18 @@ def user_register():
 
         session.commit()
 
+        default_list_setting = UserSetting(
+            user_id = new_user_id,
+            setting_id = 3,
+            string_val = new_list.name,
+            int_val = new_list.id,
+            bool_val=None
+        )
+        
+        session.add(default_list_setting)
+
+        session.commit()
+
         response = make_response(
             {
                 'ok': True
