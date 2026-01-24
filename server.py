@@ -251,8 +251,6 @@ def change_language(lang):
 
 @app.route('/user_register', methods=['GET', 'POST'])
 def user_register():
-    # TODO Make check if user is exists and return correct response from view
-    #  function, not via error exception
     """
     request: json = {newUserName: 'str', password: 'str'}
     response: json = {'ok': 'bool', 'error_code': 'int' or None,
@@ -268,13 +266,34 @@ def user_register():
         user_name = data["userName"]
         user_password = data["password"]
 
+        query = session.query(User).filter(User.user_name == user_name).first()
+        if query is not None:
+            return jsonify(
+                {
+                    'ok': False,
+                    'error_code': 1062,
+                    'error_message': 'Contact admin for log checking...'
+                }
+            )
+
         user_text_id = create_text_id()
+
+        query = session.query(User).filter(User.user_text_id == user_text_id).first()
+        if query is not None:
+            return jsonify(
+                {
+                    'ok': False,
+                    'error_code': 1062,
+                    'error_message': 'ID collision. Contact admin for log checking...'
+                }
+            )
+
         hashed_password = generate_password_hash(user_password)
 
         new_user = User(
-            user_text_id=user_text_id,
-            user_name=user_name,
-            hashed_password=hashed_password
+            user_text_id = user_text_id,
+            user_name = user_name,
+            hashed_password = hashed_password
         )
 
         session.add(new_user)
@@ -309,15 +328,7 @@ def user_register():
         if user_name in developers:
             response = make_dev(response)
         return response
-    except sqlalchemy.exc.IntegrityError:
-        session.rollback()
-        return jsonify(
-            {
-                'ok': False,
-                'error_code': 1062,
-                'error_message': 'Contact admin for log checking...'
-            }
-        )
+    
     except sqlalchemy.exc.SQLAlchemyError:
         session.rollback()
         exception = sys.exc_info()
