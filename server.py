@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, make_response, \
     redirect, url_for
+import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from alchemy_sql import make_session, User, List, Task, Setting, UserSetting
 import hashlib
@@ -61,7 +62,7 @@ routes_to_dev_check = [
 def dev_check():
     access_mode = config["access"]["access_mode"]
     if access_mode == "developer":
-        data = request.json
+        data = get_json_data()
         if (request.path in routes_to_dev_check and data is not None and data["userName"] not in developers) or \
                 (request.path == "/user_login" and
                  data is not None and data["userName"] and data["userName"]
@@ -263,7 +264,7 @@ def user_register():
     try:
         session = make_session()
 
-        data = request.json
+        data = get_json_data()
         user_name = data["userName"]
         user_password = data["password"]
 
@@ -356,7 +357,7 @@ def user_login():
     try:
         session = make_session()
 
-        data = request.json
+        data = get_json_data()
         user_name = data['userName']
         user_password = data["password"]
 
@@ -446,7 +447,7 @@ def change_password():
     try:
         session = make_session()
 
-        data = request.json
+        data = get_json_data()
         old_password = data['oldPassword']
         new_password = data['newPassword']
 
@@ -586,7 +587,7 @@ def save_task():
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        data = request.json
+        data = get_json_data()
         list_id = data["listId"]
         task_text = data["taskText"]
         parent_id = data["parentId"]
@@ -696,7 +697,7 @@ def save_edit_task():
 
         user_text_id = request.cookies.get('id')
         sign = request.cookies.get('sign')
-        data = request.json
+        data = get_json_data()
         task_id = data["taskId"]
         task_text = data["taskText"]
 
@@ -770,7 +771,7 @@ def delete_task():
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        data = request.json
+        data = get_json_data()
         list_id = data["listId"]
         task_to_delete_id = data["taskId"]
         task_to_delete_position = data["taskPosition"]
@@ -856,7 +857,7 @@ def finish_task():
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        data = request.json
+        data = get_json_data()
         task_id = data["taskId"]
         task_status = int(data['status'])
 
@@ -923,7 +924,7 @@ def swap_tasks():
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        data = request.json
+        data = get_json_data()
         list_id = data["listId"]
         current_task_id = data["currentTaskId"]
         current_task_position = data["currentTaskPosition"]
@@ -1021,7 +1022,7 @@ def change_position():
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        data = request.json
+        data = get_json_data()
         list_id = data["listId"]
         current_task_id = data["currentTaskId"]
         current_task_old_position = data["currentTaskOldPosition"]
@@ -1125,7 +1126,7 @@ def load_tasks():
 
         session = make_session()
 
-        data = request.json
+        data = get_json_data()
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
@@ -1257,7 +1258,7 @@ def create_list():
     try:
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        data = request.json
+        data = get_json_data()
 
         new_list_name = data["newListName"]
 
@@ -1348,7 +1349,7 @@ def delete_list():
 
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
-        data = request.json
+        data = get_json_data()
 
         list_id = data["listId"]
 
@@ -1519,7 +1520,7 @@ def change_setting():
         user_text_id = request.cookies.get("id")
         sign = request.cookies.get("sign")
 
-        data = request.json
+        data = get_json_data()
         setting_name = data["settingName"]
         string_value = data["stringVal"]
         int_value = data["intVal"]
@@ -1583,6 +1584,16 @@ def change_setting():
 
 
 # Service functions
+def get_json_data():
+    """Safely extract JSON data from request regardless of Content-Type header"""
+    if request.is_json:
+        return request.get_json()
+    else:
+        try:
+            return json.loads(request.get_data(as_text=True))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return None
+
 def create_text_id():
     symbols = list(
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_"
