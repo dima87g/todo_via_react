@@ -48,9 +48,10 @@ class Login extends React.Component {
                 let userName = response.data['user_name'];
                 this.props.dispatch(hideCookiesAlertWindow());
                 this.props.dispatch(userLogIn(userName));
-                this.getSettings();
-                this.createTaskList();
-                this.hideLoginWindow();
+                this.getSettings(() => {
+                    this.createTaskList();
+                    this.hideLoginWindow();
+                });
             }
         }
         this.app.knockKnock('/auth_check', responseHandler);
@@ -71,7 +72,7 @@ class Login extends React.Component {
      *     ]
      * }
      */
-    getSettings() {
+    getSettings(callback) {
         const responseHandler = (response) => {
             if (response.status === 200 && response.data['ok'] === true) {
                 let settingsList = response.data['settings'];
@@ -92,6 +93,9 @@ class Login extends React.Component {
                             break;
                     }
                 }
+            }
+            if (callback && typeof callback == "function") {
+                callback();
             }
         }
         this.app.knockKnock('/load_settings', responseHandler, null);
